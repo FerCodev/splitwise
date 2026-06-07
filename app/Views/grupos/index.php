@@ -34,6 +34,7 @@
                                 <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary flex-fill">Abrir</a>
                                 <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-secondary flex-fill">Editar</a>
                                 <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar grupo?')">
+                                    <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
                                 </form>

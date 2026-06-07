@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . esc($gasto['descripcion'])]) ?>
+<?= view('partials/_head', ['title' => 'SplitWise - ' . $gasto['descripcion']]) ?>
 <?= view('partials/_navbar') ?>
 
     <div class="container mt-3 mt-md-4">
@@ -26,6 +26,7 @@
                 <div class="mt-3 d-flex gap-2">
                     <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
                     <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
                     </form>

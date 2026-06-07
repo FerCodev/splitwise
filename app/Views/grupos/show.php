@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . esc($grupo['nombre'])]) ?>
+<?= view('partials/_head', ['title' => 'SplitWise - ' . $grupo['nombre']]) ?>
 <?= view('partials/_navbar') ?>
 
     <div class="container mt-3 mt-md-4">
@@ -24,6 +24,7 @@
                         <div class="d-flex gap-1">
                             <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
                             <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
+                                <?= csrf_field() ?>
                                 <input type="hidden" name="_method" value="DELETE">
                                 <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
                             </form>

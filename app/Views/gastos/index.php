@@ -84,6 +84,7 @@
                                                     <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
                                                     <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
                                                     <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar gasto?')">
+                                                        <?= csrf_field() ?>
                                                         <input type="hidden" name="_method" value="DELETE">
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
                                                     </form>
@@ -114,6 +115,7 @@
                                 <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm flex-fill">Ver</a>
                                 <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
                                 <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
+                                    <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
                                     <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
                                 </form>

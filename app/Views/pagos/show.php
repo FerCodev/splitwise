@@ -27,6 +27,7 @@
                 <div class="mt-3 d-flex gap-2">
                     <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
                     <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar pago?')">
+                        <?= csrf_field() ?>
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
                     </form>
