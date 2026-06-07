@@ -7,6 +7,29 @@ use App\Models\GrupoMiembro;
 
 class Grupos extends BaseController
 {
+    private function verificarAcceso(int $id): ?array
+    {
+        $grupoModel = new Grupo();
+        $grupo = $grupoModel->find($id);
+
+        if (!$grupo) {
+            return null;
+        }
+
+        $userId = session()->get('userId');
+
+        if (!$grupoModel->isMiembro($id, $userId)) {
+            return null;
+        }
+
+        $rol = $grupoModel->getUserRol($id, $userId);
+
+        return [
+            'grupo' => $grupo,
+            'rol' => $rol,
+        ];
+    }
+
     public function index()
     {
         $grupoModel = new Grupo();
@@ -30,37 +53,76 @@ class Grupos extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $nombre = $this->request->getPost('nombre');
+        $userId = session()->get('userId');
+
         $grupoModel = new Grupo();
+
+        if ($grupoModel->existsByNameForUser($nombre, $userId)) {
+            return redirect()->back()->withInput()->with('errors', ['nombre' => 'Ya tenés un grupo con ese nombre.']);
+        }
+
         $grupoId = $grupoModel->insert([
-            'nombre' => $this->request->getPost('nombre'),
+            'nombre' => $nombre,
             'descripcion' => $this->request->getPost('descripcion'),
-            'created_by' => session()->get('userId'),
+            'created_by' => $userId,
         ]);
 
         $miembroModel = new GrupoMiembro();
         $miembroModel->insert([
             'grupo_id' => $grupoId,
-            'user_id' => session()->get('userId'),
+            'user_id' => $userId,
             'rol' => 'admin',
         ]);
 
         return redirect()->to('/grupos')->with('success', 'Grupo creado correctamente.');
     }
 
-    public function edit(int $id)
+    public function show(int $id)
     {
-        $grupoModel = new Grupo();
-        $grupo = $grupoModel->find($id);
+        $acceso = $this->verificarAcceso($id);
 
-        if (!$grupo) {
-            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado.');
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        return view('grupos/form', ['grupo' => $grupo]);
+        $grupoModel = new Grupo();
+        $miembros = $grupoModel->getMiembros($id);
+
+        return view('grupos/show', [
+            'grupo' => $acceso['grupo'],
+            'rol' => $acceso['rol'],
+            'miembros' => $miembros,
+        ]);
+    }
+
+    public function edit(int $id)
+    {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden editar el grupo.');
+        }
+
+        return view('grupos/form', ['grupo' => $acceso['grupo']]);
     }
 
     public function update(int $id)
     {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden editar el grupo.');
+        }
+
         $rules = [
             'nombre' => 'required|min_length[2]|max_length[255]',
         ];
@@ -69,9 +131,17 @@ class Grupos extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $nombre = $this->request->getPost('nombre');
+        $userId = session()->get('userId');
+
         $grupoModel = new Grupo();
+
+        if ($grupoModel->existsByNameForUser($nombre, $userId, $id)) {
+            return redirect()->back()->withInput()->with('errors', ['nombre' => 'Ya tenés un grupo con ese nombre.']);
+        }
+
         $grupoModel->update($id, [
-            'nombre' => $this->request->getPost('nombre'),
+            'nombre' => $nombre,
             'descripcion' => $this->request->getPost('descripcion'),
         ]);
 
@@ -80,6 +150,16 @@ class Grupos extends BaseController
 
     public function delete(int $id)
     {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden eliminar el grupo.');
+        }
+
         $grupoModel = new Grupo();
         $grupoModel->delete($id);
 

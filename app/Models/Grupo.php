@@ -19,4 +19,47 @@ class Grupo extends Model
             ->orderBy('grupos.created_at', 'DESC')
             ->findAll();
     }
+
+    public function isMiembro(int $grupoId, int $userId): bool
+    {
+        return $this->db->table('grupo_miembros')
+            ->where('grupo_id', $grupoId)
+            ->where('user_id', $userId)
+            ->countAllResults() > 0;
+    }
+
+    public function getUserRol(int $grupoId, int $userId): ?string
+    {
+        $row = $this->db->table('grupo_miembros')
+            ->select('rol')
+            ->where('grupo_id', $grupoId)
+            ->where('user_id', $userId)
+            ->get()
+            ->getRow();
+
+        return $row ? $row->rol : null;
+    }
+
+    public function getMiembros(int $grupoId): array
+    {
+        return $this->db->table('grupo_miembros')
+            ->select('grupo_miembros.*, users.name, users.email')
+            ->join('users', 'users.id = grupo_miembros.user_id')
+            ->where('grupo_miembros.grupo_id', $grupoId)
+            ->orderBy('grupo_miembros.created_at', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
+
+    public function existsByNameForUser(string $nombre, int $userId, ?int $excludeId = null): bool
+    {
+        $this->where('nombre', $nombre);
+        $this->where('created_by', $userId);
+
+        if ($excludeId !== null) {
+            $this->where('id !=', $excludeId);
+        }
+
+        return $this->countAllResults() > 0;
+    }
 }

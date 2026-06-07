@@ -48,6 +48,7 @@
                                 <p class="card-text text-muted"><?= esc($grupo['descripcion'] ?? 'Sin descripción') ?></p>
                             </div>
                             <div class="card-footer bg-transparent d-flex justify-content-between">
+                                <a href="/grupos/<?= $grupo['id'] ?>" class="btn btn-sm btn-outline-info">Ver</a>
                                 <a href="/grupos/<?= $grupo['id'] ?>/editar" class="btn btn-sm btn-outline-primary">Editar</a>
                                 <form action="/grupos/<?= $grupo['id'] ?>" method="post" onsubmit="return confirm('¿Eliminar grupo?')">
                                     <input type="hidden" name="_method" value="DELETE">
