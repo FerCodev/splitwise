@@ -2,43 +2,76 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SplitWise - <?= esc($grupo['nombre']) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --touch-target: 44px; }
+        .btn { min-height: var(--touch-target); display: inline-flex; align-items: center; justify-content: center; }
+        .form-control, .form-select { min-height: var(--touch-target); font-size: 16px; }
+        .mobile-card-item { padding: 12px 16px; border-bottom: 1px solid #eee; }
+        .mobile-card-item:last-child { border-bottom: 0; }
+        @media (max-width: 575.98px) {
+            .btn-block-mobile { width: 100%; }
+            .card { border-radius: 12px; }
+            .container { padding-left: 12px; padding-right: 12px; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.25rem; }
+            .navbar-brand { font-size: 1.1rem; }
+            .table-mobile-hidden { display: none !important; }
+            .mobile-only { display: block !important; }
+        }
+        @media (min-width: 576px) {
+            .mobile-only { display: none !important; }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="<?= base_url('dashboard') ?>">SplitWise</a>
-            <div class="d-flex align-items-center">
-                <a href="<?= base_url('grupos') ?>" class="btn btn-outline-light btn-sm me-2">Grupos</a>
-                <span class="navbar-text me-3"><?= session()->get('userName') ?></span>
-                <a href="<?= base_url('logout') ?>" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+            <div class="d-flex align-items-center gap-1">
+                <a href="<?= base_url('grupos') ?>" class="btn btn-outline-light btn-sm">Grupos</a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text"><?= session()->get('userName') ?></span></li>
+                        <li><span class="dropdown-item-text text-muted small"><?= session()->get('userEmail') ?></span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="<?= base_url('grupos') ?>">Grupos</a></li>
+                        <li><a class="dropdown-item" href="<?= base_url('gastos') ?>">Gastos</a></li>
+                        <li><a class="dropdown-item" href="<?= base_url('pagos') ?>">Pagos</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <a href="<?= base_url('grupos') ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver a Grupos</a>
+    <div class="container mt-3 mt-md-4">
+        <a href="<?= base_url('grupos') ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver</a>
 
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="card mb-4">
+        <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
-                        <h3 class="card-title mb-1"><?= esc($grupo['nombre']) ?></h3>
-                        <p class="text-muted mb-0">
+                        <h3 class="card-title mb-1 fw-bold"><?= esc($grupo['nombre']) ?></h3>
+                        <p class="text-muted small mb-0">
                             Creado el <?= date('d/m/Y H:i', strtotime($grupo['created_at'])) ?>
                         </p>
-                        <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?> mt-1">
+                        <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?> mt-2">
                             <?= $rol === 'admin' ? 'Administrador' : 'Miembro' ?>
                         </span>
                     </div>
                     <?php if ($rol === 'admin'): ?>
-                        <div>
+                        <div class="d-flex gap-1">
                             <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
                             <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
                                 <input type="hidden" name="_method" value="DELETE">
@@ -50,14 +83,19 @@
                 <?php if ($grupo['descripcion']): ?>
                     <p class="mt-3 mb-0"><?= esc($grupo['descripcion']) ?></p>
                 <?php endif; ?>
+
+                <div class="d-flex gap-2 mt-3">
+                    <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
+                    <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success flex-fill">+ Pago</a>
+                </div>
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Miembros (<?= count($miembros) ?>)</h5>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
             </div>
-            <div class="card-body p-0">
+            <div class="card-body p-0 d-none d-md-block">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -71,7 +109,7 @@
                         <tbody>
                             <?php foreach ($miembros as $miembro): ?>
                                 <tr>
-                                    <td><?= esc($miembro['name']) ?></td>
+                                    <td class="fw-medium"><?= esc($miembro['name']) ?></td>
                                     <td><?= esc($miembro['email']) ?></td>
                                     <td>
                                         <span class="badge bg-<?= $miembro['rol'] === 'admin' ? 'warning' : 'secondary' ?>">
@@ -85,19 +123,33 @@
                     </table>
                 </div>
             </div>
+            <div class="d-md-none">
+                <?php foreach ($miembros as $miembro): ?>
+                    <div class="mobile-card-item">
+                        <div class="fw-medium"><?= esc($miembro['name'])?></div>
+                        <div class="text-muted small"><?= esc($miembro['email'])?></div>
+                        <div class="mt-1">
+                            <span class="badge bg-<?= $miembro['rol'] === 'admin' ? 'warning' : 'secondary' ?>">
+                                <?= $miembro['rol'] === 'admin' ? 'Admin' : 'Miembro' ?>
+                            </span>
+                            <span class="text-muted small ms-2"><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></span>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Gastos (<?= count($gastos) ?>)</h5>
-                <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Nuevo Gasto</a>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Gastos (<?= count($gastos) ?>)</h5>
+                <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Nuevo</a>
             </div>
             <?php if (empty($gastos)): ?>
                 <div class="card-body text-center py-4">
                     <p class="text-muted mb-0">No hay gastos en este grupo.</p>
                 </div>
             <?php else: ?>
-                <div class="card-body p-0">
+                <div class="card-body p-0 d-none d-md-block">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -115,7 +167,7 @@
                                     <tr>
                                         <td><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></td>
                                         <td><?= esc($gasto['descripcion']) ?></td>
-                                        <td class="text-end">$<?= number_format($gasto['monto'], 2) ?></td>
+                                        <td class="text-end fw-medium">$<?= number_format($gasto['monto'], 2) ?></td>
                                         <td><?= esc($gasto['pagador_nombre']) ?></td>
                                         <td><?= $gasto['total_participantes'] ?></td>
                                         <td>
@@ -134,20 +186,44 @@
                         </table>
                     </div>
                 </div>
+                <div class="d-md-none">
+                    <?php foreach ($gastos as $gasto): ?>
+                        <div class="mobile-card-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="fw-medium"><?= esc($gasto['descripcion']) ?></div>
+                                <div class="fw-bold text-primary">$<?= number_format($gasto['monto'], 2) ?></div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot;
+                                Pagó: <?= esc($gasto['pagador_nombre']) ?> &middot;
+                                <?= $gasto['total_participantes'] ?> participante(s)
+                            </div>
+                            <div class="mt-2">
+                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <div class="mobile-card-item bg-light fw-medium">
+                        <div class="d-flex justify-content-between">
+                            <span>Total gastado</span>
+                            <span>$<?= number_format($totalGastado, 2) ?></span>
+                        </div>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Pagos (<?= count($pagos) ?>)</h5>
-                <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success btn-sm">+ Nuevo Pago</a>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Pagos (<?= count($pagos) ?>)</h5>
+                <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success btn-sm">+ Nuevo</a>
             </div>
             <?php if (empty($pagos)): ?>
                 <div class="card-body text-center py-4">
                     <p class="text-muted mb-0">No hay pagos en este grupo.</p>
                 </div>
             <?php else: ?>
-                <div class="card-body p-0">
+                <div class="card-body p-0 d-none d-md-block">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -165,7 +241,7 @@
                                     <tr>
                                         <td><?= date('d/m/Y', strtotime($pago['fecha'])) ?></td>
                                         <td><?= esc($pago['descripcion'] ?: '-') ?></td>
-                                        <td class="text-end">$<?= number_format($pago['monto'], 2) ?></td>
+                                        <td class="text-end fw-medium">$<?= number_format($pago['monto'], 2) ?></td>
                                         <td><?= esc($pago['pagador_nombre']) ?></td>
                                         <td><?= esc($pago['receptor_nombre']) ?></td>
                                         <td>
@@ -184,19 +260,42 @@
                         </table>
                     </div>
                 </div>
+                <div class="d-md-none">
+                    <?php foreach ($pagos as $pago): ?>
+                        <div class="mobile-card-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="fw-medium"><?= esc($pago['descripcion'] ?: 'Pago') ?></div>
+                                <div class="fw-bold text-success">$<?= number_format($pago['monto'], 2) ?></div>
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <?= date('d/m/Y', strtotime($pago['fecha'])) ?> &middot;
+                                <?= esc($pago['pagador_nombre']) ?> pagó a <?= esc($pago['receptor_nombre']) ?>
+                            </div>
+                            <div class="mt-2">
+                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <div class="mobile-card-item bg-light fw-medium">
+                        <div class="d-flex justify-content-between">
+                            <span>Total pagado</span>
+                            <span>$<?= number_format($totalPagado, 2) ?></span>
+                        </div>
+                    </div>
+                </div>
             <?php endif; ?>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Saldos</h5>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">Saldos</h5>
             </div>
             <?php if (empty($saldos)): ?>
                 <div class="card-body text-center py-4">
                     <p class="text-muted mb-0">No hay saldos para mostrar.</p>
                 </div>
             <?php else: ?>
-                <div class="card-body p-0">
+                <div class="card-body p-0 d-none d-md-block">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
@@ -210,10 +309,10 @@
                             <tbody>
                                 <?php foreach ($saldos as $s): ?>
                                     <tr>
-                                        <td><?= esc($s['name']) ?></td>
+                                        <td class="fw-medium"><?= esc($s['name']) ?></td>
                                         <td class="text-end">$<?= number_format($s['pago'], 2) ?></td>
                                         <td class="text-end">$<?= number_format($s['debe'], 2) ?></td>
-                                        <td class="text-end <?= $s['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                                        <td class="text-end fw-medium <?= $s['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
                                             $<?= number_format($s['saldo'], 2) ?>
                                         </td>
                                     </tr>
@@ -222,21 +321,37 @@
                         </table>
                     </div>
                 </div>
+                <div class="d-md-none">
+                    <?php foreach ($saldos as $s): ?>
+                        <div class="mobile-card-item">
+                            <div class="fw-medium"><?= esc($s['name']) ?></div>
+                            <div class="d-flex justify-content-between small mt-1">
+                                <span>Pagó: $<?= number_format($s['pago'], 2) ?></span>
+                                <span>Debe: $<?= number_format($s['debe'], 2) ?></span>
+                            </div>
+                            <div class="fw-medium mt-1 <?= $s['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                                Saldo: $<?= number_format($s['saldo'], 2) ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
 
                 <?php if (!empty($deudas)): ?>
-                    <div class="card-footer">
-                        <h6 class="mb-2">Deudas</h6>
+                    <div class="card-footer bg-white">
+                        <h6 class="mb-2 fw-bold">Deudas</h6>
                         <?php foreach ($deudas as $d): ?>
-                            <p class="mb-1">
+                            <div class="py-1">
                                 <strong><?= esc($d['deudor']) ?></strong> debe
                                 <strong>$<?= number_format($d['monto'], 2) ?></strong> a
                                 <strong><?= esc($d['acreedor']) ?></strong>
-                            </p>
+                            </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

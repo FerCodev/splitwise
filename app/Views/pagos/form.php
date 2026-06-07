@@ -2,24 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SplitWise - <?= isset($pago) ? 'Editar' : 'Nuevo' ?> Pago</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root { --touch-target: 44px; }
+        .btn { min-height: var(--touch-target); display: inline-flex; align-items: center; justify-content: center; }
+        .form-control, .form-select { min-height: var(--touch-target); font-size: 16px; }
+        @media (max-width: 575.98px) {
+            .card { border-radius: 12px; }
+            .container { padding-left: 12px; padding-right: 12px; }
+            h2 { font-size: 1.5rem; }
+            .navbar-brand { font-size: 1.1rem; }
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-dark bg-primary">
         <div class="container">
             <a class="navbar-brand" href="<?= base_url('dashboard') ?>">SplitWise</a>
-            <div class="d-flex align-items-center">
-                <a href="<?= base_url('grupos') ?>" class="btn btn-outline-light btn-sm me-2">Grupos</a>
-                <span class="navbar-text me-3"><?= session()->get('userName') ?></span>
-                <a href="<?= base_url('logout') ?>" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+            <div class="d-flex align-items-center gap-1">
+                <a href="<?= base_url('grupos') ?>" class="btn btn-outline-light btn-sm">Grupos</a>
+                <div class="dropdown">
+                    <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menú">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text"><?= session()->get('userName') ?></span></li>
+                        <li><span class="dropdown-item-text text-muted small"><?= session()->get('userEmail') ?></span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="<?= base_url('grupos') ?>">Grupos</a></li>
+                        <li><a class="dropdown-item" href="<?= base_url('gastos') ?>">Gastos</a></li>
+                        <li><a class="dropdown-item" href="<?= base_url('pagos') ?>">Pagos</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
-        <h2 class="mb-4"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
+    <div class="container mt-3 mt-md-4">
+        <h2 class="fw-bold mb-4"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -31,83 +55,77 @@
             </div>
         <?php endif; ?>
 
-        <div class="card">
+        <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <form action="<?= isset($pago) ? base_url('pagos/' . $pago['id']) : base_url('pagos') ?>" method="post">
                     <?php if (isset($pago)): ?>
                         <input type="hidden" name="_method" value="PUT">
                     <?php endif; ?>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="descripcion" class="form-label">Descripción <small class="text-muted">(opcional)</small></label>
-                            <input type="text" class="form-control" id="descripcion" name="descripcion"
-                                   value="<?= esc(old('descripcion', $pago['descripcion'] ?? '')) ?>">
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <label for="monto" class="form-label">Monto</label>
-                            <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
-                                   value="<?= esc(old('monto', $pago['monto'] ?? '')) ?>" required>
-                        </div>
-
-                        <div class="col-md-3 mb-3">
-                            <label for="fecha" class="form-label">Fecha</label>
-                            <input type="date" class="form-control" id="fecha" name="fecha"
-                                   value="<?= esc(old('fecha', $pago['fecha'] ?? date('Y-m-d'))) ?>" required>
-                        </div>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label fw-medium">Descripción <small class="text-muted">(opcional)</small></label>
+                        <input type="text" class="form-control" id="descripcion" name="descripcion"
+                               value="<?= esc(old('descripcion', $pago['descripcion'] ?? '')) ?>">
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="grupo_id" class="form-label">Grupo</label>
-                            <?php if (!empty($grupoId) && !isset($pago)): ?>
-                            <?php
-                                $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
-                                $grupoActual = reset($grupoActual);
-                            ?>
-                            <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
-                            <input type="text" class="form-control" value="<?= esc($grupoActual['nombre'] ?? '') ?>" disabled>
-                            <?php else: ?>
-                            <select class="form-select" id="grupo_id" name="grupo_id" required>
-                                <option value="">Seleccionar grupo</option>
-                                <?php foreach ($grupos as $g): ?>
-                                    <option value="<?= $g['id'] ?>" <?= ($grupoId ?? '') == $g['id'] ? 'selected' : '' ?>><?= esc($g['nombre']) ?></option>
+                    <div class="mb-3">
+                        <label for="monto" class="form-label fw-medium">Monto</label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
+                               value="<?= esc(old('monto', $pago['monto'] ?? '')) ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label fw-medium">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha"
+                               value="<?= esc(old('fecha', $pago['fecha'] ?? date('Y-m-d'))) ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="grupo_id" class="form-label fw-medium">Grupo</label>
+                        <?php if (!empty($grupoId) && !isset($pago)): ?>
+                        <?php
+                            $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
+                            $grupoActual = reset($grupoActual);
+                        ?>
+                        <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
+                        <input type="text" class="form-control" value="<?= esc($grupoActual['nombre'] ?? '') ?>" disabled>
+                        <?php else: ?>
+                        <select class="form-select" id="grupo_id" name="grupo_id" required>
+                            <option value="">Seleccionar grupo</option>
+                            <?php foreach ($grupos as $g): ?>
+                                <option value="<?= $g['id'] ?>" <?= ($grupoId ?? '') == $g['id'] ? 'selected' : '' ?>><?= esc($g['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php endif; ?>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="pagador_id" class="form-label fw-medium">Pagador (quien entrega el dinero)</label>
+                        <select class="form-select" id="pagador_id" name="pagador_id" required>
+                            <option value="">Seleccionar pagador</option>
+                            <?php if (isset($miembros)): ?>
+                                <?php foreach ($miembros as $m): ?>
+                                    <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
                                 <?php endforeach; ?>
-                            </select>
                             <?php endif; ?>
-                        </div>
+                        </select>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="pagador_id" class="form-label">Pagador (quien entrega el dinero)</label>
-                            <select class="form-select" id="pagador_id" name="pagador_id" required>
-                                <option value="">Seleccionar pagador</option>
-                                <?php if (isset($miembros)): ?>
-                                    <?php foreach ($miembros as $m): ?>
-                                        <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="receptor_id" class="form-label">Receptor (quien recibe el dinero)</label>
-                            <select class="form-select" id="receptor_id" name="receptor_id" required>
-                                <option value="">Seleccionar receptor</option>
-                                <?php if (isset($miembros)): ?>
-                                    <?php foreach ($miembros as $m): ?>
-                                        <option value="<?= $m['user_id'] ?>" <?= old('receptor_id', $pago['receptor_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
+                    <div class="mb-4">
+                        <label for="receptor_id" class="form-label fw-medium">Receptor (quien recibe el dinero)</label>
+                        <select class="form-select" id="receptor_id" name="receptor_id" required>
+                            <option value="">Seleccionar receptor</option>
+                            <?php if (isset($miembros)): ?>
+                                <?php foreach ($miembros as $m): ?>
+                                    <option value="<?= $m['user_id'] ?>" <?= old('receptor_id', $pago['receptor_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="<?= !empty($grupoId) ? base_url('grupos/' . $grupoId) : base_url('pagos') ?>" class="btn btn-secondary">Cancelar</a>
-                        <button type="submit" class="btn btn-primary">
+                    <div class="d-flex gap-2">
+                        <a href="<?= !empty($grupoId) ? base_url('grupos/' . $grupoId) : base_url('pagos') ?>" class="btn btn-secondary flex-fill">Cancelar</a>
+                        <button type="submit" class="btn btn-primary flex-fill">
                             <?= isset($pago) ? 'Guardar Cambios' : 'Registrar Pago' ?>
                         </button>
                     </div>
@@ -125,5 +143,6 @@
         });
     </script>
     <?php endif; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
