@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SplitWise - Grupos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/dashboard">SplitWise</a>
+            <div class="d-flex align-items-center">
+                <a href="/grupos" class="btn btn-outline-light btn-sm me-2">Grupos</a>
+                <span class="navbar-text me-3"><?= session()->get('userName') ?></span>
+                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Mis Grupos</h2>
+            <a href="/grupos/nuevo" class="btn btn-primary">+ Nuevo Grupo</a>
+        </div>
+
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+        <?php endif; ?>
+
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+        <?php endif; ?>
+
+        <?php if (empty($grupos)): ?>
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <p class="text-muted mb-0">No tenés grupos aún. Creá uno nuevo.</p>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="row">
+                <?php foreach ($grupos as $grupo): ?>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title"><?= esc($grupo['nombre']) ?></h5>
+                                <p class="card-text text-muted"><?= esc($grupo['descripcion'] ?? 'Sin descripción') ?></p>
+                            </div>
+                            <div class="card-footer bg-transparent d-flex justify-content-between">
+                                <a href="/grupos/<?= $grupo['id'] ?>/editar" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form action="/grupos/<?= $grupo['id'] ?>" method="post" onsubmit="return confirm('¿Eliminar grupo?')">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>

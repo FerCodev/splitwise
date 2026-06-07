@@ -25,6 +25,7 @@
                         <h4 class="card-title">Dashboard</h4>
                         <p class="card-text">Bienvenido, <?= session()->get('userName') ?>!</p>
                         <p class="card-text">Email: <?= session()->get('userEmail') ?></p>
+                        <a href="/grupos" class="btn btn-primary mt-3">Ir a Grupos</a>
                     </div>
                 </div>
             </div>
