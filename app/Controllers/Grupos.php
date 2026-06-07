@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Gasto;
 use App\Models\Grupo;
 use App\Models\GrupoMiembro;
 
@@ -89,10 +90,20 @@ class Grupos extends BaseController
         $grupoModel = new Grupo();
         $miembros = $grupoModel->getMiembros($id);
 
+        $gastoModel = new Gasto();
+        $gastos = $gastoModel->getGastosByGrupo($id);
+        $saldos = $gastoModel->getSaldosByGrupo($id);
+        $deudas = $gastoModel->getDeudasByGrupo($id);
+        $totalGastado = $grupoModel->getTotalGastado($id);
+
         return view('grupos/show', [
             'grupo' => $acceso['grupo'],
             'rol' => $acceso['rol'],
             'miembros' => $miembros,
+            'gastos' => $gastos,
+            'saldos' => $saldos,
+            'deudas' => $deudas,
+            'totalGastado' => $totalGastado,
         ]);
     }
 

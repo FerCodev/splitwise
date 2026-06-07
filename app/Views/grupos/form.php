@@ -9,11 +9,11 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/dashboard">SplitWise</a>
+            <a class="navbar-brand" href="<?= base_url('dashboard') ?>">SplitWise</a>
             <div class="d-flex align-items-center">
-                <a href="/grupos" class="btn btn-outline-light btn-sm me-2">Grupos</a>
+                <a href="<?= base_url('grupos') ?>" class="btn btn-outline-light btn-sm me-2">Grupos</a>
                 <span class="navbar-text me-3"><?= session()->get('userName') ?></span>
-                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+                <a href="<?= base_url('logout') ?>" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
             </div>
         </div>
     </nav>
@@ -33,7 +33,7 @@
 
         <div class="card">
             <div class="card-body">
-                <form action="<?= isset($grupo) ? '/grupos/' . $grupo['id'] : '/grupos' ?>" method="post">
+                <form action="<?= isset($grupo) ? base_url('grupos/' . $grupo['id']) : base_url('grupos') ?>" method="post">
                     <?php if (isset($grupo)): ?>
                         <input type="hidden" name="_method" value="PUT">
                     <?php endif; ?>
@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="d-flex justify-content-between">
-                        <a href="/grupos" class="btn btn-secondary">Cancelar</a>
+                        <a href="<?= base_url('grupos') ?>" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
                             <?= isset($grupo) ? 'Guardar Cambios' : 'Crear Grupo' ?>
                         </button>

@@ -12,7 +12,7 @@
             <a class="navbar-brand" href="#">SplitWise</a>
             <div class="d-flex align-items-center">
                 <span class="navbar-text me-3"><?= session()->get('userName') ?></span>
-                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+                <a href="<?= base_url('logout') ?>" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
             </div>
         </div>
     </nav>
@@ -25,7 +25,7 @@
                         <h4 class="card-title">Dashboard</h4>
                         <p class="card-text">Bienvenido, <?= session()->get('userName') ?>!</p>
                         <p class="card-text">Email: <?= session()->get('userEmail') ?></p>
-                        <a href="/grupos" class="btn btn-primary mt-3">Ir a Grupos</a>
+                        <a href="<?= base_url('grupos') ?>" class="btn btn-primary mt-3">Ir a Grupos</a>
                     </div>
                 </div>
             </div>

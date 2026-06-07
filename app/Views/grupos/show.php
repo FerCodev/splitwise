@@ -9,17 +9,17 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/dashboard">SplitWise</a>
+            <a class="navbar-brand" href="<?= base_url('dashboard') ?>">SplitWise</a>
             <div class="d-flex align-items-center">
-                <a href="/grupos" class="btn btn-outline-light btn-sm me-2">Grupos</a>
+                <a href="<?= base_url('grupos') ?>" class="btn btn-outline-light btn-sm me-2">Grupos</a>
                 <span class="navbar-text me-3"><?= session()->get('userName') ?></span>
-                <a href="/logout" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
+                <a href="<?= base_url('logout') ?>" class="btn btn-outline-light btn-sm">Cerrar Sesión</a>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <a href="/grupos" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver a Grupos</a>
+        <a href="<?= base_url('grupos') ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver a Grupos</a>
 
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
@@ -39,8 +39,8 @@
                     </div>
                     <?php if ($rol === 'admin'): ?>
                         <div>
-                            <a href="/grupos/<?= $grupo['id'] ?>/editar" class="btn btn-outline-primary btn-sm">Editar</a>
-                            <form action="/grupos/<?= $grupo['id'] ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                            <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
                                 <input type="hidden" name="_method" value="DELETE">
                                 <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
                             </form>
@@ -53,7 +53,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-header">
                 <h5 class="mb-0">Miembros (<?= count($miembros) ?>)</h5>
             </div>
@@ -85,6 +85,107 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Gastos (<?= count($gastos) ?>)</h5>
+                <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Nuevo Gasto</a>
+            </div>
+            <?php if (empty($gastos)): ?>
+                <div class="card-body text-center py-4">
+                    <p class="text-muted mb-0">No hay gastos en este grupo.</p>
+                </div>
+            <?php else: ?>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th class="text-end">Monto</th>
+                                    <th>Pagó</th>
+                                    <th>Participantes</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($gastos as $gasto): ?>
+                                    <tr>
+                                        <td><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></td>
+                                        <td><?= esc($gasto['descripcion']) ?></td>
+                                        <td class="text-end">$<?= number_format($gasto['monto'], 2) ?></td>
+                                        <td><?= esc($gasto['pagador_nombre']) ?></td>
+                                        <td><?= $gasto['total_participantes'] ?></td>
+                                        <td>
+                                            <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="2">Total gastado</th>
+                                    <th class="text-end">$<?= number_format($totalGastado, 2) ?></th>
+                                    <th colspan="3"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Saldos</h5>
+            </div>
+            <?php if (empty($saldos)): ?>
+                <div class="card-body text-center py-4">
+                    <p class="text-muted mb-0">No hay saldos para mostrar.</p>
+                </div>
+            <?php else: ?>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th class="text-end">Pagó</th>
+                                    <th class="text-end">Debe</th>
+                                    <th class="text-end">Saldo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($saldos as $s): ?>
+                                    <tr>
+                                        <td><?= esc($s['name']) ?></td>
+                                        <td class="text-end">$<?= number_format($s['pago'], 2) ?></td>
+                                        <td class="text-end">$<?= number_format($s['debe'], 2) ?></td>
+                                        <td class="text-end <?= $s['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                                            $<?= number_format($s['saldo'], 2) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <?php if (!empty($deudas)): ?>
+                    <div class="card-footer">
+                        <h6 class="mb-2">Deudas</h6>
+                        <?php foreach ($deudas as $d): ?>
+                            <p class="mb-1">
+                                <strong><?= esc($d['deudor']) ?></strong> debe
+                                <strong>$<?= number_format($d['monto'], 2) ?></strong> a
+                                <strong><?= esc($d['acreedor']) ?></strong>
+                            </p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 </body>

@@ -62,4 +62,15 @@ class Grupo extends Model
 
         return $this->countAllResults() > 0;
     }
+
+    public function getTotalGastado(int $grupoId): float
+    {
+        $result = $this->db->table('gastos')
+            ->selectSum('monto')
+            ->where('grupo_id', $grupoId)
+            ->get()
+            ->getRow();
+
+        return (float) ($result->monto ?? 0);
+    }
 }
