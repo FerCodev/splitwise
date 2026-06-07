@@ -137,6 +137,56 @@
             <?php endif; ?>
         </div>
 
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Pagos (<?= count($pagos) ?>)</h5>
+                <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success btn-sm">+ Nuevo Pago</a>
+            </div>
+            <?php if (empty($pagos)): ?>
+                <div class="card-body text-center py-4">
+                    <p class="text-muted mb-0">No hay pagos en este grupo.</p>
+                </div>
+            <?php else: ?>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th class="text-end">Monto</th>
+                                    <th>Pagó</th>
+                                    <th>Recibió</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pagos as $pago): ?>
+                                    <tr>
+                                        <td><?= date('d/m/Y', strtotime($pago['fecha'])) ?></td>
+                                        <td><?= esc($pago['descripcion'] ?: '-') ?></td>
+                                        <td class="text-end">$<?= number_format($pago['monto'], 2) ?></td>
+                                        <td><?= esc($pago['pagador_nombre']) ?></td>
+                                        <td><?= esc($pago['receptor_nombre']) ?></td>
+                                        <td>
+                                            <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <th colspan="2">Total pagado</th>
+                                    <th class="text-end">$<?= number_format($totalPagado, 2) ?></th>
+                                    <th colspan="3"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">Saldos</h5>

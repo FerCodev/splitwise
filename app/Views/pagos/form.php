@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SplitWise - <?= isset($gasto) ? 'Editar' : 'Nuevo' ?> Gasto</title>
+    <title>SplitWise - <?= isset($pago) ? 'Editar' : 'Nuevo' ?> Pago</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
@@ -19,7 +19,7 @@
     </nav>
 
     <div class="container mt-4">
-        <h2 class="mb-4"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
+        <h2 class="mb-4"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -33,35 +33,35 @@
 
         <div class="card">
             <div class="card-body">
-                <form action="<?= isset($gasto) ? base_url('gastos/' . $gasto['id']) : base_url('gastos') ?>" method="post">
-                    <?php if (isset($gasto)): ?>
+                <form action="<?= isset($pago) ? base_url('pagos/' . $pago['id']) : base_url('pagos') ?>" method="post">
+                    <?php if (isset($pago)): ?>
                         <input type="hidden" name="_method" value="PUT">
                     <?php endif; ?>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="descripcion" class="form-label">Descripción</label>
+                            <label for="descripcion" class="form-label">Descripción <small class="text-muted">(opcional)</small></label>
                             <input type="text" class="form-control" id="descripcion" name="descripcion"
-                                   value="<?= esc(old('descripcion', $gasto['descripcion'] ?? '')) ?>" required>
+                                   value="<?= esc(old('descripcion', $pago['descripcion'] ?? '')) ?>">
                         </div>
 
                         <div class="col-md-3 mb-3">
-                            <label for="monto" class="form-label">Monto total</label>
+                            <label for="monto" class="form-label">Monto</label>
                             <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
-                                   value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>" required>
+                                   value="<?= esc(old('monto', $pago['monto'] ?? '')) ?>" required>
                         </div>
 
                         <div class="col-md-3 mb-3">
                             <label for="fecha" class="form-label">Fecha</label>
                             <input type="date" class="form-control" id="fecha" name="fecha"
-                                   value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
+                                   value="<?= esc(old('fecha', $pago['fecha'] ?? date('Y-m-d'))) ?>" required>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="grupo_id" class="form-label">Grupo</label>
-                            <?php if (!empty($grupoId) && !isset($gasto)): ?>
+                            <?php if (!empty($grupoId) && !isset($pago)): ?>
                             <?php
                                 $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
                                 $grupoActual = reset($grupoActual);
@@ -77,73 +77,50 @@
                             </select>
                             <?php endif; ?>
                         </div>
+                    </div>
 
+                    <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="pagador_id" class="form-label">Pagador</label>
+                            <label for="pagador_id" class="form-label">Pagador (quien entrega el dinero)</label>
                             <select class="form-select" id="pagador_id" name="pagador_id" required>
                                 <option value="">Seleccionar pagador</option>
                                 <?php if (isset($miembros)): ?>
                                     <?php foreach ($miembros as $m): ?>
-                                        <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $gasto['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                        <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="receptor_id" class="form-label">Receptor (quien recibe el dinero)</label>
+                            <select class="form-select" id="receptor_id" name="receptor_id" required>
+                                <option value="">Seleccionar receptor</option>
+                                <?php if (isset($miembros)): ?>
+                                    <?php foreach ($miembros as $m): ?>
+                                        <option value="<?= $m['user_id'] ?>" <?= old('receptor_id', $pago['receptor_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
                             </select>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Participantes (división igualitaria)</label>
-                        <div class="row">
-                            <?php if (isset($miembros)): ?>
-                                <?php foreach ($miembros as $m): ?>
-                                    <div class="col-md-4">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" name="participantes[]"
-                                                   value="<?= $m['user_id'] ?>"
-                                                   id="participante_<?= $m['user_id'] ?>"
-                                                   <?= isset($participantesIds) && in_array($m['user_id'], $participantesIds) ? 'checked' : '' ?>>
-                                            <label class="form-check-label" for="participante_<?= $m['user_id'] ?>">
-                                                <?= esc($m['name']) ?>
-                                            </label>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <div class="col-12">
-                                    <p class="text-muted mb-0">Seleccioná un grupo primero.</p>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-
                     <div class="d-flex justify-content-between">
-                        <a href="<?= !empty($grupoId) ? base_url('grupos/' . $grupoId) : base_url('gastos') ?>" class="btn btn-secondary">Cancelar</a>
+                        <a href="<?= !empty($grupoId) ? base_url('grupos/' . $grupoId) : base_url('pagos') ?>" class="btn btn-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
-                            <?= isset($gasto) ? 'Guardar Cambios' : 'Crear Gasto' ?>
+                            <?= isset($pago) ? 'Guardar Cambios' : 'Registrar Pago' ?>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
-
-        <?php if (isset($miembros) && count($miembros) > 0 && !isset($gasto)): ?>
-        <div class="card mt-3">
-            <div class="card-body">
-                <h6 class="card-title">Vista previa de división</h6>
-                <p class="text-muted mb-0">
-                    Al seleccionar participantes, el monto se dividirá en partes iguales.
-                    El pagador puede ser también participante.
-                </p>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
 
-    <?php if (!isset($gasto) && empty($grupoId)): ?>
+    <?php if (!isset($pago) && empty($grupoId)): ?>
     <script>
         document.getElementById('grupo_id').addEventListener('change', function() {
             if (this.value) {
-                window.location.href = '<?= base_url('gastos/nuevo?grupo_id=') ?>' + this.value;
+                window.location.href = '<?= base_url('pagos/nuevo?grupo_id=') ?>' + this.value;
             }
         });
     </script>

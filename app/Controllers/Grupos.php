@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Gasto;
+use App\Models\Pago;
 use App\Models\Grupo;
 use App\Models\GrupoMiembro;
 
@@ -96,6 +97,10 @@ class Grupos extends BaseController
         $deudas = $gastoModel->getDeudasByGrupo($id);
         $totalGastado = $grupoModel->getTotalGastado($id);
 
+        $pagoModel = new Pago();
+        $pagos = $pagoModel->getPagosByGrupo($id);
+        $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
+
         return view('grupos/show', [
             'grupo' => $acceso['grupo'],
             'rol' => $acceso['rol'],
@@ -104,6 +109,8 @@ class Grupos extends BaseController
             'saldos' => $saldos,
             'deudas' => $deudas,
             'totalGastado' => $totalGastado,
+            'pagos' => $pagos,
+            'totalPagado' => $totalPagado,
         ]);
     }
 

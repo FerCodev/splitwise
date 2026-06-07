@@ -2,10 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Models\Grupo;
+
 class Dashboard extends BaseController
 {
     public function index()
     {
-        return view('dashboard');
+        $grupoModel = new Grupo();
+        $grupos = $grupoModel->getGruposByUser(session()->get('userId'));
+
+        return view('dashboard', [
+            'grupos' => $grupos,
+        ]);
     }
 }
