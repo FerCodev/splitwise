@@ -17,6 +17,7 @@
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <form action="<?= isset($grupo) ? base_url('grupos/' . $grupo['id']) : base_url('grupos') ?>" method="post">
+                    <?= csrf_field() ?>
                     <?php if (isset($grupo)): ?>
                         <input type="hidden" name="_method" value="PUT">
                     <?php endif; ?>
