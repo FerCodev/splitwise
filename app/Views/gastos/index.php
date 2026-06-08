@@ -91,15 +91,7 @@
                                             <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span></td>
                                             <td><?= $gasto['total_participantes'] ?></td>
                                             <td>
-                                                <div class="d-flex gap-1">
-                                                    <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
-                                                    <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                                    <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar gasto?')">
-                                                        <?= csrf_field() ?>
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                                    </form>
-                                                </div>
+                                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -125,14 +117,8 @@
                                 <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
                                 Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
                             </div>
-                            <div class="d-flex gap-2 mt-2">
-                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm flex-fill">Ver</a>
-                                <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
-                                <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
-                                </form>
+                            <div class="mt-2">
+                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
                             </div>
                         </div>
                     </div>

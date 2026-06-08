@@ -7,6 +7,7 @@ use App\Models\Pago;
 use App\Models\Grupo;
 use App\Models\GrupoMiembro;
 use App\Models\UserPaymentMethod;
+use App\Services\GroupPermission;
 
 class Grupos extends BaseController
 {
@@ -30,6 +31,7 @@ class Grupos extends BaseController
         return [
             'grupo' => $grupo,
             'rol' => $rol,
+            'userId' => $userId,
         ];
     }
 
@@ -136,13 +138,16 @@ class Grupos extends BaseController
         $pagos = $pagoModel->getPagosByGrupo($id);
         $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
 
-        $usuariosDisponibles = $acceso['rol'] === 'admin'
+        $permisos = GroupPermission::getAll($acceso['rol'], $acceso['grupo']['estado'], $acceso['userId']);
+
+        $usuariosDisponibles = $permisos['puede_agregar_miembro']
             ? $grupoModel->getUsuariosDisponibles($id)
             : [];
 
         return view('grupos/show', [
             'grupo' => $acceso['grupo'],
             'rol' => $acceso['rol'],
+            'permisos' => $permisos,
             'miembros' => $miembros,
             'gastos' => $gastos,
             'balance' => $balance,
@@ -204,8 +209,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden cambiar el estado del grupo.');
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_estado');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         $nuevoEstado = $this->request->getPost('estado');
@@ -243,13 +249,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden editar el grupo.');
-        }
-
-        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'grupo_edit');
-        if ($bloqueo) {
-            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_edit');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         $gastoModel = new \App\Models\Gasto();
@@ -269,13 +271,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden editar el grupo.');
-        }
-
-        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'grupo_edit');
-        if ($bloqueo) {
-            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_edit');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         $rules = [
@@ -311,13 +309,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden eliminar el grupo.');
-        }
-
-        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'grupo_delete');
-        if ($bloqueo) {
-            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_delete');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         $grupoModel = new Grupo();
@@ -334,13 +328,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden agregar miembros.');
-        }
-
-        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'miembro_create');
-        if ($bloqueo) {
-            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_create');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         $userId = (int) $this->request->getPost('user_id');
@@ -377,13 +367,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden cambiar roles.');
-        }
-
-        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'miembro_role');
-        if ($bloqueo) {
-            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_role');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         $nuevoRol = $this->request->getPost('rol');
@@ -417,13 +403,9 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        if ($acceso['rol'] !== 'admin') {
-            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden quitar miembros.');
-        }
-
-        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'miembro_delete');
-        if ($bloqueo) {
-            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_delete');
+        if ($errorPermiso) {
+            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
         if ($userId === session()->get('userId')) {

@@ -31,12 +31,12 @@
                             <?= ucfirst($grupo['estado']) ?>
                         </span>
                     </div>
-                    <?php if ($rol === 'admin'): ?>
+                    <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_eliminar_grupo']): ?>
                         <div class="d-flex gap-1">
-                            <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'grupo_edit')): ?>
+                            <?php if ($permisos['puede_editar_grupo']): ?>
                                 <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
                             <?php endif; ?>
-                            <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'grupo_delete')): ?>
+                            <?php if ($permisos['puede_eliminar_grupo']): ?>
                                 <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
@@ -52,10 +52,10 @@
 
                 <div class="d-flex gap-2 mt-3">
                     <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info flex-fill">Ver balance</a>
-                    <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'gasto_create')): ?>
+                    <?php if ($permisos['puede_crear_gasto']): ?>
                         <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
                     <?php endif; ?>
-                    <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'pago_create')): ?>
+                    <?php if ($permisos['puede_crear_pago']): ?>
                         <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success flex-fill">+ Pago</a>
                     <?php endif; ?>
                 </div>
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <?php if ($rol === 'admin'): ?>
+        <?php if ($permisos['puede_cambiar_estado']): ?>
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white">
                     <h5 class="mb-0 fw-bold">Estado del grupo</h5>
@@ -123,7 +123,7 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Desde</th>
-                                <?php if ($rol === 'admin' && $grupo['estado'] === 'activo'): ?>
+                                <?php if ($permisos['puede_cambiar_rol'] || $permisos['puede_quitar_miembro']): ?>
                                     <th>Acciones</th>
                                 <?php endif; ?>
                             </tr>
@@ -139,7 +139,7 @@
                                         </span>
                                     </td>
                                     <td><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></td>
-                                    <?php if ($rol === 'admin' && $grupo['estado'] === 'activo'): ?>
+                                    <?php if ($permisos['puede_cambiar_rol'] || $permisos['puede_quitar_miembro']): ?>
                                         <td>
                                             <div class="d-flex gap-1">
                                                 <?php if ($miembro['user_id'] !== session()->get('userId')): ?>
@@ -179,27 +179,31 @@
                                     <span class="text-muted small ms-2"><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></span>
                                 </div>
                             </div>
-                            <?php if ($rol === 'admin' && $grupo['estado'] === 'activo' && $miembro['user_id'] !== session()->get('userId')): ?>
-                                <div class="d-flex flex-column gap-1">
-                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="rol" value="<?= $miembro['rol'] === 'admin' ? 'member' : 'admin' ?>">
-                                        <button type="submit" class="btn btn-sm <?= $miembro['rol'] === 'admin' ? 'btn-outline-secondary' : 'btn-outline-warning' ?> w-100">
-                                            <?= $miembro['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?>
-                                        </button>
-                                    </form>
-                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" onsubmit="return confirm('¿Quitar este miembro del grupo?')">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Quitar</button>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
+                                    <?php if (($permisos['puede_cambiar_rol'] || $permisos['puede_quitar_miembro']) && $miembro['user_id'] !== session()->get('userId')): ?>
+                                        <div class="d-flex flex-column gap-1">
+                                            <?php if ($permisos['puede_cambiar_rol']): ?>
+                                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="rol" value="<?= $miembro['rol'] === 'admin' ? 'member' : 'admin' ?>">
+                                                <button type="submit" class="btn btn-sm <?= $miembro['rol'] === 'admin' ? 'btn-outline-secondary' : 'btn-outline-warning' ?> w-100">
+                                                    <?= $miembro['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?>
+                                                </button>
+                                            </form>
+                                            <?php endif; ?>
+                                            <?php if ($permisos['puede_quitar_miembro']): ?>
+                                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" onsubmit="return confirm('¿Quitar este miembro del grupo?')">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="_method" value="DELETE">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm w-100">Quitar</button>
+                                            </form>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
-            <?php if ($rol === 'admin' && $grupo['estado'] === 'activo' && !empty($usuariosDisponibles)): ?>
+            <?php if ($permisos['puede_agregar_miembro'] && !empty($usuariosDisponibles)): ?>
                 <div class="card-footer bg-white">
                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
                         <?= csrf_field() ?>
@@ -222,7 +226,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Gastos (<?= count($gastos) ?>)</h5>
-                <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'gasto_create')): ?>
+                <?php if ($permisos['puede_crear_gasto']): ?>
                     <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Nuevo</a>
                 <?php endif; ?>
             </div>
@@ -246,6 +250,8 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($gastos as $gasto): ?>
+                                    <?php $puedeEditarGasto = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', session()->get('userId'), (int) $gasto['pagador_id']) === null; ?>
+                                    <?php $puedeEliminarGasto = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_delete', session()->get('userId'), (int) $gasto['pagador_id']) === null; ?>
                                     <tr>
                                         <td><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></td>
                                         <td><?= esc($gasto['descripcion']) ?></td>
@@ -254,6 +260,16 @@
                                         <td><?= $gasto['total_participantes'] ?></td>
                                         <td>
                                             <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
+                                            <?php if ($puedeEditarGasto): ?>
+                                                <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                            <?php endif; ?>
+                                            <?php if ($puedeEliminarGasto): ?>
+                                                <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar gasto?')">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                                </form>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -270,6 +286,8 @@
                 </div>
                 <div class="d-md-none">
                     <?php foreach ($gastos as $gasto): ?>
+                        <?php $puedeEditarGasto = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', session()->get('userId'), (int) $gasto['pagador_id']) === null; ?>
+                        <?php $puedeEliminarGasto = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_delete', session()->get('userId'), (int) $gasto['pagador_id']) === null; ?>
                         <div class="mobile-card-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="fw-medium"><?= esc($gasto['descripcion']) ?></div>
@@ -280,8 +298,18 @@
                                 Pagó: <?= esc($gasto['pagador_nombre']) ?> &middot;
                                 <?= $gasto['total_participantes'] ?> participante(s)
                             </div>
-                            <div class="mt-2">
-                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
+                            <div class="mt-2 d-flex gap-1">
+                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm flex-fill">Ver</a>
+                                <?php if ($puedeEditarGasto): ?>
+                                    <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
+                                <?php endif; ?>
+                                <?php if ($puedeEliminarGasto): ?>
+                                    <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -298,7 +326,7 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Pagos (<?= count($pagos) ?>)</h5>
-                <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'pago_create')): ?>
+                <?php if ($permisos['puede_crear_pago']): ?>
                     <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success btn-sm">+ Nuevo</a>
                 <?php endif; ?>
             </div>
@@ -322,6 +350,8 @@
                             </thead>
                             <tbody>
                                 <?php foreach ($pagos as $pago): ?>
+                                    <?php $puedeEditarPago = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'pago_edit', session()->get('userId'), (int) $pago['pagador_id']) === null; ?>
+                                    <?php $puedeEliminarPago = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'pago_delete', session()->get('userId'), (int) $pago['pagador_id']) === null; ?>
                                     <tr>
                                         <td><?= date('d/m/Y', strtotime($pago['fecha'])) ?></td>
                                         <td><?= esc($pago['descripcion'] ?: '-') ?></td>
@@ -330,6 +360,16 @@
                                         <td><?= esc($pago['receptor_nombre']) ?></td>
                                         <td>
                                             <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
+                                            <?php if ($puedeEditarPago): ?>
+                                                <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                            <?php endif; ?>
+                                            <?php if ($puedeEliminarPago): ?>
+                                                <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar pago?')">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="_method" value="DELETE">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                                </form>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -346,6 +386,8 @@
                 </div>
                 <div class="d-md-none">
                     <?php foreach ($pagos as $pago): ?>
+                        <?php $puedeEditarPago = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'pago_edit', session()->get('userId'), (int) $pago['pagador_id']) === null; ?>
+                        <?php $puedeEliminarPago = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'pago_delete', session()->get('userId'), (int) $pago['pagador_id']) === null; ?>
                         <div class="mobile-card-item">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="fw-medium"><?= esc($pago['descripcion'] ?: 'Pago') ?></div>
@@ -355,8 +397,19 @@
                                 <?= date('d/m/Y', strtotime($pago['fecha'])) ?> &middot;
                                 <?= esc($pago['pagador_nombre']) ?> pagó a <?= esc($pago['receptor_nombre']) ?>
                             </div>
-                            <div class="mt-2">
-                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
+                            <div class="text-muted small">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
+                            <div class="mt-2 d-flex gap-1">
+                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm flex-fill">Ver</a>
+                                <?php if ($puedeEditarPago): ?>
+                                    <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
+                                <?php endif; ?>
+                                <?php if ($puedeEliminarPago): ?>
+                                    <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar pago?')">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                                    </form>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

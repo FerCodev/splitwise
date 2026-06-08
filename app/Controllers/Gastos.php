@@ -6,6 +6,7 @@ use App\Models\Gasto;
 use App\Models\Grupo;
 use App\Models\GastoParticipante;
 use App\Models\Categoria;
+use App\Services\GroupPermission;
 
 class Gastos extends BaseController
 {
@@ -182,10 +183,16 @@ class Gastos extends BaseController
             return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
         }
 
+        $grupo = $grupoModel->find($gasto['grupo_id']);
+        $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
+        $permisos = GroupPermission::getAll($rol, $grupo['estado'], $userId, (int) $gasto['pagador_id']);
+
         $participantes = $gastoModel->getParticipantes($id);
 
         return view('gastos/show', [
             'gasto' => $gasto,
+            'rol' => $rol,
+            'permisos' => $permisos,
             'participantes' => $participantes,
             'categorias' => model(Categoria::class)->getActivas(),
         ]);
@@ -207,6 +214,14 @@ class Gastos extends BaseController
             return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
         }
 
+        $grupo = $grupoModel->find($gasto['grupo_id']);
+        $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
+
+        $errorPermiso = GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', $userId, (int) $gasto['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to("/gastos/{$id}")->with('error', $errorPermiso);
+        }
+
         $grupos = $grupoModel->getGruposByUser($userId);
         $miembros = $grupoModel->getMiembros($gasto['grupo_id']);
         $participantes = $gastoModel->getParticipantes($id);
@@ -214,6 +229,7 @@ class Gastos extends BaseController
 
         return view('gastos/form', [
             'gasto' => $gasto,
+            'rol' => $rol,
             'grupos' => $grupos,
             'grupoId' => $gasto['grupo_id'],
             'miembros' => $miembros,
@@ -235,8 +251,6 @@ class Gastos extends BaseController
             'descripcion' => 'required|min_length[2]|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
             'fecha' => 'required|valid_date',
-            'grupo_id' => 'required|is_natural_no_zero',
-            'pagador_id' => 'required|is_natural_no_zero',
             'participantes' => 'required',
             'categoria_id' => 'permit_empty|is_natural_no_zero',
         ];
@@ -245,8 +259,6 @@ class Gastos extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $grupoId = (int) $this->request->getPost('grupo_id');
-        $pagadorId = (int) $this->request->getPost('pagador_id');
         $monto = (float) $this->request->getPost('monto');
         $participantesIds = $this->request->getPost('participantes');
 
@@ -254,24 +266,34 @@ class Gastos extends BaseController
             return redirect()->back()->withInput()->with('errors', ['participantes' => 'Debe seleccionar al menos un participante.']);
         }
 
+        $grupoIdOriginal = (int) $gastoExistente['grupo_id'];
+
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
-        $grupo = $grupoModel->find($grupoId);
+        $grupo = $grupoModel->find($grupoIdOriginal);
 
-        if (!$grupo || !$grupoModel->isMiembro($grupoId, $userId)) {
-            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este grupo.');
+        if (!$grupo || !$grupoModel->isMiembro($grupoIdOriginal, $userId)) {
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
         }
 
-        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'gasto_edit');
-        if ($bloqueo) {
-            return redirect()->to('/gastos')->with('error', $bloqueo);
+        $rol = $grupoModel->getUserRol($grupoIdOriginal, $userId);
+
+        $errorPermiso = GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', $userId, (int) $gastoExistente['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to('/gastos')->with('error', $errorPermiso);
         }
 
-        if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
+        if ($rol !== 'admin') {
+            $pagadorId = (int) $gastoExistente['pagador_id'];
+        } else {
+            $pagadorId = (int) $this->request->getPost('pagador_id');
+        }
+
+        if (!$grupoModel->isMiembro($grupoIdOriginal, $pagadorId)) {
             return redirect()->back()->withInput()->with('errors', ['pagador_id' => 'El pagador no pertenece al grupo.']);
         }
 
-        $miembros = $grupoModel->getMiembros($grupoId);
+        $miembros = $grupoModel->getMiembros($grupoIdOriginal);
         $miembrosIds = array_column($miembros, 'user_id');
 
         foreach ($participantesIds as $pid) {
@@ -288,7 +310,7 @@ class Gastos extends BaseController
         }
 
         $gastoModel->update($id, [
-            'grupo_id' => $grupoId,
+            'grupo_id' => $grupoIdOriginal,
             'pagador_id' => $pagadorId,
             'descripcion' => $this->request->getPost('descripcion'),
             'monto' => $monto,
@@ -333,9 +355,12 @@ class Gastos extends BaseController
             return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
         }
 
-        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'gasto_delete');
-        if ($bloqueo) {
-            return redirect()->to('/gastos')->with('error', $bloqueo);
+        $userId = session()->get('userId');
+        $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
+
+        $errorPermiso = GroupPermission::check($rol, $grupo['estado'], 'gasto_delete', $userId, (int) $gasto['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to('/gastos')->with('error', $errorPermiso);
         }
 
         $gastoModel->delete($id);

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Pago;
 use App\Models\Grupo;
+use App\Services\GroupPermission;
 
 class Pagos extends BaseController
 {
@@ -67,7 +68,6 @@ class Pagos extends BaseController
         }
 
         $prefill = [
-            'pagador_id' => $this->request->getGet('pagador_id'),
             'receptor_id' => $this->request->getGet('receptor_id'),
             'monto' => $this->request->getGet('monto'),
             'fecha' => $this->request->getGet('fecha'),
@@ -88,8 +88,7 @@ class Pagos extends BaseController
             'monto' => 'required|numeric|greater_than[0]',
             'fecha' => 'required|valid_date',
             'grupo_id' => 'required|is_natural_no_zero',
-            'pagador_id' => 'required|is_natural_no_zero',
-            'receptor_id' => 'required|is_natural_no_zero|differs[pagador_id]',
+            'receptor_id' => 'required|is_natural_no_zero',
         ];
 
         if (!$this->validate($rules)) {
@@ -97,7 +96,7 @@ class Pagos extends BaseController
         }
 
         $grupoId = (int) $this->request->getPost('grupo_id');
-        $pagadorId = (int) $this->request->getPost('pagador_id');
+        $pagadorId = session()->get('userId');
         $receptorId = (int) $this->request->getPost('receptor_id');
 
         $grupoModel = new Grupo();
@@ -113,8 +112,8 @@ class Pagos extends BaseController
             return redirect()->to('/pagos')->with('error', $bloqueo);
         }
 
-        if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
-            return redirect()->back()->withInput()->with('errors', ['pagador_id' => 'El pagador no pertenece al grupo.']);
+        if ($pagadorId === $receptorId) {
+            return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El pagador y el receptor no pueden ser la misma persona.']);
         }
 
         if (!$grupoModel->isMiembro($grupoId, $receptorId)) {
@@ -154,8 +153,14 @@ class Pagos extends BaseController
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
         }
 
+        $rol = $grupoModel->getUserRol($pago['grupo_id'], $userId);
+        $grupo = $grupoModel->find($pago['grupo_id']);
+        $permisos = GroupPermission::getAll($rol, $grupo['estado'], $userId, null, (int) $pago['pagador_id']);
+
         return view('pagos/show', [
             'pago' => $pago,
+            'rol' => $rol,
+            'permisos' => $permisos,
         ]);
     }
 
@@ -176,9 +181,11 @@ class Pagos extends BaseController
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
         }
 
-        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_edit');
-        if ($bloqueo) {
-            return redirect()->to('/pagos')->with('error', $bloqueo);
+        $rol = $grupoModel->getUserRol($pago['grupo_id'], $userId);
+
+        $errorPermiso = GroupPermission::check($rol, $grupo['estado'], 'pago_edit', $userId, (int) $pago['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to("/pagos/{$id}")->with('error', $errorPermiso);
         }
 
         $grupos = $grupoModel->getGruposByUser($userId);
@@ -186,6 +193,7 @@ class Pagos extends BaseController
 
         return view('pagos/form', [
             'pago' => $pago,
+            'rol' => $rol,
             'grupos' => $grupos,
             'grupoId' => $pago['grupo_id'],
             'miembros' => $miembros,
@@ -205,42 +213,51 @@ class Pagos extends BaseController
             'descripcion' => 'permit_empty|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
             'fecha' => 'required|valid_date',
-            'grupo_id' => 'required|is_natural_no_zero',
-            'pagador_id' => 'required|is_natural_no_zero',
-            'receptor_id' => 'required|is_natural_no_zero|differs[pagador_id]',
+            'receptor_id' => 'required|is_natural_no_zero',
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $grupoId = (int) $this->request->getPost('grupo_id');
-        $pagadorId = (int) $this->request->getPost('pagador_id');
         $receptorId = (int) $this->request->getPost('receptor_id');
+        $grupoIdOriginal = (int) $pagoExistente['grupo_id'];
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
-        $grupo = $grupoModel->find($grupoId);
+        $grupo = $grupoModel->find($grupoIdOriginal);
 
-        if (!$grupo || !$grupoModel->isMiembro($grupoId, $userId)) {
-            return redirect()->to('/pagos')->with('error', 'No tenés acceso a este grupo.');
+        if (!$grupo || !$grupoModel->isMiembro($grupoIdOriginal, $userId)) {
+            return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
         }
 
-        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_edit');
-        if ($bloqueo) {
-            return redirect()->to('/pagos')->with('error', $bloqueo);
+        $rol = $grupoModel->getUserRol($grupoIdOriginal, $userId);
+
+        $errorPermiso = GroupPermission::check($rol, $grupo['estado'], 'pago_edit', $userId, (int) $pagoExistente['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to('/pagos')->with('error', $errorPermiso);
         }
 
-        if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
+        if ($rol !== 'admin') {
+            $pagadorId = (int) $pagoExistente['pagador_id'];
+        } else {
+            $pagadorId = (int) $this->request->getPost('pagador_id');
+        }
+
+        if ($pagadorId === $receptorId) {
+            return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El pagador y el receptor no pueden ser la misma persona.']);
+        }
+
+        if (!$grupoModel->isMiembro($grupoIdOriginal, $pagadorId)) {
             return redirect()->back()->withInput()->with('errors', ['pagador_id' => 'El pagador no pertenece al grupo.']);
         }
 
-        if (!$grupoModel->isMiembro($grupoId, $receptorId)) {
+        if (!$grupoModel->isMiembro($grupoIdOriginal, $receptorId)) {
             return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El receptor no pertenece al grupo.']);
         }
 
         $pagoModel->update($id, [
-            'grupo_id' => $grupoId,
+            'grupo_id' => $grupoIdOriginal,
             'pagador_id' => $pagadorId,
             'receptor_id' => $receptorId,
             'monto' => (float) $this->request->getPost('monto'),
@@ -266,9 +283,12 @@ class Pagos extends BaseController
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
         }
 
-        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_delete');
-        if ($bloqueo) {
-            return redirect()->to('/pagos')->with('error', $bloqueo);
+        $userId = session()->get('userId');
+        $rol = $grupoModel->getUserRol($pago['grupo_id'], $userId);
+
+        $errorPermiso = GroupPermission::check($rol, $grupo['estado'], 'pago_delete', $userId, (int) $pago['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to('/pagos')->with('error', $errorPermiso);
         }
 
         $pagoModel->delete($id);

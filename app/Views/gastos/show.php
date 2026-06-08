@@ -24,14 +24,20 @@
                         <small class="text-muted">Pagó <?= esc($gasto['pagador_nombre']) ?></small>
                     </div>
                 </div>
+                <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
                 <div class="mt-3 d-flex gap-2">
-                    <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
-                    <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="_method" value="DELETE">
-                        <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
-                    </form>
+                    <?php if ($permisos['puede_editar_gasto']): ?>
+                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
+                    <?php endif; ?>
+                    <?php if ($permisos['puede_eliminar_gasto']): ?>
+                        <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="_method" value="DELETE">
+                            <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
+                        </form>
+                    <?php endif; ?>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
