@@ -55,6 +55,12 @@ class Gastos extends BaseController
             if ($acceso === null) {
                 return redirect()->to('/gastos')->with('error', 'Grupo no encontrado o no tenés acceso.');
             }
+
+            $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'gasto_create');
+            if ($bloqueo) {
+                return redirect()->to('/gastos')->with('error', $bloqueo);
+            }
+
             $miembros = $grupoModel->getMiembros((int) $grupoId);
         }
 
@@ -91,9 +97,15 @@ class Gastos extends BaseController
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
+        $grupo = $grupoModel->find($grupoId);
 
-        if (!$grupoModel->isMiembro($grupoId, $userId)) {
+        if (!$grupo || !$grupoModel->isMiembro($grupoId, $userId)) {
             return redirect()->to('/gastos')->with('error', 'No tenés acceso a este grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'gasto_create');
+        if ($bloqueo) {
+            return redirect()->to('/gastos')->with('error', $bloqueo);
         }
 
         if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
@@ -229,9 +241,15 @@ class Gastos extends BaseController
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
+        $grupo = $grupoModel->find($grupoId);
 
-        if (!$grupoModel->isMiembro($grupoId, $userId)) {
+        if (!$grupo || !$grupoModel->isMiembro($grupoId, $userId)) {
             return redirect()->to('/gastos')->with('error', 'No tenés acceso a este grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'gasto_edit');
+        if ($bloqueo) {
+            return redirect()->to('/gastos')->with('error', $bloqueo);
         }
 
         if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
@@ -287,8 +305,14 @@ class Gastos extends BaseController
         }
 
         $grupoModel = new Grupo();
-        if (!$grupoModel->isMiembro($gasto['grupo_id'], session()->get('userId'))) {
+        $grupo = $grupoModel->find($gasto['grupo_id']);
+        if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], session()->get('userId'))) {
             return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'gasto_delete');
+        if ($bloqueo) {
+            return redirect()->to('/gastos')->with('error', $bloqueo);
         }
 
         $gastoModel->delete($id);

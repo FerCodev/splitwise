@@ -16,6 +16,7 @@ $routes->get('/grupos/(:num)/editar', 'Grupos::edit/$1', ['filter' => 'auth']);
 $routes->get('/grupos/(:num)/balance', 'Grupos::balance/$1', ['filter' => 'auth']);
 $routes->put('/grupos/(:num)', 'Grupos::update/$1', ['filter' => 'auth']);
 $routes->delete('/grupos/(:num)', 'Grupos::delete/$1', ['filter' => 'auth']);
+$routes->post('/grupos/(:num)/estado', 'Grupos::cambiarEstado/$1', ['filter' => 'auth']);
 $routes->get('/gastos', 'Gastos::index', ['filter' => 'auth']);
 $routes->get('/gastos/nuevo', 'Gastos::new', ['filter' => 'auth']);
 $routes->post('/gastos', 'Gastos::create', ['filter' => 'auth']);

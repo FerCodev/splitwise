@@ -143,6 +143,45 @@ class Grupos extends BaseController
         ]);
     }
 
+    public function cambiarEstado(int $id)
+    {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden cambiar el estado del grupo.');
+        }
+
+        $nuevoEstado = $this->request->getPost('estado');
+        $estadoActual = $acceso['grupo']['estado'] ?? 'activo';
+
+        if (!Grupo::transicionValida($estadoActual, $nuevoEstado)) {
+            return redirect()->to("/grupos/$id")->with('error', "No se puede cambiar de \"$estadoActual\" a \"$nuevoEstado\".");
+        }
+
+        if ($nuevoEstado === 'liquidado') {
+            $gastoModel = new Gasto();
+            $deudas = $gastoModel->getDeudasByGrupo($id);
+            if (!empty($deudas)) {
+                return redirect()->to("/grupos/$id")->with('error', 'No se puede liquidar el grupo porque hay deudas pendientes.');
+            }
+        }
+
+        $grupoModel = new Grupo();
+        $grupoModel->update($id, ['estado' => $nuevoEstado]);
+
+        $mensajes = [
+            'cerrado' => 'Grupo cerrado correctamente.',
+            'activo' => 'Grupo reabierto correctamente.',
+            'liquidado' => 'Grupo liquidado correctamente.',
+        ];
+
+        return redirect()->to("/grupos/$id")->with('success', $mensajes[$nuevoEstado] ?? 'Estado actualizado.');
+    }
+
     public function edit(int $id)
     {
         $acceso = $this->verificarAcceso($id);
@@ -153,6 +192,11 @@ class Grupos extends BaseController
 
         if ($acceso['rol'] !== 'admin') {
             return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden editar el grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'grupo_edit');
+        if ($bloqueo) {
+            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
         }
 
         return view('grupos/form', ['grupo' => $acceso['grupo']]);
@@ -168,6 +212,11 @@ class Grupos extends BaseController
 
         if ($acceso['rol'] !== 'admin') {
             return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden editar el grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'grupo_edit');
+        if ($bloqueo) {
+            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
         }
 
         $rules = [
@@ -205,6 +254,11 @@ class Grupos extends BaseController
 
         if ($acceso['rol'] !== 'admin') {
             return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden eliminar el grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'grupo_delete');
+        if ($bloqueo) {
+            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
         }
 
         $grupoModel = new Grupo();

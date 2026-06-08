@@ -19,15 +19,30 @@
                         <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?> mt-2">
                             <?= $rol === 'admin' ? 'Administrador' : 'Miembro' ?>
                         </span>
+                        <?php
+                            $badgeEstado = [
+                                'activo' => 'bg-success',
+                                'cerrado' => 'bg-warning text-dark',
+                                'liquidado' => 'bg-secondary',
+                            ];
+                            $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
+                        ?>
+                        <span class="badge <?= $claseEstado ?> mt-2 ms-1">
+                            <?= ucfirst($grupo['estado']) ?>
+                        </span>
                     </div>
                     <?php if ($rol === 'admin'): ?>
                         <div class="d-flex gap-1">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
-                            <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
-                            </form>
+                            <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'grupo_edit')): ?>
+                                <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                            <?php endif; ?>
+                            <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'grupo_delete')): ?>
+                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                                </form>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -37,8 +52,12 @@
 
                 <div class="d-flex gap-2 mt-3">
                     <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info flex-fill">Ver balance</a>
-                    <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
-                    <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success flex-fill">+ Pago</a>
+                    <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'gasto_create')): ?>
+                        <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
+                    <?php endif; ?>
+                    <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'pago_create')): ?>
+                        <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success flex-fill">+ Pago</a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -94,7 +113,9 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Gastos (<?= count($gastos) ?>)</h5>
-                <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Nuevo</a>
+                <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'gasto_create')): ?>
+                    <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Nuevo</a>
+                <?php endif; ?>
             </div>
             <?php if (empty($gastos)): ?>
                 <div class="card-body text-center py-4">
@@ -168,7 +189,9 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Pagos (<?= count($pagos) ?>)</h5>
-                <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success btn-sm">+ Nuevo</a>
+                <?php if (!\App\Models\Grupo::restriccionEstado($grupo['estado'], 'pago_create')): ?>
+                    <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success btn-sm">+ Nuevo</a>
+                <?php endif; ?>
             </div>
             <?php if (empty($pagos)): ?>
                 <div class="card-body text-center py-4">

@@ -7,6 +7,15 @@
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h3 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h3>
+                <?php
+                    $badgeEstado = [
+                        'activo' => 'bg-success',
+                        'cerrado' => 'bg-warning text-dark',
+                        'liquidado' => 'bg-secondary',
+                    ];
+                    $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
+                ?>
+                <span class="badge <?= $claseEstado ?> mb-2"><?= ucfirst($grupo['estado']) ?></span>
                 <p class="text-muted small mb-0">
                     <?= count($miembros) ?> miembro(s) &middot;
                     Total gastado: <strong>$<?= number_format($totalGastado, 2) ?></strong> &middot;
@@ -127,6 +136,27 @@
                 </div>
             <?php endif; ?>
         </div>
+
+        <?php if ($grupo['estado'] === 'cerrado' && empty($deudas) && $rol === 'admin'): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="estado" value="liquidado">
+                        <p class="mb-3">El grupo está saldado y cerrado. ¿Marcar como liquidado?</p>
+                        <button type="submit" class="btn btn-secondary">Liquidar grupo</button>
+                    </form>
+                </div>
+            </div>
+        <?php elseif ($grupo['estado'] === 'cerrado' && !empty($deudas) && $rol === 'admin'): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <p class="text-muted mb-0">
+                        Hay deudas pendientes. Registrá los pagos correspondientes antes de liquidar.
+                    </p>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 
 <?= view('partials/_footer') ?>

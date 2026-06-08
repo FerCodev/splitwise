@@ -57,6 +57,12 @@ class Pagos extends BaseController
             if ($acceso === null) {
                 return redirect()->to('/pagos')->with('error', 'Grupo no encontrado o no tenés acceso.');
             }
+
+            $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'pago_create');
+            if ($bloqueo) {
+                return redirect()->to('/pagos')->with('error', $bloqueo);
+            }
+
             $miembros = $grupoModel->getMiembros((int) $grupoId);
         }
 
@@ -88,9 +94,15 @@ class Pagos extends BaseController
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
+        $grupo = $grupoModel->find($grupoId);
 
-        if (!$grupoModel->isMiembro($grupoId, $userId)) {
+        if (!$grupo || !$grupoModel->isMiembro($grupoId, $userId)) {
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_create');
+        if ($bloqueo) {
+            return redirect()->to('/pagos')->with('error', $bloqueo);
         }
 
         if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
@@ -101,7 +113,6 @@ class Pagos extends BaseController
             return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El receptor no pertenece al grupo.']);
         }
 
-        $pagoModel = new Pago();
         $pagoModel->insert([
             'grupo_id' => $grupoId,
             'pagador_id' => $pagadorId,
@@ -150,9 +161,15 @@ class Pagos extends BaseController
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
+        $grupo = $grupoModel->find($pago['grupo_id']);
 
-        if (!$grupoModel->isMiembro($pago['grupo_id'], $userId)) {
+        if (!$grupo || !$grupoModel->isMiembro($pago['grupo_id'], $userId)) {
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_edit');
+        if ($bloqueo) {
+            return redirect()->to('/pagos')->with('error', $bloqueo);
         }
 
         $grupos = $grupoModel->getGruposByUser($userId);
@@ -194,9 +211,15 @@ class Pagos extends BaseController
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
+        $grupo = $grupoModel->find($grupoId);
 
-        if (!$grupoModel->isMiembro($grupoId, $userId)) {
+        if (!$grupo || !$grupoModel->isMiembro($grupoId, $userId)) {
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este grupo.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_edit');
+        if ($bloqueo) {
+            return redirect()->to('/pagos')->with('error', $bloqueo);
         }
 
         if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
@@ -229,8 +252,14 @@ class Pagos extends BaseController
         }
 
         $grupoModel = new Grupo();
-        if (!$grupoModel->isMiembro($pago['grupo_id'], session()->get('userId'))) {
+        $grupo = $grupoModel->find($pago['grupo_id']);
+        if (!$grupo || !$grupoModel->isMiembro($pago['grupo_id'], session()->get('userId'))) {
             return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'pago_delete');
+        if ($bloqueo) {
+            return redirect()->to('/pagos')->with('error', $bloqueo);
         }
 
         $pagoModel->delete($id);
