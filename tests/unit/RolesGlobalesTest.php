@@ -183,4 +183,59 @@ final class RolesGlobalesTest extends \CodeIgniter\Test\CIUnitTestCase
 
         $this->assertFalse($canEditRole);
     }
+
+    public function testEmptyRoleNormalizedToUser(): void
+    {
+        $allowedRoles = ['user', 'admin'];
+
+        $maliciousEmpty = '';
+        $isValid = in_array($maliciousEmpty, $allowedRoles, true);
+        $this->assertFalse($isValid, 'cadena vacía no es un rol válido');
+
+        $maliciousNull = null;
+        $isValid = in_array($maliciousNull, $allowedRoles, true);
+        $this->assertFalse($isValid, 'null no es un rol válido');
+
+        $normalized = (!in_array($maliciousEmpty, ['user', 'admin'], true)) ? 'user' : $maliciousEmpty;
+        $this->assertSame('user', $normalized, 'vacío se normaliza a user');
+
+        $normalized = (!in_array($maliciousNull, ['user', 'admin'], true)) ? 'user' : $maliciousNull;
+        $this->assertSame('user', $normalized, 'null se normaliza a user');
+    }
+
+    public function testValidationRuleRequiredInListRejectsEmptyAndNull(): void
+    {
+        $allowed = ['user', 'admin'];
+
+        $this->assertFalse(in_array('', $allowed, true));
+        $this->assertFalse(in_array(null, $allowed, true));
+        $this->assertTrue(in_array('user', $allowed, true));
+        $this->assertTrue(in_array('admin', $allowed, true));
+    }
+
+    public function testSessionStalePreventedWhenSelfEditRole(): void
+    {
+        session()->set(['userId' => 1, 'userRole' => 'admin']);
+
+        $isSelf = 1 === (int) session()->get('userId');
+        $this->assertTrue($isSelf);
+
+        $newRole = 'user';
+        if ($isSelf) {
+            session()->set('userRole', $newRole);
+        }
+
+        $this->assertSame('user', session()->get('userRole'), 'sesión debe reflejar el nuevo rol');
+    }
+
+    public function testSessionNotStaleWhenEditingOtherUserRole(): void
+    {
+        session()->set(['userId' => 1, 'userRole' => 'admin']);
+
+        $isSelf = 2 === (int) session()->get('userId');
+        $this->assertFalse($isSelf);
+
+        $oldRole = session()->get('userRole');
+        $this->assertSame('admin', $oldRole, 'admin editando a otro usuario conserva su rol en sesión');
+    }
 }

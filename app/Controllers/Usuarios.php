@@ -25,7 +25,7 @@ class Usuarios extends BaseController
             'name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[3]',
-            'role' => 'permit_empty|in_list[user,admin]',
+            'role' => 'required|in_list[user,admin]',
         ];
 
         if (!$this->validate($rules)) {
@@ -33,11 +33,15 @@ class Usuarios extends BaseController
         }
 
         $userModel = new User();
+        $role = $this->request->getPost('role');
+        if (!in_array($role, ['user', 'admin'], true)) {
+            $role = 'user';
+        }
         $userModel->insert([
             'name' => $this->request->getPost('name'),
             'email' => $this->request->getPost('email'),
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-            'role' => $this->request->getPost('role') ?? 'user',
+            'role' => $role,
         ]);
 
         return redirect()->to('/usuarios')->with('success', 'Usuario creado correctamente.');
@@ -67,30 +71,36 @@ class Usuarios extends BaseController
         $rules = [
             'name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|is_unique[users.email,id,' . $id . ']',
-            'role' => 'permit_empty|in_list[user,admin]',
+            'role' => 'required|in_list[user,admin]',
         ];
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $newRole = $this->request->getPost('role');
+        if (!in_array($newRole, ['user', 'admin'], true)) {
+            $newRole = 'user';
+        }
+
+        if ($user['role'] === 'admin' && $newRole !== 'admin') {
+            $adminCount = $userModel->where('role', 'admin')->where('id !=', $id)->countAllResults();
+            if ($adminCount === 0) {
+                return redirect()->back()->withInput()->with('error', 'No se puede quitar el último administrador del sistema.');
+            }
+        }
+
         $data = [
             'name' => $this->request->getPost('name'),
             'email' => $this->request->getPost('email'),
+            'role' => $newRole,
         ];
 
-        $newRole = $this->request->getPost('role');
-        if ($newRole !== null) {
-            if ($user['role'] === 'admin' && $newRole !== 'admin') {
-                $adminCount = $userModel->where('role', 'admin')->where('id !=', $id)->countAllResults();
-                if ($adminCount === 0) {
-                    return redirect()->back()->withInput()->with('error', 'No se puede quitar el último administrador del sistema.');
-                }
-            }
-            $data['role'] = $newRole;
-        }
-
         $userModel->update($id, $data);
+
+        if ((int) $id === (int) session()->get('userId')) {
+            session()->set('userRole', $newRole);
+        }
 
         return redirect()->to('/usuarios')->with('success', 'Usuario actualizado correctamente.');
     }
