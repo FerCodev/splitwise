@@ -17,9 +17,10 @@
                     <li><a class="dropdown-item" href="<?= base_url('reportes') ?>">Reportes</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('mis-medios-de-cobro') ?>">Mis medios de cobro</a></li>
                     <?php if (session()->get('userRole') === 'admin'): ?>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><span class="dropdown-item-text small text-muted">Administraci&oacute;n</span></li>
                         <li><a class="dropdown-item" href="<?= base_url('categorias') ?>">Categor&iacute;as</a></li>
                         <li><a class="dropdown-item" href="<?= base_url('usuarios') ?>">Usuarios</a></li>
-                        <li><hr class="dropdown-divider"></li>
                     <?php endif; ?>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>

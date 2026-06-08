@@ -97,7 +97,7 @@
                             <p class="text-muted mb-0">Sin datos.</p>
                         </div>
                     <?php else: ?>
-                        <div class="card-body p-0">
+                        <div class="d-none d-md-block">
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light">
@@ -119,6 +119,17 @@
                                 </table>
                             </div>
                         </div>
+                        <div class="d-md-none">
+                            <?php foreach ($porCategoria as $row): ?>
+                                <div class="mobile-card-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-medium"><?= esc($row['categoria']) ?></span>
+                                        <span class="fw-bold text-primary">$<?= number_format((float) $row['total'], 2) ?></span>
+                                    </div>
+                                    <div class="text-muted small"><?= (int) $row['cantidad'] ?> gasto(s)</div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -133,7 +144,7 @@
                             <p class="text-muted mb-0">Sin datos.</p>
                         </div>
                     <?php else: ?>
-                        <div class="card-body p-0">
+                        <div class="d-none d-md-block">
                             <div class="table-responsive">
                                 <table class="table table-hover mb-0">
                                     <thead class="table-light">
@@ -154,6 +165,17 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                        <div class="d-md-none">
+                            <?php foreach ($porGrupo as $row): ?>
+                                <div class="mobile-card-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-medium"><?= esc($row['grupo']) ?></span>
+                                        <span class="fw-bold text-primary">$<?= number_format((float) $row['total'], 2) ?></span>
+                                    </div>
+                                    <div class="text-muted small"><?= (int) $row['cantidad'] ?> gasto(s)</div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
                 </div>
