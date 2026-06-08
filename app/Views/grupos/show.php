@@ -123,6 +123,9 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Desde</th>
+                                <?php if ($rol === 'admin'): ?>
+                                    <th>Acciones</th>
+                                <?php endif; ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -136,6 +139,26 @@
                                         </span>
                                     </td>
                                     <td><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></td>
+                                    <?php if ($rol === 'admin'): ?>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <?php if ($miembro['user_id'] !== session()->get('userId')): ?>
+                                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post" class="d-inline">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="rol" value="<?= $miembro['rol'] === 'admin' ? 'member' : 'admin' ?>">
+                                                        <button type="submit" class="btn btn-sm <?= $miembro['rol'] === 'admin' ? 'btn-outline-secondary' : 'btn-outline-warning' ?>">
+                                                            <?= $miembro['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?>
+                                                        </button>
+                                                    </form>
+                                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Quitar este miembro del grupo?')">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="_method" value="DELETE">
+                                                        <button type="submit" class="btn btn-outline-danger btn-sm">Quitar</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    <?php endif; ?>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -145,17 +168,55 @@
             <div class="d-md-none">
                 <?php foreach ($miembros as $miembro): ?>
                     <div class="mobile-card-item">
-                        <div class="fw-medium"><?= esc($miembro['name'])?></div>
-                        <div class="text-muted small"><?= esc($miembro['email'])?></div>
-                        <div class="mt-1">
-                            <span class="badge bg-<?= $miembro['rol'] === 'admin' ? 'warning' : 'secondary' ?>">
-                                <?= $miembro['rol'] === 'admin' ? 'Admin' : 'Miembro' ?>
-                            </span>
-                            <span class="text-muted small ms-2"><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></span>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-medium"><?= esc($miembro['name'])?></div>
+                                <div class="text-muted small"><?= esc($miembro['email'])?></div>
+                                <div class="mt-1">
+                                    <span class="badge bg-<?= $miembro['rol'] === 'admin' ? 'warning' : 'secondary' ?>">
+                                        <?= $miembro['rol'] === 'admin' ? 'Admin' : 'Miembro' ?>
+                                    </span>
+                                    <span class="text-muted small ms-2"><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></span>
+                                </div>
+                            </div>
+                            <?php if ($rol === 'admin' && $miembro['user_id'] !== session()->get('userId')): ?>
+                                <div class="d-flex flex-column gap-1">
+                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="rol" value="<?= $miembro['rol'] === 'admin' ? 'member' : 'admin' ?>">
+                                        <button type="submit" class="btn btn-sm <?= $miembro['rol'] === 'admin' ? 'btn-outline-secondary' : 'btn-outline-warning' ?> w-100">
+                                            <?= $miembro['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?>
+                                        </button>
+                                    </form>
+                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" onsubmit="return confirm('¿Quitar este miembro del grupo?')">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm w-100">Quitar</button>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
+            <?php if ($rol === 'admin' && !empty($usuariosDisponibles)): ?>
+                <div class="card-footer bg-white">
+                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
+                        <?= csrf_field() ?>
+                        <div class="col-8 col-md-10">
+                            <select name="user_id" class="form-select" required>
+                                <option value="">Agregar miembro...</option>
+                                <?php foreach ($usuariosDisponibles as $u): ?>
+                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
         </div>
 
         <div class="card border-0 shadow-sm mb-4">

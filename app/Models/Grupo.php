@@ -169,4 +169,106 @@ class Grupo extends Model
         $porEstado = $bloqueos[$accion] ?? [];
         return $porEstado[$estado] ?? null;
     }
+
+    // ---------------------------------------------------------------
+    // Gestion de miembros
+    // ---------------------------------------------------------------
+
+    public function countAdmins(int $grupoId): int
+    {
+        return $this->db->table('grupo_miembros')
+            ->where('grupo_id', $grupoId)
+            ->where('rol', 'admin')
+            ->countAllResults();
+    }
+
+    public function miembroTieneMovimientos(int $grupoId, int $userId): bool
+    {
+        $db = $this->db;
+        $gastos = $db->table('gastos')
+            ->where('grupo_id', $grupoId)
+            ->where('pagador_id', $userId)
+            ->countAllResults();
+
+        if ($gastos > 0) {
+            return true;
+        }
+
+        $participante = $db->table('gasto_participantes')
+            ->join('gastos', 'gastos.id = gasto_participantes.gasto_id')
+            ->where('gastos.grupo_id', $grupoId)
+            ->where('gasto_participantes.user_id', $userId)
+            ->countAllResults();
+
+        if ($participante > 0) {
+            return true;
+        }
+
+        $pagosPagador = $db->table('pagos')
+            ->where('grupo_id', $grupoId)
+            ->where('pagador_id', $userId)
+            ->countAllResults();
+
+        if ($pagosPagador > 0) {
+            return true;
+        }
+
+        $pagosReceptor = $db->table('pagos')
+            ->where('grupo_id', $grupoId)
+            ->where('receptor_id', $userId)
+            ->countAllResults();
+
+        return $pagosReceptor > 0;
+    }
+
+    public function getUsuariosDisponibles(int $grupoId): array
+    {
+        $sql = 'SELECT id, name, email FROM users WHERE id NOT IN (
+                    SELECT user_id FROM grupo_miembros WHERE grupo_id = ?
+                ) ORDER BY name ASC';
+
+        return $this->db->query($sql, [$grupoId])->getResultArray();
+    }
+
+    // ---------------------------------------------------------------
+    // Reglas de negocio para miembros (puras, testeables sin DB)
+    // ---------------------------------------------------------------
+
+    /**
+     * Indica si se puede quitar un miembro del grupo segun las reglas.
+     *
+     * @param int $totalAdmins cantidad de admins en el grupo
+     * @param string $rol del miembro a quitar
+     * @param bool $tieneMovimientos si el miembro tiene gastos/pagos
+     * @return string|null mensaje de error o null si permitido
+     */
+    public static function puedeQuitarMiembro(int $totalAdmins, string $rol, bool $tieneMovimientos): ?string
+    {
+        if ($rol === 'admin' && $totalAdmins <= 1) {
+            return 'No se puede quitar el último administrador del grupo.';
+        }
+
+        if ($tieneMovimientos) {
+            return 'No se puede quitar este miembro porque tiene movimientos en el grupo.';
+        }
+
+        return null;
+    }
+
+    /**
+     * Indica si se puede cambiar el rol de un miembro.
+     *
+     * @param int $totalAdmins cantidad de admins en el grupo
+     * @param string $rolActual del miembro
+     * @param string $nuevoRol deseado
+     * @return string|null mensaje de error o null si permitido
+     */
+    public static function puedeCambiarRol(int $totalAdmins, string $rolActual, string $nuevoRol): ?string
+    {
+        if ($rolActual === 'admin' && $nuevoRol === 'member' && $totalAdmins <= 1) {
+            return 'No se puede quitar el último administrador del grupo.';
+        }
+
+        return null;
+    }
 }

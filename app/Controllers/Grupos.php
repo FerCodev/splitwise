@@ -101,6 +101,10 @@ class Grupos extends BaseController
         $pagos = $pagoModel->getPagosByGrupo($id);
         $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
 
+        $usuariosDisponibles = $acceso['rol'] === 'admin'
+            ? $grupoModel->getUsuariosDisponibles($id)
+            : [];
+
         return view('grupos/show', [
             'grupo' => $acceso['grupo'],
             'rol' => $acceso['rol'],
@@ -111,6 +115,7 @@ class Grupos extends BaseController
             'totalGastado' => $totalGastado,
             'pagos' => $pagos,
             'totalPagado' => $totalPagado,
+            'usuariosDisponibles' => $usuariosDisponibles,
         ]);
     }
 
@@ -271,5 +276,112 @@ class Grupos extends BaseController
         $grupoModel->delete($id);
 
         return redirect()->to('/grupos')->with('success', 'Grupo eliminado correctamente.');
+    }
+
+    public function agregarMiembro(int $id)
+    {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden agregar miembros.');
+        }
+
+        $userId = (int) $this->request->getPost('user_id');
+
+        if ($userId <= 0) {
+            return redirect()->to("/grupos/$id")->with('error', 'Usuario inválido.');
+        }
+
+        $grupoModel = new Grupo();
+        if ($grupoModel->isMiembro($id, $userId)) {
+            return redirect()->to("/grupos/$id")->with('error', 'El usuario ya pertenece al grupo.');
+        }
+
+        $miembroModel = new GrupoMiembro();
+        $miembroModel->insert([
+            'grupo_id' => $id,
+            'user_id' => $userId,
+            'rol' => 'member',
+        ]);
+
+        return redirect()->to("/grupos/$id")->with('success', 'Miembro agregado correctamente.');
+    }
+
+    public function cambiarRol(int $id, int $userId)
+    {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden cambiar roles.');
+        }
+
+        $nuevoRol = $this->request->getPost('rol');
+
+        if (!in_array($nuevoRol, ['admin', 'member'], true)) {
+            return redirect()->to("/grupos/$id")->with('error', 'Rol inválido.');
+        }
+
+        $grupoModel = new Grupo();
+        $rolActual = $grupoModel->getUserRol($id, $userId);
+
+        $error = Grupo::puedeCambiarRol($grupoModel->countAdmins($id), $rolActual, $nuevoRol);
+        if ($error) {
+            return redirect()->to("/grupos/$id")->with('error', $error);
+        }
+
+        $miembroModel = new GrupoMiembro();
+        $miembroModel->where('grupo_id', $id)
+            ->where('user_id', $userId)
+            ->set(['rol' => $nuevoRol])
+            ->update();
+
+        return redirect()->to("/grupos/$id")->with('success', 'Rol actualizado correctamente.');
+    }
+
+    public function quitarMiembro(int $id, int $userId)
+    {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        if ($acceso['rol'] !== 'admin') {
+            return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden quitar miembros.');
+        }
+
+        if ($userId === session()->get('userId')) {
+            return redirect()->to("/grupos/$id")->with('error', 'No podés eliminarte a vos mismo del grupo.');
+        }
+
+        $grupoModel = new Grupo();
+
+        if (!$grupoModel->isMiembro($id, $userId)) {
+            return redirect()->to("/grupos/$id")->with('error', 'El usuario no pertenece al grupo.');
+        }
+
+        $rol = $grupoModel->getUserRol($id, $userId);
+        $tieneMovimientos = $grupoModel->miembroTieneMovimientos($id, $userId);
+        $totalAdmins = $grupoModel->countAdmins($id);
+
+        $error = Grupo::puedeQuitarMiembro($totalAdmins, $rol, $tieneMovimientos);
+        if ($error) {
+            return redirect()->to("/grupos/$id")->with('error', $error);
+        }
+
+        $miembroModel = new GrupoMiembro();
+        $miembroModel->where('grupo_id', $id)
+            ->where('user_id', $userId)
+            ->delete();
+
+        return redirect()->to("/grupos/$id")->with('success', 'Miembro quitado correctamente.');
     }
 }
