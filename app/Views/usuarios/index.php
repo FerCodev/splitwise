@@ -31,6 +31,7 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Email</th>
+                                <th>Rol</th>
                                 <th>Creado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -40,6 +41,7 @@
                                 <tr>
                                     <td class="fw-medium"><?= esc($user['name']) ?></td>
                                     <td><?= esc($user['email']) ?></td>
+                                    <td><?= $user['role'] === 'admin' ? '<span class="badge bg-danger">Admin</span>' : '<span class="badge bg-secondary">User</span>' ?></td>
                                     <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
                                     <td>
                                         <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
@@ -55,6 +57,7 @@
                     <div class="mobile-card-item">
                         <div class="fw-medium"><?= esc($user['name']) ?></div>
                         <div class="text-muted small"><?= esc($user['email']) ?></div>
+                        <div class="mb-1"><?= $user['role'] === 'admin' ? '<span class="badge bg-danger">Admin</span>' : '<span class="badge bg-secondary">User</span>' ?></div>
                         <div class="text-muted small">Creado: <?= date('d/m/Y', strtotime($user['created_at'])) ?></div>
                         <div class="mt-2">
                             <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>

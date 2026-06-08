@@ -15,8 +15,11 @@
                     <li><a class="dropdown-item" href="<?= base_url('gastos') ?>">Gastos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('pagos') ?>">Pagos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('mis-medios-de-cobro') ?>">Mis medios de cobro</a></li>
-                    <li><a class="dropdown-item" href="<?= base_url('categorias') ?>">Categor&iacute;as</a></li>
-                    <li><a class="dropdown-item" href="<?= base_url('usuarios') ?>">Usuarios</a></li>
+                    <?php if (session()->get('userRole') === 'admin'): ?>
+                        <li><a class="dropdown-item" href="<?= base_url('categorias') ?>">Categor&iacute;as</a></li>
+                        <li><a class="dropdown-item" href="<?= base_url('usuarios') ?>">Usuarios</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                    <?php endif; ?>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>
                 </ul>

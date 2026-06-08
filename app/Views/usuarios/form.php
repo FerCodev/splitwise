@@ -34,6 +34,14 @@
                                value="<?= esc(old('email', $user['email'] ?? '')) ?>" required>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="role" class="form-label fw-medium">Rol global</label>
+                        <select class="form-select" id="role" name="role">
+                            <option value="user" <?= old('role', $user['role'] ?? '') === 'user' ? 'selected' : '' ?>>Usuario</option>
+                            <option value="admin" <?= old('role', $user['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
+                        </select>
+                    </div>
+
                     <?php if (!isset($user)): ?>
                         <div class="mb-4">
                             <label for="password" class="form-label fw-medium">Contraseña</label>
