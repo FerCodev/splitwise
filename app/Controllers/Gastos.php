@@ -40,6 +40,7 @@ class Gastos extends BaseController
             'gastos' => $gastos,
             'grupos' => $grupos,
             'filters' => $filters,
+            'categorias' => Gasto::categoriasPermitidas(),
         ]);
     }
 
@@ -68,6 +69,7 @@ class Gastos extends BaseController
             'grupos' => $grupos,
             'grupoId' => $grupoId,
             'miembros' => $miembros,
+            'categorias' => Gasto::categoriasPermitidas(),
         ]);
     }
 
@@ -80,6 +82,7 @@ class Gastos extends BaseController
             'grupo_id' => 'required|is_natural_no_zero',
             'pagador_id' => 'required|is_natural_no_zero',
             'participantes' => 'required',
+            'categoria' => 'permit_empty|in_list[' . implode(',', Gasto::categoriasPermitidas()) . ']',
         ];
 
         if (!$this->validate($rules)) {
@@ -127,12 +130,18 @@ class Gastos extends BaseController
         $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
 
         $gastoModel = new Gasto();
+        $categoria = $this->request->getPost('categoria');
+        if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
+            $categoria = 'Otros';
+        }
+
         $gastoId = $gastoModel->insert([
             'grupo_id' => $grupoId,
             'pagador_id' => $pagadorId,
             'descripcion' => $this->request->getPost('descripcion'),
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
+            'categoria' => $categoria,
         ]);
 
         $participanteModel = new GastoParticipante();
@@ -175,6 +184,7 @@ class Gastos extends BaseController
         return view('gastos/show', [
             'gasto' => $gasto,
             'participantes' => $participantes,
+            'categorias' => Gasto::categoriasPermitidas(),
         ]);
     }
 
@@ -205,6 +215,7 @@ class Gastos extends BaseController
             'grupoId' => $gasto['grupo_id'],
             'miembros' => $miembros,
             'participantesIds' => $participantesIds,
+            'categorias' => Gasto::categoriasPermitidas(),
         ]);
     }
 
@@ -224,6 +235,7 @@ class Gastos extends BaseController
             'grupo_id' => 'required|is_natural_no_zero',
             'pagador_id' => 'required|is_natural_no_zero',
             'participantes' => 'required',
+            'categoria' => 'permit_empty|in_list[' . implode(',', Gasto::categoriasPermitidas()) . ']',
         ];
 
         if (!$this->validate($rules)) {
@@ -265,12 +277,18 @@ class Gastos extends BaseController
             }
         }
 
+        $categoria = $this->request->getPost('categoria');
+        if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
+            $categoria = 'Otros';
+        }
+
         $gastoModel->update($id, [
             'grupo_id' => $grupoId,
             'pagador_id' => $pagadorId,
             'descripcion' => $this->request->getPost('descripcion'),
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
+            'categoria' => $categoria,
         ]);
 
         $participanteModel = new GastoParticipante();

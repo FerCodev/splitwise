@@ -136,6 +136,7 @@ class Grupos extends BaseController
         $deudas = $gastoModel->getDeudasByGrupo($id);
         $totalGastado = $grupoModel->getTotalGastado($id);
         $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
+        $gastosPorCategoria = $gastoModel->getMontosPorCategoria($id);
 
         return view('grupos/balance', [
             'grupo' => $acceso['grupo'],
@@ -145,6 +146,7 @@ class Grupos extends BaseController
             'deudas' => $deudas,
             'totalGastado' => $totalGastado,
             'totalPagado' => $totalPagado,
+            'gastosPorCategoria' => $gastosPorCategoria,
         ]);
     }
 
