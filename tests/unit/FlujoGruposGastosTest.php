@@ -23,11 +23,12 @@ final class FlujoGruposGastosTest extends \CodeIgniter\Test\CIUnitTestCase
     {
         $userId = 5;
         $miembrosPost = [2, 3, 5];
-        $insertados = [$userId];
+        $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+        $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
 
-        foreach ($miembrosPost as $mid) {
-            $mid = (int) $mid;
-            if ($mid > 0 && !in_array($mid, $insertados)) {
+        $insertados = [$userId];
+        foreach ($miembrosIds as $mid) {
+            if (!in_array($mid, $insertados)) {
                 $insertados[] = $mid;
             }
         }
@@ -40,19 +41,45 @@ final class FlujoGruposGastosTest extends \CodeIgniter\Test\CIUnitTestCase
     {
         $userId = 5;
         $miembrosPost = null;
-        $insertados = [$userId];
+        $miembrosIds = [];
 
         if (is_array($miembrosPost)) {
-            foreach ($miembrosPost as $mid) {
-                $mid = (int) $mid;
-                if ($mid > 0 && !in_array($mid, $insertados)) {
-                    $insertados[] = $mid;
-                }
-            }
+            $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+            $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
         }
+
+        $insertados = [$userId];
 
         $this->assertCount(1, $insertados);
         $this->assertSame([5], $insertados);
+    }
+
+    public function testIdsInvalidosSonFiltradosAntesDeValidar(): void
+    {
+        $miembrosPost = [1, -5, 0, 3, 'abc'];
+        $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+        $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
+
+        $this->assertSame([1, 3], $miembrosIds);
+    }
+
+    public function testValidacionMiembroInexistenteDetectaError(): void
+    {
+        $miembrosIds = [1, 2, 999];
+        $idsValidos = [1, 2];
+        $invalidos = array_diff($miembrosIds, $idsValidos);
+
+        $this->assertNotEmpty($invalidos);
+        $this->assertContains(999, $invalidos);
+    }
+
+    public function testValidacionMiembrosTodosExistentesNoDaError(): void
+    {
+        $miembrosIds = [1, 2, 3];
+        $idsValidos = [1, 2, 3];
+        $invalidos = array_diff($miembrosIds, $idsValidos);
+
+        $this->assertEmpty($invalidos);
     }
 
     public function testPagadorEnGastoNuevoEsUsuarioSesion(): void

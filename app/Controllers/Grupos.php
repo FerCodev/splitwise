@@ -82,16 +82,29 @@ class Grupos extends BaseController
 
         $miembrosIds = $this->request->getPost('miembros');
         if (is_array($miembrosIds)) {
-            $insertados = [$userId];
-            foreach ($miembrosIds as $mid) {
-                $mid = (int) $mid;
-                if ($mid > 0 && !in_array($mid, $insertados)) {
-                    $miembroModel->insert([
-                        'grupo_id' => $grupoId,
-                        'user_id' => $mid,
-                        'rol' => 'member',
-                    ]);
-                    $insertados[] = $mid;
+            $miembrosIds = array_unique(array_map('intval', $miembrosIds));
+            $miembrosIds = array_filter($miembrosIds, fn($mid) => $mid > 0);
+
+            if (!empty($miembrosIds)) {
+                $userModel = new \App\Models\User();
+                $existentes = $userModel->select('id')->whereIn('id', $miembrosIds)->findAll();
+                $idsValidos = array_column($existentes, 'id');
+
+                $invalidos = array_diff($miembrosIds, $idsValidos);
+                if (!empty($invalidos)) {
+                    return redirect()->back()->withInput()->with('errors', ['miembros' => 'Uno de los usuarios seleccionados no existe.']);
+                }
+
+                $insertados = [$userId];
+                foreach ($miembrosIds as $mid) {
+                    if (!in_array($mid, $insertados)) {
+                        $miembroModel->insert([
+                            'grupo_id' => $grupoId,
+                            'user_id' => $mid,
+                            'rol' => 'member',
+                        ]);
+                        $insertados[] = $mid;
+                    }
                 }
             }
         }
