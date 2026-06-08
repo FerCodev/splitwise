@@ -27,7 +27,14 @@
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="card h-100 border-0 shadow-sm">
                             <div class="card-body">
-                                <h5 class="card-title"><?= esc($grupo['nombre']) ?></h5>
+                                <h5 class="card-title">
+                                    <?= esc($grupo['nombre']) ?>
+                                    <?php
+                                        $badgeClases = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
+                                        $clase = $badgeClases[$grupo['estado']] ?? 'bg-secondary';
+                                    ?>
+                                    <span class="badge <?= $clase ?>"><?= ucfirst($grupo['estado']) ?></span>
+                                </h5>
                                 <p class="card-text text-muted small"><?= esc($grupo['descripcion'] ?? 'Sin descripción') ?></p>
                             </div>
                             <div class="card-footer bg-transparent border-0 pt-0 d-flex gap-2">

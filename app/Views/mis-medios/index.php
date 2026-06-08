@@ -27,7 +27,7 @@
                                 <th>CBU/CVU</th>
                                 <th>Banco</th>
                                 <th>Estado</th>
-                                <th>Fav</th>
+                                <th>Fav.</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>

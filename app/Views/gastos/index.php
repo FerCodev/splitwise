@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-12 col-md-3">
                         <label class="form-label small fw-medium">Descripción</label>
-                        <input type="text" name="descripcion" class="form-control" placeholder="Buscar..." value="<?= esc($filters['descripcion'] ?? '') ?>">
+                        <input type="text" name="descripcion" class="form-control" placeholder="Buscar por descripción..." value="<?= esc($filters['descripcion'] ?? '') ?>">
                     </div>
                     <div class="col-6 col-md-2">
                         <label class="form-label small fw-medium">Categoría</label>
