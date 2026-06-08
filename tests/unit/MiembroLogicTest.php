@@ -61,4 +61,49 @@ final class MiembroLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         $error = Grupo::puedeCambiarRol(1, 'admin', 'admin');
         $this->assertNull($error);
     }
+
+    // ---- restriccionEstado para miembros ----
+
+    public function testNoSePuedeAgregarMiembroEnGrupoCerrado(): void
+    {
+        $error = Grupo::restriccionEstado('cerrado', 'miembro_create');
+        $this->assertNotNull($error);
+    }
+
+    public function testNoSePuedeCambiarRolEnGrupoCerrado(): void
+    {
+        $error = Grupo::restriccionEstado('cerrado', 'miembro_role');
+        $this->assertNotNull($error);
+    }
+
+    public function testNoSePuedeQuitarMiembroEnGrupoCerrado(): void
+    {
+        $error = Grupo::restriccionEstado('cerrado', 'miembro_delete');
+        $this->assertNotNull($error);
+    }
+
+    public function testNoSePuedeAgregarMiembroEnGrupoLiquidado(): void
+    {
+        $error = Grupo::restriccionEstado('liquidado', 'miembro_create');
+        $this->assertNotNull($error);
+    }
+
+    public function testNoSePuedeCambiarRolEnGrupoLiquidado(): void
+    {
+        $error = Grupo::restriccionEstado('liquidado', 'miembro_role');
+        $this->assertNotNull($error);
+    }
+
+    public function testNoSePuedeQuitarMiembroEnGrupoLiquidado(): void
+    {
+        $error = Grupo::restriccionEstado('liquidado', 'miembro_delete');
+        $this->assertNotNull($error);
+    }
+
+    public function testEnGrupoActivoNoHayBloqueoPorEstadoParaMiembros(): void
+    {
+        $this->assertNull(Grupo::restriccionEstado('activo', 'miembro_create'));
+        $this->assertNull(Grupo::restriccionEstado('activo', 'miembro_role'));
+        $this->assertNull(Grupo::restriccionEstado('activo', 'miembro_delete'));
+    }
 }

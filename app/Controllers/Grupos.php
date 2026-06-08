@@ -290,10 +290,20 @@ class Grupos extends BaseController
             return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden agregar miembros.');
         }
 
+        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'miembro_create');
+        if ($bloqueo) {
+            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
+        }
+
         $userId = (int) $this->request->getPost('user_id');
 
         if ($userId <= 0) {
             return redirect()->to("/grupos/$id")->with('error', 'Usuario inválido.');
+        }
+
+        $userModel = new \App\Models\User();
+        if (!$userModel->find($userId)) {
+            return redirect()->to("/grupos/$id")->with('error', 'Usuario no encontrado.');
         }
 
         $grupoModel = new Grupo();
@@ -321,6 +331,11 @@ class Grupos extends BaseController
 
         if ($acceso['rol'] !== 'admin') {
             return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden cambiar roles.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'miembro_role');
+        if ($bloqueo) {
+            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
         }
 
         $nuevoRol = $this->request->getPost('rol');
@@ -356,6 +371,11 @@ class Grupos extends BaseController
 
         if ($acceso['rol'] !== 'admin') {
             return redirect()->to("/grupos/$id")->with('error', 'Solo los administradores pueden quitar miembros.');
+        }
+
+        $bloqueo = Grupo::restriccionEstado($acceso['grupo']['estado'], 'miembro_delete');
+        if ($bloqueo) {
+            return redirect()->to("/grupos/$id")->with('error', $bloqueo);
         }
 
         if ($userId === session()->get('userId')) {

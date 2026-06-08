@@ -162,8 +162,11 @@ class Grupo extends Model
             'pago_create'  => ['liquidado' => 'No se pueden registrar pagos en un grupo liquidado.'],
             'pago_edit'    => ['liquidado' => 'No se pueden editar pagos en un grupo liquidado.'],
             'pago_delete'  => ['liquidado' => 'No se pueden eliminar pagos en un grupo liquidado.'],
-            'grupo_edit'   => ['liquidado' => 'No se puede editar un grupo liquidado.'],
-            'grupo_delete' => ['cerrado' => 'No se puede eliminar un grupo cerrado.', 'liquidado' => 'No se puede eliminar un grupo liquidado.'],
+            'grupo_edit'     => ['liquidado' => 'No se puede editar un grupo liquidado.'],
+            'grupo_delete'   => ['cerrado' => 'No se puede eliminar un grupo cerrado.', 'liquidado' => 'No se puede eliminar un grupo liquidado.'],
+            'miembro_create' => ['cerrado' => 'No se pueden agregar miembros a un grupo cerrado.', 'liquidado' => 'No se pueden agregar miembros a un grupo liquidado.'],
+            'miembro_role'   => ['cerrado' => 'No se puede cambiar el rol en un grupo cerrado.', 'liquidado' => 'No se puede cambiar el rol en un grupo liquidado.'],
+            'miembro_delete' => ['cerrado' => 'No se puede quitar miembros de un grupo cerrado.', 'liquidado' => 'No se puede quitar miembros de un grupo liquidado.'],
         ];
 
         $porEstado = $bloqueos[$accion] ?? [];

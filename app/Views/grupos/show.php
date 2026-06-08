@@ -123,7 +123,7 @@
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Desde</th>
-                                <?php if ($rol === 'admin'): ?>
+                                <?php if ($rol === 'admin' && $grupo['estado'] === 'activo'): ?>
                                     <th>Acciones</th>
                                 <?php endif; ?>
                             </tr>
@@ -139,7 +139,7 @@
                                         </span>
                                     </td>
                                     <td><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></td>
-                                    <?php if ($rol === 'admin'): ?>
+                                    <?php if ($rol === 'admin' && $grupo['estado'] === 'activo'): ?>
                                         <td>
                                             <div class="d-flex gap-1">
                                                 <?php if ($miembro['user_id'] !== session()->get('userId')): ?>
@@ -179,7 +179,7 @@
                                     <span class="text-muted small ms-2"><?= date('d/m/Y', strtotime($miembro['created_at'])) ?></span>
                                 </div>
                             </div>
-                            <?php if ($rol === 'admin' && $miembro['user_id'] !== session()->get('userId')): ?>
+                            <?php if ($rol === 'admin' && $grupo['estado'] === 'activo' && $miembro['user_id'] !== session()->get('userId')): ?>
                                 <div class="d-flex flex-column gap-1">
                                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post">
                                         <?= csrf_field() ?>
@@ -199,7 +199,7 @@
                     </div>
                 <?php endforeach; ?>
             </div>
-            <?php if ($rol === 'admin' && !empty($usuariosDisponibles)): ?>
+            <?php if ($rol === 'admin' && $grupo['estado'] === 'activo' && !empty($usuariosDisponibles)): ?>
                 <div class="card-footer bg-white">
                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
                         <?= csrf_field() ?>
