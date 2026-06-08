@@ -42,7 +42,10 @@ class Grupos extends BaseController
 
     public function new()
     {
-        return view('grupos/form');
+        $userModel = new \App\Models\User();
+        $usuarios = $userModel->select('id, name, email')->where('id !=', session()->get('userId'))->orderBy('name', 'ASC')->findAll();
+
+        return view('grupos/form', ['usuarios' => $usuarios]);
     }
 
     public function create()
@@ -64,6 +67,27 @@ class Grupos extends BaseController
             return redirect()->back()->withInput()->with('errors', ['nombre' => 'Ya tenés un grupo con ese nombre.']);
         }
 
+        $miembrosPost = $this->request->getPost('miembros');
+        $miembrosValidos = [];
+
+        if (is_array($miembrosPost)) {
+            $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+            $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
+
+            if (!empty($miembrosIds)) {
+                $userModel = new \App\Models\User();
+                $existentes = $userModel->select('id')->whereIn('id', $miembrosIds)->findAll();
+                $idsValidos = array_map('intval', array_column($existentes, 'id'));
+
+                $invalidos = array_diff($miembrosIds, $idsValidos);
+                if (!empty($invalidos)) {
+                    return redirect()->back()->withInput()->with('errors', ['miembros' => 'Uno de los usuarios seleccionados no existe.']);
+                }
+
+                $miembrosValidos = $idsValidos;
+            }
+        }
+
         $grupoId = $grupoModel->insert([
             'nombre' => $nombre,
             'descripcion' => $this->request->getPost('descripcion'),
@@ -76,6 +100,16 @@ class Grupos extends BaseController
             'user_id' => $userId,
             'rol' => 'admin',
         ]);
+
+        foreach ($miembrosValidos as $mid) {
+            if ($mid !== $userId) {
+                $miembroModel->insert([
+                    'grupo_id' => $grupoId,
+                    'user_id' => $mid,
+                    'rol' => 'member',
+                ]);
+            }
+        }
 
         return redirect()->to('/grupos')->with('success', 'Grupo creado correctamente.');
     }

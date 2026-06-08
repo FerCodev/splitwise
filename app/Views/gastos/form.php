@@ -60,15 +60,21 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="pagador_id" class="form-label fw-medium">Pagador</label>
-                        <select class="form-select" id="pagador_id" name="pagador_id" required>
-                            <option value="">Seleccionar pagador</option>
-                            <?php if (isset($miembros)): ?>
-                                <?php foreach ($miembros as $m): ?>
-                                    <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $gasto['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
+                        <?php if (isset($gasto)): ?>
+                            <label for="pagador_id" class="form-label fw-medium">Pagador</label>
+                            <select class="form-select" id="pagador_id" name="pagador_id" required>
+                                <option value="">Seleccionar pagador</option>
+                                <?php if (isset($miembros)): ?>
+                                    <?php foreach ($miembros as $m): ?>
+                                        <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $gasto['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        <?php else: ?>
+                            <label class="form-label fw-medium">Pagador</label>
+                            <input type="text" class="form-control" value="Vos" disabled>
+                            <small class="text-muted">El gasto se registra a tu nombre como pagador.</small>
+                        <?php endif; ?>
                     </div>
 
                     <div class="mb-3">
