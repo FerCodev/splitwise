@@ -110,6 +110,51 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
+                <h5 class="mb-0 fw-bold">Gastos por categoría</h5>
+            </div>
+            <?php if (empty($gastosPorCategoria)): ?>
+                <div class="card-body text-center py-4">
+                    <p class="text-muted mb-0">No hay gastos registrados.</p>
+                </div>
+            <?php else: ?>
+                <div class="card-body p-0 d-none d-md-block">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Categoría</th>
+                                    <th class="text-end">Cantidad</th>
+                                    <th class="text-end">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($gastosPorCategoria as $cat): ?>
+                                    <tr>
+                                        <td><span class="badge bg-light text-dark"><?= esc($cat['categoria']) ?></span></td>
+                                        <td class="text-end"><?= $cat['cantidad'] ?></td>
+                                        <td class="text-end fw-medium">$<?= number_format($cat['total'], 2) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="d-md-none">
+                    <?php foreach ($gastosPorCategoria as $cat): ?>
+                        <div class="mobile-card-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-light text-dark"><?= esc($cat['categoria']) ?></span>
+                                <span class="fw-medium">$<?= number_format($cat['total'], 2) ?></span>
+                            </div>
+                            <div class="text-muted small"><?= $cat['cantidad'] ?> gasto(s)</div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Transferencias sugeridas</h5>
             </div>
             <?php if (empty($deudas)): ?>

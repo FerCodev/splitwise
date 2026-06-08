@@ -39,6 +39,15 @@
                         <label class="form-label small fw-medium">Descripción</label>
                         <input type="text" name="descripcion" class="form-control" placeholder="Buscar..." value="<?= esc($filters['descripcion'] ?? '') ?>">
                     </div>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label small fw-medium">Categoría</label>
+                        <select name="categoria" class="form-select">
+                            <option value="">Todas</option>
+                            <?php foreach ($categorias as $cat): ?>
+                                <option value="<?= esc($cat) ?>" <?= ($filters['categoria'] ?? '') === $cat ? 'selected' : '' ?>><?= esc($cat) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <div class="col-12 col-md-2 d-flex gap-1">
                         <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
                         <a href="<?= base_url('gastos') ?>" class="btn btn-outline-secondary flex-fill">Limpiar</a>
@@ -66,6 +75,7 @@
                                         <th><a href="<?= base_url('gastos?sort=monto&order=') ?><?= ($filters['sort'] ?? '') === 'monto' && ($filters['order'] ?? '') === 'DESC' ? 'ASC' : 'DESC' ?><?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Monto <?= ($filters['sort'] ?? '') === 'monto' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
                                         <th>Pagó</th>
                                         <th><a href="<?= base_url('gastos?sort=grupo_nombre&order=') ?><?= ($filters['sort'] ?? '') === 'grupo_nombre' && ($filters['order'] ?? '') === 'DESC' ? 'ASC' : 'DESC' ?><?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Grupo <?= ($filters['sort'] ?? '') === 'grupo_nombre' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
+                                        <th>Categoría</th>
                                         <th>Participantes</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -78,6 +88,7 @@
                                             <td class="fw-medium">$<?= number_format($gasto['monto'], 2) ?></td>
                                             <td><?= esc($gasto['pagador_nombre']) ?></td>
                                             <td><?= esc($gasto['grupo_nombre']) ?></td>
+                                            <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria'] ?? 'Otros') ?></span></td>
                                             <td><?= $gasto['total_participantes'] ?></td>
                                             <td>
                                                 <div class="d-flex gap-1">
@@ -110,7 +121,10 @@
                                 <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot;
                                 <?= esc($gasto['pagador_nombre']) ?>
                             </div>
-                            <div class="text-muted small">Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.</div>
+                            <div class="text-muted small">
+                                <span class="badge bg-light text-dark"><?= esc($gasto['categoria'] ?? 'Otros') ?></span>
+                                Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
+                            </div>
                             <div class="d-flex gap-2 mt-2">
                                 <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm flex-fill">Ver</a>
                                 <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>

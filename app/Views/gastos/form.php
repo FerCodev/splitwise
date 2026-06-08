@@ -71,6 +71,16 @@
                         </select>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="categoria" class="form-label fw-medium">Categoría</label>
+                        <select class="form-select" id="categoria" name="categoria">
+                            <option value="">Sin categoría (Otros)</option>
+                            <?php foreach ($categorias as $cat): ?>
+                                <option value="<?= esc($cat) ?>" <?= old('categoria', $gasto['categoria'] ?? 'Otros') === $cat ? 'selected' : '' ?>><?= esc($cat) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
                     <div class="mb-4">
                         <label class="form-label fw-medium">Participantes (división igualitaria)</label>
                         <?php if (isset($miembros)): ?>

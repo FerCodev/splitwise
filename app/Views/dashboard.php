@@ -185,7 +185,7 @@
                                             <div>
                                                 <span class="fw-medium"><?= esc($gasto['descripcion']) ?></span>
                                                 <br>
-                                                <span class="text-muted small"><?= esc($gasto['grupo_nombre']) ?> &middot; <?= esc($gasto['pagador_nombre']) ?> &middot; <?= date('d/m/Y', strtotime($gasto['fecha'])) ?></span>
+                                                <span class="text-muted small"><?= esc($gasto['grupo_nombre']) ?> &middot; <?= esc($gasto['pagador_nombre']) ?> &middot; <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot; <span class="badge bg-light text-dark"><?= esc($gasto['categoria'] ?? 'Otros') ?></span></span>
                                             </div>
                                             <span class="fw-bold text-primary">$<?= number_format($gasto['monto'], 2) ?></span>
                                         </div>

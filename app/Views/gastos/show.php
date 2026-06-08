@@ -16,6 +16,7 @@
                         <p class="text-muted small mb-0">
                             Grupo: <a href="<?= base_url('grupos/' . $gasto['grupo_id']) ?>"><?= esc($gasto['grupo_nombre']) ?></a>
                             &middot; <?= date('d/m/Y', strtotime($gasto['fecha'])) ?>
+                            &middot; <span class="badge bg-light text-dark"><?= esc($gasto['categoria'] ?? 'Otros') ?></span>
                         </p>
                     </div>
                     <div class="text-end">
