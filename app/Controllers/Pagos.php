@@ -66,10 +66,18 @@ class Pagos extends BaseController
             $miembros = $grupoModel->getMiembros((int) $grupoId);
         }
 
+        $prefill = [
+            'pagador_id' => $this->request->getGet('pagador_id'),
+            'receptor_id' => $this->request->getGet('receptor_id'),
+            'monto' => $this->request->getGet('monto'),
+            'fecha' => $this->request->getGet('fecha'),
+        ];
+
         return view('pagos/form', [
             'grupos' => $grupos,
             'grupoId' => $grupoId,
             'miembros' => $miembros,
+            'prefill' => $prefill,
         ]);
     }
 
@@ -113,6 +121,7 @@ class Pagos extends BaseController
             return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El receptor no pertenece al grupo.']);
         }
 
+        $pagoModel = new Pago();
         $pagoModel->insert([
             'grupo_id' => $grupoId,
             'pagador_id' => $pagadorId,

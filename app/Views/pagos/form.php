@@ -1,6 +1,7 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($pago) ? 'Editar' : 'Nuevo') . ' Pago']) ?>
 <?= view('partials/_navbar') ?>
 
+    <?php $prefill = $prefill ?? []; ?>
     <div class="container mt-3 mt-md-4">
         <h2 class="fw-bold mb-4"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
 
@@ -31,13 +32,13 @@
                     <div class="mb-3">
                         <label for="monto" class="form-label fw-medium">Monto</label>
                         <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
-                               value="<?= esc(old('monto', $pago['monto'] ?? '')) ?>" required>
+                               value="<?= esc(old('monto', $pago['monto'] ?? $prefill['monto'] ?? '')) ?>" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="fecha" class="form-label fw-medium">Fecha</label>
                         <input type="date" class="form-control" id="fecha" name="fecha"
-                               value="<?= esc(old('fecha', $pago['fecha'] ?? date('Y-m-d'))) ?>" required>
+                               value="<?= esc(old('fecha', $pago['fecha'] ?? $prefill['fecha'] ?? date('Y-m-d'))) ?>" required>
                     </div>
 
                     <div class="mb-3">
@@ -65,7 +66,7 @@
                             <option value="">Seleccionar pagador</option>
                             <?php if (isset($miembros)): ?>
                                 <?php foreach ($miembros as $m): ?>
-                                    <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? $prefill['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -77,7 +78,7 @@
                             <option value="">Seleccionar receptor</option>
                             <?php if (isset($miembros)): ?>
                                 <?php foreach ($miembros as $m): ?>
-                                    <option value="<?= $m['user_id'] ?>" <?= old('receptor_id', $pago['receptor_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <option value="<?= $m['user_id'] ?>" <?= old('receptor_id', $pago['receptor_id'] ?? $prefill['receptor_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>

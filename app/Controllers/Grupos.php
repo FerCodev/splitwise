@@ -6,6 +6,7 @@ use App\Models\Gasto;
 use App\Models\Pago;
 use App\Models\Grupo;
 use App\Models\GrupoMiembro;
+use App\Models\UserPaymentMethod;
 
 class Grupos extends BaseController
 {
@@ -164,6 +165,7 @@ class Grupos extends BaseController
         $gastoModel = new Gasto();
         $pagoModel = new Pago();
         $grupoModel = new Grupo();
+        $medioModel = new UserPaymentMethod();
 
         $miembros = $grupoModel->getMiembros($id);
         $balance = $gastoModel->getBalanceByGrupo($id);
@@ -171,6 +173,15 @@ class Grupos extends BaseController
         $totalGastado = $grupoModel->getTotalGastado($id);
         $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
         $gastosPorCategoria = $gastoModel->getMontosPorCategoria($id);
+
+        $mediosPorAcreedor = [];
+        foreach ($deudas as $d) {
+            $acreedorId = (int) $d['acreedor_id'];
+            if (!isset($mediosPorAcreedor[$acreedorId])) {
+                $medios = $medioModel->getActivosByUser($acreedorId);
+                $mediosPorAcreedor[$acreedorId] = $medios;
+            }
+        }
 
         return view('grupos/balance', [
             'grupo' => $acceso['grupo'],
@@ -181,6 +192,7 @@ class Grupos extends BaseController
             'totalGastado' => $totalGastado,
             'totalPagado' => $totalPagado,
             'gastosPorCategoria' => $gastosPorCategoria,
+            'mediosPorAcreedor' => $mediosPorAcreedor,
         ]);
     }
 

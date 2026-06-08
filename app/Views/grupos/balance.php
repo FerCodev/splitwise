@@ -167,6 +167,7 @@
             <?php else: ?>
                 <div class="card-body p-0">
                     <?php foreach ($deudas as $d): ?>
+                        <?php $acreedorId = (int) $d['acreedor_id']; ?>
                         <div class="mobile-card-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
@@ -174,7 +175,49 @@
                                     <span class="text-muted"> le debe a </span>
                                     <strong><?= esc($d['acreedor']) ?></strong>
                                 </div>
-                                <div class="fw-bold text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="fw-bold text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
+                                    <button type="button" class="btn btn-sm btn-success pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
+                                        Pagar
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
+                                <div class="card border">
+                                    <div class="card-body py-2 px-3">
+                                        <?php if (!empty($mediosPorAcreedor[$acreedorId])): ?>
+                                            <p class="mb-1 small text-muted fw-medium">Medios de cobro de <?= esc($d['acreedor']) ?>:</p>
+                                            <?php foreach ($mediosPorAcreedor[$acreedorId] as $m): ?>
+                                                <div class="mb-1">
+                                                    <span class="small fw-medium"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
+                                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                                        <?php if ($m['alias']): ?>
+                                                            <span class="small text-muted me-2">Alias: <?= esc($m['alias']) ?></span>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>">Copiar alias</button>
+                                                        <?php endif; ?>
+                                                        <?php if ($m['cbu_cvu']): ?>
+                                                            <span class="small text-muted me-2">CBU/CVU: <?= esc($m['cbu_cvu']) ?></span>
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>">Copiar CBU/CVU</button>
+                                                        <?php endif; ?>
+                                                        <?php if ($m['payment_link']): ?>
+                                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary py-0 px-1">Abrir link de pago</a>
+                                                        <?php endif; ?>
+                                                        <?php if ($m['banco']): ?>
+                                                            <span class="small text-muted">- <?= esc($m['banco']) ?></span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <p class="mb-1 small text-muted"><?= esc($d['acreedor']) ?> no tiene medios de cobro registrados.</p>
+                                        <?php endif; ?>
+                                        <div class="mt-2">
+                                            <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id'] . '&pagador_id=' . $d['deudor_id'] . '&receptor_id=' . $acreedorId . '&monto=' . $d['monto'] . '&fecha=' . date('Y-m-d')) ?>" class="btn btn-sm btn-primary">
+                                                Registrar pago
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -204,4 +247,58 @@
         <?php endif; ?>
     </div>
 
+    <script>
+        document.querySelectorAll('.pagar-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetId = this.getAttribute('data-target');
+                var target = document.getElementById(targetId);
+                if (target) {
+                    target.classList.toggle('d-none');
+                }
+            });
+        });
+
+        document.querySelectorAll('.copiar-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var texto = this.getAttribute('data-copiar');
+                var copiar = function(t) {
+                    navigator.clipboard.writeText(t).then(function() {
+                        var textoOriginal = this.textContent;
+                        this.textContent = 'Copiado!';
+                        var self = this;
+                        setTimeout(function() {
+                            self.textContent = textoOriginal;
+                        }, 2000);
+                    }.bind(this)).catch(function() {
+                        fallbackCopiar(t, this);
+                    }.bind(this));
+                }.bind(this);
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    copiar(texto);
+                } else {
+                    fallbackCopiar(texto, this);
+                }
+            });
+        });
+
+        function fallbackCopiar(texto, btn) {
+            var textarea = document.createElement('textarea');
+            textarea.value = texto;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                var textoOriginal = btn.textContent;
+                btn.textContent = 'Copiado!';
+                setTimeout(function() {
+                    btn.textContent = textoOriginal;
+                }, 2000);
+            } catch (e) {
+                alert('No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
+            }
+            document.body.removeChild(textarea);
+        }
+    </script>
 <?= view('partials/_footer') ?>
