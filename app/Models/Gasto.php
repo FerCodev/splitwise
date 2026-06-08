@@ -215,12 +215,17 @@ class Gasto extends Model
         return $balance;
     }
 
-    public function getDeudasByGrupo(int $grupoId): array
+    /**
+     * Calcula las transferencias sugeridas a partir de un array de balance.
+     * Separado como metodo puro para poder testear sin base de datos.
+     *
+     * @param array $balance resultado de computeBalance() o getBalanceByGrupo()
+     * @return array listado de deudas con deudor, acreedor, monto
+     */
+    public static function computeDeudasFromBalance(array $balance): array
     {
-        $saldos = $this->getBalanceByGrupo($grupoId);
-
-        $acreedores = array_filter($saldos, fn($s) => $s['saldo'] > 0);
-        $deudores = array_filter($saldos, fn($s) => $s['saldo'] < 0);
+        $acreedores = array_filter($balance, fn($s) => $s['saldo'] > 0);
+        $deudores = array_filter($balance, fn($s) => $s['saldo'] < 0);
 
         $deudas = [];
         foreach ($deudores as $d) {
@@ -243,5 +248,10 @@ class Gasto extends Model
         }
 
         return $deudas;
+    }
+
+    public function getDeudasByGrupo(int $grupoId): array
+    {
+        return self::computeDeudasFromBalance($this->getBalanceByGrupo($grupoId));
     }
 }

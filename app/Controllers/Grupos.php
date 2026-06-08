@@ -93,7 +93,7 @@ class Grupos extends BaseController
 
         $gastoModel = new Gasto();
         $gastos = $gastoModel->getGastosByGrupo($id);
-        $saldos = $gastoModel->getSaldosByGrupo($id);
+        $balance = $gastoModel->getBalanceByGrupo($id);
         $deudas = $gastoModel->getDeudasByGrupo($id);
         $totalGastado = $grupoModel->getTotalGastado($id);
 
@@ -106,7 +106,7 @@ class Grupos extends BaseController
             'rol' => $acceso['rol'],
             'miembros' => $miembros,
             'gastos' => $gastos,
-            'saldos' => $saldos,
+            'balance' => $balance,
             'deudas' => $deudas,
             'totalGastado' => $totalGastado,
             'pagos' => $pagos,

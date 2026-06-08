@@ -238,13 +238,14 @@
             <?php endif; ?>
         </div>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Saldos</h5>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Balance</h5>
+                <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info btn-sm">Ver detalle</a>
             </div>
-            <?php if (empty($saldos)): ?>
+            <?php if (empty($balance)): ?>
                 <div class="card-body text-center py-4">
-                    <p class="text-muted mb-0">No hay saldos para mostrar.</p>
+                    <p class="text-muted mb-0">No hay datos de balance para mostrar.</p>
                 </div>
             <?php else: ?>
                 <div class="card-body p-0 d-none d-md-block">
@@ -253,19 +254,19 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Nombre</th>
-                                    <th class="text-end">Pagó</th>
-                                    <th class="text-end">Debe</th>
+                                    <th class="text-end">Pagó en gastos</th>
+                                    <th class="text-end">Consumió</th>
                                     <th class="text-end">Saldo</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($saldos as $s): ?>
+                                <?php foreach ($balance as $b): ?>
                                     <tr>
-                                        <td class="fw-medium"><?= esc($s['name']) ?></td>
-                                        <td class="text-end">$<?= number_format($s['pago'], 2) ?></td>
-                                        <td class="text-end">$<?= number_format($s['debe'], 2) ?></td>
-                                        <td class="text-end fw-medium <?= $s['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
-                                            $<?= number_format($s['saldo'], 2) ?>
+                                        <td class="fw-medium"><?= esc($b['name']) ?></td>
+                                        <td class="text-end">$<?= number_format($b['total_pagado_gastos'], 2) ?></td>
+                                        <td class="text-end">$<?= number_format($b['total_consumido'], 2) ?></td>
+                                        <td class="text-end fw-medium <?= $b['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                                            $<?= number_format($b['saldo'], 2) ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -274,15 +275,19 @@
                     </div>
                 </div>
                 <div class="d-md-none">
-                    <?php foreach ($saldos as $s): ?>
+                    <?php foreach ($balance as $b): ?>
                         <div class="mobile-card-item">
-                            <div class="fw-medium"><?= esc($s['name']) ?></div>
+                            <div class="fw-medium"><?= esc($b['name']) ?></div>
                             <div class="d-flex justify-content-between small mt-1">
-                                <span>Pagó: $<?= number_format($s['pago'], 2) ?></span>
-                                <span>Debe: $<?= number_format($s['debe'], 2) ?></span>
+                                <span class="text-muted">Pagó:</span>
+                                <span>$<?= number_format($b['total_pagado_gastos'], 2) ?></span>
                             </div>
-                            <div class="fw-medium mt-1 <?= $s['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
-                                Saldo: $<?= number_format($s['saldo'], 2) ?>
+                            <div class="d-flex justify-content-between small">
+                                <span class="text-muted">Consumió:</span>
+                                <span>$<?= number_format($b['total_consumido'], 2) ?></span>
+                            </div>
+                            <div class="fw-medium mt-1 <?= $b['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                                Saldo: $<?= number_format($b['saldo'], 2) ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -290,7 +295,7 @@
 
                 <?php if (!empty($deudas)): ?>
                     <div class="card-footer bg-white">
-                        <h6 class="mb-2 fw-bold">Deudas</h6>
+                        <h6 class="mb-2 fw-bold">Transferencias sugeridas</h6>
                         <?php foreach ($deudas as $d): ?>
                             <div class="py-1">
                                 <strong><?= esc($d['deudor']) ?></strong> debe

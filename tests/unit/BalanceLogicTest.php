@@ -13,14 +13,16 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
      */
     public function testBalanceSinPagos(): void
     {
-        $miembros = [
-            ['user_id' => 1, 'name' => 'Fernando'],
-            ['user_id' => 2, 'name' => 'Pareja'],
-        ];
-        $pagadoGastos = [1 => 600];
-        $consumido = [1 => 300, 2 => 300];
-
-        $balance = Gasto::computeBalance($miembros, $pagadoGastos, $consumido, [], []);
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'Fernando'],
+                ['user_id' => 2, 'name' => 'Pareja'],
+            ],
+            [1 => 600],
+            [1 => 300, 2 => 300],
+            [],
+            []
+        );
 
         $this->assertCount(2, $balance);
         $this->assertSame(300.0, $balance[0]['saldo']);
@@ -28,7 +30,7 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame(-300.0, $balance[1]['saldo']);
         $this->assertSame('Pareja', $balance[1]['name']);
 
-        $deudas = $this->computeDeudas($balance);
+        $deudas = Gasto::computeDeudasFromBalance($balance);
         $this->assertCount(1, $deudas);
         $this->assertSame('Pareja', $deudas[0]['deudor']);
         $this->assertSame('Fernando', $deudas[0]['acreedor']);
@@ -41,16 +43,16 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
      */
     public function testBalanceConPagoParcial(): void
     {
-        $miembros = [
-            ['user_id' => 1, 'name' => 'Fernando'],
-            ['user_id' => 2, 'name' => 'Pareja'],
-        ];
-        $pagadoGastos = [1 => 600];
-        $consumido = [1 => 300, 2 => 300];
-        $pagosEnviados = [2 => 100];
-        $pagosRecibidos = [1 => 100];
-
-        $balance = Gasto::computeBalance($miembros, $pagadoGastos, $consumido, $pagosEnviados, $pagosRecibidos);
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'Fernando'],
+                ['user_id' => 2, 'name' => 'Pareja'],
+            ],
+            [1 => 600],
+            [1 => 300, 2 => 300],
+            [2 => 100],
+            [1 => 100]
+        );
 
         $this->assertCount(2, $balance);
         $this->assertSame(200.0, $balance[0]['saldo']);
@@ -58,7 +60,7 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame(-200.0, $balance[1]['saldo']);
         $this->assertSame('Pareja', $balance[1]['name']);
 
-        $deudas = $this->computeDeudas($balance);
+        $deudas = Gasto::computeDeudasFromBalance($balance);
         $this->assertCount(1, $deudas);
         $this->assertSame(200.0, $deudas[0]['monto']);
     }
@@ -69,22 +71,22 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
      */
     public function testBalanceConPagoTotal(): void
     {
-        $miembros = [
-            ['user_id' => 1, 'name' => 'Fernando'],
-            ['user_id' => 2, 'name' => 'Pareja'],
-        ];
-        $pagadoGastos = [1 => 600];
-        $consumido = [1 => 300, 2 => 300];
-        $pagosEnviados = [2 => 300];
-        $pagosRecibidos = [1 => 300];
-
-        $balance = Gasto::computeBalance($miembros, $pagadoGastos, $consumido, $pagosEnviados, $pagosRecibidos);
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'Fernando'],
+                ['user_id' => 2, 'name' => 'Pareja'],
+            ],
+            [1 => 600],
+            [1 => 300, 2 => 300],
+            [2 => 300],
+            [1 => 300]
+        );
 
         $this->assertCount(2, $balance);
         $this->assertSame(0.0, $balance[0]['saldo']);
         $this->assertSame(0.0, $balance[1]['saldo']);
 
-        $deudas = $this->computeDeudas($balance);
+        $deudas = Gasto::computeDeudasFromBalance($balance);
         $this->assertCount(0, $deudas);
     }
 
@@ -93,46 +95,90 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
      */
     public function testGrupoSinMovimientos(): void
     {
-        $miembros = [
-            ['user_id' => 1, 'name' => 'A'],
-            ['user_id' => 2, 'name' => 'B'],
-        ];
-
-        $balance = Gasto::computeBalance($miembros, [], [], [], []);
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'A'],
+                ['user_id' => 2, 'name' => 'B'],
+            ],
+            [],
+            [],
+            [],
+            []
+        );
 
         $this->assertCount(2, $balance);
         $this->assertSame(0.0, $balance[0]['saldo']);
         $this->assertSame(0.0, $balance[1]['saldo']);
 
-        $deudas = $this->computeDeudas($balance);
+        $deudas = Gasto::computeDeudasFromBalance($balance);
         $this->assertCount(0, $deudas);
     }
 
-    private function computeDeudas(array $saldos): array
+    /**
+     * Estructura de balance: verifica que todos los keys requeridos existan.
+     */
+    public function testBalanceKeys(): void
     {
-        $acreedores = array_filter($saldos, fn($s) => $s['saldo'] > 0);
-        $deudores = array_filter($saldos, fn($s) => $s['saldo'] < 0);
+        $balance = Gasto::computeBalance(
+            [['user_id' => 1, 'name' => 'X']],
+            [1 => 100],
+            [1 => 50],
+            [1 => 10],
+            [1 => 20]
+        );
 
-        $deudas = [];
-        foreach ($deudores as $d) {
-            $restante = abs($d['saldo']);
-            foreach ($acreedores as &$a) {
-                if ($restante <= 0) break;
-                if ($a['saldo'] <= 0) continue;
+        $this->assertArrayHasKey('user_id', $balance[0]);
+        $this->assertArrayHasKey('name', $balance[0]);
+        $this->assertArrayHasKey('total_pagado_gastos', $balance[0]);
+        $this->assertArrayHasKey('total_consumido', $balance[0]);
+        $this->assertArrayHasKey('pagos_enviados', $balance[0]);
+        $this->assertArrayHasKey('pagos_recibidos', $balance[0]);
+        $this->assertArrayHasKey('saldo', $balance[0]);
+    }
 
-                $monto = min($restante, $a['saldo']);
-                $deudas[] = [
-                    'deudor' => $d['name'],
-                    'deudor_id' => $d['user_id'],
-                    'acreedor' => $a['name'],
-                    'acreedor_id' => $a['user_id'],
-                    'monto' => round($monto, 2),
-                ];
-                $restante -= $monto;
-                $a['saldo'] -= $monto;
-            }
-        }
+    /**
+     * Estructura de deudas: verifica que todos los keys requeridos existan.
+     */
+    public function testDeudasKeys(): void
+    {
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'A'],
+                ['user_id' => 2, 'name' => 'B'],
+            ],
+            [1 => 100],
+            [1 => 50, 2 => 50],
+            [],
+            []
+        );
 
-        return $deudas;
+        $deudas = Gasto::computeDeudasFromBalance($balance);
+        $this->assertCount(1, $deudas);
+        $this->assertArrayHasKey('deudor', $deudas[0]);
+        $this->assertArrayHasKey('deudor_id', $deudas[0]);
+        $this->assertArrayHasKey('acreedor', $deudas[0]);
+        $this->assertArrayHasKey('acreedor_id', $deudas[0]);
+        $this->assertArrayHasKey('monto', $deudas[0]);
+    }
+
+    /**
+     * Verifica que saldos positivos y negativos sumen cero (conservacion).
+     */
+    public function testBalanceConservation(): void
+    {
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'A'],
+                ['user_id' => 2, 'name' => 'B'],
+                ['user_id' => 3, 'name' => 'C'],
+            ],
+            [1 => 500, 2 => 300],
+            [1 => 200, 2 => 400, 3 => 200],
+            [3 => 50],
+            [2 => 50]
+        );
+
+        $total = array_sum(array_column($balance, 'saldo'));
+        $this->assertSame(0.0, $total);
     }
 }
