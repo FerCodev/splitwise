@@ -63,7 +63,7 @@
                     <?php foreach ($activos as $grupo): ?>
                         <?php
                             $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : 'text-secondary');
-                            $actividad = $grupo['ultima_actividad'] ?? $grupo['created_at'];
+                            $mv = $grupo['ultimo_movimiento'];
                         ?>
                         <div class="col-12 col-md-6 col-lg-4">
                             <div class="card border-0 shadow-sm h-100">
@@ -76,9 +76,20 @@
                                         <span class="text-muted">Saldo:</span>
                                         <span class="fw-medium <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
                                     </div>
-                                    <div class="text-muted small">
-                                        &Uacute;ltima actividad: <?= date('d/m/Y', strtotime($actividad)) ?>
-                                    </div>
+                                    <?php if ($mv): ?>
+                                        <div class="small mt-1">
+                                            <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
+                                            <span class="text-muted ms-1"><?= esc(mb_substr($mv['descripcion'], 0, 40)) ?></span>
+                                            <span class="fw-medium float-end">$<?= number_format($mv['monto'], 2) ?></span>
+                                        </div>
+                                        <div class="text-muted small mt-1">
+                                            <?= date('d/m/Y', strtotime($mv['fecha'])) ?>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="text-muted small mt-1">
+                                            Creado el <?= date('d/m/Y', strtotime($grupo['created_at'])) ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                                 <div class="card-footer bg-transparent border-0 pt-0">
                                     <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm w-100">Entrar</a>

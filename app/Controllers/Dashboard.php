@@ -17,6 +17,7 @@ class Dashboard extends BaseController
 
         $grupos = $grupoModel->getGruposByUser($userId);
         $actividades = $grupoModel->getUltimaActividadByUser($userId);
+        $ultimosMovs = $grupoModel->getUltimoMovimientoByUser($userId);
 
         foreach ($grupos as &$grupo) {
             $balance = $gastoModel->getBalanceByGrupo($grupo['id']);
@@ -30,23 +31,17 @@ class Dashboard extends BaseController
                 }
             }
 
+            $gid = (int) $grupo['id'];
             $grupo['mi_saldo'] = $miSaldo;
             $grupo['total_gastado'] = $grupoModel->getTotalGastado($grupo['id']);
             $grupo['total_pagado'] = $pagoModel->getTotalPagadoByGrupo($grupo['id']);
             $grupo['deudas_count'] = count($deudas);
-            $grupo['ultima_actividad'] = $actividades[(int) $grupo['id']] ?? $grupo['created_at'];
+            $grupo['ultima_actividad'] = $actividades[$gid] ?? $grupo['created_at'];
+            $grupo['ultimo_movimiento'] = $ultimosMovs[$gid] ?? null;
         }
         unset($grupo);
 
-        // Ordenar: activos primero, luego por ultima actividad descendente
-        usort($grupos, function ($a, $b) {
-            $ordenA = $a['estado'] === 'activo' ? 0 : 1;
-            $ordenB = $b['estado'] === 'activo' ? 0 : 1;
-            if ($ordenA !== $ordenB) {
-                return $ordenA - $ordenB;
-            }
-            return strcmp($b['ultima_actividad'], $a['ultima_actividad']);
-        });
+        $grupos = Grupo::sortGroupsByActivity($grupos);
 
         $resumen = Grupo::computeDashboardResumen($grupos);
 

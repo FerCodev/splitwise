@@ -227,27 +227,82 @@ class Grupo extends Model
     /**
      * Retorna un array asociativo [grupo_id => ultima_actividad] para todos
      * los grupos del usuario. La actividad se calcula como la fecha mas
-     * reciente entre: ultimo gasto, ultimo pago, updated_at, created_at.
+     * reciente entre: ultimo gasto, ultimo pago (por created_at/updated_at,
+     * no por fecha contable), y los timestamps del grupo.
+     *
+     * Usa subqueries para evitar multiplicacion de filas por JOIN cruzado.
      */
     public function getUltimaActividadByUser(int $userId): array
     {
         $sql = "SELECT g.id as grupo_id,
                        GREATEST(
-                           COALESCE(MAX(gast.fecha), '1970-01-01'),
-                           COALESCE(MAX(pag.fecha), '1970-01-01'),
-                           g.updated_at,
-                           g.created_at
+                           COALESCE(
+                               (SELECT MAX(GREATEST(COALESCE(gast.updated_at, gast.created_at, gast.fecha)))
+                                  FROM gastos gast WHERE gast.grupo_id = g.id),
+                               '1970-01-01'
+                           ),
+                           COALESCE(
+                               (SELECT MAX(GREATEST(COALESCE(pag.updated_at, pag.created_at, pag.fecha)))
+                                  FROM pagos pag WHERE pag.grupo_id = g.id),
+                               '1970-01-01'
+                           ),
+                           COALESCE(g.updated_at, g.created_at, '1970-01-01')
                        ) as ultima_actividad
                   FROM grupos g
-                  JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?
-                  LEFT JOIN gastos gast ON gast.grupo_id = g.id
-                  LEFT JOIN pagos pag ON pag.grupo_id = g.id
-                 GROUP BY g.id";
+                  JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?";
 
         $rows = $this->db->query($sql, [$userId])->getResultArray();
         $result = [];
         foreach ($rows as $r) {
             $result[(int) $r['grupo_id']] = $r['ultima_actividad'];
+        }
+        return $result;
+    }
+
+    /**
+     * Retorna un array asociativo [grupo_id => ultimo_movimiento] con los
+     * datos del ultimo movimiento (gasto o pago) de cada grupo del usuario.
+     * Si un grupo no tiene movimientos, no aparece en el resultado.
+     *
+     * Cada entrada contiene: tipo, descripcion, monto, fecha.
+     */
+    public function getUltimoMovimientoByUser(int $userId): array
+    {
+        $sql = "SELECT grupo_id, tipo, descripcion, monto, fecha
+                  FROM (
+                      SELECT g.id as grupo_id, 'gasto' as tipo,
+                             gast.descripcion, gast.monto, gast.fecha,
+                             GREATEST(COALESCE(gast.updated_at, gast.created_at, gast.fecha)) as sort_date,
+                             gast.id as mov_id
+                        FROM grupos g
+                        JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?
+                        JOIN gastos gast ON gast.grupo_id = g.id
+
+                      UNION ALL
+
+                      SELECT g.id, 'pago',
+                             COALESCE(pag.descripcion, 'Pago'), pag.monto, pag.fecha,
+                             GREATEST(COALESCE(pag.updated_at, pag.created_at, pag.fecha)),
+                             pag.id
+                        FROM grupos g
+                        JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?
+                        JOIN pagos pag ON pag.grupo_id = g.id
+                  ) m
+                  ORDER BY grupo_id, sort_date DESC, mov_id DESC";
+
+        $rows = $this->db->query($sql, [$userId, $userId])->getResultArray();
+
+        $result = [];
+        foreach ($rows as $r) {
+            $gid = (int) $r['grupo_id'];
+            if (!isset($result[$gid])) {
+                $result[$gid] = [
+                    'tipo' => $r['tipo'],
+                    'descripcion' => $r['descripcion'],
+                    'monto' => (float) $r['monto'],
+                    'fecha' => $r['fecha'],
+                ];
+            }
         }
         return $result;
     }
@@ -259,6 +314,30 @@ class Grupo extends Model
                 ) ORDER BY name ASC';
 
         return $this->db->query($sql, [$grupoId])->getResultArray();
+    }
+
+    // ---------------------------------------------------------------
+    // Ordenamiento de grupos por actividad (puro, testeable sin DB)
+    // ---------------------------------------------------------------
+
+    /**
+     * Ordena grupos: activos primero, luego por ultima_actividad DESC.
+     * Metodo puro para testear sin DB.
+     *
+     * @param array $grupos Lista de grupos con claves 'estado' y 'ultima_actividad'
+     * @return array Grupos ordenados
+     */
+    public static function sortGroupsByActivity(array $grupos): array
+    {
+        usort($grupos, function ($a, $b) {
+            $ordenA = ($a['estado'] ?? 'activo') === 'activo' ? 0 : 1;
+            $ordenB = ($b['estado'] ?? 'activo') === 'activo' ? 0 : 1;
+            if ($ordenA !== $ordenB) {
+                return $ordenA - $ordenB;
+            }
+            return strcmp($b['ultima_actividad'] ?? '1970-01-01', $a['ultima_actividad'] ?? '1970-01-01');
+        });
+        return $grupos;
     }
 
     // ---------------------------------------------------------------
