@@ -59,6 +59,35 @@
                         <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-success flex-fill">+ Pago</a>
                     <?php endif; ?>
                 </div>
+
+                <?php if ($rol === 'admin'): ?>
+                    <?php if ($grupo['estado'] === 'activo'): ?>
+                        <hr class="my-3">
+                        <div class="d-flex gap-2">
+                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" class="d-inline">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="estado" value="cerrado">
+                                <button type="submit" class="btn btn-outline-warning btn-sm">Cerrar grupo</button>
+                            </form>
+                        </div>
+                    <?php elseif ($grupo['estado'] === 'cerrado'): ?>
+                        <hr class="my-3">
+                        <div class="d-flex gap-2">
+                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" class="d-inline">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="estado" value="activo">
+                                <button type="submit" class="btn btn-outline-success btn-sm">Reabrir grupo</button>
+                            </form>
+                            <?php if (empty($deudas)): ?>
+                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" class="d-inline">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="estado" value="liquidado">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Liquidar grupo</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
 
