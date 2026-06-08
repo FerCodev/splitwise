@@ -73,6 +73,45 @@ final class FlujoGruposGastosTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertContains(999, $invalidos);
     }
 
+    public function testValidacionFallidaImpidePoblarMiembrosValidos(): void
+    {
+        $miembrosPost = [1, 999];
+        $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+        $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
+
+        $idsValidos = [1];
+        $invalidos = array_diff($miembrosIds, $idsValidos);
+
+        $this->assertNotEmpty($invalidos);
+
+        $miembrosValidos = [];
+        if (empty($invalidos)) {
+            $miembrosValidos = $idsValidos;
+        }
+
+        $this->assertEmpty($miembrosValidos);
+    }
+
+    public function testValidacionExitosaPoblaMiembrosValidos(): void
+    {
+        $miembrosPost = [1, 2];
+        $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+        $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
+
+        $idsValidos = [1, 2];
+        $invalidos = array_diff($miembrosIds, $idsValidos);
+
+        $this->assertEmpty($invalidos);
+
+        $miembrosValidos = [];
+        if (empty($invalidos)) {
+            $miembrosValidos = $idsValidos;
+        }
+
+        $this->assertNotEmpty($miembrosValidos);
+        $this->assertSame([1, 2], $miembrosValidos);
+    }
+
     public function testValidacionMiembrosTodosExistentesNoDaError(): void
     {
         $miembrosIds = [1, 2, 3];

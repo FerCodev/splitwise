@@ -67,6 +67,27 @@ class Grupos extends BaseController
             return redirect()->back()->withInput()->with('errors', ['nombre' => 'Ya tenés un grupo con ese nombre.']);
         }
 
+        $miembrosPost = $this->request->getPost('miembros');
+        $miembrosValidos = [];
+
+        if (is_array($miembrosPost)) {
+            $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+            $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
+
+            if (!empty($miembrosIds)) {
+                $userModel = new \App\Models\User();
+                $existentes = $userModel->select('id')->whereIn('id', $miembrosIds)->findAll();
+                $idsValidos = array_column($existentes, 'id');
+
+                $invalidos = array_diff($miembrosIds, $idsValidos);
+                if (!empty($invalidos)) {
+                    return redirect()->back()->withInput()->with('errors', ['miembros' => 'Uno de los usuarios seleccionados no existe.']);
+                }
+
+                $miembrosValidos = $idsValidos;
+            }
+        }
+
         $grupoId = $grupoModel->insert([
             'nombre' => $nombre,
             'descripcion' => $this->request->getPost('descripcion'),
@@ -80,32 +101,13 @@ class Grupos extends BaseController
             'rol' => 'admin',
         ]);
 
-        $miembrosIds = $this->request->getPost('miembros');
-        if (is_array($miembrosIds)) {
-            $miembrosIds = array_unique(array_map('intval', $miembrosIds));
-            $miembrosIds = array_filter($miembrosIds, fn($mid) => $mid > 0);
-
-            if (!empty($miembrosIds)) {
-                $userModel = new \App\Models\User();
-                $existentes = $userModel->select('id')->whereIn('id', $miembrosIds)->findAll();
-                $idsValidos = array_column($existentes, 'id');
-
-                $invalidos = array_diff($miembrosIds, $idsValidos);
-                if (!empty($invalidos)) {
-                    return redirect()->back()->withInput()->with('errors', ['miembros' => 'Uno de los usuarios seleccionados no existe.']);
-                }
-
-                $insertados = [$userId];
-                foreach ($miembrosIds as $mid) {
-                    if (!in_array($mid, $insertados)) {
-                        $miembroModel->insert([
-                            'grupo_id' => $grupoId,
-                            'user_id' => $mid,
-                            'rol' => 'member',
-                        ]);
-                        $insertados[] = $mid;
-                    }
-                }
+        foreach ($miembrosValidos as $mid) {
+            if ($mid !== $userId) {
+                $miembroModel->insert([
+                    'grupo_id' => $grupoId,
+                    'user_id' => $mid,
+                    'rol' => 'member',
+                ]);
             }
         }
 
