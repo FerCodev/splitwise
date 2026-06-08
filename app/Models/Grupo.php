@@ -237,16 +237,23 @@ class Grupo extends Model
         $sql = "SELECT g.id as grupo_id,
                        GREATEST(
                            COALESCE(
-                               (SELECT MAX(GREATEST(COALESCE(gast.updated_at, gast.created_at, gast.fecha)))
-                                  FROM gastos gast WHERE gast.grupo_id = g.id),
+                               (SELECT MAX(GREATEST(
+                                   COALESCE(gast.updated_at, '1970-01-01'),
+                                   COALESCE(gast.created_at, '1970-01-01'),
+                                   COALESCE(gast.fecha, '1970-01-01')
+                               )) FROM gastos gast WHERE gast.grupo_id = g.id),
                                '1970-01-01'
                            ),
                            COALESCE(
-                               (SELECT MAX(GREATEST(COALESCE(pag.updated_at, pag.created_at, pag.fecha)))
-                                  FROM pagos pag WHERE pag.grupo_id = g.id),
+                               (SELECT MAX(GREATEST(
+                                   COALESCE(pag.updated_at, '1970-01-01'),
+                                   COALESCE(pag.created_at, '1970-01-01'),
+                                   COALESCE(pag.fecha, '1970-01-01')
+                               )) FROM pagos pag WHERE pag.grupo_id = g.id),
                                '1970-01-01'
                            ),
-                           COALESCE(g.updated_at, g.created_at, '1970-01-01')
+                           COALESCE(g.updated_at, '1970-01-01'),
+                           COALESCE(g.created_at, '1970-01-01')
                        ) as ultima_actividad
                   FROM grupos g
                   JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?";
@@ -272,7 +279,11 @@ class Grupo extends Model
                   FROM (
                       SELECT g.id as grupo_id, 'gasto' as tipo,
                              gast.descripcion, gast.monto, gast.fecha,
-                             GREATEST(COALESCE(gast.updated_at, gast.created_at, gast.fecha)) as sort_date,
+                             GREATEST(
+                                 COALESCE(gast.updated_at, '1970-01-01'),
+                                 COALESCE(gast.created_at, '1970-01-01'),
+                                 COALESCE(gast.fecha, '1970-01-01')
+                             ) as sort_date,
                              gast.id as mov_id
                         FROM grupos g
                         JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?
@@ -282,7 +293,11 @@ class Grupo extends Model
 
                       SELECT g.id, 'pago',
                              COALESCE(pag.descripcion, 'Pago'), pag.monto, pag.fecha,
-                             GREATEST(COALESCE(pag.updated_at, pag.created_at, pag.fecha)),
+                             GREATEST(
+                                 COALESCE(pag.updated_at, '1970-01-01'),
+                                 COALESCE(pag.created_at, '1970-01-01'),
+                                 COALESCE(pag.fecha, '1970-01-01')
+                             ),
                              pag.id
                         FROM grupos g
                         JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?
