@@ -79,6 +79,51 @@ class Grupo extends Model
     // ---------------------------------------------------------------
 
     /**
+     * Computa el resumen financiero del dashboard a partir de grupos
+     * enriquecidos con mi_saldo. Metodo puro, testeable sin DB.
+     *
+     * @param array $grupos Lista de grupos con clave 'estado' y 'mi_saldo'
+     * @return array [cantidadActivos, cantidadCerrados, cantidadLiquidados, globalSaldo, gruposAFavor, gruposDebe]
+     */
+    public static function computeDashboardResumen(array $grupos): array
+    {
+        $cantidadActivos = 0;
+        $cantidadCerrados = 0;
+        $cantidadLiquidados = 0;
+        $globalSaldo = 0.0;
+        $gruposAFavor = 0;
+        $gruposDebe = 0;
+
+        foreach ($grupos as $g) {
+            $estado = $g['estado'] ?? 'activo';
+            if ($estado === 'activo') {
+                $cantidadActivos++;
+            } elseif ($estado === 'cerrado') {
+                $cantidadCerrados++;
+            } elseif ($estado === 'liquidado') {
+                $cantidadLiquidados++;
+            }
+
+            $saldo = (float) ($g['mi_saldo'] ?? 0);
+            $globalSaldo += $saldo;
+            if ($saldo > 0) {
+                $gruposAFavor++;
+            } elseif ($saldo < 0) {
+                $gruposDebe++;
+            }
+        }
+
+        return [
+            'cantidadActivos' => $cantidadActivos,
+            'cantidadCerrados' => $cantidadCerrados,
+            'cantidadLiquidados' => $cantidadLiquidados,
+            'globalSaldo' => round($globalSaldo, 2),
+            'gruposAFavor' => $gruposAFavor,
+            'gruposDebe' => $gruposDebe,
+        ];
+    }
+
+    /**
      * Estados posibles y sus transiciones permitidas.
      * clave => lista de estados a los que se puede transicionar.
      */

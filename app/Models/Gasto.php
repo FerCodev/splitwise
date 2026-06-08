@@ -254,4 +254,20 @@ class Gasto extends Model
     {
         return self::computeDeudasFromBalance($this->getBalanceByGrupo($grupoId));
     }
+
+    /**
+     * Retorna los ultimos gastos visibles para el usuario en todos sus grupos.
+     */
+    public function getUltimosGastosByUser(int $userId, int $limit = 5): array
+    {
+        return $this->select('gastos.*, users.name as pagador_nombre, grupos.nombre as grupo_nombre')
+            ->join('users', 'users.id = gastos.pagador_id')
+            ->join('grupos', 'grupos.id = gastos.grupo_id')
+            ->join('grupo_miembros', 'grupo_miembros.grupo_id = gastos.grupo_id AND grupo_miembros.user_id = ' . $userId)
+            ->groupBy('gastos.id')
+            ->orderBy('gastos.fecha', 'DESC')
+            ->orderBy('gastos.created_at', 'DESC')
+            ->limit($limit)
+            ->findAll();
+    }
 }
