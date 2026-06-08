@@ -80,15 +80,7 @@
                                             <td><?= esc($pago['receptor_nombre']) ?></td>
                                             <td><?= esc($pago['grupo_nombre']) ?></td>
                                             <td>
-                                                <div class="d-flex gap-1">
-                                                    <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
-                                                    <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                                    <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar pago?')">
-                                                        <?= csrf_field() ?>
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
-                                                    </form>
-                                                </div>
+                                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -111,14 +103,8 @@
                                 <?= esc($pago['pagador_nombre']) ?> &rarr; <?= esc($pago['receptor_nombre']) ?>
                             </div>
                             <div class="text-muted small">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
-                            <div class="d-flex gap-2 mt-2">
-                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm flex-fill">Ver</a>
-                                <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
-                                <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar pago?')">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
-                                </form>
+                            <div class="mt-2">
+                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
                             </div>
                         </div>
                     </div>
