@@ -130,9 +130,94 @@ class Gasto extends Model
         return $saldos;
     }
 
+    /**
+     * Calcula el balance completo por usuario incluyendo pagos.
+     *
+     * saldo = total_pagado_gastos - total_consumido - pagos_recibidos + pagos_enviados
+     *
+     * Los pagos recibidos REDUCEN el saldo (la deuda del otro se extingue).
+     * Los pagos enviados AUMENTAN el saldo (la deuda propia se extingue).
+     */
+    public function getBalanceByGrupo(int $grupoId): array
+    {
+        $db = $this->db;
+        $miembros = model(GrupoMiembro::class)
+            ->select('grupo_miembros.*, users.name, users.email')
+            ->join('users', 'users.id = grupo_miembros.user_id')
+            ->where('grupo_miembros.grupo_id', $grupoId)
+            ->findAll();
+
+        $pagadoGastos = $this->sumByUser('gastos', 'pagador_id', $grupoId);
+        $consumido = [];
+        $rows = $db->table('gasto_participantes')
+            ->select('gasto_participantes.user_id, SUM(gasto_participantes.monto_asignado) as total')
+            ->join('gastos', 'gastos.id = gasto_participantes.gasto_id')
+            ->where('gastos.grupo_id', $grupoId)
+            ->groupBy('gasto_participantes.user_id')
+            ->get()
+            ->getResultArray();
+        foreach ($rows as $r) {
+            $consumido[$r['user_id']] = (float) $r['total'];
+        }
+
+        $pagosEnviados = $this->sumByUser('pagos', 'pagador_id', $grupoId);
+        $pagosRecibidos = $this->sumByUser('pagos', 'receptor_id', $grupoId);
+
+        return self::computeBalance($miembros, $pagadoGastos, $consumido, $pagosEnviados, $pagosRecibidos);
+    }
+
+    private function sumByUser(string $table, string $userIdColumn, int $grupoId): array
+    {
+        $result = [];
+        $rows = $this->db->table($table)
+            ->select("$userIdColumn as user_id, SUM(monto) as total")
+            ->where('grupo_id', $grupoId)
+            ->groupBy($userIdColumn)
+            ->get()
+            ->getResultArray();
+        foreach ($rows as $r) {
+            $result[$r['user_id']] = (float) $r['total'];
+        }
+        return $result;
+    }
+
+    /**
+     * Computa el balance a partir de datos pre-cargados.
+     * Separado para poder testear sin base de datos.
+     */
+    public static function computeBalance(
+        array $miembros,
+        array $pagadoGastos,
+        array $consumido,
+        array $pagosEnviados,
+        array $pagosRecibidos
+    ): array {
+        $balance = [];
+        foreach ($miembros as $m) {
+            $uid = $m['user_id'];
+            $tp = (float) ($pagadoGastos[$uid] ?? 0);
+            $tc = (float) ($consumido[$uid] ?? 0);
+            $pe = (float) ($pagosEnviados[$uid] ?? 0);
+            $pr = (float) ($pagosRecibidos[$uid] ?? 0);
+            $balance[] = [
+                'user_id' => $uid,
+                'name' => $m['name'],
+                'total_pagado_gastos' => $tp,
+                'total_consumido' => $tc,
+                'pagos_enviados' => $pe,
+                'pagos_recibidos' => $pr,
+                'saldo' => round($tp - $tc - $pr + $pe, 2),
+            ];
+        }
+
+        usort($balance, fn($a, $b) => $b['saldo'] - $a['saldo']);
+
+        return $balance;
+    }
+
     public function getDeudasByGrupo(int $grupoId): array
     {
-        $saldos = $this->getSaldosByGrupo($grupoId);
+        $saldos = $this->getBalanceByGrupo($grupoId);
 
         $acreedores = array_filter($saldos, fn($s) => $s['saldo'] > 0);
         $deudores = array_filter($saldos, fn($s) => $s['saldo'] < 0);
