@@ -51,6 +51,7 @@ class Gastos extends BaseController
         $grupoModel = new Grupo();
         $grupos = $grupoModel->getGruposByUser(session()->get('userId'));
         $miembros = [];
+        $participantesIds = [];
 
         if ($grupoId) {
             $acceso = $this->verificarAccesoGrupo((int) $grupoId);
@@ -64,12 +65,15 @@ class Gastos extends BaseController
             }
 
             $miembros = $grupoModel->getMiembros((int) $grupoId);
+            $participantesIds = array_column($miembros, 'user_id');
         }
 
         return view('gastos/form', [
             'grupos' => $grupos,
             'grupoId' => $grupoId,
             'miembros' => $miembros,
+            'participantesIds' => $participantesIds,
+            'pagadorPorDefecto' => session()->get('userId'),
             'categorias' => model(Categoria::class)->getActivas(),
         ]);
     }
@@ -81,7 +85,6 @@ class Gastos extends BaseController
             'monto' => 'required|numeric|greater_than[0]',
             'fecha' => 'required|valid_date',
             'grupo_id' => 'required|is_natural_no_zero',
-            'pagador_id' => 'required|is_natural_no_zero',
             'participantes' => 'required',
             'categoria_id' => 'permit_empty|is_natural_no_zero',
         ];
@@ -91,7 +94,7 @@ class Gastos extends BaseController
         }
 
         $grupoId = (int) $this->request->getPost('grupo_id');
-        $pagadorId = (int) $this->request->getPost('pagador_id');
+        $pagadorId = session()->get('userId');
         $monto = (float) $this->request->getPost('monto');
         $participantesIds = $this->request->getPost('participantes');
 
@@ -110,10 +113,6 @@ class Gastos extends BaseController
         $bloqueo = Grupo::restriccionEstado($grupo['estado'], 'gasto_create');
         if ($bloqueo) {
             return redirect()->to('/gastos')->with('error', $bloqueo);
-        }
-
-        if (!$grupoModel->isMiembro($grupoId, $pagadorId)) {
-            return redirect()->back()->withInput()->with('errors', ['pagador_id' => 'El pagador no pertenece al grupo.']);
         }
 
         $miembros = $grupoModel->getMiembros($grupoId);
