@@ -80,7 +80,7 @@
                                             <td><?= esc($pago['receptor_nombre']) ?></td>
                                             <td><?= esc($pago['grupo_nombre']) ?></td>
                                             <td>
-                                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
+                                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-sm btn-outline-info">Ver detalle</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -104,7 +104,7 @@
                             </div>
                             <div class="text-muted small">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
                             <div class="mt-2">
-                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
+                                <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="btn btn-outline-info btn-sm">Ver detalle</a>
                             </div>
                         </div>
                     </div>

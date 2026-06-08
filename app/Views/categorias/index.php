@@ -16,7 +16,7 @@
         <?php endif; ?>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-body p-0">
+            <div class="card-body p-0 d-none d-md-block">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -77,6 +77,52 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div class="d-md-none">
+                <?php if (empty($categorias)): ?>
+                    <div class="card-body text-center py-4">
+                        <p class="text-muted mb-0">No hay categor&iacute;as registradas.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($categorias as $c): ?>
+                        <div class="mobile-card-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="fw-medium"><?= esc($c['nombre']) ?></span>
+                                    <?php if ($c['nombre'] === $protegida): ?>
+                                        <span class="badge bg-secondary ms-1">Protegida</span>
+                                    <?php endif; ?>
+                                </div>
+                                <div>
+                                    <?php if ($c['activa']): ?>
+                                        <span class="badge bg-success">Activa</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">Inactiva</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="text-muted small mt-1"><?= $usadas[(int) $c['id']] ?? 0 ?> gasto(s)</div>
+                            <div class="mt-2 d-flex gap-1 flex-wrap">
+                                <?php if ($c['nombre'] !== $protegida): ?>
+                                    <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
+                                    <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="flex-fill">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm <?= $c['activa'] ? 'btn-outline-warning' : 'btn-outline-success' ?> w-100">
+                                            <?= $c['activa'] ? 'Desactivar' : 'Activar' ?>
+                                        </button>
+                                    </form>
+                                    <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
+                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('&iquest;Eliminar categor&iacute;a?')">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                                        </form>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>

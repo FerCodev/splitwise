@@ -224,6 +224,34 @@ class Grupo extends Model
         return $pagosReceptor > 0;
     }
 
+    /**
+     * Retorna un array asociativo [grupo_id => ultima_actividad] para todos
+     * los grupos del usuario. La actividad se calcula como la fecha mas
+     * reciente entre: ultimo gasto, ultimo pago, updated_at, created_at.
+     */
+    public function getUltimaActividadByUser(int $userId): array
+    {
+        $sql = "SELECT g.id as grupo_id,
+                       GREATEST(
+                           COALESCE(MAX(gast.fecha), '1970-01-01'),
+                           COALESCE(MAX(pag.fecha), '1970-01-01'),
+                           g.updated_at,
+                           g.created_at
+                       ) as ultima_actividad
+                  FROM grupos g
+                  JOIN grupo_miembros gm ON gm.grupo_id = g.id AND gm.user_id = ?
+                  LEFT JOIN gastos gast ON gast.grupo_id = g.id
+                  LEFT JOIN pagos pag ON pag.grupo_id = g.id
+                 GROUP BY g.id";
+
+        $rows = $this->db->query($sql, [$userId])->getResultArray();
+        $result = [];
+        foreach ($rows as $r) {
+            $result[(int) $r['grupo_id']] = $r['ultima_actividad'];
+        }
+        return $result;
+    }
+
     public function getUsuariosDisponibles(int $grupoId): array
     {
         $sql = 'SELECT id, name, email FROM users WHERE id NOT IN (
