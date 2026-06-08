@@ -51,7 +51,8 @@
     <div class="card">
         <h1>404</h1>
         <p>P&aacute;gina no encontrada.</p>
-        <a href="/" class="btn">Volver al inicio</a>
+        <?php $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') ?: '/'; ?>
+        <a href="<?= $basePath ?>" class="btn">Volver al inicio</a>
     </div>
 </body>
 </html>

@@ -51,7 +51,8 @@
     <div class="card">
         <h1>403</h1>
         <p>No ten&eacute;s permiso para realizar esta acci&oacute;n.</p>
-        <a href="/" class="btn">Volver al inicio</a>
+        <?php $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') ?: '/'; ?>
+        <a href="<?= $basePath ?>" class="btn">Volver al inicio</a>
     </div>
 </body>
 </html>

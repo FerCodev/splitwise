@@ -51,7 +51,8 @@
     <div class="card">
         <h1>400</h1>
         <p>Solicitud inv&aacute;lida. Si el problema persiste, volv&eacute; a iniciar sesi&oacute;n.</p>
-        <a href="/" class="btn">Volver al inicio</a>
+        <?php $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') ?: '/'; ?>
+        <a href="<?= $basePath ?>" class="btn">Volver al inicio</a>
     </div>
 </body>
 </html>

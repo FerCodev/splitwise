@@ -19,7 +19,7 @@ final class SecurityConfigTest extends \CodeIgniter\Test\CIUnitTestCase
     {
         $config = new Security();
 
-        $this->assertTrue($config->redirect, 'CSRF debe redirigir en vez de lanzar excepci\u00f3n.');
+        $this->assertTrue($config->redirect, 'CSRF debe redirigir en vez de lanzar excepci' . "\xc3\xb3" . 'n.');
     }
 
     public function testCsrfExpiresIsReasonable(): void

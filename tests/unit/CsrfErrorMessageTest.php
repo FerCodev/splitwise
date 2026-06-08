@@ -9,7 +9,14 @@ final class CsrfErrorMessageTest extends \CodeIgniter\Test\CIUnitTestCase
     {
         $message = lang('Security.disallowedAction');
 
-        $this->assertStringContainsString('sesi\u00f3n', $message);
+        $this->assertStringContainsString('sesi' . "\xc3\xb3" . 'n', $message);
+    }
+
+    public function testSpanishCsrfMessageContainsFormulario(): void
+    {
+        $message = lang('Security.disallowedAction');
+
+        $this->assertStringContainsString('formulario', $message);
     }
 
     public function testSpanishCsrfMessageIsNotEmpty(): void
