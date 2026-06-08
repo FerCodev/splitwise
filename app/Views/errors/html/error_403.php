@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SplitWise - P&aacute;gina no encontrada</title>
+    <title>SplitWise - Acceso denegado</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -49,8 +49,8 @@
 </head>
 <body>
     <div class="card">
-        <h1>404</h1>
-        <p>P&aacute;gina no encontrada.</p>
+        <h1>403</h1>
+        <p>No ten&eacute;s permiso para realizar esta acci&oacute;n.</p>
         <?php $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\') ?: '/'; ?>
         <a href="<?= $basePath ?>" class="btn">Volver al inicio</a>
     </div>
