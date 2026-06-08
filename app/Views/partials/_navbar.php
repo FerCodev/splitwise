@@ -14,6 +14,7 @@
                     <li><a class="dropdown-item" href="<?= base_url('grupos') ?>">Grupos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('gastos') ?>">Gastos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('pagos') ?>">Pagos</a></li>
+                    <li><a class="dropdown-item" href="<?= base_url('categorias') ?>">Categor&iacute;as</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('usuarios') ?>">Usuarios</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item text-danger" href="<?= base_url('logout') ?>">Cerrar Sesión</a></li>

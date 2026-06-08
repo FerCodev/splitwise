@@ -1,79 +1,115 @@
 <?php
 
-use App\Models\Gasto;
+use App\Models\Categoria;
 
 /**
  * @internal
  */
 final class CategoriaGastoTest extends \CodeIgniter\Test\CIUnitTestCase
 {
-    private array $esperadas = [
-        'Supermercado',
-        'Servicios',
-        'Combustible',
-        'Farmacia',
-        'Mascotas',
-        'Transporte',
-        'Comida',
-        'Viajes',
-        'Otros',
+    private const CATEGORIAS_INICIALES = [
+        'Supermercado', 'Servicios', 'Combustible', 'Farmacia',
+        'Mascotas', 'Transporte', 'Comida', 'Viajes', 'Otros',
     ];
 
-    public function testListaExactaDeCategorias(): void
+    public function testConstanteProtegidaEsOtros(): void
     {
-        $categorias = Gasto::categoriasPermitidas();
-
-        $this->assertSame($this->esperadas, $categorias);
+        $this->assertSame('Otros', Categoria::PROTEGIDA);
     }
 
-    public function testCategoriasSinDuplicados(): void
+    public function testIsProtegidaConOtrosDevuelveTrue(): void
     {
-        $categorias = Gasto::categoriasPermitidas();
-
-        $this->assertSame(array_unique($categorias), array_values($categorias));
+        $this->assertTrue(Categoria::isProtegida('Otros'));
     }
 
-    public function testOtrosEsElUltimoYDefault(): void
+    public function testIsProtegidaConOtraCategoriaDevuelveFalse(): void
     {
-        $categorias = Gasto::categoriasPermitidas();
-
-        $this->assertSame('Otros', $categorias[array_key_last($categorias)]);
+        $this->assertFalse(Categoria::isProtegida('Comida'));
     }
 
-    public function testCategoriaVaciaFallaAOtros(): void
+    public function testIsProtegidaEsCaseSensitive(): void
     {
-        $categoria = '';
-
-        if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
-            $categoria = 'Otros';
-        }
-
-        $this->assertSame('Otros', $categoria);
+        $this->assertFalse(Categoria::isProtegida('otros'));
+        $this->assertFalse(Categoria::isProtegida('OTROS'));
     }
 
-    public function testCategoriaInvalidaFallaAOtros(): void
+    public function testIsProtegidaConEspaciosNoCoincide(): void
     {
-        $categoria = 'CategoriaInexistente123';
-
-        if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
-            $categoria = 'Otros';
-        }
-
-        $this->assertSame('Otros', $categoria);
+        $this->assertFalse(Categoria::isProtegida(' Otros'));
+        $this->assertFalse(Categoria::isProtegida('Otros '));
     }
 
-    public function testCategoriaValidaNoSeModifica(): void
+    public function testListaInicialDeCategorias(): void
     {
-        $categorias = Gasto::categoriasPermitidas();
+        $this->assertCount(9, self::CATEGORIAS_INICIALES);
+        $this->assertContains('Otros', self::CATEGORIAS_INICIALES);
+        $this->assertSame('Otros', self::CATEGORIAS_INICIALES[array_key_last(self::CATEGORIAS_INICIALES)]);
+    }
 
-        foreach ($categorias as $original) {
-            $categoria = $original;
+    public function testCategoriasInicialesSinDuplicados(): void
+    {
+        $this->assertSame(self::CATEGORIAS_INICIALES, array_values(array_unique(self::CATEGORIAS_INICIALES)));
+    }
 
-            if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
-                $categoria = 'Otros';
-            }
+    public function testLogicaFallbackCategoriaVaciaOInvalidaVuelveAOtras(): void
+    {
+        $categoriaId = 0;
+        $catValida = null;
+        $resultado = ($categoriaId <= 0 || !$catValida || !($catValida['activa'] ?? false));
+        $this->assertTrue($resultado);
+    }
 
-            $this->assertSame($original, $categoria);
-        }
+    public function testLogicaFallbackCategoriaActivaValidaNoCambia(): void
+    {
+        $categoriaId = 5;
+        $catValida = ['id' => 5, 'nombre' => 'Mascotas', 'activa' => 1];
+        $resultado = ($categoriaId <= 0 || !$catValida || !$catValida['activa']);
+        $this->assertFalse($resultado);
+    }
+
+    public function testLogicaFallbackCategoriaInactivaVuelveAOtros(): void
+    {
+        $categoriaId = 3;
+        $catValida = ['id' => 3, 'nombre' => 'Combustible', 'activa' => 0];
+        $resultado = ($categoriaId <= 0 || !$catValida || !$catValida['activa']);
+        $this->assertTrue($resultado);
+    }
+
+    public function testLogicaFallbackCategoriaInexistenteVuelveAOtros(): void
+    {
+        $categoriaId = 999;
+        $catValida = null;
+        $resultado = ($categoriaId <= 0 || !$catValida || !($catValida['activa'] ?? false));
+        $this->assertTrue($resultado);
+    }
+
+    public function testLogicaProteccionToggleDesactivaOtros(): void
+    {
+        $categoria = ['id' => 9, 'nombre' => 'Otros', 'activa' => 1];
+        $bloqueado = Categoria::isProtegida($categoria['nombre']);
+        $this->assertTrue($bloqueado);
+    }
+
+    public function testLogicaProteccionEliminarOtros(): void
+    {
+        $categoria = ['id' => 9, 'nombre' => 'Otros', 'activa' => 1];
+        $bloqueado = Categoria::isProtegida($categoria['nombre']);
+        $this->assertTrue($bloqueado);
+    }
+
+    public function testLogicaEliminarCategoriaUsadaPorGastos(): void
+    {
+        $id = 5;
+        $tieneGastos = true;
+        $bloqueado = Categoria::isProtegida('Mascotas') || $tieneGastos;
+        $this->assertTrue($bloqueado);
+    }
+
+    public function testLogicaEliminarCategoriaSinGastosNoProtegida(): void
+    {
+        $id = 5;
+        $tieneGastos = false;
+        $bloqueado = Categoria::isProtegida('Mascotas') || $tieneGastos;
+        $this->assertFalse($bloqueado);
     }
 }

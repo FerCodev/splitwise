@@ -72,11 +72,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="categoria" class="form-label fw-medium">Categoría</label>
-                        <select class="form-select" id="categoria" name="categoria">
-                            <option value="">Sin categoría (Otros)</option>
+                        <label for="categoria_id" class="form-label fw-medium">Categoría</label>
+                        <select class="form-select" id="categoria_id" name="categoria_id">
+                            <option value="">Sin categoría</option>
                             <?php foreach ($categorias as $cat): ?>
-                                <option value="<?= esc($cat) ?>" <?= old('categoria', $gasto['categoria'] ?? 'Otros') === $cat ? 'selected' : '' ?>><?= esc($cat) ?></option>
+                                <option value="<?= $cat['id'] ?>" <?= old('categoria_id', $gasto['categoria_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>><?= esc($cat['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

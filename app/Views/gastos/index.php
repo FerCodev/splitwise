@@ -41,10 +41,10 @@
                     </div>
                     <div class="col-6 col-md-2">
                         <label class="form-label small fw-medium">Categoría</label>
-                        <select name="categoria" class="form-select">
+                        <select name="categoria_id" class="form-select">
                             <option value="">Todas</option>
                             <?php foreach ($categorias as $cat): ?>
-                                <option value="<?= esc($cat) ?>" <?= ($filters['categoria'] ?? '') === $cat ? 'selected' : '' ?>><?= esc($cat) ?></option>
+                                <option value="<?= $cat['id'] ?>" <?= ($filters['categoria_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>><?= esc($cat['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -88,7 +88,7 @@
                                             <td class="fw-medium">$<?= number_format($gasto['monto'], 2) ?></td>
                                             <td><?= esc($gasto['pagador_nombre']) ?></td>
                                             <td><?= esc($gasto['grupo_nombre']) ?></td>
-                                            <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria'] ?? 'Otros') ?></span></td>
+                                            <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span></td>
                                             <td><?= $gasto['total_participantes'] ?></td>
                                             <td>
                                                 <div class="d-flex gap-1">
@@ -122,7 +122,7 @@
                                 <?= esc($gasto['pagador_nombre']) ?>
                             </div>
                             <div class="text-muted small">
-                                <span class="badge bg-light text-dark"><?= esc($gasto['categoria'] ?? 'Otros') ?></span>
+                                <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
                                 Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
                             </div>
                             <div class="d-flex gap-2 mt-2">
