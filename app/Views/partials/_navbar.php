@@ -14,6 +14,7 @@
                     <li><a class="dropdown-item" href="<?= base_url('grupos') ?>">Grupos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('gastos') ?>">Gastos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('pagos') ?>">Pagos</a></li>
+                    <li><a class="dropdown-item" href="<?= base_url('reportes') ?>">Reportes</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('mis-medios-de-cobro') ?>">Mis medios de cobro</a></li>
                     <?php if (session()->get('userRole') === 'admin'): ?>
                         <li><a class="dropdown-item" href="<?= base_url('categorias') ?>">Categor&iacute;as</a></li>
