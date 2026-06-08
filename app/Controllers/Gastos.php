@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Gasto;
 use App\Models\Grupo;
 use App\Models\GastoParticipante;
+use App\Models\Categoria;
 
 class Gastos extends BaseController
 {
@@ -40,7 +41,7 @@ class Gastos extends BaseController
             'gastos' => $gastos,
             'grupos' => $grupos,
             'filters' => $filters,
-            'categorias' => Gasto::categoriasPermitidas(),
+            'categorias' => model(Categoria::class)->getActivas(),
         ]);
     }
 
@@ -69,7 +70,7 @@ class Gastos extends BaseController
             'grupos' => $grupos,
             'grupoId' => $grupoId,
             'miembros' => $miembros,
-            'categorias' => Gasto::categoriasPermitidas(),
+            'categorias' => model(Categoria::class)->getActivas(),
         ]);
     }
 
@@ -82,7 +83,7 @@ class Gastos extends BaseController
             'grupo_id' => 'required|is_natural_no_zero',
             'pagador_id' => 'required|is_natural_no_zero',
             'participantes' => 'required',
-            'categoria' => 'permit_empty|in_list[' . implode(',', Gasto::categoriasPermitidas()) . ']',
+            'categoria_id' => 'permit_empty|is_natural_no_zero',
         ];
 
         if (!$this->validate($rules)) {
@@ -130,9 +131,11 @@ class Gastos extends BaseController
         $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
 
         $gastoModel = new Gasto();
-        $categoria = $this->request->getPost('categoria');
-        if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
-            $categoria = 'Otros';
+        $categoriaModel = model(Categoria::class);
+        $categoriaId = (int) $this->request->getPost('categoria_id');
+        $catValida = $categoriaModel->find($categoriaId);
+        if ($categoriaId <= 0 || !$catValida || !$catValida['activa']) {
+            $categoriaId = $categoriaModel->getOtrosId();
         }
 
         $gastoId = $gastoModel->insert([
@@ -141,7 +144,7 @@ class Gastos extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
-            'categoria' => $categoria,
+            'categoria_id' => $categoriaId,
         ]);
 
         $participanteModel = new GastoParticipante();
@@ -163,9 +166,10 @@ class Gastos extends BaseController
     public function show(int $id)
     {
         $gastoModel = new Gasto();
-        $gasto = $gastoModel->select('gastos.*, users.name as pagador_nombre, grupos.nombre as grupo_nombre')
+        $gasto = $gastoModel->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre')
             ->join('users', 'users.id = gastos.pagador_id')
             ->join('grupos', 'grupos.id = gastos.grupo_id')
+            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
             ->find($id);
 
         if (!$gasto) {
@@ -184,7 +188,7 @@ class Gastos extends BaseController
         return view('gastos/show', [
             'gasto' => $gasto,
             'participantes' => $participantes,
-            'categorias' => Gasto::categoriasPermitidas(),
+            'categorias' => model(Categoria::class)->getActivas(),
         ]);
     }
 
@@ -215,7 +219,7 @@ class Gastos extends BaseController
             'grupoId' => $gasto['grupo_id'],
             'miembros' => $miembros,
             'participantesIds' => $participantesIds,
-            'categorias' => Gasto::categoriasPermitidas(),
+            'categorias' => model(Categoria::class)->getActivas(),
         ]);
     }
 
@@ -235,7 +239,7 @@ class Gastos extends BaseController
             'grupo_id' => 'required|is_natural_no_zero',
             'pagador_id' => 'required|is_natural_no_zero',
             'participantes' => 'required',
-            'categoria' => 'permit_empty|in_list[' . implode(',', Gasto::categoriasPermitidas()) . ']',
+            'categoria_id' => 'permit_empty|is_natural_no_zero',
         ];
 
         if (!$this->validate($rules)) {
@@ -277,9 +281,11 @@ class Gastos extends BaseController
             }
         }
 
-        $categoria = $this->request->getPost('categoria');
-        if (empty($categoria) || !in_array($categoria, Gasto::categoriasPermitidas())) {
-            $categoria = 'Otros';
+        $categoriaModel = model(Categoria::class);
+        $categoriaId = (int) $this->request->getPost('categoria_id');
+        $catValida = $categoriaModel->find($categoriaId);
+        if ($categoriaId <= 0 || !$catValida || !$catValida['activa']) {
+            $categoriaId = $categoriaModel->getOtrosId();
         }
 
         $gastoModel->update($id, [
@@ -288,7 +294,7 @@ class Gastos extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
-            'categoria' => $categoria,
+            'categoria_id' => $categoriaId,
         ]);
 
         $participanteModel = new GastoParticipante();

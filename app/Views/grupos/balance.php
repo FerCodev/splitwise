@@ -130,7 +130,7 @@
                             <tbody>
                                 <?php foreach ($gastosPorCategoria as $cat): ?>
                                     <tr>
-                                        <td><span class="badge bg-light text-dark"><?= esc($cat['categoria']) ?></span></td>
+                                        <td><span class="badge bg-light text-dark"><?= esc($cat['categoria_nombre']) ?></span></td>
                                         <td class="text-end"><?= $cat['cantidad'] ?></td>
                                         <td class="text-end fw-medium">$<?= number_format($cat['total'], 2) ?></td>
                                     </tr>
@@ -143,7 +143,7 @@
                     <?php foreach ($gastosPorCategoria as $cat): ?>
                         <div class="mobile-card-item">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-light text-dark"><?= esc($cat['categoria']) ?></span>
+                                <span class="badge bg-light text-dark"><?= esc($cat['categoria_nombre']) ?></span>
                                 <span class="fw-medium">$<?= number_format($cat['total'], 2) ?></span>
                             </div>
                             <div class="text-muted small"><?= $cat['cantidad'] ?> gasto(s)</div>

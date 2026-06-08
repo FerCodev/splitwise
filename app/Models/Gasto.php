@@ -10,29 +10,15 @@ class Gasto extends Model
 {
     protected $table = 'gastos';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria'];
+    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria_id'];
     protected $useTimestamps = true;
-
-    public static function categoriasPermitidas(): array
-    {
-        return [
-            'Supermercado',
-            'Servicios',
-            'Combustible',
-            'Farmacia',
-            'Mascotas',
-            'Transporte',
-            'Comida',
-            'Viajes',
-            'Otros',
-        ];
-    }
 
     public function getGastosByGrupo(int $grupoId): array
     {
-        return $this->select('gastos.*, users.name as pagador_nombre, 
+        return $this->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre,
                 (SELECT COUNT(*) FROM gasto_participantes WHERE gasto_id = gastos.id) as total_participantes')
             ->join('users', 'users.id = gastos.pagador_id')
+            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
             ->where('gastos.grupo_id', $grupoId)
             ->orderBy('gastos.fecha', 'DESC')
             ->orderBy('gastos.created_at', 'DESC')
@@ -43,10 +29,11 @@ class Gasto extends Model
     {
         $userId = session()->get('userId');
 
-        $this->select('gastos.*, users.name as pagador_nombre, grupos.nombre as grupo_nombre,
+        $this->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre,
                 (SELECT COUNT(*) FROM gasto_participantes WHERE gasto_id = gastos.id) as total_participantes')
             ->join('users', 'users.id = gastos.pagador_id')
             ->join('grupos', 'grupos.id = gastos.grupo_id')
+            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
             ->join('grupo_miembros', 'grupo_miembros.grupo_id = gastos.grupo_id AND grupo_miembros.user_id = ' . $userId)
             ->groupBy('gastos.id');
 
@@ -70,8 +57,8 @@ class Gasto extends Model
             $this->like('gastos.descripcion', $filters['descripcion']);
         }
 
-        if (!empty($filters['categoria'])) {
-            $this->where('gastos.categoria', $filters['categoria']);
+        if (!empty($filters['categoria_id'])) {
+            $this->where('gastos.categoria_id', $filters['categoria_id']);
         }
 
         $sort = $filters['sort'] ?? 'fecha';
@@ -93,9 +80,10 @@ class Gasto extends Model
 
     public function getMontosPorCategoria(int $grupoId): array
     {
-        return $this->select('categoria, SUM(monto) as total, COUNT(*) as cantidad')
-            ->where('grupo_id', $grupoId)
-            ->groupBy('categoria')
+        return $this->select('categorias.nombre as categoria_nombre, SUM(gastos.monto) as total, COUNT(*) as cantidad')
+            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
+            ->where('gastos.grupo_id', $grupoId)
+            ->groupBy('gastos.categoria_id')
             ->orderBy('total', 'DESC')
             ->findAll();
     }
@@ -288,9 +276,10 @@ class Gasto extends Model
      */
     public function getUltimosGastosByUser(int $userId, int $limit = 5): array
     {
-        return $this->select('gastos.*, users.name as pagador_nombre, grupos.nombre as grupo_nombre')
+        return $this->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre')
             ->join('users', 'users.id = gastos.pagador_id')
             ->join('grupos', 'grupos.id = gastos.grupo_id')
+            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
             ->join('grupo_miembros', 'grupo_miembros.grupo_id = gastos.grupo_id AND grupo_miembros.user_id = ' . $userId)
             ->groupBy('gastos.id')
             ->orderBy('gastos.fecha', 'DESC')
