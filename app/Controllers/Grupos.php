@@ -114,6 +114,35 @@ class Grupos extends BaseController
         ]);
     }
 
+    public function balance(int $id)
+    {
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        $gastoModel = new Gasto();
+        $pagoModel = new Pago();
+        $grupoModel = new Grupo();
+
+        $miembros = $grupoModel->getMiembros($id);
+        $balance = $gastoModel->getBalanceByGrupo($id);
+        $deudas = $gastoModel->getDeudasByGrupo($id);
+        $totalGastado = $grupoModel->getTotalGastado($id);
+        $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
+
+        return view('grupos/balance', [
+            'grupo' => $acceso['grupo'],
+            'rol' => $acceso['rol'],
+            'miembros' => $miembros,
+            'balance' => $balance,
+            'deudas' => $deudas,
+            'totalGastado' => $totalGastado,
+            'totalPagado' => $totalPagado,
+        ]);
+    }
+
     public function edit(int $id)
     {
         $acceso = $this->verificarAcceso($id);
