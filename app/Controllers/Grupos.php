@@ -42,7 +42,10 @@ class Grupos extends BaseController
 
     public function new()
     {
-        return view('grupos/form');
+        $userModel = new \App\Models\User();
+        $usuarios = $userModel->select('id, name, email')->where('id !=', session()->get('userId'))->orderBy('name', 'ASC')->findAll();
+
+        return view('grupos/form', ['usuarios' => $usuarios]);
     }
 
     public function create()
@@ -76,6 +79,22 @@ class Grupos extends BaseController
             'user_id' => $userId,
             'rol' => 'admin',
         ]);
+
+        $miembrosIds = $this->request->getPost('miembros');
+        if (is_array($miembrosIds)) {
+            $insertados = [$userId];
+            foreach ($miembrosIds as $mid) {
+                $mid = (int) $mid;
+                if ($mid > 0 && !in_array($mid, $insertados)) {
+                    $miembroModel->insert([
+                        'grupo_id' => $grupoId,
+                        'user_id' => $mid,
+                        'rol' => 'member',
+                    ]);
+                    $insertados[] = $mid;
+                }
+            }
+        }
 
         return redirect()->to('/grupos')->with('success', 'Grupo creado correctamente.');
     }
