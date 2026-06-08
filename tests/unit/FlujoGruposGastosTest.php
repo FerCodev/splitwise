@@ -26,15 +26,35 @@ final class FlujoGruposGastosTest extends \CodeIgniter\Test\CIUnitTestCase
         $miembrosIds = array_unique(array_map('intval', $miembrosPost));
         $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
 
+        $miembrosValidos = $miembrosIds;
         $insertados = [$userId];
-        foreach ($miembrosIds as $mid) {
-            if (!in_array($mid, $insertados)) {
+        foreach ($miembrosValidos as $mid) {
+            if ($mid !== $userId && !in_array($mid, $insertados)) {
                 $insertados[] = $mid;
             }
         }
 
         $this->assertCount(3, $insertados);
         $this->assertSame([5, 2, 3], $insertados);
+    }
+
+    public function testCreadorEnMiembrosNoSeDuplicaConIdsString(): void
+    {
+        $userId = 5;
+        $miembrosPost = ['2', '3', '5'];
+        $miembrosIds = array_unique(array_map('intval', $miembrosPost));
+        $miembrosIds = array_values(array_filter($miembrosIds, fn($mid) => $mid > 0));
+
+        $idsValidosDB = ['1', '2', '3', '5'];
+        $idsValidos = array_map('intval', $idsValidosDB);
+
+        $invalidos = array_diff($miembrosIds, $idsValidos);
+        $this->assertEmpty($invalidos);
+
+        $miembrosValidos = array_diff($idsValidos, [$userId]);
+
+        $this->assertSame([1, 2, 3], array_values($miembrosValidos));
+        $this->assertNotContains($userId, $miembrosValidos);
     }
 
     public function testMiembrosVaciosNoImpidenCrearGrupo(): void

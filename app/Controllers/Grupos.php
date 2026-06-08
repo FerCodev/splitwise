@@ -77,7 +77,7 @@ class Grupos extends BaseController
             if (!empty($miembrosIds)) {
                 $userModel = new \App\Models\User();
                 $existentes = $userModel->select('id')->whereIn('id', $miembrosIds)->findAll();
-                $idsValidos = array_column($existentes, 'id');
+                $idsValidos = array_map('intval', array_column($existentes, 'id'));
 
                 $invalidos = array_diff($miembrosIds, $idsValidos);
                 if (!empty($invalidos)) {
