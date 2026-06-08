@@ -151,9 +151,10 @@ final class DashboardResumenTest extends \CodeIgniter\Test\CIUnitTestCase
 
         $ordenados = Grupo::sortGroupsByActivity($grupos);
 
-        $this->assertSame(2, $ordenados[0]['id']); // activo
-        $this->assertSame(3, $ordenados[1]['id']); // cerrado
-        $this->assertSame(1, $ordenados[2]['id']); // liquidado
+        $this->assertSame(2, $ordenados[0]['id']); // activo primero
+        // inactivos ordenados por actividad DESC
+        $this->assertSame(1, $ordenados[1]['id']); // liquidado 2026-06-09
+        $this->assertSame(3, $ordenados[2]['id']); // cerrado 2026-06-08
     }
 
     public function testSortGroupsConActividadNula(): void
