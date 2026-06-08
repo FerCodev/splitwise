@@ -60,36 +60,55 @@
                     <?php endif; ?>
                 </div>
 
-                <?php if ($rol === 'admin'): ?>
+            </div>
+        </div>
+
+        <?php if ($rol === 'admin'): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold">Estado del grupo</h5>
+                </div>
+                <div class="card-body">
+                    <?php
+                        $badgeEstado = [
+                            'activo' => 'bg-success',
+                            'cerrado' => 'bg-warning text-dark',
+                            'liquidado' => 'bg-secondary',
+                        ];
+                        $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
+                    ?>
+                    <p class="mb-2">
+                        Estado actual:
+                        <span class="badge <?= $claseEstado ?> ms-1"><?= ucfirst($grupo['estado']) ?></span>
+                    </p>
+
                     <?php if ($grupo['estado'] === 'activo'): ?>
-                        <hr class="my-3">
-                        <div class="d-flex gap-2">
-                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" class="d-inline">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="estado" value="cerrado">
-                                <button type="submit" class="btn btn-outline-warning btn-sm">Cerrar grupo</button>
-                            </form>
-                        </div>
+                        <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="estado" value="cerrado">
+                            <button type="submit" class="btn btn-outline-warning">Cerrar grupo</button>
+                        </form>
                     <?php elseif ($grupo['estado'] === 'cerrado'): ?>
-                        <hr class="my-3">
                         <div class="d-flex gap-2">
-                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" class="d-inline">
+                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="estado" value="activo">
-                                <button type="submit" class="btn btn-outline-success btn-sm">Reabrir grupo</button>
+                                <button type="submit" class="btn btn-outline-success">Reabrir grupo</button>
                             </form>
                             <?php if (empty($deudas)): ?>
-                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" class="d-inline">
+                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="estado" value="liquidado">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Liquidar grupo</button>
+                                    <button type="submit" class="btn btn-outline-secondary">Liquidar grupo</button>
                                 </form>
                             <?php endif; ?>
                         </div>
+                    <?php elseif ($grupo['estado'] === 'liquidado'): ?>
+                        <p class="text-muted mb-0">Este grupo está finalizado. No se pueden realizar más cambios de estado.</p>
                     <?php endif; ?>
-                <?php endif; ?>
+                </div>
             </div>
-        </div>
+        <?php endif; ?>
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">

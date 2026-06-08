@@ -199,7 +199,13 @@ class Grupos extends BaseController
             return redirect()->to("/grupos/$id")->with('error', $bloqueo);
         }
 
-        return view('grupos/form', ['grupo' => $acceso['grupo']]);
+        $gastoModel = new \App\Models\Gasto();
+        $deudas = $gastoModel->getDeudasByGrupo($id);
+
+        return view('grupos/form', [
+            'grupo' => $acceso['grupo'],
+            'deudas' => $deudas,
+        ]);
     }
 
     public function update(int $id)
