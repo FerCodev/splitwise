@@ -46,6 +46,13 @@ php spark db:seed UserSeeder
 php spark serve
 ```
 
+## Documentación
+
+La documentación completa del proyecto (arquitectura, base de datos, flujos, permisos, testing, roadmap y troubleshooting) está disponible en:
+
+- **Web:** [`/doc/`](http://localhost/SplitWise/doc/)
+- **Local:** `public/doc/index.html`
+
 ## Rutas principales
 
 | Método | Ruta              | Descripción                |

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SplitWise — Documentaci&oacute;n del proyecto</title>
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#introduccion">Ir al contenido</a>
+
+<!-- ===== Top Bar ===== -->
+<header class="top-bar">
+    <button class="menu-toggle" id="menu-toggle" aria-label="Abrir men&uacute;">&equiv;</button>
+    <a href="#" class="brand">SplitWise <small>Documentaci&oacute;n t&eacute;cnica</small></a>
+</header>
+
+<!-- ===== Sidebar ===== -->
+<aside class="sidebar" id="sidebar">
+    <nav aria-label="Navegaci&oacute;n de documentaci&oacute;n">
+        <ul>
+            <li class="section-label">Inicio</li>
+            <li><a href="#introduccion" class="active">Introducci&oacute;n</a></li>
+            <li><a href="#setup">Setup local</a></li>
+
+            <li class="section-label">Arquitectura</li>
+            <li><a href="#arquitectura">Arquitectura</a></li>
+            <li><a href="#base-de-datos">Base de datos</a></li>
+
+            <li class="section-label">Flujos</li>
+            <li><a href="#flujos">Flujos funcionales</a></li>
+            <li><a href="#permisos">Permisos</a></li>
+            <li><a href="#reportes">Reportes</a></li>
+
+            <li class="section-label">Desarrollo</li>
+            <li><a href="#testing">Testing</a></li>
+            <li><a href="#roadmap">Roadmap</a></li>
+            <li><a href="#troubleshooting">Troubleshooting</a></li>
+            <li><a href="#comandos">Comandos r&aacute;pidos</a></li>
+        </ul>
+    </nav>
+</aside>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ===== Main Content ===== -->
+<main class="main-content">
+
+<!-- ============================================================ -->
+<section id="introduccion">
+    <h1>SplitWise</h1>
+    <p>
+        Aplicaci&oacute;n web para la gesti&oacute;n colaborativa de gastos compartidos.
+        Permite crear grupos, registrar gastos, dividirlos en partes iguales entre los
+        miembros, registrar pagos y llevar un balance claro de qui&eacute;n debe
+        cu&aacute;nto a qui&eacute;n.
+    </p>
+
+    <h2>Qu&eacute; problema resuelve</h2>
+    <p>
+        Cuando un grupo de personas comparte gastos (viajes, alquiler, salidas, etc.),
+        es dif&iacute;cil llevar la cuenta de qui&eacute;n pag&oacute; qu&eacute;,
+        cu&aacute;nto consumi&oacute; cada uno y qui&eacute;n le debe a qui&eacute;n.
+        SplitWise resuelve esto con un modelo simple:
+    </p>
+    <ul>
+        <li><strong>Grupo</strong> como contenedor de personas y gastos.</li>
+        <li><strong>Gasto</strong> con divisi&oacute;n igualitaria autom&aacute;tica.</li>
+        <li><strong>Pago</strong> como transferencia directa entre miembros.</li>
+        <li><strong>Balance</strong> que muestra saldos y sugiere transferencias.</li>
+        <li><strong>Reportes</strong> con exportaci&oacute;n CSV.</li>
+    </ul>
+
+    <h2>Estado actual del producto</h2>
+    <p>
+        El proyecto est&aacute; en desarrollo activo. Las fases completas incluyen
+        gesti&oacute;n de grupos, gastos, pagos, balance, roles globales y por grupo,
+        permisos centralizados, medios de cobro, reportes y exportaci&oacute;n CSV,
+        y una auditor&iacute;a de UX reciente. No se implementaron per&iacute;odos
+        (fase descartada).
+    </p>
+
+    <h2>Stack t&eacute;cnico</h2>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Componente</th><th>Tecnolog&iacute;a</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Backend</td><td>PHP 8.2 con CodeIgniter 4</td></tr>
+                <tr><td>Base de datos</td><td>MySQL / MariaDB v&iacute;a XAMPP</td></tr>
+                <tr><td>Frontend</td><td>Bootstrap 5.3, HTML sem&aacute;ntico, CSS vanilla</td></tr>
+                <tr><td>Testing</td><td>PHPUnit 10</td></tr>
+                <tr><td>Servidor local</td><td>Apache (XAMPP)</td></tr>
+                <tr><td>Control de versiones</td><td>Git (GitHub)</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="setup">
+    <h2>Setup local</h2>
+
+    <h3>Requisitos</h3>
+    <ul>
+        <li>PHP 8.1 o superior (con extensiones <code>mbstring</code>, <code>intl</code>, <code>mysqli</code>, <code>json</code>)</li>
+        <li>Composer</li>
+        <li>MySQL / MariaDB</li>
+        <li>Apache con <code>mod_rewrite</code></li>
+        <li>Git</li>
+    </ul>
+
+    <h3>XAMPP</h3>
+    <p>El proyecto corre sobre XAMPP. Clonar el repositorio dentro de <code>C:\xampp\htdocs\SplitWise</code>.</p>
+
+    <h3>Instalaci&oacute;n</h3>
+    <pre><code>cd C:\xampp\htdocs\SplitWise
+composer install</code></pre>
+
+    <h3>Archivo <code>.env</code></h3>
+    <p>Copiar <code>env</code> a <code>.env</code> y ajustar:</p>
+    <pre><code>CI_ENVIRONMENT = development
+database.default.hostname = localhost
+database.default.database = splitwise
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi</code></pre>
+
+    <h3>Base de datos</h3>
+    <p>Crear la base de datos en MySQL y ejecutar las migraciones:</p>
+    <pre><code>php spark migrate</code></pre>
+
+    <h3>Ejecutar tests</h3>
+    <pre><code>php vendor/bin/phpunit --no-coverage</code></pre>
+
+    <h3>Comandos &uacute;tiles</h3>
+    <pre><code>php spark routes          # Ver todas las rutas
+php spark migrate:status  # Ver estado de migraciones
+php -l archivo.php        # Verificar sintaxis PHP</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section id="arquitectura">
+    <h2>Arquitectura</h2>
+
+    <p>
+        El proyecto sigue el patr&oacute;n MVC de CodeIgniter 4, con una capa adicional
+        de servicios para l&oacute;gica de negocio reutilizable y testeable.
+    </p>
+
+    <h3>Controllers</h3>
+    <p>
+        Los controladores manejan la entrada HTTP, validan permisos y delegan
+        la l&oacute;gica a modelos o servicios. Cada controlador suele tener un
+        m&eacute;todo por acci&oacute;n: <code>index</code>, <code>new</code>,
+        <code>create</code>, <code>show</code>, <code>edit</code>, <code>update</code>,
+        <code>delete</code>.
+    </p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Controlador</th><th>Ruta base</th><th>Filtro</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>Auth</code></td><td><code>/login</code></td><td>—</td></tr>
+                <tr><td><code>Dashboard</code></td><td><code>/dashboard</code></td><td><code>auth</code></td></tr>
+                <tr><td><code>Grupos</code></td><td><code>/grupos</code></td><td><code>auth</code></td></tr>
+                <tr><td><code>Gastos</code></td><td><code>/gastos</code></td><td><code>auth</code></td></tr>
+                <tr><td><code>Pagos</code></td><td><code>/pagos</code></td><td><code>auth</code></td></tr>
+                <tr><td><code>Reportes</code></td><td><code>/reportes</code></td><td><code>auth</code></td></tr>
+                <tr><td><code>MediosCobro</code></td><td><code>/mis-medios-de-cobro</code></td><td><code>auth</code></td></tr>
+                <tr><td><code>Usuarios</code></td><td><code>/usuarios</code></td><td><code>auth, admin</code></td></tr>
+                <tr><td><code>Categorias</code></td><td><code>/categorias</code></td><td><code>auth, admin</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Models</h3>
+    <p>
+        Los modelos extienden <code>CodeIgniter\Model</code> y encapsulan el acceso
+        a datos. Incluyen m&eacute;todos de consulta personalizados y reglas de
+        negocio est&aacute;ticas (puras, testeables sin DB).
+    </p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Modelo</th><th>Tabla</th><th>M&eacute;todos destacados</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>User</code></td><td><code>users</code></td><td>Autenticaci&oacute;n, rol global</td></tr>
+                <tr><td><code>Grupo</code></td><td><code>grupos</code></td><td><code>getGruposByUser</code>, transiciones de estado, reglas de miembros</td></tr>
+                <tr><td><code>Gasto</code></td><td><code>gastos</code></td><td><code>getGastosWithFilters</code>, participantes</td></tr>
+                <tr><td><code>Pago</code></td><td><code>pagos</code></td><td><code>getPagosWithFilters</code></td></tr>
+                <tr><td><code>Categoria</code></td><td><code>categorias</code></td><td><code>getActivas</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Services</h3>
+    <p>
+        Los servicios contienen l&oacute;gica de negocio que no pertenece
+        estrictamente a un modelo o controlador:
+    </p>
+    <ul>
+        <li><code>GroupPermission</code> — verifica permisos por rol de grupo y estado.</li>
+        <li><code>Reportes</code> — consultas agregadas para reportes y exportaci&oacute;n CSV.</li>
+    </ul>
+
+    <h3>Views</h3>
+    <p>
+        Las vistas usan PHP embebido con Bootstrap 5.3. Siguen un patr&oacute;n
+        consistente: <code>_head.php</code> + <code>_navbar.php</code> + contenido
+        + <code>_footer.php</code>. Mobile responsive con clases <code>d-none d-md-block</code>
+        y <code>d-md-none</code>.
+    </p>
+
+    <h3>Filters</h3>
+    <p>
+        CodeIgniter aplica filtros antes de que una ruta llegue al controlador:
+    </p>
+    <ul>
+        <li><code>csrf</code> — protege formularios POST, PUT, DELETE.</li>
+        <li><code>auth</code> — redirige al login si no hay sesi&oacute;n activa.</li>
+        <li><code>admin</code> (<code>AdminFilter</code>) — permite solo usuarios con rol global <code>admin</code>.</li>
+    </ul>
+
+    <h3>Config</h3>
+    <p>
+        Las rutas se definen en <code>app/Config/Routes.php</code>. Las migraciones
+        en <code>app/Database/Migrations/</code>. La configuraci&oacute;n de base de
+        datos en <code>.env</code>.
+    </p>
+</section>
+
+<!-- ============================================================ -->
+<section id="base-de-datos">
+    <h2>Base de datos</h2>
+
+    <h3>Tablas principales</h3>
+
+    <div class="entity-row">
+        <div class="entity-card">
+            <h4>users</h4>
+            <p>Usuarios del sistema</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>name</span></li>
+                <li><span>email</span></li>
+                <li><span>password</span></li>
+                <li><span>role</span> <span class="type">global: user | admin</span></li>
+            </ul>
+        </div>
+
+        <div class="entity-card">
+            <h4>grupos</h4>
+            <p>Grupos de gasto compartido</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>nombre</span></li>
+                <li><span>descripcion</span></li>
+                <li><span>created_by</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>estado</span> <span class="type">activo | cerrado | liquidado</span></li>
+            </ul>
+        </div>
+
+        <div class="entity-card">
+            <h4>grupo_miembros</h4>
+            <p>Miembros de cada grupo</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>grupo_id</span> <span class="fk">FK &rarr; grupos.id</span></li>
+                <li><span>user_id</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>rol</span> <span class="type">admin | member</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="entity-row">
+        <div class="entity-card">
+            <h4>gastos</h4>
+            <p>Gastos registrados</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>descripcion</span></li>
+                <li><span>monto</span></li>
+                <li><span>fecha</span></li>
+                <li><span>pagador_id</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>grupo_id</span> <span class="fk">FK &rarr; grupos.id</span></li>
+                <li><span>categoria_id</span> <span class="fk">FK &rarr; categorias.id</span></li>
+            </ul>
+        </div>
+
+        <div class="entity-card">
+            <h4>gasto_participantes</h4>
+            <p>Participantes de cada gasto</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>gasto_id</span> <span class="fk">FK &rarr; gastos.id</span></li>
+                <li><span>user_id</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>monto_asignado</span></li>
+            </ul>
+        </div>
+
+        <div class="entity-card">
+            <h4>pagos</h4>
+            <p>Pagos entre miembros</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>descripcion</span></li>
+                <li><span>monto</span></li>
+                <li><span>fecha</span></li>
+                <li><span>pagador_id</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>receptor_id</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>grupo_id</span> <span class="fk">FK &rarr; grupos.id</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="entity-row">
+        <div class="entity-card">
+            <h4>categorias</h4>
+            <p>Categor&iacute;as de gastos</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>nombre</span></li>
+                <li><span>activa</span> <span class="type">tinyint(1)</span></li>
+            </ul>
+        </div>
+
+        <div class="entity-card">
+            <h4>user_payment_methods</h4>
+            <p>Medios de cobro por usuario</p>
+            <ul class="fields">
+                <li><span class="pk">id</span> <span class="type">PK</span></li>
+                <li><span>user_id</span> <span class="fk">FK &rarr; users.id</span></li>
+                <li><span>tipo</span> <span class="type">alias | cbu_cvu | link | otro</span></li>
+                <li><span>alias</span>, <span>cbu_cvu</span></li>
+                <li><span>banco</span>, <span>titular</span></li>
+                <li><span>payment_link</span></li>
+                <li><span>activo</span>, <span>favorito</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <h3>Relaciones importantes</h3>
+    <ul>
+        <li><strong>grupo_miembros</strong> vincula <code>users</code> con <code>grupos</code> (N:M).</li>
+        <li><strong>gastos.pagador_id</strong> &rarr; <code>users.id</code> (qui&eacute;n pag&oacute;).</li>
+        <li><strong>gastos.grupo_id</strong> &rarr; <code>grupos.id</code> (a qu&eacute; grupo pertenece).</li>
+        <li><strong>gasto_participantes</strong> vincula <code>users</code> con <code>gastos</code> (N:M) con monto asignado.</li>
+        <li><strong>pagos.pagador_id / receptor_id</strong> &rarr; <code>users.id</code>.</li>
+        <li><strong>pagos.grupo_id</strong> &rarr; <code>grupos.id</code>.</li>
+        <li><strong>gastos.categoria_id</strong> &rarr; <code>categorias.id</code>.</li>
+    </ul>
+
+    <h3>Estados del grupo</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Estado</th><th>Descripci&oacute;n</th><th>Transiciones</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="badge badge-green">activo</span></td><td>El grupo est&aacute; en uso. Se pueden crear y editar gastos y pagos.</td><td>&rarr; cerrado</td></tr>
+                <tr><td><span class="badge badge-yellow">cerrado</span></td><td>No se pueden crear/editar gastos. Solo pagos. Se usa mientras se liquidan deudas.</td><td>&rarr; activo, &rarr; liquidado</td></tr>
+                <tr><td><span class="badge badge-gray">liquidado</span></td><td>Grupo finalizado. No se permiten m&aacute;s cambios.</td><td>—</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Categor&iacute;a protegida &laquo;Otros&raquo;</h3>
+    <p>
+        La categor&iacute;a con nombre <strong>Otros</strong> es la &uacute;nica protegida.
+        No se puede editar, desactivar ni eliminar. Se usa como valor por defecto cuando
+        un gasto no tiene categor&iacute;a asignada. Est&aacute; definida en la migraci&oacute;n
+        y se verifica en el controlador de categor&iacute;as.
+    </p>
+</section>
+
+<!-- ============================================================ -->
+<section id="flujos">
+    <h2>Flujos funcionales</h2>
+
+    <div class="card">
+        <h3>Login</h3>
+        <p>
+            El usuario ingresa email y contrase&ntilde;a. El sistema verifica las credenciales
+            y crea la sesi&oacute;n con <code>userId</code>, <code>userName</code>,
+            <code>userEmail</code> y <code>userRole</code>. Si ya hay sesi&oacute;n activa,
+            redirige al dashboard. El logout destruye la sesi&oacute;n.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Dashboard</h3>
+        <p>
+            Muestra un resumen de grupos activos/cerrados/liquidados, saldo global,
+            la lista de grupos del usuario con saldo y deudas pendientes, y los
+            &uacute;ltimos gastos y pagos registrados. Es la pantalla de inicio
+            despu&eacute;s del login.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Crear grupo</h3>
+        <p>
+            El usuario completa nombre y descripci&oacute;n del grupo, selecciona
+            miembros iniciales y queda como administrador. El grupo se crea en estado
+            <span class="badge badge-green">activo</span>.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Agregar miembros</h3>
+        <p>
+            Desde la pantalla de detalle del grupo, los administradores pueden agregar
+            miembros existentes del sistema mediante un selector. Tambi&eacute;n pueden
+            cambiar roles (<code>admin</code> &harr; <code>member</code>) y quitar miembros
+            (si no tienen movimientos y no son el &uacute;ltimo admin).
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Crear gasto</h3>
+        <p>
+            Se selecciona grupo (o viene pre-seleccionado), se ingresa descripci&oacute;n,
+            monto, fecha, categor&iacute;a (opcional), pagador y participantes. El monto
+            se divide en partes iguales entre los participantes seleccionados. El pagador
+            puede ser tambi&eacute;n participante.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Editar gasto</h3>
+        <p>
+            Solo el pagador original o un admin del grupo puede editar un gasto.
+            Los cambios se aplican &uacute;nicamente si el grupo est&aacute;
+            <span class="badge badge-green">activo</span>.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Registrar pago</h3>
+        <p>
+            Se selecciona grupo, pagador (quien entrega el dinero), receptor (quien lo recibe),
+            monto, fecha y descripci&oacute;n opcional. Se usa para saldar deudas entre miembros.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Balance</h3>
+        <p>
+            Muestra por cada miembro del grupo cu&aacute;nto pag&oacute; en gastos,
+            cu&aacute;nto consumi&oacute;, pagos enviados/recibidos y saldo resultante.
+            Adem&aacute;s muestra las transferencias sugeridas: qui&eacute;n le debe
+            a qui&eacute;n y cu&aacute;nto.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Transferencias sugeridas</h3>
+        <p>
+            El balance calcula autom&aacute;ticamente las deudas netas entre miembros.
+            Desde la pantalla de balance, se puede hacer clic en &laquo;Pagar&raquo;
+            para ver los medios de cobro del acreedor y registrar el pago directamente.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Medios de cobro</h3>
+        <p>
+            Cada usuario puede registrar sus medios de cobro (alias Mercado Pago, CBU/CVU,
+            link de pago, banco). Se muestran al acreedor cuando alguien quiere pagarle
+            desde la pantalla de balance. Incluye botones de copiar al portapapeles.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Reportes</h3>
+        <p>
+            La pantalla <code>/reportes</code> muestra un resumen global (total gastado,
+            pagado, recibido, saldo), gastos agrupados por categor&iacute;a y por grupo,
+            y &uacute;ltimos movimientos combinados (gastos + pagos). Se puede filtrar
+            por grupo, categor&iacute;a y fechas, y exportar a CSV.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Cierre / liquidaci&oacute;n de grupo</h3>
+        <p>
+            Un admin puede cerrar un grupo activo (&rarr; <span class="badge badge-yellow">cerrado</span>).
+            En estado cerrado no se pueden crear gastos, solo pagos para saldar deudas.
+            Cuando no quedan deudas pendientes, se puede liquidar (&rarr;
+            <span class="badge badge-gray">liquidado</span>), que es el estado final.
+        </p>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="permisos">
+    <h2>Permisos</h2>
+
+    <p>
+        SplitWise tiene dos sistemas de permisos que operan en paralelo:
+    </p>
+
+    <h3>Rol global (sistema)</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Rol</th><th>Acceso</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="badge badge-blue">admin</span></td><td>Accede a ABM de usuarios y categor&iacute;as. No tiene permisos especiales sobre grupos ajenos.</td></tr>
+                <tr><td><span class="badge badge-gray">user</span></td><td>Acceso normal a grupos, gastos, pagos, reportes y medios de cobro propios.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>
+        El filtro <code>AdminFilter</code> protege las rutas de administraci&oacute;n
+        (<code>/usuarios/*</code>, <code>/categorias/*</code>).
+    </p>
+
+    <h3>Rol de grupo</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Rol</th><th>Permisos</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="badge badge-yellow">admin</span></td><td>Editar/eliminar grupo, cambiar estado, agregar/quitar miembros, cambiar roles, crear/editar/eliminar cualquier gasto o pago.</td></tr>
+                <tr><td><span class="badge badge-gray">member</span></td><td>Crear gastos y pagos. Editar/eliminar solo gastos y pagos propios.</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Service GroupPermission</h3>
+    <p>
+        El servicio <code>App\Services\GroupPermission</code> centraliza las reglas
+        de permiso por grupo combinando rol de grupo y estado:
+    </p>
+    <ul>
+        <li><strong>Rol:</strong> admin puede todo; member solo acciones propias.</li>
+        <li><strong>Estado:</strong> activo permite todo; cerrado bloquea gastos; liquidado bloquea todo.</li>
+    </ul>
+
+    <h3>Matriz de permisos combinada</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Acci&oacute;n</th><th>Miembro (activo)</th><th>Admin (activo)</th><th>Cerrado</th><th>Liquidado</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Crear gasto</td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Editar gasto propio</td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Editar gasto ajeno</td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Crear pago</td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Editar/eliminar grupo</td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">S&iacute;</span></td><td>Seg&uacute;n estado</td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Agregar/quitar miembros</td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Cambiar estado</td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-green">S&iacute;</span></td><td><span class="badge badge-red">No</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="info-box">
+        <strong>Nota importante:</strong> El rol global <code>admin</code> no otorga
+        permisos especiales sobre grupos de otros usuarios. Un admin global puede
+        gestionar usuarios y categor&iacute;as, pero no tiene acceso autom&aacute;tico
+        a grupos donde no es miembro.
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="reportes">
+    <h2>Reportes</h2>
+
+    <p>
+        La funcionalidad de reportes permite al usuario ver un resumen financiero
+        global de todos sus grupos. El servicio <code>App\Services\Reportes</code>
+        ejecuta consultas SQL directas (Query Builder) para agrupaciones y totales
+        que el modelo existente no soporta.
+    </p>
+
+    <h3>Qu&eacute; muestra <code>/reportes</code></h3>
+    <ul>
+        <li><strong>Resumen global:</strong> total gastado, pagado, recibido, consumido y saldo.</li>
+        <li><strong>Gastos por categor&iacute;a:</strong> cantidad y total agrupados.</li>
+        <li><strong>Gastos por grupo:</strong> cantidad y total agrupados.</li>
+        <li><strong>&Uacute;ltimos movimientos:</strong> gastos y pagos combinados, ordenados por fecha.</li>
+    </ul>
+
+    <h3>Filtros</h3>
+    <p>Todos los reportes respetan los filtros seleccionados: grupo, categor&iacute;a, fecha desde/hasta.</p>
+
+    <h3>Exportaci&oacute;n CSV</h3>
+    <p>
+        <code>/reportes/exportar</code> descarga un archivo CSV con los gastos filtrados,
+        incluyendo fecha, grupo, categor&iacute;a, descripci&oacute;n, pagador y monto.
+        El archivo incluye BOM UTF-8 para compatibilidad con Excel en espa&ntilde;ol.
+    </p>
+
+    <h3>Alcance por usuario</h3>
+    <p>
+        Todos los reportes limitan los datos a los grupos donde el usuario es miembro
+        (mediante JOIN con <code>grupo_miembros</code>). Un usuario no puede ver datos
+        de grupos a los que no pertenece.
+    </p>
+
+    <h3>L&oacute;gica pura testeable</h3>
+    <p>
+        El m&eacute;todo <code>formatearFilasCsv()</code> recibe un arreglo y devuelve
+        las filas formateadas para CSV. No depende de base de datos, lo que permite
+        testearlo sin conexi&oacute;n a DB. El resto de los m&eacute;todos requieren
+        conexi&oacute;n real a MySQL; en entorno de testing se requiere SQLite3 que
+        no est&aacute; instalado, por lo que esos tests se omiten.
+    </p>
+
+    <div class="info-box warning">
+        <strong>Entorno de testing:</strong> No hay SQLite3 instalado en el entorno
+        de desarrollo. Todos los tests que requieren base de datos se omiten.
+        Se testea solo l&oacute;gica pura (formato CSV, estructura de m&eacute;todos).
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="testing">
+    <h2>Testing</h2>
+
+    <h3>C&oacute;mo correr tests</h3>
+    <pre><code>php vendor/bin/phpunit --no-coverage</code></pre>
+
+    <h3>Qu&eacute; cubren</h3>
+    <p>
+        Los tests en <code>tests/unit/</code> cubren:
+    </p>
+    <ul>
+        <li><strong>PermisosGrupoTest</strong> — reglas de permiso por rol, estado, ownership.</li>
+        <li><strong>ReportesTest</strong> — formato de filas CSV, existencia de m&eacute;todos, estructura de datos.</li>
+        <li><strong>Dashboard test</strong> — resumen financiero puro, transiciones de estado, reglas de miembros.</li>
+        <li><strong>Auth test</strong> — login, logout, sesi&oacute;n, role check.</li>
+    </ul>
+
+    <h3>Por qu&eacute; se evita SQLite</h3>
+    <p>
+        El entorno de testing de CodeIgniter 4 usa SQLite3 por defecto cuando no hay
+        base de datos configurada. La extensi&oacute;n <code>sqlite3</code> no est&aacute;
+        instalada en PHP. Como alternativa, los tests de l&oacute;gica pura (m&eacute;todos
+        est&aacute;ticos que no dependen de DB) se escriben con datos mock en arreglos.
+    </p>
+
+    <div class="info-box">
+        <strong>Convenci&oacute;n:</strong> Los m&eacute;todos de l&oacute;gica de negocio
+        que no requieren base de datos se definen como <code>static</code> y se testean
+        con datos en memoria. Los m&eacute;todos que requieren DB se mantienen sin test
+        unitario o se marcan como <code>@group integration</code>.
+    </div>
+
+    <h3>Comandos de verificaci&oacute;n</h3>
+    <pre><code>php vendor/bin/phpunit --no-coverage
+php -l app/Controllers/MiControlador.php
+php spark routes
+php spark migrate:status</code></pre>
+</section>
+
+<!-- ============================================================ -->
+<section id="roadmap">
+    <h2>Roadmap</h2>
+
+    <h3>Fases completadas</h3>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Fase</th><th>Descripci&oacute;n</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1</td><td>Login, sesiones, Dashboard inicial</td></tr>
+                <tr><td>2-3</td><td>ABM de grupos, miembros, gastos con participantes</td></tr>
+                <tr><td>4</td><td>Pagos entre miembros</td></tr>
+                <tr><td>5</td><td>Balance y transferencias sugeridas</td></tr>
+                <tr><td>6</td><td>Medios de cobro y pagos asistidos</td></tr>
+                <tr><td>7-9</td><td>Estabilizaci&oacute;n, mejoras de flujo, ABM de categor&iacute;as</td></tr>
+                <tr><td>10</td><td>Roles globales (admin/user)</td></tr>
+                <tr><td>11</td><td>Permisos por grupo centralizados (GroupPermission)</td></tr>
+                <tr><td>12</td><td>Reportes y exportaci&oacute;n CSV</td></tr>
+                <tr><td>13</td><td>Auditor&iacute;a de producto y simplificaci&oacute;n UX</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>Fases descartadas</h3>
+    <ul>
+        <li><strong>Per&iacute;odos</strong> — Se evalu&oacute; agregar per&iacute;odos
+        de facturaci&oacute;n a los grupos pero se descart&oacute; por considerarse
+        una complejidad innecesaria para el caso de uso actual.</li>
+    </ul>
+
+    <h3>Pr&oacute;ximos pasos</h3>
+    <p>
+        Las pr&oacute;ximas fases pueden incluir: recuperaci&oacute;n de contrase&ntilde;a,
+        confirmaci&oacute;n con modal para acciones destructivas, redise&ntilde;o mobile
+        del dashboard, y refinamientos de UX basados en la auditor&iacute;a realizada
+        en la Fase 13.
+    </p>
+</section>
+
+<!-- ============================================================ -->
+<section id="troubleshooting">
+    <h2>Troubleshooting</h2>
+
+    <div class="card">
+        <h3>CSRF vencido</h3>
+        <p>
+            Si un formulario muestra error de CSRF, recargar la p&aacute;gina y
+            volver a enviar. Ocurre cuando la sesi&oacute;n expira mientras se
+            completa un formulario largo.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Sesi&oacute;n vencida</h3>
+        <p>
+            La sesi&oacute;n de CodeIgniter tiene un tiempo de expiraci&oacute;n
+            configurable en <code>.env</code> (<code>session.expiration</code>).
+            Si la sesi&oacute;n vence, el filtro <code>auth</code> redirige al login.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Migraciones</h3>
+        <p>
+            Si <code>php spark migrate</code> falla, verificar que la base de datos
+            exista y que las credenciales en <code>.env</code> sean correctas.
+            Para resetear: <code>php spark migrate:refresh</code> (borra todos los datos).
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>XAMPP</h3>
+        <p>
+            Apache debe tener <code>mod_rewrite</code> habilitado para que funcionen
+            las rutas amigables. En XAMPP suele estar activo por defecto. Verificar
+            en <code>httpd.conf</code> que <code>AllowOverride</code> est&eacute;
+            en <code>All</code> para el directorio del proyecto.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Encoding / Mojibake</h3>
+        <p>
+            Si aparecen caracteres extra&ntilde;os (&laquo;Ã¡&raquo; en lugar de
+            &laquo;&aacute;&raquo;), verificar que el archivo <code>.env</code>
+            tenga <code>charset = utf8mb4</code> y que la base de datos use
+            <code>utf8mb4_unicode_ci</code>. Las vistas usan <code>&lt;meta charset="UTF-8"&gt;</code>.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3>Permisos de usuario/admin</h3>
+        <p>
+            Si un usuario normal ve la pantalla de administraci&oacute;n, el filtro
+            <code>AdminFilter</code> deber&iacute;a bloquearlo. Si no funciona,
+            verificar que el rol est&eacute; correctamente asignado en la tabla
+            <code>users</code> (<code>role</code> = <code>'admin'</code> o
+            <code>'user'</code>).
+        </p>
+    </div>
+</section>
+
+<!-- ============================================================ -->
+<section id="comandos">
+    <h2>Comandos r&aacute;pidos</h2>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Comando</th><th>Descripci&oacute;n</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>git status --short</code></td><td>Ver archivos modificados sin commitear</td></tr>
+                <tr><td><code>php vendor/bin/phpunit --no-coverage</code></td><td>Ejecutar tests sin cobertura</td></tr>
+                <tr><td><code>php spark routes</code></td><td>Listar todas las rutas registradas</td></tr>
+                <tr><td><code>php spark migrate:status</code></td><td>Ver estado de migraciones</td></tr>
+                <tr><td><code>php spark migrate</code></td><td>Ejecutar migraciones pendientes</td></tr>
+                <tr><td><code>php -l archivo.php</code></td><td>Verificar sintaxis de un archivo PHP</td></tr>
+                <tr><td><code>composer install</code></td><td>Instalar dependencias de PHP</td></tr>
+                <tr><td><code>git diff --check</code></td><td>Buscar errores de whitespace en el diff</td></tr>
+                <tr><td><code>git log --oneline main..HEAD</code></td><td>Ver commits de la rama actual contra main</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <pre><code># Flujo completo de verificaci&oacute;n antes de mergear
+git status --short
+php vendor/bin/phpunit --no-coverage
+php spark routes
+php spark migrate:status
+git diff --check main..HEAD
+git log --oneline main..HEAD
+php -l app/Controllers/*.php app/Services/*.php
+rg -n "sk-|api_key|password|secret|token" README.md public/doc docs app public</code></pre>
+
+    <a href="#" class="back-to-top">&uarr; Volver al inicio</a>
+</section>
+
+</main>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
