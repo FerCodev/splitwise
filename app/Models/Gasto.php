@@ -10,8 +10,23 @@ class Gasto extends Model
 {
     protected $table = 'gastos';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha'];
+    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria'];
     protected $useTimestamps = true;
+
+    public static function categoriasPermitidas(): array
+    {
+        return [
+            'Supermercado',
+            'Servicios',
+            'Combustible',
+            'Farmacia',
+            'Mascotas',
+            'Transporte',
+            'Comida',
+            'Viajes',
+            'Otros',
+        ];
+    }
 
     public function getGastosByGrupo(int $grupoId): array
     {
@@ -55,6 +70,10 @@ class Gasto extends Model
             $this->like('gastos.descripcion', $filters['descripcion']);
         }
 
+        if (!empty($filters['categoria'])) {
+            $this->where('gastos.categoria', $filters['categoria']);
+        }
+
         $sort = $filters['sort'] ?? 'fecha';
         $order = $filters['order'] ?? 'DESC';
 
@@ -70,6 +89,15 @@ class Gasto extends Model
         }
 
         return $this->findAll();
+    }
+
+    public function getMontosPorCategoria(int $grupoId): array
+    {
+        return $this->select('categoria, SUM(monto) as total, COUNT(*) as cantidad')
+            ->where('grupo_id', $grupoId)
+            ->groupBy('categoria')
+            ->orderBy('total', 'DESC')
+            ->findAll();
     }
 
     public function getParticipantes(int $gastoId): array
