@@ -60,8 +60,14 @@
                     </div>
 
                     <div class="mb-3">
-                        <?php if (isset($gasto)): ?>
-                            <label for="pagador_id" class="form-label fw-medium">Pagador</label>
+                        <label class="form-label fw-medium">Pagador</label>
+                        <?php if (isset($gasto) && $rol !== 'admin'): ?>
+                            <?php
+                                $pagadorActual = current(array_filter($miembros ?? [], fn($m) => (int) $m['user_id'] === (int) $gasto['pagador_id']));
+                            ?>
+                            <input type="hidden" name="pagador_id" value="<?= $gasto['pagador_id'] ?>">
+                            <input type="text" class="form-control" value="<?= esc($pagadorActual['name'] ?? 'Vos') ?>" disabled>
+                        <?php elseif (isset($gasto) && $rol === 'admin'): ?>
                             <select class="form-select" id="pagador_id" name="pagador_id" required>
                                 <option value="">Seleccionar pagador</option>
                                 <?php if (isset($miembros)): ?>
@@ -71,7 +77,6 @@
                                 <?php endif; ?>
                             </select>
                         <?php else: ?>
-                            <label class="form-label fw-medium">Pagador</label>
                             <input type="text" class="form-control" value="Vos" disabled>
                             <small class="text-muted">El gasto se registra a tu nombre como pagador.</small>
                         <?php endif; ?>

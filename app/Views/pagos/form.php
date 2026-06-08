@@ -61,15 +61,26 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="pagador_id" class="form-label fw-medium">Pagador (quien entrega el dinero)</label>
-                        <select class="form-select" id="pagador_id" name="pagador_id" required>
-                            <option value="">Seleccionar pagador</option>
-                            <?php if (isset($miembros)): ?>
-                                <?php foreach ($miembros as $m): ?>
-                                    <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? $prefill['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </select>
+                        <label class="form-label fw-medium">Pagador (quien entrega el dinero)</label>
+                        <?php if (isset($pago) && $rol !== 'admin'): ?>
+                            <?php
+                                $pagadorActual = current(array_filter($miembros ?? [], fn($m) => (int) $m['user_id'] === (int) $pago['pagador_id']));
+                            ?>
+                            <input type="hidden" name="pagador_id" value="<?= $pago['pagador_id'] ?>">
+                            <input type="text" class="form-control" value="<?= esc($pagadorActual['name'] ?? 'Vos') ?>" disabled>
+                        <?php elseif (isset($pago) && $rol === 'admin'): ?>
+                            <select class="form-select" id="pagador_id" name="pagador_id" required>
+                                <option value="">Seleccionar pagador</option>
+                                <?php if (isset($miembros)): ?>
+                                    <?php foreach ($miembros as $m): ?>
+                                        <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $pago['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        <?php else: ?>
+                            <input type="text" class="form-control" value="Vos" disabled>
+                            <small class="text-muted">El pago se registra a tu nombre como pagador.</small>
+                        <?php endif; ?>
                     </div>
 
                     <div class="mb-4">

@@ -229,6 +229,7 @@ class Gastos extends BaseController
 
         return view('gastos/form', [
             'gasto' => $gasto,
+            'rol' => $rol,
             'grupos' => $grupos,
             'grupoId' => $gasto['grupo_id'],
             'miembros' => $miembros,

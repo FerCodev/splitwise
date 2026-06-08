@@ -68,7 +68,6 @@ class Pagos extends BaseController
         }
 
         $prefill = [
-            'pagador_id' => $this->request->getGet('pagador_id'),
             'receptor_id' => $this->request->getGet('receptor_id'),
             'monto' => $this->request->getGet('monto'),
             'fecha' => $this->request->getGet('fecha'),
@@ -194,6 +193,7 @@ class Pagos extends BaseController
 
         return view('pagos/form', [
             'pago' => $pago,
+            'rol' => $rol,
             'grupos' => $grupos,
             'grupoId' => $pago['grupo_id'],
             'miembros' => $miembros,
