@@ -76,7 +76,10 @@ class CreateCategoriasTable extends Migration
 
     public function down()
     {
-        $this->forge->dropForeignKey('gastos', 'gastos_categoria_id_foreign');
+        $fkExists = $this->db->query("SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'gastos' AND CONSTRAINT_NAME = 'gastos_categoria_id_foreign'")->getResultArray();
+        if (!empty($fkExists)) {
+            $this->forge->dropForeignKey('gastos', 'gastos_categoria_id_foreign');
+        }
         $this->forge->dropColumn('gastos', 'categoria_id');
         $this->forge->dropTable('categorias');
     }
