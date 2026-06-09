@@ -75,16 +75,31 @@
                                         <td>
                                             <div class="d-flex gap-1">
                                                 <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" class="btn btn-sm <?= $m['activo'] ? 'btn-outline-warning' : 'btn-outline-success' ?>">
-                                                        <?= $m['activo'] ? 'Desactivar' : 'Activar' ?>
-                                                    </button>
-                                                </form>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('&iquest;Eliminar medio de cobro?')">
+                                                <?php if ($m['activo']): ?>
+                                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-medio-<?= $m['id'] ?>">
+                                                        <?= csrf_field() ?>
+                                                        <button type="button" class="btn btn-sm btn-outline-warning"
+                                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                            data-confirm-title="Desactivar medio de cobro"
+                                                            data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n para que otros miembros te paguen."
+                                                            data-confirm-btn="Desactivar"
+                                                            data-confirm-form="toggle-medio-<?= $m['id'] ?>">Desactivar</button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline">
+                                                        <?= csrf_field() ?>
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                                    </form>
+                                                <?php endif; ?>
+                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" id="delete-medio-<?= $m['id'] ?>">
                                                     <?= csrf_field() ?>
                                                     <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                        data-confirm-title="Eliminar medio de cobro"
+                                                        data-confirm-msg="Se eliminar&aacute; este medio de cobro de tu perfil. Los pagos ya registrados no se modifican."
+                                                        data-confirm-btn="Eliminar"
+                                                        data-confirm-form="delete-medio-<?= $m['id'] ?>">Eliminar</button>
                                                 </form>
                                             </div>
                                         </td>
@@ -130,16 +145,31 @@
                             <?php endif; ?>
                             <div class="mt-2 d-flex gap-1 flex-wrap">
                                 <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
-                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="flex-fill">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm <?= $m['activo'] ? 'btn-outline-warning' : 'btn-outline-success' ?> w-100">
-                                        <?= $m['activo'] ? 'Desactivar' : 'Activar' ?>
-                                    </button>
-                                </form>
-                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('&iquest;Eliminar medio de cobro?')">
+                                <?php if ($m['activo']): ?>
+                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="flex-fill" id="toggle-medio-m-<?= $m['id'] ?>">
+                                        <?= csrf_field() ?>
+                                        <button type="button" class="btn btn-sm btn-outline-warning w-100"
+                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                            data-confirm-title="Desactivar medio de cobro"
+                                            data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n para que otros miembros te paguen."
+                                            data-confirm-btn="Desactivar"
+                                            data-confirm-form="toggle-medio-m-<?= $m['id'] ?>">Desactivar</button>
+                                    </form>
+                                <?php else: ?>
+                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="flex-fill">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-success w-100">Activar</button>
+                                    </form>
+                                <?php endif; ?>
+                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="flex-fill" id="delete-medio-m-<?= $m['id'] ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                        data-confirm-title="Eliminar medio de cobro"
+                                        data-confirm-msg="Se eliminar&aacute; este medio de cobro de tu perfil. Los pagos ya registrados no se modifican."
+                                        data-confirm-btn="Eliminar"
+                                        data-confirm-form="delete-medio-m-<?= $m['id'] ?>">Eliminar</button>
                                 </form>
                             </div>
                         </div>
@@ -191,4 +221,5 @@
         }
     </script>
 
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>

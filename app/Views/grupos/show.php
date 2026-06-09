@@ -40,10 +40,15 @@
                                 <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm mt-1">Editar</a>
                             <?php endif; ?>
                             <?php if ($permisos['puede_eliminar_grupo']): ?>
-                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar grupo?')">
+                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" id="delete-grupo-<?= $grupo['id'] ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm mt-1">Eliminar</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm mt-1"
+                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                        data-confirm-title="Eliminar grupo"
+                                        data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
+                                        data-confirm-btn="Eliminar grupo"
+                                        data-confirm-form="delete-grupo-<?= $grupo['id'] ?>">Eliminar</button>
                                 </form>
                             <?php endif; ?>
                         </div>
@@ -207,10 +212,15 @@
                                                     </form>
                                                 <?php endif; ?>
                                                 <?php if ($permisos['puede_quitar_miembro']): ?>
-                                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Quitar este miembro del grupo?')">
+                                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" class="d-inline" id="quitar-miembro-<?= $miembro['user_id'] ?>">
                                                         <?= csrf_field() ?>
                                                         <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="submit" class="btn btn-outline-danger btn-sm">Quitar</button>
+                                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                            data-confirm-title="Quitar miembro"
+                                                            data-confirm-msg="Se quitará este usuario del grupo. Si tiene movimientos asociados, el sistema puede impedir la acción."
+                                                            data-confirm-btn="Quitar miembro"
+                                                            data-confirm-form="quitar-miembro-<?= $miembro['user_id'] ?>">Quitar</button>
                                                     </form>
                                                 <?php endif; ?>
                                             <?php endif; ?>
@@ -232,23 +242,41 @@
                 </div>
                 <div class="card-body">
                     <?php if ($grupo['estado'] === 'activo'): ?>
-                        <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
+                        <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="cerrar-grupo-<?= $grupo['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="estado" value="cerrado">
-                            <button type="submit" class="btn btn-outline-warning">Cerrar grupo</button>
+                            <button type="button" class="btn btn-outline-warning"
+                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                data-confirm-title="Cerrar grupo"
+                                data-confirm-msg="Se cerrará el grupo. No se podrán crear ni editar gastos, solo registrar pagos para saldar deudas."
+                                data-confirm-btn="Cerrar grupo"
+                                data-confirm-class="btn-warning"
+                                data-confirm-form="cerrar-grupo-<?= $grupo['id'] ?>">Cerrar grupo</button>
                         </form>
                     <?php elseif ($grupo['estado'] === 'cerrado'): ?>
                         <div class="d-flex gap-2 flex-wrap">
-                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
+                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="reabrir-grupo-<?= $grupo['id'] ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="estado" value="activo">
-                                <button type="submit" class="btn btn-outline-success">Reabrir grupo</button>
+                                <button type="button" class="btn btn-outline-success"
+                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                    data-confirm-title="Reabrir grupo"
+                                    data-confirm-msg="Se reabrirá el grupo. Los miembros podrán crear y editar gastos nuevamente."
+                                    data-confirm-btn="Reabrir grupo"
+                                    data-confirm-class="btn-success"
+                                    data-confirm-form="reabrir-grupo-<?= $grupo['id'] ?>">Reabrir grupo</button>
                             </form>
                             <?php if (empty($deudas)): ?>
-                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
+                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="liquidar-grupo-<?= $grupo['id'] ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="estado" value="liquidado">
-                                    <button type="submit" class="btn btn-outline-secondary">Liquidar grupo</button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                        data-confirm-title="Liquidar grupo"
+                                        data-confirm-msg="Se liquidará el grupo. Esta acción es definitiva y no se puede deshacer."
+                                        data-confirm-btn="Liquidar grupo"
+                                        data-confirm-class="btn-secondary"
+                                        data-confirm-form="liquidar-grupo-<?= $grupo['id'] ?>">Liquidar grupo</button>
                                 </form>
                             <?php endif; ?>
                         </div>
@@ -261,4 +289,5 @@
 
     </div>
 
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>

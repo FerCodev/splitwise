@@ -40,10 +40,15 @@
                             <div class="card-footer bg-transparent border-0 pt-0 d-flex gap-2">
                                 <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary flex-fill">Abrir</a>
                                 <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-secondary flex-fill">Editar</a>
-                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar grupo?')">
+                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="flex-fill" id="delete-grupo-<?= $grupo['id'] ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
+                                    <button type="button" class="btn btn-outline-danger w-100"
+                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                        data-confirm-title="Eliminar grupo"
+                                        data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
+                                        data-confirm-btn="Eliminar grupo"
+                                        data-confirm-form="delete-grupo-<?= $grupo['id'] ?>">Eliminar</button>
                                 </form>
                             </div>
                         </div>
@@ -53,4 +58,5 @@
         <?php endif; ?>
     </div>
 
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>

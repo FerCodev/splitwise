@@ -30,10 +30,15 @@
                         <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_gasto']): ?>
-                        <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar gasto?')">
+                        <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" id="delete-gasto-<?= $gasto['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
+                            <button type="button" class="btn btn-outline-danger w-100"
+                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                data-confirm-title="Eliminar gasto"
+                                data-confirm-msg="Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer."
+                                data-confirm-btn="Eliminar gasto"
+                                data-confirm-form="delete-gasto-<?= $gasto['id'] ?>">Eliminar</button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -146,4 +151,5 @@
         </div>
     </div>
 
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>
