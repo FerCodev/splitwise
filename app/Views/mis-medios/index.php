@@ -16,7 +16,7 @@
         <?php endif; ?>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-body p-0">
+            <div class="card-body p-0 d-none d-md-block">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -34,7 +34,7 @@
                         <tbody>
                             <?php if (empty($medios)): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">No tenés medios de cobro registrados.</td>
+                                    <td colspan="8" class="text-center text-muted py-4">No ten&eacute;s medios de cobro registrados.</td>
                                 </tr>
                             <?php else: ?>
                                 <?php foreach ($medios as $m): ?>
@@ -81,7 +81,7 @@
                                                         <?= $m['activo'] ? 'Desactivar' : 'Activar' ?>
                                                     </button>
                                                 </form>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar medio de cobro?')">
+                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('&iquest;Eliminar medio de cobro?')">
                                                     <?= csrf_field() ?>
                                                     <input type="hidden" name="_method" value="DELETE">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
@@ -94,6 +94,57 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+            <div class="d-md-none">
+                <?php if (empty($medios)): ?>
+                    <div class="card-body text-center py-4">
+                        <p class="text-muted mb-0">No ten&eacute;s medios de cobro registrados.</p>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($medios as $m): ?>
+                        <div class="mobile-card-item">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <span class="fw-medium"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
+                                    <span class="badge bg-info text-dark ms-1"><?= esc($m['tipo']) ?></span>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <?php if ($m['activo']): ?>
+                                        <span class="badge bg-success">Activo</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">Inactivo</span>
+                                    <?php endif; ?>
+                                    <?php if ($m['favorito']): ?>
+                                        <span class="text-warning" title="Favorito">&starf;</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <?php if ($m['alias']): ?>
+                                <div class="small mt-1"><span class="text-muted">Alias:</span> <?= esc($m['alias']) ?></div>
+                            <?php endif; ?>
+                            <?php if ($m['cbu_cvu']): ?>
+                                <div class="small"><span class="text-muted">CBU/CVU:</span> <?= esc($m['cbu_cvu']) ?></div>
+                            <?php endif; ?>
+                            <?php if ($m['banco']): ?>
+                                <div class="small"><span class="text-muted">Banco:</span> <?= esc($m['banco']) ?></div>
+                            <?php endif; ?>
+                            <div class="mt-2 d-flex gap-1 flex-wrap">
+                                <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
+                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="flex-fill">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm <?= $m['activo'] ? 'btn-outline-warning' : 'btn-outline-success' ?> w-100">
+                                        <?= $m['activo'] ? 'Desactivar' : 'Activar' ?>
+                                    </button>
+                                </form>
+                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('&iquest;Eliminar medio de cobro?')">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>

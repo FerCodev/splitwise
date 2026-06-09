@@ -108,4 +108,80 @@ final class DashboardResumenTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame(1, $r['cantidadActivos']);
         $this->assertSame(10.0, $r['globalSaldo']);
     }
+
+    // ---------------------------------------------------------------
+    // sortGroupsByActivity
+    // ---------------------------------------------------------------
+
+    public function testSortGroupsActivosPrimero(): void
+    {
+        $grupos = [
+            ['id' => 1, 'estado' => 'cerrado', 'ultima_actividad' => '2026-06-08'],
+            ['id' => 2, 'estado' => 'activo', 'ultima_actividad' => '2026-06-07'],
+        ];
+
+        $ordenados = Grupo::sortGroupsByActivity($grupos);
+
+        $this->assertSame(2, $ordenados[0]['id']);
+        $this->assertSame(1, $ordenados[1]['id']);
+    }
+
+    public function testSortGroupsMismoEstadoPorActividad(): void
+    {
+        $grupos = [
+            ['id' => 1, 'estado' => 'activo', 'ultima_actividad' => '2026-06-07'],
+            ['id' => 2, 'estado' => 'activo', 'ultima_actividad' => '2026-06-09'],
+            ['id' => 3, 'estado' => 'activo', 'ultima_actividad' => '2026-06-08'],
+        ];
+
+        $ordenados = Grupo::sortGroupsByActivity($grupos);
+
+        $this->assertSame(2, $ordenados[0]['id']);
+        $this->assertSame(3, $ordenados[1]['id']);
+        $this->assertSame(1, $ordenados[2]['id']);
+    }
+
+    public function testSortGroupsInactivosAlFinal(): void
+    {
+        $grupos = [
+            ['id' => 1, 'estado' => 'liquidado', 'ultima_actividad' => '2026-06-09'],
+            ['id' => 2, 'estado' => 'activo', 'ultima_actividad' => '2026-06-07'],
+            ['id' => 3, 'estado' => 'cerrado', 'ultima_actividad' => '2026-06-08'],
+        ];
+
+        $ordenados = Grupo::sortGroupsByActivity($grupos);
+
+        $this->assertSame(2, $ordenados[0]['id']); // activo primero
+        // inactivos ordenados por actividad DESC
+        $this->assertSame(1, $ordenados[1]['id']); // liquidado 2026-06-09
+        $this->assertSame(3, $ordenados[2]['id']); // cerrado 2026-06-08
+    }
+
+    public function testSortGroupsConActividadNula(): void
+    {
+        $grupos = [
+            ['id' => 1, 'estado' => 'activo', 'ultima_actividad' => null],
+            ['id' => 2, 'estado' => 'activo', 'ultima_actividad' => '2026-06-08'],
+        ];
+
+        $ordenados = Grupo::sortGroupsByActivity($grupos);
+
+        // null se ordena como '1970-01-01', va ultimo
+        $this->assertSame(2, $ordenados[0]['id']);
+        $this->assertSame(1, $ordenados[1]['id']);
+    }
+
+    public function testSortGroupsEstadoDefaultSiFaltaClave(): void
+    {
+        $grupos = [
+            ['id' => 1, 'ultima_actividad' => '2026-06-07'],
+            ['id' => 2, 'estado' => 'activo', 'ultima_actividad' => '2026-06-08'],
+        ];
+
+        $ordenados = Grupo::sortGroupsByActivity($grupos);
+
+        // ambos activos, ordenados por actividad
+        $this->assertSame(2, $ordenados[0]['id']);
+        $this->assertSame(1, $ordenados[1]['id']);
+    }
 }

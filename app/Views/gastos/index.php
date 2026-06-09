@@ -91,7 +91,7 @@
                                             <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span></td>
                                             <td><?= $gasto['total_participantes'] ?></td>
                                             <td>
-                                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver</a>
+                                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-outline-info">Ver detalle</a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -118,7 +118,7 @@
                                 Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
                             </div>
                             <div class="mt-2">
-                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm">Ver</a>
+                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-outline-info btn-sm">Ver detalle</a>
                             </div>
                         </div>
                     </div>
