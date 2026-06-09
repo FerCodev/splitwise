@@ -36,8 +36,6 @@ class PasswordResetController extends BaseController
 
         $link = base_url("password/reset/{$token}");
 
-        // TODO: En produccion enviar $link por email.
-        // En development se muestra en pantalla.
         return redirect()->back()->with('success', $mensajeGenerico)
             ->with('dev_reset_link', $link);
     }
