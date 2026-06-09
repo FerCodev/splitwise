@@ -55,17 +55,32 @@
                                                     <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
                                                 <?php endif; ?>
                                                 <?php if ($c['nombre'] !== $protegida): ?>
-                                                    <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline">
-                                                        <?= csrf_field() ?>
-                                                        <button type="submit" class="btn btn-sm <?= $c['activa'] ? 'btn-outline-warning' : 'btn-outline-success' ?>">
-                                                            <?= $c['activa'] ? 'Desactivar' : 'Activar' ?>
-                                                        </button>
-                                                    </form>
+                                                    <?php if ($c['activa']): ?>
+                                                        <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-cat-<?= $c['id'] ?>">
+                                                            <?= csrf_field() ?>
+                                                            <button type="button" class="btn btn-sm btn-outline-warning"
+                                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                                data-confirm-title="Desactivar categor&iacute;a"
+                                                                data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
+                                                                data-confirm-btn="Desactivar"
+                                                                data-confirm-form="toggle-cat-<?= $c['id'] ?>">Desactivar</button>
+                                                        </form>
+                                                    <?php else: ?>
+                                                        <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline">
+                                                            <?= csrf_field() ?>
+                                                            <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                                        </form>
+                                                    <?php endif; ?>
                                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
-                                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="d-inline" onsubmit="return confirm('&iquest;Eliminar categor&iacute;a?')">
+                                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="d-inline" id="delete-cat-<?= $c['id'] ?>">
                                                             <?= csrf_field() ?>
                                                             <input type="hidden" name="_method" value="DELETE">
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                                data-confirm-title="Eliminar categor&iacute;a"
+                                                                data-confirm-msg="Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos."
+                                                                data-confirm-btn="Eliminar"
+                                                                data-confirm-form="delete-cat-<?= $c['id'] ?>">Eliminar</button>
                                                         </form>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
@@ -105,17 +120,32 @@
                             <div class="mt-2 d-flex gap-1 flex-wrap">
                                 <?php if ($c['nombre'] !== $protegida): ?>
                                     <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
-                                    <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="flex-fill">
-                                        <?= csrf_field() ?>
-                                        <button type="submit" class="btn btn-sm <?= $c['activa'] ? 'btn-outline-warning' : 'btn-outline-success' ?> w-100">
-                                            <?= $c['activa'] ? 'Desactivar' : 'Activar' ?>
-                                        </button>
-                                    </form>
+                                    <?php if ($c['activa']): ?>
+                                        <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="flex-fill" id="toggle-cat-m-<?= $c['id'] ?>">
+                                            <?= csrf_field() ?>
+                                            <button type="button" class="btn btn-sm btn-outline-warning w-100"
+                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                data-confirm-title="Desactivar categor&iacute;a"
+                                                data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
+                                                data-confirm-btn="Desactivar"
+                                                data-confirm-form="toggle-cat-m-<?= $c['id'] ?>">Desactivar</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="flex-fill">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="btn btn-sm btn-outline-success w-100">Activar</button>
+                                        </form>
+                                    <?php endif; ?>
                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
-                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('&iquest;Eliminar categor&iacute;a?')">
+                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="flex-fill" id="delete-cat-m-<?= $c['id'] ?>">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="_method" value="DELETE">
-                                            <button type="submit" class="btn btn-outline-danger btn-sm w-100">Eliminar</button>
+                                            <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                data-confirm-title="Eliminar categor&iacute;a"
+                                                data-confirm-msg="Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos."
+                                                data-confirm-btn="Eliminar"
+                                                data-confirm-form="delete-cat-m-<?= $c['id'] ?>">Eliminar</button>
                                         </form>
                                     <?php endif; ?>
                                 <?php endif; ?>
@@ -127,4 +157,5 @@
         </div>
     </div>
 
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>

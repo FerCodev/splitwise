@@ -30,10 +30,15 @@
                         <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_pago']): ?>
-                        <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="flex-fill" onsubmit="return confirm('¿Eliminar pago?')">
+                        <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="flex-fill" id="delete-pago-<?= $pago['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="btn btn-outline-danger w-100">Eliminar</button>
+                            <button type="button" class="btn btn-outline-danger w-100"
+                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                data-confirm-title="Eliminar pago"
+                                data-confirm-msg="Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer."
+                                data-confirm-btn="Eliminar pago"
+                                data-confirm-form="delete-pago-<?= $pago['id'] ?>">Eliminar</button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -64,4 +69,5 @@
         </div>
     </div>
 
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>
