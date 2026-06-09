@@ -10,7 +10,7 @@ $routes->get('/logout', 'Auth::logout');
 $routes->get('/password/olvidada', 'PasswordResetController::olvidada');
 $routes->post('/password/olvidada', 'PasswordResetController::enviarEnlace');
 $routes->get('/password/reset/(:any)', 'PasswordResetController::reset/$1');
-$routes->post('/password/reset/(:any)', 'PasswordResetController::cambiarPassword');
+$routes->post('/password/reset/(:any)', 'PasswordResetController::cambiarPassword/$1');
 $routes->get('/dashboard', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('/grupos', 'Grupos::index', ['filter' => 'auth']);
 $routes->get('/grupos/nuevo', 'Grupos::new', ['filter' => 'auth']);

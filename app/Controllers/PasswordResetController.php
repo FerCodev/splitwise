@@ -36,8 +36,20 @@ class PasswordResetController extends BaseController
 
         $link = base_url("password/reset/{$token}");
 
-        return redirect()->back()->with('success', $mensajeGenerico)
-            ->with('dev_reset_link', $link);
+        // En produccion enviar $link por email:
+        //   $email = \Config\Services::email();
+        //   $email->setTo($user['email']);
+        //   $email->setSubject('Recuperación de contraseña - SplitWise');
+        //   $email->setMessage("Enlace: $link");
+        //   $email->send();
+
+        $response = redirect()->back()->with('success', $mensajeGenerico);
+
+        if (ENVIRONMENT === 'development') {
+            $response->with('dev_reset_link', $link);
+        }
+
+        return $response;
     }
 
     public function reset(string $token = '')
@@ -60,9 +72,8 @@ class PasswordResetController extends BaseController
         return view('password/reset', ['token' => $token]);
     }
 
-    public function cambiarPassword()
+    public function cambiarPassword(string $token = '')
     {
-        $token = $this->request->getPost('token');
         $password = $this->request->getPost('password');
         $confirm = $this->request->getPost('password_confirm');
 
