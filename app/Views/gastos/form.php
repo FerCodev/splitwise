@@ -92,12 +92,12 @@
                         </select>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label class="form-label fw-medium">Participantes (división igualitaria)</label>
                         <?php if (isset($miembros)): ?>
                             <?php foreach ($miembros as $m): ?>
                                 <div class="form-check py-1">
-                                    <input class="form-check-input" type="checkbox" name="participantes[]"
+                                    <input class="form-check-input participante-checkbox" type="checkbox" name="participantes[]"
                                            value="<?= $m['user_id'] ?>"
                                            id="participante_<?= $m['user_id'] ?>"
                                            <?= isset($participantesIds) && in_array($m['user_id'], $participantesIds) ? 'checked' : '' ?>>
@@ -111,6 +111,13 @@
                         <?php endif; ?>
                     </div>
 
+                    <!-- Preview de división en tiempo real -->
+                    <div id="divisionPreview" class="card border-0 shadow-sm mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                        <div class="card-body py-3" id="divisionPreviewContent">
+                            <p class="text-muted small mb-0">Ingresá un monto y seleccioná participantes para ver cómo se divide.</p>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2">
                         <a href="<?= !empty($grupoId) ? base_url('grupos/' . $grupoId) : base_url('gastos') ?>" class="btn btn-secondary flex-fill">Cancelar</a>
                         <button type="submit" class="btn btn-primary flex-fill">
@@ -121,18 +128,58 @@
             </div>
         </div>
 
-        <?php if (isset($miembros) && count($miembros) > 0 && !isset($gasto)): ?>
-        <div class="card border-0 shadow-sm mt-3">
-            <div class="card-body">
-                <h6 class="fw-bold">Vista previa de división</h6>
-                <p class="text-muted small mb-0">
-                    Al seleccionar participantes, el monto se dividirá en partes iguales.
-                    El pagador puede ser también participante.
-                </p>
-            </div>
-        </div>
-        <?php endif; ?>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var montoInput = document.getElementById('monto');
+            if (!montoInput) return;
+
+            var checkboxes = document.querySelectorAll('.participante-checkbox');
+            var previewContent = document.getElementById('divisionPreviewContent');
+
+            function actualizarPreview() {
+                var rawValue = montoInput.value.trim();
+                var monto = parseFloat(rawValue);
+                var seleccionados = 0;
+                checkboxes.forEach(function(cb) {
+                    if (cb.checked) seleccionados++;
+                });
+
+                if (!rawValue || isNaN(monto) || monto <= 0) {
+                    previewContent.innerHTML = '<p class="text-muted small mb-0">Ingresá un monto v&aacute;lido para ver la divisi&oacute;n.</p>';
+                    return;
+                }
+                if (seleccionados === 0) {
+                    previewContent.innerHTML = '<p class="text-muted small mb-0">Seleccion&aacute; al menos un participante para dividir el gasto.</p>';
+                    return;
+                }
+
+                var porPersona = monto / seleccionados;
+
+                previewContent.innerHTML =
+                    '<div class="d-flex justify-content-between small mb-1">' +
+                        '<span class="text-muted">Participantes:</span>' +
+                        '<span class="fw-medium">' + seleccionados + '</span>' +
+                    '</div>' +
+                    '<div class="d-flex justify-content-between small mb-1">' +
+                        '<span class="text-muted">Cada uno paga:</span>' +
+                        '<span class="fw-medium">$' + porPersona.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '<div class="d-flex justify-content-between small fw-bold pt-1 border-top">' +
+                        '<span>Total:</span>' +
+                        '<span>$' + monto.toFixed(2) + '</span>' +
+                    '</div>';
+            }
+
+            montoInput.addEventListener('input', actualizarPreview);
+            checkboxes.forEach(function(cb) {
+                cb.addEventListener('change', actualizarPreview);
+            });
+
+            actualizarPreview();
+        });
+    </script>
 
     <?php if (!isset($gasto) && empty($grupoId)): ?>
     <script>
