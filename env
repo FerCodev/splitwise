@@ -71,12 +71,18 @@
 #--------------------------------------------------------------------
 # EMAIL (SMTP)
 #--------------------------------------------------------------------
-# Requiere: protocol=smtp, SMTPHost, SMTPUser y SMTPPass.
-# Con Gmail: fromEmail debe coincidir con SMTPUser.
-#            SMTPPass debe ser una contraseña de aplicación (sin espacios).
+# Requiere: protocol=smtp, SMTPHost, SMTPUser y SMTPPass no vacios.
+# No mezclar hosts con cuentas de otro proveedor.
+#
+# Gmail (requiere contraseña de aplicacion, sin espacios):
+#   email.SMTPHost = smtp.gmail.com
+#   email.fromEmail coincide con email.SMTPUser.
+#
+# Outlook / Hotmail:
+#   email.SMTPHost = smtp.office365.com
 
 # email.protocol = smtp
-# email.fromEmail = no-reply@tudominio.com
+# email.fromEmail = tu-email@gmail.com
 # email.fromName = SplitWise
 # email.SMTPHost = smtp.gmail.com
 # email.SMTPUser = tu-email@gmail.com

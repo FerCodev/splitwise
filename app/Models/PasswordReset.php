@@ -83,8 +83,8 @@ class PasswordReset extends Model
             $email->setMessage($message);
 
             return $email->send();
-        } catch (\Exception $e) {
-            log_message('error', 'Excepción al enviar email: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            log_message('error', 'Error al enviar email: ' . $e->getMessage());
             return false;
         }
     }
