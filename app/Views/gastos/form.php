@@ -155,21 +155,35 @@
                     return;
                 }
 
-                var porPersona = monto / seleccionados;
+                // Misma logica que el backend: round, diferencias, ultimo participante ajustado
+                var porcion = Math.round(monto / seleccionados * 100) / 100;
+                var diferencias = Math.round((monto - porcion * seleccionados) * 100) / 100;
 
-                previewContent.innerHTML =
+                var html =
                     '<div class="d-flex justify-content-between small mb-1">' +
                         '<span class="text-muted">Participantes:</span>' +
                         '<span class="fw-medium">' + seleccionados + '</span>' +
                     '</div>' +
                     '<div class="d-flex justify-content-between small mb-1">' +
                         '<span class="text-muted">Cada uno paga:</span>' +
-                        '<span class="fw-medium">$' + porPersona.toFixed(2) + '</span>' +
-                    '</div>' +
+                        '<span class="fw-medium">$' + porcion.toFixed(2) + '</span>' +
+                    '</div>';
+
+                if (diferencias !== 0) {
+                    html +=
+                    '<div class="d-flex justify-content-between small mb-1 text-warning">' +
+                        '<span>Ajuste en el &uacute;ltimo participante:</span>' +
+                        '<span class="fw-medium">$' + diferencias.toFixed(2) + '</span>' +
+                    '</div>';
+                }
+
+                html +=
                     '<div class="d-flex justify-content-between small fw-bold pt-1 border-top">' +
                         '<span>Total:</span>' +
                         '<span>$' + monto.toFixed(2) + '</span>' +
                     '</div>';
+
+                previewContent.innerHTML = html;
             }
 
             montoInput.addEventListener('input', actualizarPreview);
