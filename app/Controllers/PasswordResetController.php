@@ -36,17 +36,44 @@ class PasswordResetController extends BaseController
 
         $link = base_url("password/reset/{$token}");
 
-        // En produccion enviar $link por email:
-        //   $email = \Config\Services::email();
-        //   $email->setTo($user['email']);
-        //   $email->setSubject('Recuperación de contraseña - SplitWise');
-        //   $email->setMessage("Enlace: $link");
-        //   $email->send();
-
         $response = redirect()->back()->with('success', $mensajeGenerico);
 
         if (ENVIRONMENT === 'development') {
             $response->with('dev_reset_link', $link);
+        }
+
+        // Enviar email real si SMTP esta configurado
+        $emailService = \Config\Services::email();
+        $fromEmail = env('email.fromEmail');
+        $fromName = env('email.fromName');
+
+        if (!empty($fromEmail)) {
+            try {
+                $emailService->setFrom($fromEmail, $fromName ?: 'SplitWise');
+                $emailService->setTo($user['email']);
+                $emailService->setSubject('Recuperación de contraseña - SplitWise');
+                $emailService->setMessage(
+                    "Hola {$user['name']},\n\n"
+                    . "Recibimos una solicitud para restablecer tu contraseña.\n\n"
+                    . "Hacé clic en el siguiente enlace para crear una nueva contraseña:\n"
+                    . "{$link}\n\n"
+                    . "Este enlace expira en 60 minutos.\n\n"
+                    . "Si no solicitaste este cambio, ignorá este mensaje.\n\n"
+                    . "— SplitWise"
+                );
+
+                if (!$emailService->send()) {
+                    log_message('error', 'SMTP falló al enviar recuperación a ' . $user['email']);
+                    if (ENVIRONMENT !== 'development') {
+                        $response->with('error', 'Ocurrió un problema al enviar el email. Intentalo de nuevo más tarde.');
+                    }
+                }
+            } catch (\Exception $e) {
+                log_message('error', 'Excepción SMTP: ' . $e->getMessage());
+                if (ENVIRONMENT !== 'development') {
+                    $response->with('error', 'Ocurrió un problema al enviar el email. Intentalo de nuevo más tarde.');
+                }
+            }
         }
 
         return $response;
@@ -102,6 +129,28 @@ class PasswordResetController extends BaseController
         ]);
 
         $resetModel->marcarUsado((int) $row['id']);
+
+        // Aviso opcional de cambio de contraseña por email (no bloqueante)
+        $updatedUser = $userModel->find((int) $row['user_id']);
+        $emailService = \Config\Services::email();
+        $fromEmail = env('email.fromEmail');
+
+        if ($updatedUser && !empty($fromEmail)) {
+            try {
+                $emailService->setFrom($fromEmail, env('email.fromName') ?: 'SplitWise');
+                $emailService->setTo($updatedUser['email']);
+                $emailService->setSubject('Tu contraseña fue cambiada - SplitWise');
+                $emailService->setMessage(
+                    "Hola {$updatedUser['name']},\n\n"
+                    . "Tu contraseña de SplitWise fue cambiada correctamente.\n\n"
+                    . "Si no realizaste este cambio, contactá al administrador del sistema.\n\n"
+                    . "— SplitWise"
+                );
+                $emailService->send();
+            } catch (\Exception $e) {
+                log_message('error', 'Excepción SMTP al notificar cambio de contraseña: ' . $e->getMessage());
+            }
+        }
 
         return redirect()->to('/login')->with('success', 'Contraseña actualizada correctamente. Iniciá sesión con tu nueva contraseña.');
     }

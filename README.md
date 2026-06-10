@@ -46,6 +46,33 @@ php spark db:seed UserSeeder
 php spark serve
 ```
 
+## Email (SMTP)
+
+Para habilitar el envío real de emails (recuperación de contraseña, notificaciones), descomentar y configurar en `.env`:
+
+```ini
+email.fromEmail = no-reply@tudominio.com
+email.fromName = SplitWise
+email.SMTPHost = smtp.gmail.com
+email.SMTPUser = tu-email@gmail.com
+email.SMTPPass = tu-contrasena-de-aplicacion
+email.SMTPPort = 587
+email.SMTPCrypto = tls
+```
+
+### Comportamiento por ambiente
+
+| Ambiente | SMTP configurado | Comportamiento |
+|---|---|---|
+| `development` | No | Se muestra enlace de recuperación en pantalla (`dev_reset_link`) |
+| `development` | Sí | Se envía email real + se muestra enlace en pantalla |
+| `production` | No | Error controlado sin detalles técnicos |
+| `production` | Sí | Se envía email real |
+
+- En `development` siempre se puede probar el flujo aunque no haya SMTP.
+- Si SMTP falla en `production`, el usuario ve un mensaje amigable y no hay exposición de errores.
+- El envío de notificación de cambio de contraseña es no bloqueante: no impide completar el cambio.
+
 ## Documentación
 
 La documentación completa del proyecto (arquitectura, base de datos, flujos, permisos, testing, roadmap y troubleshooting) está disponible en:

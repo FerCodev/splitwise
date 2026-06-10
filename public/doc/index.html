@@ -139,6 +139,26 @@ database.default.DBDriver = MySQLi</code></pre>
     <pre><code>php spark routes          # Ver todas las rutas
 php spark migrate:status  # Ver estado de migraciones
 php -l archivo.php        # Verificar sintaxis PHP</code></pre>
+
+    <h3>Email (SMTP)</h3>
+    <p>
+        Para habilitar env&iacute;o real de correo (recuperaci&oacute;n de contrase&ntilde;a,
+        notificaciones), descomentar en <code>.env</code>:
+    </p>
+    <pre><code>email.fromEmail = no-reply@tudominio.com
+email.fromName = SplitWise
+email.SMTPHost = smtp.gmail.com
+email.SMTPUser = tu-email@gmail.com
+email.SMTPPass = tu-contrase&ntilde;a-de-aplicaci&oacute;n
+email.SMTPPort = 587
+email.SMTPCrypto = tls</code></pre>
+
+    <div class="info-box">
+        <strong>Comportamiento por ambiente:</strong>
+        En <code>development</code> si SMTP no est&aacute; configurado se muestra un enlace
+        de recuperaci&oacute;n en pantalla. Si SMTP falla en producci&oacute;n se muestra
+        un mensaje amigable sin detalles t&eacute;cnicos.
+    </div>
 </section>
 
 <!-- ============================================================ -->
