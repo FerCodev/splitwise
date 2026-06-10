@@ -38,9 +38,9 @@
                                         <td class="fw-medium">
                                             <?= esc($c['nombre']) ?>
                                             <?php if ($c['nombre'] === $protegida): ?>
-                                            <span class="badge bg-secondary ms-1" title="Categor&iacute;a protegida: no se puede editar, desactivar ni eliminar">Protegida</span>
-                                        <?php endif; ?>
-                                    </td>
+                                                <span class="badge bg-secondary ms-1" title="Categor&iacute;a protegida: no se puede editar, desactivar ni eliminar">Protegida</span>
+                                            <?php endif; ?>
+                                        </td>
                                     <td>
                                         <?php if ($c['activa']): ?>
                                             <span class="badge bg-success">Activa</span>
@@ -105,7 +105,8 @@
                                 <div>
                                     <span class="fw-medium"><?= esc($c['nombre']) ?></span>
                                     <?php if ($c['nombre'] === $protegida): ?>
-                                        <span class="badge bg-secondary ms-1" title="Categor&iacute;a protegida: no se puede editar, desactivar ni eliminar">Protegida</span>
+                                        <span class="badge bg-secondary ms-1">Protegida</span>
+                                        <div class="text-muted small mt-1">No se puede editar, desactivar ni eliminar.</div>
                                     <?php endif; ?>
                                 </div>
                                 <div>
