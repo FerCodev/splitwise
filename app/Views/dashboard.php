@@ -10,29 +10,29 @@
             <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-outline-secondary">Medios de cobro</a>
         </div>
 
-        <!-- Resumen compacto -->
+        <!-- Resumen compacto: solo 3 metricas en mobile, 4 en desktop -->
         <div class="row g-2 mb-4">
-            <div class="col-3 col-md-2">
+            <div class="col-4 col-md-3 col-lg-2">
                 <div class="card border-0 shadow-sm text-center py-2 h-100">
-                    <div class="small text-muted">Activos</div>
+                    <div class="small text-muted lh-1">Activos</div>
                     <div class="fw-bold fs-5 text-success"><?= $cantidadActivos ?></div>
                 </div>
             </div>
-            <div class="col-3 col-md-2">
+            <div class="col-4 col-md-3 col-lg-2">
                 <div class="card border-0 shadow-sm text-center py-2 h-100">
-                    <div class="small text-muted">Saldo</div>
+                    <div class="small text-muted lh-1">Saldo</div>
                     <div class="fw-bold fs-5 <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">$<?= number_format(abs($globalSaldo), 0) ?></div>
                 </div>
             </div>
-            <div class="col-3 col-md-2">
+            <div class="col-4 col-md-3 col-lg-2">
                 <div class="card border-0 shadow-sm text-center py-2 h-100">
-                    <div class="small text-muted">A favor</div>
+                    <div class="small text-muted lh-1">A favor</div>
                     <div class="fw-bold fs-5 text-success"><?= $gruposAFavor ?></div>
                 </div>
             </div>
-            <div class="col-3 col-md-2">
+            <div class="d-none d-md-block col-md-3 col-lg-2">
                 <div class="card border-0 shadow-sm text-center py-2 h-100">
-                    <div class="small text-muted">Deb&eacute;s</div>
+                    <div class="small text-muted lh-1">Deb&eacute;s</div>
                     <div class="fw-bold fs-5 text-danger"><?= $gruposDebe ?></div>
                 </div>
             </div>

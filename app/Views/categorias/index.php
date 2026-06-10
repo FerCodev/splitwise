@@ -38,39 +38,39 @@
                                         <td class="fw-medium">
                                             <?= esc($c['nombre']) ?>
                                             <?php if ($c['nombre'] === $protegida): ?>
-                                                <span class="badge bg-secondary ms-1">Protegida</span>
+                                                <span class="badge bg-secondary ms-1" title="Categor&iacute;a protegida: no se puede editar, desactivar ni eliminar">Protegida</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <?php if ($c['activa']): ?>
-                                                <span class="badge bg-success">Activa</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-danger">Inactiva</span>
+                                    <td>
+                                        <?php if ($c['activa']): ?>
+                                            <span class="badge bg-success">Activa</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Inactiva</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="text-end"><?= $usadas[(int) $c['id']] ?? 0 ?></td>
+                                    <td>
+                                        <div class="d-flex gap-1">
+                                            <?php if ($c['nombre'] !== $protegida): ?>
+                                                <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
                                             <?php endif; ?>
-                                        </td>
-                                        <td class="text-end"><?= $usadas[(int) $c['id']] ?? 0 ?></td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <?php if ($c['nombre'] !== $protegida): ?>
-                                                    <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                            <?php if ($c['nombre'] !== $protegida): ?>
+                                                <?php if ($c['activa']): ?>
+                                                    <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-cat-<?= $c['id'] ?>">
+                                                        <?= csrf_field() ?>
+                                                        <button type="button" class="btn btn-sm btn-outline-warning"
+                                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                            data-confirm-title="Desactivar categor&iacute;a"
+                                                            data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
+                                                            data-confirm-btn="Desactivar"
+                                                            data-confirm-form="toggle-cat-<?= $c['id'] ?>">Desactivar</button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline">
+                                                        <?= csrf_field() ?>
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                                    </form>
                                                 <?php endif; ?>
-                                                <?php if ($c['nombre'] !== $protegida): ?>
-                                                    <?php if ($c['activa']): ?>
-                                                        <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-cat-<?= $c['id'] ?>">
-                                                            <?= csrf_field() ?>
-                                                            <button type="button" class="btn btn-sm btn-outline-warning"
-                                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                                data-confirm-title="Desactivar categor&iacute;a"
-                                                                data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
-                                                                data-confirm-btn="Desactivar"
-                                                                data-confirm-form="toggle-cat-<?= $c['id'] ?>">Desactivar</button>
-                                                        </form>
-                                                    <?php else: ?>
-                                                        <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline">
-                                                            <?= csrf_field() ?>
-                                                            <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
-                                                        </form>
-                                                    <?php endif; ?>
                                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
                                                         <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="d-inline" id="delete-cat-<?= $c['id'] ?>">
                                                             <?= csrf_field() ?>
@@ -106,6 +106,7 @@
                                     <span class="fw-medium"><?= esc($c['nombre']) ?></span>
                                     <?php if ($c['nombre'] === $protegida): ?>
                                         <span class="badge bg-secondary ms-1">Protegida</span>
+                                        <div class="text-muted small mt-1">No se puede editar, desactivar ni eliminar.</div>
                                     <?php endif; ?>
                                 </div>
                                 <div>
