@@ -42,13 +42,21 @@ class PasswordResetController extends BaseController
             $response->with('dev_reset_link', $link);
         }
 
-        // Enviar email real si SMTP esta configurado
-        $emailService = \Config\Services::email();
+        // Enviar email real si SMTP esta configurado en .env
         $fromEmail = env('email.fromEmail');
         $fromName = env('email.fromName');
+        $smtpHost = env('email.SMTPHost');
 
-        if (!empty($fromEmail)) {
+        if (!empty($fromEmail) && !empty($smtpHost)) {
             try {
+                $emailService = \Config\Services::email();
+                $emailService->protocol = 'smtp';
+                $emailService->SMTPHost = $smtpHost;
+                $emailService->SMTPUser = env('email.SMTPUser');
+                $emailService->SMTPPass = env('email.SMTPPass');
+                $emailService->SMTPPort = env('email.SMTPPort') ?: 587;
+                $emailService->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
+
                 $emailService->setFrom($fromEmail, $fromName ?: 'SplitWise');
                 $emailService->setTo($user['email']);
                 $emailService->setSubject('Recuperación de contraseña - SplitWise');
@@ -132,11 +140,19 @@ class PasswordResetController extends BaseController
 
         // Aviso opcional de cambio de contraseña por email (no bloqueante)
         $updatedUser = $userModel->find((int) $row['user_id']);
-        $emailService = \Config\Services::email();
         $fromEmail = env('email.fromEmail');
+        $smtpHost = env('email.SMTPHost');
 
-        if ($updatedUser && !empty($fromEmail)) {
+        if ($updatedUser && !empty($fromEmail) && !empty($smtpHost)) {
             try {
+                $emailService = \Config\Services::email();
+                $emailService->protocol = 'smtp';
+                $emailService->SMTPHost = $smtpHost;
+                $emailService->SMTPUser = env('email.SMTPUser');
+                $emailService->SMTPPass = env('email.SMTPPass');
+                $emailService->SMTPPort = env('email.SMTPPort') ?: 587;
+                $emailService->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
+
                 $emailService->setFrom($fromEmail, env('email.fromName') ?: 'SplitWise');
                 $emailService->setTo($updatedUser['email']);
                 $emailService->setSubject('Tu contraseña fue cambiada - SplitWise');
