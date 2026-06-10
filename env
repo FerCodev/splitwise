@@ -67,3 +67,19 @@
 #--------------------------------------------------------------------
 
 # logger.threshold = 4
+
+#--------------------------------------------------------------------
+# EMAIL (SMTP)
+#--------------------------------------------------------------------
+# Requiere: protocol=smtp, SMTPHost, SMTPUser y SMTPPass.
+# Con Gmail: fromEmail debe coincidir con SMTPUser.
+#            SMTPPass debe ser una contraseña de aplicación (sin espacios).
+
+# email.protocol = smtp
+# email.fromEmail = no-reply@tudominio.com
+# email.fromName = SplitWise
+# email.SMTPHost = smtp.gmail.com
+# email.SMTPUser = tu-email@gmail.com
+# email.SMTPPass = tu-contrasena-de-aplicacion
+# email.SMTPPort = 587
+# email.SMTPCrypto = tls

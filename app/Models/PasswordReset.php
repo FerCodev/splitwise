@@ -58,9 +58,53 @@ class PasswordReset extends Model
         $this->update($id, ['used_at' => date('Y-m-d H:i:s')]);
     }
 
+    /**
+     * Envia un email usando SMTP configurado en .env.
+     * Retorna true si se envio correctamente, false si no habia SMTP o fallo.
+     */
+    public static function enviarEmail(string $to, string $subject, string $message): bool
+    {
+        if (!self::smtpConfigurado()) {
+            return false;
+        }
+
+        try {
+            $email = \Config\Services::email();
+            $email->protocol = 'smtp';
+            $email->SMTPHost = env('email.SMTPHost');
+            $email->SMTPUser = env('email.SMTPUser');
+            $email->SMTPPass = env('email.SMTPPass');
+            $email->SMTPPort = env('email.SMTPPort') ?: 587;
+            $email->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
+
+            $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'SplitWise');
+            $email->setTo($to);
+            $email->setSubject($subject);
+            $email->setMessage($message);
+
+            return $email->send();
+        } catch (\Exception $e) {
+            log_message('error', 'Excepción al enviar email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     // ---------------------------------------------------------------
     // Metodos puros para testing
     // ---------------------------------------------------------------
+
+    /**
+     * Indica si la configuracion SMTP esta completa en .env.
+     * Requiere: protocol=smtp, SMTPHost, SMTPUser y SMTPPass no vacios.
+     * Puro, testeable sin DB.
+     */
+    public static function smtpConfigurado(): bool
+    {
+        return env('email.protocol') === 'smtp'
+            && !empty(env('email.SMTPHost'))
+            && !empty(env('email.SMTPUser'))
+            && !empty(env('email.SMTPPass'));
+    }
 
     /**
      * Genera token plano. Puro, testeable sin DB.

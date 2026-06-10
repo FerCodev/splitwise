@@ -87,5 +87,31 @@ final class PasswordResetTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertTrue(method_exists(PasswordReset::class, 'generarToken'));
         $this->assertTrue(method_exists(PasswordReset::class, 'validarToken'));
         $this->assertTrue(method_exists(PasswordReset::class, 'marcarUsado'));
+        $this->assertTrue(method_exists(PasswordReset::class, 'smtpConfigurado'));
+        $this->assertTrue(method_exists(PasswordReset::class, 'enviarEmail'));
+    }
+
+    // ---------------------------------------------------------------
+    // smtpConfigurado
+    // ---------------------------------------------------------------
+
+    public function testMetodoSmtpConfiguradoExiste(): void
+    {
+        $this->assertTrue(method_exists(PasswordReset::class, 'smtpConfigurado'));
+    }
+
+    public function testMetodoEnviarEmailExiste(): void
+    {
+        $this->assertTrue(method_exists(PasswordReset::class, 'enviarEmail'));
+    }
+
+    /**
+     * El controlador solo muestra dev_reset_link cuando ENVIRONMENT === 'development'.
+     * CI4 testing usa ENVIRONMENT='testing', por lo que el link jamas se renderiza
+     * en tests. Se verifica la existencia del metodo como prueba de estructura.
+     */
+    public function testDevResetLinkEstructura(): void
+    {
+        $this->assertTrue(method_exists(\App\Controllers\PasswordResetController::class, 'enviarEnlace'));
     }
 }

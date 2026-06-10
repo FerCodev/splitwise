@@ -145,13 +145,24 @@ php -l archivo.php        # Verificar sintaxis PHP</code></pre>
         Para habilitar env&iacute;o real de correo (recuperaci&oacute;n de contrase&ntilde;a,
         notificaciones), descomentar en <code>.env</code>:
     </p>
-    <pre><code>email.fromEmail = no-reply@tudominio.com
+    <pre><code>email.protocol = smtp
+email.fromEmail = no-reply@tudominio.com
 email.fromName = SplitWise
 email.SMTPHost = smtp.gmail.com
 email.SMTPUser = tu-email@gmail.com
 email.SMTPPass = tu-contrase&ntilde;a-de-aplicaci&oacute;n
 email.SMTPPort = 587
 email.SMTPCrypto = tls</code></pre>
+
+    <p>
+        Requiere: <code>protocol=smtp</code>, <code>SMTPHost</code>,
+        <code>SMTPUser</code> y <code>SMTPPass</code> no vac&iacute;os.
+    </p>
+    <p>
+        Con Gmail: <code>fromEmail</code> debe coincidir con <code>SMTPUser</code>.
+        <code>SMTPPass</code> debe ser una contrase&ntilde;a de aplicaci&oacute;n
+        (sin espacios).
+    </p>
 
     <div class="info-box">
         <strong>Comportamiento por ambiente:</strong>

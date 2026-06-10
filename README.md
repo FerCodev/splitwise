@@ -51,6 +51,7 @@ php spark serve
 Para habilitar el envío real de emails (recuperación de contraseña, notificaciones), descomentar y configurar en `.env`:
 
 ```ini
+email.protocol = smtp
 email.fromEmail = no-reply@tudominio.com
 email.fromName = SplitWise
 email.SMTPHost = smtp.gmail.com
@@ -59,6 +60,10 @@ email.SMTPPass = tu-contrasena-de-aplicacion
 email.SMTPPort = 587
 email.SMTPCrypto = tls
 ```
+
+Requerimientos mínimos: `protocol=smtp`, `SMTPHost`, `SMTPUser` y `SMTPPass` no vacíos.
+
+**Gmail:** `fromEmail` debe coincidir con `SMTPUser` (salvo alias configurado). `SMTPPass` debe ser una contraseña de aplicación (sin espacios).
 
 ### Comportamiento por ambiente
 
