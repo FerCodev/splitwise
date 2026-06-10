@@ -46,6 +46,53 @@ php spark db:seed UserSeeder
 php spark serve
 ```
 
+## Email (SMTP)
+
+Para habilitar el envío real de emails (recuperación de contraseña, notificaciones), descomentar en `.env` y configurar según tu proveedor:
+
+**Gmail:**
+```ini
+email.protocol = smtp
+email.fromEmail = tu-email@gmail.com
+email.fromName = SplitWise
+email.SMTPHost = smtp.gmail.com
+email.SMTPUser = tu-email@gmail.com
+email.SMTPPass = tu-contrasena-de-aplicacion
+email.SMTPPort = 587
+email.SMTPCrypto = tls
+```
+
+**Outlook / Hotmail:**
+```ini
+email.protocol = smtp
+email.fromEmail = tu-email@outlook.com
+email.fromName = SplitWise
+email.SMTPHost = smtp.office365.com
+email.SMTPUser = tu-email@outlook.com
+email.SMTPPass = tu-contrasena
+email.SMTPPort = 587
+email.SMTPCrypto = tls
+```
+
+Importante:
+- `fromEmail` debe coincidir con `SMTPUser` (salvo alias configurado en el proveedor).
+- Para Gmail se requiere contraseña de aplicación (sin espacios), no la contraseña de la cuenta.
+- No se puede mezclar `smtp.gmail.com` con una cuenta de Outlook/Hotmail, ni viceversa.
+- Requisitos mínimos: `protocol=smtp`, `SMTPHost`, `SMTPUser` y `SMTPPass` no vacíos.
+
+### Comportamiento por ambiente
+
+| Ambiente | SMTP configurado | Comportamiento |
+|---|---|---|
+| `development` | No | Se muestra enlace de recuperación en pantalla (`dev_reset_link`) |
+| `development` | Sí | Se envía email real + se muestra enlace en pantalla |
+| `production` | No | Error controlado sin detalles técnicos |
+| `production` | Sí | Se envía email real |
+
+- En `development` siempre se puede probar el flujo aunque no haya SMTP.
+- Si SMTP falla en `production`, el usuario ve un mensaje amigable y no hay exposición de errores.
+- El envío de notificación de cambio de contraseña es no bloqueante: no impide completar el cambio.
+
 ## Documentación
 
 La documentación completa del proyecto (arquitectura, base de datos, flujos, permisos, testing, roadmap y troubleshooting) está disponible en:

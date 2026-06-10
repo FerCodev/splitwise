@@ -139,6 +139,46 @@ database.default.DBDriver = MySQLi</code></pre>
     <pre><code>php spark routes          # Ver todas las rutas
 php spark migrate:status  # Ver estado de migraciones
 php -l archivo.php        # Verificar sintaxis PHP</code></pre>
+
+    <h3>Email (SMTP)</h3>
+    <p>
+        Para habilitar env&iacute;o real de correo (recuperaci&oacute;n de contrase&ntilde;a,
+        notificaciones), descomentar en <code>.env</code> seg&uacute;n tu proveedor:
+    </p>
+
+    <p><strong>Gmail</strong> (requiere contrase&ntilde;a de aplicaci&oacute;n):</p>
+    <pre><code>email.protocol = smtp
+email.fromEmail = tu-email@gmail.com
+email.fromName = SplitWise
+email.SMTPHost = smtp.gmail.com
+email.SMTPUser = tu-email@gmail.com
+email.SMTPPass = tu-contrase&ntilde;a-de-aplicaci&oacute;n
+email.SMTPPort = 587
+email.SMTPCrypto = tls</code></pre>
+
+    <p><strong>Outlook / Hotmail:</strong></p>
+    <pre><code>email.protocol = smtp
+email.fromEmail = tu-email@outlook.com
+email.fromName = SplitWise
+email.SMTPHost = smtp.office365.com
+email.SMTPUser = tu-email@outlook.com
+email.SMTPPass = tu-contrase&ntilde;a
+email.SMTPPort = 587
+email.SMTPCrypto = tls</code></pre>
+
+    <p>
+        Requiere: <code>protocol=smtp</code>, <code>SMTPHost</code>,
+        <code>SMTPUser</code> y <code>SMTPPass</code> no vac&iacute;os.
+        <code>fromEmail</code> debe coincidir con <code>SMTPUser</code>.
+        No mezclar <code>smtp.gmail.com</code> con cuentas Outlook/Hotmail.
+    </p>
+
+    <div class="info-box">
+        <strong>Comportamiento por ambiente:</strong>
+        En <code>development</code> si SMTP no est&aacute; configurado se muestra un enlace
+        de recuperaci&oacute;n en pantalla. Si SMTP falla en producci&oacute;n se muestra
+        un mensaje amigable sin detalles t&eacute;cnicos.
+    </div>
 </section>
 
 <!-- ============================================================ -->

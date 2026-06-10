@@ -36,17 +36,32 @@ class PasswordResetController extends BaseController
 
         $link = base_url("password/reset/{$token}");
 
-        // En produccion enviar $link por email:
-        //   $email = \Config\Services::email();
-        //   $email->setTo($user['email']);
-        //   $email->setSubject('Recuperación de contraseña - SplitWise');
-        //   $email->setMessage("Enlace: $link");
-        //   $email->send();
-
         $response = redirect()->back()->with('success', $mensajeGenerico);
 
         if (ENVIRONMENT === 'development') {
             $response->with('dev_reset_link', $link);
+        }
+
+        // Enviar email real si SMTP esta configurado en .env
+        if (PasswordReset::smtpConfigurado()) {
+            $enviado = PasswordReset::enviarEmail(
+                $user['email'],
+                'Recuperación de contraseña - SplitWise',
+                "Hola {$user['name']},\n\n"
+                . "Recibimos una solicitud para restablecer tu contraseña.\n\n"
+                . "Hacé clic en el siguiente enlace para crear una nueva contraseña:\n"
+                . "{$link}\n\n"
+                . "Este enlace expira en 60 minutos.\n\n"
+                . "Si no solicitaste este cambio, ignorá este mensaje.\n\n"
+                . "— SplitWise"
+            );
+
+            if (!$enviado) {
+                log_message('error', 'Fallo al enviar email de recuperacion a ' . $user['email']);
+                if (ENVIRONMENT !== 'development') {
+                    $response->with('error', 'Ocurrió un problema al enviar el email. Intentalo de nuevo más tarde.');
+                }
+            }
         }
 
         return $response;
@@ -102,6 +117,19 @@ class PasswordResetController extends BaseController
         ]);
 
         $resetModel->marcarUsado((int) $row['id']);
+
+        // Aviso opcional de cambio de contraseña por email (no bloqueante)
+        $updatedUser = $userModel->find((int) $row['user_id']);
+        if ($updatedUser && PasswordReset::smtpConfigurado()) {
+            PasswordReset::enviarEmail(
+                $updatedUser['email'],
+                'Tu contraseña fue cambiada - SplitWise',
+                "Hola {$updatedUser['name']},\n\n"
+                . "Tu contraseña de SplitWise fue cambiada correctamente.\n\n"
+                . "Si no realizaste este cambio, contactá al administrador del sistema.\n\n"
+                . "— SplitWise"
+            );
+        }
 
         return redirect()->to('/login')->with('success', 'Contraseña actualizada correctamente. Iniciá sesión con tu nueva contraseña.');
     }
