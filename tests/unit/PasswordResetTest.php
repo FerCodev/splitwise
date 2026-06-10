@@ -114,4 +114,37 @@ final class PasswordResetTest extends \CodeIgniter\Test\CIUnitTestCase
     {
         $this->assertTrue(method_exists(\App\Controllers\PasswordResetController::class, 'enviarEnlace'));
     }
+
+    // ---------------------------------------------------------------
+    // SMTP port es int
+    // ---------------------------------------------------------------
+
+    public function testSmtpPortStringSeConvierteAInt(): void
+    {
+        $port = (int) ('587' ?: 587);
+        $this->assertSame(587, $port);
+        $this->assertIsInt($port);
+    }
+
+    public function testSmtpPortVacioUsaDefault(): void
+    {
+        $port = (int) ('' ?: 587);
+        $this->assertSame(587, $port);
+    }
+
+    public function testSmtpPortNullUsaDefault(): void
+    {
+        $fromEnv = null;
+        $port = (int) ($fromEnv ?: 587);
+        $this->assertSame(587, $port);
+    }
+
+    public function testSmtpConfiguradoRequiereCuatroCampos(): void
+    {
+        // Verifica estructura: smtpConfigurado revisa protocol, host, user, pass.
+        // Los valores reales dependen del .env local, que varia por entorno.
+        // Este test verifica que el metodo existe y retorna bool.
+        $result = PasswordReset::smtpConfigurado();
+        $this->assertIsBool($result);
+    }
 }

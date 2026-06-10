@@ -74,7 +74,7 @@ class PasswordReset extends Model
             $email->SMTPHost = env('email.SMTPHost');
             $email->SMTPUser = env('email.SMTPUser');
             $email->SMTPPass = env('email.SMTPPass');
-            $email->SMTPPort = env('email.SMTPPort') ?: 587;
+            $email->SMTPPort = (int) (env('email.SMTPPort') ?: 587);
             $email->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
 
             $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'SplitWise');
