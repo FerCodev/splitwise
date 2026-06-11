@@ -20,6 +20,12 @@ class Encryption extends BaseConfig
      * If you use the Encryption class you must set an encryption key (seed).
      * You need to ensure it is long enough for the cipher and mode you plan to use.
      * See the user guide for more info.
+     *
+     * Configurar via .env:
+     *   encryption.key = hex2bin:64-character-hex-string
+     *
+     * Generar clave con: php spark key:generate
+     * Luego copiar el resultado en .env como encryption.key.
      */
     public string $key = '';
 

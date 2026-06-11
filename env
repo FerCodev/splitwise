@@ -74,7 +74,7 @@
 # Requiere: protocol=smtp, SMTPHost, SMTPUser y SMTPPass no vacios.
 # No mezclar hosts con cuentas de otro proveedor.
 #
-# Gmail (requiere contraseña de aplicacion, sin espacios):
+# Gmail (requiere contraseña de aplicación, sin espacios):
 #   email.SMTPHost = smtp.gmail.com
 #   email.fromEmail coincide con email.SMTPUser.
 #

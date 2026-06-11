@@ -96,8 +96,8 @@ class PasswordResetController extends BaseController
             return redirect()->back()->with('error', 'Completá todos los campos.');
         }
 
-        if (strlen($password) < 6) {
-            return redirect()->back()->with('error', 'La contraseña debe tener al menos 6 caracteres.');
+        if (strlen($password) < 8) {
+            return redirect()->back()->with('error', 'La contraseña debe tener al menos 8 caracteres.');
         }
 
         if ($password !== $confirm) {

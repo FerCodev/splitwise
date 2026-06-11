@@ -24,7 +24,7 @@ class Usuarios extends BaseController
         $rules = [
             'name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|is_unique[users.email]',
-            'password' => 'required|min_length[3]',
+            'password' => 'required|min_length[8]',
             'role' => 'required|in_list[user,admin]',
         ];
 
@@ -115,7 +115,7 @@ class Usuarios extends BaseController
         }
 
         $rules = [
-            'password' => 'required|min_length[3]',
+            'password' => 'required|min_length[8]',
         ];
 
         if (!$this->validate($rules)) {

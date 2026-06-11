@@ -125,3 +125,5 @@ _modules/*
 /results/
 /phpunit.xml
 /Roadmap.md
+SplitWiseReviewerCommands.md
+.claude/

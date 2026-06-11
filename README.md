@@ -38,11 +38,15 @@ database.default.DBPrefix =
 ```
 
 ```bash
-# 4. Ejecutar migraciones y seed
+# 4. Generar clave de encriptación (opcional, requerido si se usa Encryption)
+php spark key:generate
+# Copiar el resultado en .env como: encryption.key = hex2bin:....
+
+# 5. Ejecutar migraciones y seed
 php spark migrate
 php spark db:seed UserSeeder
 
-# 5. Iniciar servidor de desarrollo (opcional)
+# 6. Iniciar servidor de desarrollo (opcional)
 php spark serve
 ```
 
@@ -79,6 +83,22 @@ Importante:
 - Para Gmail se requiere contraseña de aplicación (sin espacios), no la contraseña de la cuenta.
 - No se puede mezclar `smtp.gmail.com` con una cuenta de Outlook/Hotmail, ni viceversa.
 - Requisitos mínimos: `protocol=smtp`, `SMTPHost`, `SMTPUser` y `SMTPPass` no vacíos.
+
+## Encryption key
+
+Algunas funcionalidades de CodeIgniter requieren una clave de encriptación. Para generarla:
+
+```bash
+php spark key:generate
+```
+
+Luego copiar el resultado en `.env`:
+
+```ini
+encryption.key = hex2bin:el-valor-generado
+```
+
+Si no se configura, las funcionalidades que dependen de Encryption pueden fallar. Es **requerido en producción**.
 
 ### Comportamiento por ambiente
 
@@ -139,6 +159,20 @@ app/
 ```bash
 php vendor/bin/phpunit --no-coverage
 ```
+
+## Producción vs desarrollo
+
+| Configuración | Development | Producción |
+|---|---|---|
+| `CI_ENVIRONMENT` | `development` | `production` |
+| Errores | Muestra detalles técnicos | Pantalla genérica sin stacktrace |
+| Enlace recuperación | Se muestra en pantalla (`dev_reset_link`) | Solo por email si SMTP configurado |
+| `encryption.key` | Opcional | Requerido |
+| Contraseña mínima | 8 caracteres | 8 caracteres |
+| Sesión `regenerateDestroy` | `true` | `true` |
+| Timezone | `America/Argentina/Buenos_Aires` | `America/Argentina/Buenos_Aires` |
+| Locale | `es` | `es` |
+| `forceGlobalSecureRequests` | `false` | `true` (requiere HTTPS) |
 
 ## Servidor de producción
 
