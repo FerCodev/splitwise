@@ -9,7 +9,8 @@ class Categorias extends BaseController
     public function index()
     {
         $model = new Categoria();
-        $categorias = $model->orderBy('id', 'ASC')->findAll();
+        $categorias = $model->orderBy('id', 'ASC')->paginate(10);
+        $pager = $model->pager;
 
         $gastoModel = model('App\Models\Gasto');
         $usadas = [];
@@ -21,6 +22,7 @@ class Categorias extends BaseController
         return view('categorias/index', [
             'categorias' => $categorias,
             'usadas' => $usadas,
+            'pager' => $pager,
             'protegida' => Categoria::PROTEGIDA,
         ]);
     }

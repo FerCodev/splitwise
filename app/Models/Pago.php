@@ -22,7 +22,7 @@ class Pago extends Model
             ->findAll();
     }
 
-    public function getPagosWithFilters(array $filters): array
+    public function getPagosWithFilters(array $filters, int $perPage = 10): array
     {
         $userId = session()->get('userId');
 
@@ -71,7 +71,7 @@ class Pago extends Model
             $this->orderBy('pagos.' . $sort, $order);
         }
 
-        return $this->findAll();
+        return $this->paginate($perPage);
     }
 
     public function getTotalPagadoByGrupo(int $grupoId): float

@@ -36,13 +36,15 @@ class Gastos extends BaseController
         $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
         $filters['order'] = $this->request->getGet('order') ?: 'DESC';
 
-        $gastos = $gastoModel->getGastosWithFilters($filters);
+        $gastos = $gastoModel->getGastosWithFilters($filters, 10);
+        $pager = $gastoModel->pager;
 
         return view('gastos/index', [
             'gastos' => $gastos,
             'grupos' => $grupos,
             'filters' => $filters,
             'categorias' => model(Categoria::class)->getActivas(),
+            'pager' => $pager,
         ]);
     }
 

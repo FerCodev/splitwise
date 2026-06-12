@@ -9,9 +9,10 @@ class Usuarios extends BaseController
     public function index()
     {
         $userModel = new User();
-        $users = $userModel->orderBy('name', 'ASC')->findAll();
+        $users = $userModel->orderBy('name', 'ASC')->paginate(10);
+        $pager = $userModel->pager;
 
-        return view('usuarios/index', ['users' => $users]);
+        return view('usuarios/index', ['users' => $users, 'pager' => $pager]);
     }
 
     public function new()

@@ -37,12 +37,14 @@ class Pagos extends BaseController
         $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
         $filters['order'] = $this->request->getGet('order') ?: 'DESC';
 
-        $pagos = $pagoModel->getPagosWithFilters($filters);
+        $pagos = $pagoModel->getPagosWithFilters($filters, 10);
+        $pager = $pagoModel->pager;
 
         return view('pagos/index', [
             'pagos' => $pagos,
             'grupos' => $grupos,
             'filters' => $filters,
+            'pager' => $pager,
         ]);
     }
 

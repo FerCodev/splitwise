@@ -111,6 +111,12 @@
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
+
+        <?php if (isset($pager)): ?>
+            <div class="mt-4">
+                <?= $pager->links() ?>
+            </div>
+        <?php endif; ?>
     </div>
 
 <?= view('partials/_footer') ?>

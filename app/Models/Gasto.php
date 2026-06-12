@@ -25,7 +25,7 @@ class Gasto extends Model
             ->findAll();
     }
 
-    public function getGastosWithFilters(array $filters): array
+    public function getGastosWithFilters(array $filters, int $perPage = 10): array
     {
         $userId = session()->get('userId');
 
@@ -75,7 +75,7 @@ class Gasto extends Model
             $this->orderBy('gastos.' . $sort, $order);
         }
 
-        return $this->findAll();
+        return $this->paginate($perPage);
     }
 
     public function getMontosPorCategoria(int $grupoId): array
