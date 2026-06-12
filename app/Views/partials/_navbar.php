@@ -11,6 +11,7 @@
                     <li><span class="dropdown-item-text"><?= session()->get('userName') ?></span></li>
                     <li><span class="dropdown-item-text text-muted small"><?= session()->get('userEmail') ?></span></li>
                     <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="<?= base_url('perfil') ?>">Mi perfil</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('grupos') ?>">Grupos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('gastos') ?>">Gastos</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('pagos') ?>">Pagos</a></li>
