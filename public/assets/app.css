@@ -99,6 +99,35 @@
     height: 28px;
 }
 
+/* Filter tabs */
+.filter-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.filter-tab {
+    padding: 6px 16px;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    min-height: var(--touch-target);
+    border-radius: var(--radius-pill);
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.filter-tab.active {
+    background: var(--primary);
+    color: #fff;
+}
+
 /* Responsive */
 @media (max-width: 767.98px) {
     body {
