@@ -5,7 +5,7 @@
 
         <!-- Acciones principales -->
         <div class="d-flex flex-wrap gap-2 mb-4">
-            <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary">+ Nuevo Grupo</a>
+            <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo Grupo</a>
             <a href="<?= base_url('reportes') ?>" class="btn btn-outline-primary">Reportes</a>
             <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-outline-secondary">Medios de cobro</a>
         </div>
@@ -28,10 +28,6 @@
 
             <!-- Resumen colapsable -->
             <div class="mb-4">
-                <button class="btn btn-outline-secondary btn-sm w-100 d-md-none text-start" type="button" data-bs-toggle="collapse" data-bs-target="#resumenCollapse" aria-expanded="false">
-                    <span class="fw-medium">Resumen</span>
-                    <span class="float-end">+</span>
-                </button>
                 <div class="collapse d-md-block" id="resumenCollapse">
                     <div class="row g-2 mt-2">
                         <div class="col-3 col-md-3 col-lg-2">
@@ -228,9 +224,10 @@
         <?php endif; ?>
     </div>
 
-    <!-- FAB - mobile only -->
-    <a href="<?= base_url('gastos/nuevo') ?>" class="d-md-none fab" aria-label="Nuevo gasto">
+    <!-- FAB extendido - mobile only -->
+    <a href="<?= base_url('grupos/nuevo') ?>" class="d-md-none fab fab-extended" aria-label="Nuevo grupo">
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
+        <span>Nuevo grupo</span>
     </a>
 
 <?= view('partials/_footer') ?>

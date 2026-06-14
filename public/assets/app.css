@@ -98,6 +98,23 @@
     width: 28px;
     height: 28px;
 }
+.fab-extended {
+    width: auto;
+    height: auto;
+    border-radius: 28px;
+    padding: 12px 20px;
+    gap: 8px;
+}
+.fab-extended svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+.fab-extended span {
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+}
 
 /* Filter tabs */
 .filter-tabs {
@@ -156,6 +173,10 @@
 @media (max-width: 767.98px) {
     body {
         padding-bottom: 72px;
+    }
+    .card.border-0.shadow-sm {
+        border: 1px solid #e5e7eb !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
     }
 }
 @media (max-width: 575.98px) {

@@ -45,10 +45,30 @@
     <div class="container">
         <a class="navbar-brand" href="<?= base_url('dashboard') ?>">SplitWise</a>
         <?php if ($current !== 'login'): ?>
-            <span class="text-white small"><?= session()->get('userName') ?></span>
+            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#headerMenu" aria-label="Men&uacute;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
+            </button>
         <?php endif; ?>
     </div>
 </nav>
+
+<!-- Header offcanvas menu (mobile) -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="headerMenu" aria-label="Men&uacute; principal">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Men&uacute;</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="list-group list-group-flush">
+            <a href="<?= base_url('perfil') ?>" class="list-group-item list-group-item-action">Mi perfil</a>
+            <a href="<?= base_url('reportes') ?>" class="list-group-item list-group-item-action">Reportes</a>
+            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
+            <button type="button" class="list-group-item list-group-item-action" onclick="var c=document.getElementById('resumenCollapse');if(c){var b=document.querySelector('[data-bs-target=\"#resumenCollapse\"]');if(b)b.click();}">
+                Resumen
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Bottom tab bar (mobile) -->
 <nav class="d-md-none bottom-tab-bar">
