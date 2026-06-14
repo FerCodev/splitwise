@@ -2,43 +2,68 @@
 <?= view('partials/_navbar') ?>
 
     <div class="container mt-3 mt-md-4">
-        <a href="<?= base_url('gastos') ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver</a>
 
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
+        <!-- Header -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h3 class="card-title mb-1"><?= esc($gasto['descripcion']) ?></h3>
-                        <p class="text-muted small mb-0">
-                            Grupo: <a href="<?= base_url('grupos/' . $gasto['grupo_id']) ?>"><?= esc($gasto['grupo_nombre']) ?></a>
-                            &middot; <?= date('d/m/Y', strtotime($gasto['fecha'])) ?>
-                            &middot; <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
-                        </p>
+                        <h2 class="fw-bold text-primary mb-0">$<?= number_format($gasto['monto'], 2) ?></h2>
+                        <p class="text-muted small mb-0">Pag&oacute; <?= esc($gasto['pagador_nombre']) ?></p>
                     </div>
-                    <div class="text-end">
-                        <h4 class="text-primary mb-0 fw-bold">$<?= number_format($gasto['monto'], 2) ?></h4>
-                        <small class="text-muted">Pagó <?= esc($gasto['pagador_nombre']) ?></small>
+                    <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <?php if ($permisos['puede_editar_gasto']): ?>
+                                <li><a class="dropdown-item" href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>">Editar</a></li>
+                            <?php endif; ?>
+                            <?php if ($permisos['puede_eliminar_gasto']): ?>
+                                <li>
+                                    <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" id="delete-gasto-<?= $gasto['id'] ?>">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="button" class="dropdown-item text-danger"
+                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                            data-confirm-title="Eliminar gasto"
+                                            data-confirm-msg="Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer."
+                                            data-confirm-btn="Eliminar gasto"
+                                            data-confirm-form="delete-gasto-<?= $gasto['id'] ?>">Eliminar</button>
+                                    </form>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
                     </div>
+                    <?php endif; ?>
                 </div>
+                <h5 class="fw-bold mb-1"><?= esc($gasto['descripcion']) ?></h5>
+                <p class="text-muted small mb-0">
+                    <a href="<?= base_url('grupos/' . $gasto['grupo_id']) ?>"><?= esc($gasto['grupo_nombre']) ?></a>
+                    &middot; <?= date('d/m/Y', strtotime($gasto['fecha'])) ?>
+                    &middot; <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
+                </p>
+                <!-- Desktop actions -->
                 <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
-                <div class="mt-3 d-flex gap-2">
+                <div class="d-none d-md-flex gap-2 mt-3">
                     <?php if ($permisos['puede_editar_gasto']): ?>
-                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
+                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_gasto']): ?>
-                        <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" class="flex-fill" id="delete-gasto-<?= $gasto['id'] ?>">
+                        <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" id="delete-gasto-d-<?= $gasto['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-outline-danger w-100"
+                            <button type="button" class="btn btn-outline-danger btn-sm"
                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                 data-confirm-title="Eliminar gasto"
                                 data-confirm-msg="Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer."
                                 data-confirm-btn="Eliminar gasto"
-                                data-confirm-form="delete-gasto-<?= $gasto['id'] ?>">Eliminar</button>
+                                data-confirm-form="delete-gasto-d-<?= $gasto['id'] ?>">Eliminar</button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -46,6 +71,7 @@
             </div>
         </div>
 
+        <!-- Participantes -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Participantes</h5>
@@ -65,7 +91,7 @@
                                 <tr>
                                     <td><?= esc($p['name']) ?>
                                         <?php if ($p['user_id'] == $gasto['pagador_id']): ?>
-                                            <span class="badge bg-info ms-1">Pagó</span>
+                                            <span class="badge bg-info ms-1">Pag&oacute;</span>
                                         <?php endif; ?>
                                     </td>
                                     <td><?= esc($p['email']) ?></td>
@@ -83,37 +109,32 @@
                 </div>
             </div>
             <div class="d-md-none">
-                <?php foreach ($participantes as $p): ?>
-                    <div class="mobile-card-item">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <span class="fw-medium"><?= esc($p['name'])?></span>
-                                <?php if ($p['user_id'] == $gasto['pagador_id']): ?>
-                                    <span class="badge bg-info ms-1">Pagó</span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="fw-bold">$<?= number_format($p['monto_asignado'], 2) ?></div>
-                        </div>
-                        <div class="text-muted small"><?= esc($p['email'])?></div>
-                    </div>
-                <?php endforeach; ?>
-                <div class="mobile-card-item bg-light fw-bold">
-                    <div class="d-flex justify-content-between">
-                        <span>Total</span>
-                        <span>$<?= number_format(array_sum(array_column($participantes, 'monto_asignado')), 2) ?></span>
-                    </div>
+                <div class="d-flex flex-wrap gap-2 p-3">
+                    <?php foreach ($participantes as $p): ?>
+                        <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-2 py-2 px-3" style="font-size:14px">
+                            <?= esc($p['name']) ?>
+                            <?php if ($p['user_id'] == $gasto['pagador_id']): ?>
+                                <span class="badge bg-info">Pag&oacute;</span>
+                            <?php endif; ?>
+                            <span class="fw-bold">$<?= number_format($p['monto_asignado'], 2) ?></span>
+                        </span>
+                    <?php endforeach; ?>
+                </div>
+                <div class="px-3 pb-3 text-end fw-bold">
+                    Total: $<?= number_format(array_sum(array_column($participantes, 'monto_asignado')), 2) ?>
                 </div>
             </div>
         </div>
 
+        <!-- Resumen -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Resumen</h5>
             </div>
             <div class="card-body">
                 <p class="text-muted">
-                    <strong><?= esc($gasto['pagador_nombre']) ?></strong> pagó <strong>$<?= number_format($gasto['monto'], 2) ?></strong>
-                    y debe recibir de los demás participantes.
+                    <strong><?= esc($gasto['pagador_nombre']) ?></strong> pag&oacute; <strong>$<?= number_format($gasto['monto'], 2) ?></strong>
+                    y debe recibir de los dem&aacute;s participantes.
                 </p>
                 <div class="d-none d-md-block">
                     <table class="table table-sm">

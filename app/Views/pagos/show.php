@@ -2,43 +2,69 @@
 <?= view('partials/_navbar') ?>
 
     <div class="container mt-3 mt-md-4">
-        <a href="<?= base_url('pagos') ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver</a>
 
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
+        <!-- Header -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h3 class="card-title mb-1">
-                            <?= $pago['descripcion'] ? esc($pago['descripcion']) : 'Pago #' . $pago['id'] ?>
-                        </h3>
+                        <h2 class="fw-bold text-primary mb-0">$<?= number_format($pago['monto'], 2) ?></h2>
                         <p class="text-muted small mb-0">
-                            Grupo: <a href="<?= base_url('grupos/' . $pago['grupo_id']) ?>"><?= esc($pago['grupo_nombre']) ?></a>
-                            &middot; <?= date('d/m/Y', strtotime($pago['fecha'])) ?>
+                            <?= esc($pago['pagador_nombre']) ?> &rarr; <?= esc($pago['receptor_nombre']) ?>
                         </p>
                     </div>
-                    <div class="text-end">
-                        <h4 class="text-primary mb-0 fw-bold">$<?= number_format($pago['monto'], 2) ?></h4>
+                    <?php if ($permisos['puede_editar_pago'] || $permisos['puede_eliminar_pago']): ?>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <?php if ($permisos['puede_editar_pago']): ?>
+                                <li><a class="dropdown-item" href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>">Editar</a></li>
+                            <?php endif; ?>
+                            <?php if ($permisos['puede_eliminar_pago']): ?>
+                                <li>
+                                    <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" id="delete-pago-<?= $pago['id'] ?>">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="button" class="dropdown-item text-danger"
+                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                            data-confirm-title="Eliminar pago"
+                                            data-confirm-msg="Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer."
+                                            data-confirm-btn="Eliminar pago"
+                                            data-confirm-form="delete-pago-<?= $pago['id'] ?>">Eliminar</button>
+                                    </form>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
                     </div>
+                    <?php endif; ?>
                 </div>
+                <h5 class="fw-bold mb-1"><?= $pago['descripcion'] ? esc($pago['descripcion']) : 'Pago #' . $pago['id'] ?></h5>
+                <p class="text-muted small mb-0">
+                    <a href="<?= base_url('grupos/' . $pago['grupo_id']) ?>"><?= esc($pago['grupo_nombre']) ?></a>
+                    &middot; <?= date('d/m/Y', strtotime($pago['fecha'])) ?>
+                </p>
+                <!-- Desktop actions -->
                 <?php if ($permisos['puede_editar_pago'] || $permisos['puede_eliminar_pago']): ?>
-                <div class="mt-3 d-flex gap-2">
+                <div class="d-none d-md-flex gap-2 mt-3">
                     <?php if ($permisos['puede_editar_pago']): ?>
-                        <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary flex-fill">Editar</a>
+                        <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_pago']): ?>
-                        <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" class="flex-fill" id="delete-pago-<?= $pago['id'] ?>">
+                        <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" id="delete-pago-d-<?= $pago['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-outline-danger w-100"
+                            <button type="button" class="btn btn-outline-danger btn-sm"
                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                 data-confirm-title="Eliminar pago"
                                 data-confirm-msg="Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer."
                                 data-confirm-btn="Eliminar pago"
-                                data-confirm-form="delete-pago-<?= $pago['id'] ?>">Eliminar</button>
+                                data-confirm-form="delete-pago-d-<?= $pago['id'] ?>">Eliminar</button>
                         </form>
                     <?php endif; ?>
                 </div>
@@ -46,6 +72,7 @@
             </div>
         </div>
 
+        <!-- Detalle -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Detalle del pago</h5>
@@ -53,7 +80,7 @@
             <div class="card-body">
                 <div class="row g-3 text-center">
                     <div class="col-4">
-                        <p class="text-muted small mb-1">Pagó</p>
+                        <p class="text-muted small mb-1">Pag&oacute;</p>
                         <h5 class="text-success mb-0"><?= esc($pago['pagador_nombre']) ?></h5>
                     </div>
                     <div class="col-4">
@@ -61,7 +88,7 @@
                         <h4 class="text-primary fw-bold mb-0">$<?= number_format($pago['monto'], 2) ?></h4>
                     </div>
                     <div class="col-4">
-                        <p class="text-muted small mb-1">Recibió</p>
+                        <p class="text-muted small mb-1">Recibi&oacute;</p>
                         <h5 class="text-danger mb-0"><?= esc($pago['receptor_nombre']) ?></h5>
                     </div>
                 </div>
