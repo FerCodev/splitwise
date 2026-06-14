@@ -125,7 +125,7 @@
                                 <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">$<?= number_format($m['monto'], 2) ?></span>
                             </div>
                             <div class="text-muted small">
-                                <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= $m['persona'] ?>
+                                <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

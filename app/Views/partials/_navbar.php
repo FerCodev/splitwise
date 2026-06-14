@@ -17,8 +17,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><span class="dropdown-item-text"><?= session()->get('userName') ?></span></li>
-                    <li><span class="dropdown-item-text text-muted small"><?= session()->get('userEmail') ?></span></li>
+                    <li><span class="dropdown-item-text"><?= esc(session()->get('userName')) ?></span></li>
+                    <li><span class="dropdown-item-text text-muted small"><?= esc(session()->get('userEmail')) ?></span></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="<?= base_url('perfil') ?>">Mi perfil</a></li>
                     <li><a class="dropdown-item" href="<?= base_url('grupos') ?>">Grupos</a></li>
@@ -90,10 +90,9 @@
                 <a href="<?= base_url('categorias') ?>" class="list-group-item list-group-item-action ps-4">Categor&iacute;as</a>
                 <a href="<?= base_url('usuarios') ?>" class="list-group-item list-group-item-action ps-4">Usuarios</a>
             <?php endif; ?>
-            <div class="list-group-item list-group-item-action text-danger fw-medium" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" style="cursor:pointer;">
+            <div class="list-group-item list-group-item-action text-danger fw-medium" onclick="location.href='<?= base_url('logout') ?>'" style="cursor:pointer;">
                 Cerrar Sesi&oacute;n
             </div>
         </div>
-        <form id="logout-form" action="<?= base_url('logout') ?>" method="post" class="d-none"></form>
     </div>
 </div>
