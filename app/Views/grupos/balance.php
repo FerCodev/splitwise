@@ -70,37 +70,69 @@
                         </table>
                     </div>
                 </div>
+                <!-- Mobile: cards con avatar, progreso y detalle expandible -->
                 <div class="d-md-none">
+                    <?php
+                        $avatarColors = ['#0d6efd','#198754','#dc3545','#fd7e14','#6f42c1','#20c997','#e83e8c','#6610f2'];
+                        $colorIdx = 0;
+                    ?>
                     <?php foreach ($balance as $b): ?>
                         <?php
-                            $estado = $b['saldo'] > 0 ? 'a-favor' : ($b['saldo'] < 0 ? 'debe' : 'saldado');
-                            $badgeClass = $b['saldo'] > 0 ? 'text-bg-success' : ($b['saldo'] < 0 ? 'text-bg-danger' : 'text-bg-secondary');
-                            $badgeText = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? 'Debe' : 'Saldado');
+                            $inicial = mb_strtoupper(mb_substr(trim($b['name']), 0, 1));
+                            $avaColor = $avatarColors[$colorIdx % count($avatarColors)];
+                            $colorIdx++;
+                            $saldoClase = $b['saldo'] >= 0 ? 'text-success' : 'text-danger';
+                            $total = max($b['total_pagado_gastos'], $b['total_consumido'], 1);
+                            $pagadoPct = min(round($b['total_pagado_gastos'] / $total * 100), 100);
+                            $consumidoPct = min(round($b['total_consumido'] / $total * 100), 100);
+                            $collapseId = 'detalle-' . $b['user_id'];
                         ?>
                         <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="fw-medium"><?= esc($b['name']) ?></div>
-                                <span class="badge <?= $badgeClass ?>"><?= $badgeText ?></span>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <div class="avatar-circle" style="background:<?= $avaColor ?>"><?= $inicial ?></div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-medium"><?= esc($b['name']) ?></div>
+                                    <div class="fw-bold fs-5 <?= $saldoClase ?>">
+                                        $<?= number_format(abs($b['saldo']), 2) ?>
+                                        <small class="fw-normal text-muted fs-6"><?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?></small>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between small mt-1">
-                                <span class="text-muted">Pagó:</span>
-                                <span>$<?= number_format($b['total_pagado_gastos'], 2) ?></span>
+                            <div class="small text-muted mb-1 d-flex justify-content-between">
+                                <span>Pag&oacute;: $<?= number_format($b['total_pagado_gastos'], 2) ?></span>
+                                <span>Consumi&oacute;: $<?= number_format($b['total_consumido'], 2) ?></span>
                             </div>
-                            <div class="d-flex justify-content-between small">
-                                <span class="text-muted">Consumió:</span>
-                                <span>$<?= number_format($b['total_consumido'], 2) ?></span>
+                            <div class="progress mb-2" style="height:8px">
+                                <div class="progress-bar bg-primary" style="width:<?= $pagadoPct ?>%" title="Pag&oacute;"></div>
+                                <div class="progress-bar bg-warning" style="width:<?= $consumidoPct ?>%" title="Consumi&oacute;"></div>
                             </div>
-                            <div class="d-flex justify-content-between small">
-                                <span class="text-muted">Envió:</span>
-                                <span>$<?= number_format($b['pagos_enviados'], 2) ?></span>
-                            </div>
-                            <div class="d-flex justify-content-between small">
-                                <span class="text-muted">Recibió:</span>
-                                <span>$<?= number_format($b['pagos_recibidos'], 2) ?></span>
-                            </div>
-                            <div class="d-flex justify-content-between small mt-1 fw-bold <?= $b['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
-                                <span>Saldo:</span>
-                                <span>$<?= number_format($b['saldo'], 2) ?></span>
+                            <button class="btn btn-sm btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#<?= $collapseId ?>" aria-expanded="false">
+                                Ver detalle
+                            </button>
+                            <div class="collapse mt-2" id="<?= $collapseId ?>">
+                                <div class="card card-body py-2 px-3">
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">Pag&oacute; en gastos:</span>
+                                        <span>$<?= number_format($b['total_pagado_gastos'], 2) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">Consumi&oacute;:</span>
+                                        <span>$<?= number_format($b['total_consumido'], 2) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">Pagos enviados:</span>
+                                        <span>$<?= number_format($b['pagos_enviados'], 2) ?></span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">Pagos recibidos:</span>
+                                        <span>$<?= number_format($b['pagos_recibidos'], 2) ?></span>
+                                    </div>
+                                    <hr class="my-1">
+                                    <div class="d-flex justify-content-between small fw-bold <?= $saldoClase ?>">
+                                        <span>Saldo neto:</span>
+                                        <span>$<?= number_format(abs($b['saldo']), 2) ?> (<?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?>)</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -177,7 +209,7 @@
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="fw-bold text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
-                                    <button type="button" class="btn btn-sm btn-success pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
+                                    <button type="button" class="btn btn-success pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" style="min-height:44px">
                                         Pagar
                                     </button>
                                 </div>
@@ -193,14 +225,14 @@
                                                     <div class="d-flex flex-wrap gap-1 mt-1">
                                                         <?php if ($m['alias']): ?>
                                                             <span class="small text-muted me-2">Alias: <?= esc($m['alias']) ?></span>
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>">Copiar alias</button>
+                                                            <button type="button" class="btn btn-outline-secondary copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" style="min-height:44px">Copiar alias</button>
                                                         <?php endif; ?>
                                                         <?php if ($m['cbu_cvu']): ?>
                                                             <span class="small text-muted me-2">CBU/CVU: <?= esc($m['cbu_cvu']) ?></span>
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>">Copiar CBU/CVU</button>
+                                                            <button type="button" class="btn btn-outline-secondary copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" style="min-height:44px">Copiar CBU/CVU</button>
                                                         <?php endif; ?>
                                                         <?php if ($m['payment_link']): ?>
-                                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline-primary py-0 px-1">Abrir link de pago</a>
+                                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary" style="min-height:44px">Abrir link de pago</a>
                                                         <?php endif; ?>
                                                         <?php if ($m['banco']): ?>
                                                             <span class="small text-muted">- <?= esc($m['banco']) ?></span>
