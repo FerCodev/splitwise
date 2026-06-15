@@ -63,7 +63,7 @@
             <a href="<?= base_url('perfil') ?>" class="list-group-item list-group-item-action">Mi perfil</a>
             <a href="<?= base_url('reportes') ?>" class="list-group-item list-group-item-action">Reportes</a>
             <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
-            <button type="button" class="list-group-item list-group-item-action" onclick="var c=document.getElementById('resumenCollapse');if(c){var b=document.querySelector('[data-bs-target=\"#resumenCollapse\"]');if(b)b.click();}">
+            <button type="button" class="list-group-item list-group-item-action" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
                 Resumen
             </button>
         </div>
