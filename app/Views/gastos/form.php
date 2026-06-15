@@ -45,6 +45,34 @@
                                value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
                     </div>
 
+                    <!-- Resumen de divisi&oacute;n -->
+                    <?php
+                        $pagEsVos = true;
+                        $pagNombre = 'vos';
+                        $cantP = 0;
+                        if (!empty($grupoId) && isset($miembros)) {
+                            $cantP = isset($participantesIds) ? count($participantesIds) : count($miembros);
+                            if (isset($gasto)) {
+                                foreach ($miembros as $m) {
+                                    if ((int) $m['user_id'] === (int) $gasto['pagador_id']) {
+                                        $pagNombre = $m['name'];
+                                        $pagEsVos = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        $tieneGrupo = !empty($grupoId);
+                    ?>
+                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>">
+                        Pagado por <strong><?= $pagEsVos ? 'vos' : esc($pagNombre) ?></strong> y dividido a partes iguales entre <strong><?= $cantP ?> participante(s)</strong>.
+                    </div>
+                    <?php if (!$tieneGrupo): ?>
+                    <div id="divisionSummaryEmpty" class="small text-muted mb-3">
+                        Seleccion&aacute; un grupo para ver el resumen de divisi&oacute;n.
+                    </div>
+                    <?php endif; ?>
+
                     <!-- M&aacute;s opciones (colapsable en mobile) -->
                     <div class="d-md-none mb-3">
                         <button class="btn btn-outline-secondary btn-sm w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#masOpcionesGasto" aria-expanded="false">
