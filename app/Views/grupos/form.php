@@ -114,7 +114,7 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <?php if ($m['user_id'] !== session()->get('userId')): ?>
+                                        <?php if ((int) $m['user_id'] !== (int) session()->get('userId')): ?>
                                             <div class="d-flex gap-1">
                                                 <?php if ($permisos['puede_cambiar_rol'] ?? false): ?>
                                                 <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id'] . '/rol') ?>" method="post" class="d-inline">
