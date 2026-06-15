@@ -34,7 +34,9 @@
                         <label for="monto" class="form-label fw-medium">Monto total</label>
                         <input type="text" class="form-control" id="monto" name="monto_visual"
                                value="<?= esc(old('monto_visual', isset($gasto) ? number_format($gasto['monto'], 2, ',', '.') : '')) ?>" required
-                               oninput="formatearMonto(this)">
+                               inputmode="decimal"
+                               oninput="formatearMonto(this)"
+                               onkeypress="return /[0-9,]/.test(event.key)">
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
                     </div>
 
@@ -243,20 +245,16 @@
 
         function formatearMonto(input) {
             var valor = input.value;
-            var limpio = valor.replace(/[^0-9,]/g, '');
-            var partes = limpio.split(',');
-            var entero = partes[0].replace(/\D/g, '');
+            var soloDigitos = valor.replace(/[^0-9,]/g, '');
+            var partes = soloDigitos.split(',');
+            var entero = partes[0];
             var decimal = partes.length > 1 ? partes[1].slice(0, 2) : '';
             var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            if (decimal !== '' || (valor.includes(',') && partes.length > 1)) {
+            if (partes.length > 1) {
                 formateado += ',' + decimal;
             }
             if (input.value !== formateado) {
-                var selStart = input.selectionStart;
                 input.value = formateado;
-                if (selStart < valor.length) {
-                    input.setSelectionRange(selStart, selStart);
-                }
             }
             var numStr = entero + '.' + (decimal || '0');
             var num = parseFloat(numStr);
