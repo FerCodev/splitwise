@@ -71,6 +71,28 @@
             </div>
         </div>
 
+        <?php if (!empty($gasto['nota']) || !empty($gasto['recibo_path'])): ?>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <?php if (!empty($gasto['nota'])): ?>
+                <div class="mb-2">
+                    <span class="text-muted small fw-medium">Nota:</span>
+                    <p class="mb-0"><?= esc($gasto['nota']) ?></p>
+                </div>
+                <?php endif; ?>
+                <?php if (!empty($gasto['recibo_path'])): ?>
+                <div>
+                    <span class="text-muted small fw-medium">Comprobante:</span>
+                    <div class="mt-1">
+                        <span class="small"><?= esc($gasto['recibo_nombre'] ?? 'Archivo adjunto') ?></span>
+                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="btn btn-sm btn-outline-primary ms-2" target="_blank">Ver</a>
+                    </div>
+                </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <!-- Participantes -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
