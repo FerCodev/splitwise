@@ -162,7 +162,7 @@ class Gastos extends BaseController
             ]);
         }
 
-        return redirect()->to('/gastos')->with('success', 'Gasto creado correctamente.');
+        return redirect()->to('/grupos/' . $grupoId)->with('success', 'Gasto creado correctamente.');
     }
 
     public function show(int $id)
