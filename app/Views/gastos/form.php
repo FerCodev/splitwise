@@ -186,13 +186,19 @@
             var el = document.getElementById('categoriaSugerida');
             var select = document.getElementById('categoria_id');
             if (sugerido && select) {
-                el.textContent = 'Categor&iacute;a sugerida: ' + sugerido;
-                el.classList.remove('d-none');
+                var match = false;
                 for (var i = 0; i < select.options.length; i++) {
                     if (select.options[i].text.toLowerCase() === sugerido.toLowerCase()) {
                         select.value = select.options[i].value;
+                        match = true;
                         break;
                     }
+                }
+                if (match) {
+                    el.textContent = 'Categor\u00eda sugerida: ' + sugerido;
+                    el.classList.remove('d-none');
+                } else {
+                    el.classList.add('d-none');
                 }
             } else if (el) {
                 el.classList.add('d-none');
