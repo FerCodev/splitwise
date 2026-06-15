@@ -212,9 +212,9 @@
                     if (filtro === 'todos') {
                         s.style.display = '';
                     } else if (filtro === 'activos') {
-                        s.style.display = s.dataset.section === 'activos' ? '' : 'none';
+                        s.style.display = (s.dataset.section === 'activos' || s.dataset.section === 'actividad') ? '' : 'none';
                     } else if (filtro === 'cerrados') {
-                        s.style.display = s.dataset.section === 'activos' ? 'none' : '';
+                        s.style.display = (s.dataset.section === 'activos' || s.dataset.section === 'actividad') ? 'none' : '';
                         if (s.dataset.section === 'inactivos') {
                             var det = s.querySelector('details');
                             if (det) det.open = true;
