@@ -93,6 +93,32 @@ class Reportes extends BaseController
         exit;
     }
 
+    public function exportarPdf()
+    {
+        $userId = session()->get('userId');
+        $resumenMensual = ReportesService::resumenMensual($userId);
+        $topGrupos = ReportesService::topGrupos($userId, $resumenMensual['mes']);
+        $topCategorias = ReportesService::topCategorias($userId, $resumenMensual['mes']);
+        $movimientos = ReportesService::ultimosMovimientos($userId, 10);
+        $deudas = ReportesService::deudasPendientes($userId, 5);
+
+        $html = view('reportes/pdf', [
+            'resumenMensual' => $resumenMensual,
+            'topGrupos' => $topGrupos,
+            'topCategorias' => $topCategorias,
+            'movimientos' => $movimientos,
+            'deudas' => $deudas,
+            'fecha' => date('d/m/Y H:i'),
+        ]);
+
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('reporte_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);
+        exit;
+    }
+
     private function filtrosEsperados(): array
     {
         return [

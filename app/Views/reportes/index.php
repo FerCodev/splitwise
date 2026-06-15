@@ -4,7 +4,10 @@
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold mb-0">Reportes</h2>
-            <a href="<?= base_url('reportes/exportar?' . http_build_query($filters)) ?>" class="btn btn-outline-success btn-sm">Exportar CSV</a>
+            <div class="d-flex gap-1">
+                <a href="<?= base_url('reportes/exportar-pdf') ?>" class="btn btn-outline-danger btn-sm">PDF</a>
+                <a href="<?= base_url('reportes/exportar?' . http_build_query($filters)) ?>" class="btn btn-outline-success btn-sm">CSV</a>
+            </div>
         </div>
 
         <!-- Resumen mensual -->
