@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Gasto;
+use App\Models\GastoDivision;
 
 /**
  * @internal
@@ -180,5 +181,91 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
 
         $total = array_sum(array_column($balance, 'saldo'));
         $this->assertSame(0.0, $total);
+    }
+
+    public function testDivisionIgualitariaSumaExactaDosPersonas(): void
+    {
+        $divisiones = [];
+        $monto = 600.0;
+        $ids = [1, 2];
+        $cantidad = count($ids);
+        $porcion = round($monto / $cantidad, 2);
+        $diferencias = round($monto - ($porcion * $cantidad), 2);
+
+        foreach ($ids as $i => $uid) {
+            $asignado = $porcion;
+            if ($i === array_key_last($ids)) {
+                $asignado += $diferencias;
+            }
+            $divisiones[] = $asignado;
+        }
+
+        $this->assertSame(600.0, round(array_sum($divisiones), 2));
+        $this->assertSame(300.0, $divisiones[0]);
+        $this->assertSame(300.0, $divisiones[1]);
+    }
+
+    public function testDivisionIgualitariaRedondeoTresPersonas(): void
+    {
+        $divisiones = [];
+        $monto = 100.0;
+        $ids = [1, 2, 3];
+        $cantidad = count($ids);
+        $porcion = round($monto / $cantidad, 2);
+        $diferencias = round($monto - ($porcion * $cantidad), 2);
+
+        foreach ($ids as $i => $uid) {
+            $asignado = $porcion;
+            if ($i === array_key_last($ids)) {
+                $asignado += $diferencias;
+            }
+            $divisiones[] = round($asignado, 2);
+        }
+
+        $this->assertSame(100.0, round(array_sum($divisiones), 2));
+        $this->assertSame(33.33, $divisiones[0]);
+        $this->assertSame(33.33, $divisiones[1]);
+        $this->assertSame(33.34, $divisiones[2]);
+    }
+
+    public function testDivisionIgualitariaCincoPersonas(): void
+    {
+        $divisiones = [];
+        $monto = 200.0;
+        $ids = [1, 2, 3, 4, 5];
+        $cantidad = count($ids);
+        $porcion = round($monto / $cantidad, 2);
+        $diferencias = round($monto - ($porcion * $cantidad), 2);
+
+        foreach ($ids as $i => $uid) {
+            $asignado = $porcion;
+            if ($i === array_key_last($ids)) {
+                $asignado += $diferencias;
+            }
+            $divisiones[] = round($asignado, 2);
+        }
+
+        $this->assertSame(200.0, round(array_sum($divisiones), 2));
+    }
+
+    public function testBalanceConDivisionesExplicitas(): void
+    {
+        $balance = Gasto::computeBalance(
+            [
+                ['user_id' => 1, 'name' => 'A'],
+                ['user_id' => 2, 'name' => 'B'],
+            ],
+            [1 => 600],
+            [1 => 300, 2 => 300],
+            [],
+            []
+        );
+
+        $this->assertSame(300.0, $balance[0]['saldo']);
+        $this->assertSame(-300.0, $balance[1]['saldo']);
+
+        $deudas = Gasto::computeDeudasFromBalance($balance);
+        $this->assertCount(1, $deudas);
+        $this->assertSame(300.0, $deudas[0]['monto']);
     }
 }

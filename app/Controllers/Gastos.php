@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Gasto;
+use App\Models\GastoDivision;
 use App\Models\Grupo;
 use App\Models\GastoParticipante;
 use App\Models\Categoria;
@@ -147,6 +148,7 @@ class Gastos extends BaseController
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
             'categoria_id' => $categoriaId,
+            'division_tipo' => 'igualitario',
         ]);
 
         $participanteModel = new GastoParticipante();
@@ -161,6 +163,8 @@ class Gastos extends BaseController
                 'monto_asignado' => round($asignado, 2),
             ]);
         }
+
+        GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds);
 
         return redirect()->to('/grupos/' . $grupoId)->with('success', 'Gasto creado correctamente.');
     }

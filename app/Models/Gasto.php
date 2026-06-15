@@ -10,7 +10,7 @@ class Gasto extends Model
 {
     protected $table = 'gastos';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria_id'];
+    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria_id', 'division_tipo'];
     protected $useTimestamps = true;
 
     public function getGastosByGrupo(int $grupoId): array
@@ -164,16 +164,40 @@ class Gasto extends Model
             ->findAll();
 
         $pagadoGastos = $this->sumByUser('gastos', 'pagador_id', $grupoId);
+
         $consumido = [];
-        $rows = $db->table('gasto_participantes')
-            ->select('gasto_participantes.user_id, SUM(gasto_participantes.monto_asignado) as total')
-            ->join('gastos', 'gastos.id = gasto_participantes.gasto_id')
+        $db = $this->db;
+        $gastosConDivision = $db->table('gasto_divisiones')
+            ->select('gasto_divisiones.user_id, SUM(gasto_divisiones.monto_calculado) as total')
+            ->join('gastos', 'gastos.id = gasto_divisiones.gasto_id')
             ->where('gastos.grupo_id', $grupoId)
-            ->groupBy('gasto_participantes.user_id')
+            ->groupBy('gasto_divisiones.user_id')
             ->get()
             ->getResultArray();
-        foreach ($rows as $r) {
+        foreach ($gastosConDivision as $r) {
             $consumido[$r['user_id']] = (float) $r['total'];
+        }
+
+        $gastosSinDivision = $db->table('gastos')
+            ->select('gastos.id')
+            ->where('gastos.grupo_id', $grupoId)
+            ->whereNotIn('gastos.id', function ($qb) {
+                $qb->select('gasto_id')->from('gasto_divisiones');
+            })
+            ->get()
+            ->getResultArray();
+
+        if (!empty($gastosSinDivision)) {
+            $ids = array_column($gastosSinDivision, 'id');
+            $rows = $db->table('gasto_participantes')
+                ->select('gasto_participantes.user_id, SUM(gasto_participantes.monto_asignado) as total')
+                ->whereIn('gasto_participantes.gasto_id', $ids)
+                ->groupBy('gasto_participantes.user_id')
+                ->get()
+                ->getResultArray();
+            foreach ($rows as $r) {
+                $consumido[$r['user_id']] = ($consumido[$r['user_id']] ?? 0) + (float) $r['total'];
+            }
         }
 
         $pagosEnviados = $this->sumByUser('pagos', 'pagador_id', $grupoId);
