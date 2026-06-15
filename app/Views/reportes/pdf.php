@@ -49,7 +49,7 @@
     <?php endif; ?>
 
     <?php if (!empty($movimientos)): ?>
-    <div class="section-title">Últimos movimientos</div>
+    <div class="section-title">&Uacute;ltimos movimientos</div>
     <table>
         <tr><th>Fecha</th><th>Tipo</th><th>Descripci&oacute;n</th><th>Monto</th></tr>
         <?php foreach ($movimientos as $m): ?>
