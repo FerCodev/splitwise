@@ -33,27 +33,62 @@
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
                     <?php if ($permisos['puede_crear_gasto']): ?>
-                        <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
+                        <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill d-md-none">+ Gasto</a>
                     <?php endif; ?>
-                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info flex-fill">Balance</a>
-                    <?php if ($permisos['puede_crear_pago']): ?>
-                        <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-success flex-fill">+ Pago</a>
-                    <?php endif; ?>
-                    <?php if ($permisos['puede_editar_grupo']): ?>
-                        <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
-                    <?php endif; ?>
-                    <?php if ($permisos['puede_eliminar_grupo']): ?>
-                        <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" id="delete-grupo-<?= $grupo['id'] ?>">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-outline-danger btn-sm"
-                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                data-confirm-title="Eliminar grupo"
-                                data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
-                                data-confirm-btn="Eliminar grupo"
-                                data-confirm-form="delete-grupo-<?= $grupo['id'] ?>">Eliminar</button>
-                        </form>
-                    <?php endif; ?>
+                    <!-- Desktop actions -->
+                    <div class="d-none d-md-flex gap-2 w-100">
+                        <?php if ($permisos['puede_crear_gasto']): ?>
+                            <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
+                        <?php endif; ?>
+                        <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info flex-fill">Balance</a>
+                        <?php if ($permisos['puede_crear_pago']): ?>
+                            <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-success flex-fill">+ Pago</a>
+                        <?php endif; ?>
+                        <?php if ($permisos['puede_editar_grupo']): ?>
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                        <?php endif; ?>
+                        <?php if ($permisos['puede_eliminar_grupo']): ?>
+                            <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" id="delete-grupo-d-<?= $grupo['id'] ?>">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                    data-confirm-title="Eliminar grupo"
+                                    data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
+                                    data-confirm-btn="Eliminar grupo"
+                                    data-confirm-form="delete-grupo-d-<?= $grupo['id'] ?>">Eliminar</button>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+                    <!-- Mobile actions menu -->
+                    <div class="d-md-none dropdown w-100">
+                        <button class="btn btn-outline-secondary w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            M&aacute;s opciones
+                        </button>
+                        <ul class="dropdown-menu w-100">
+                            <li><a class="dropdown-item" href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>">Balance</a></li>
+                            <?php if ($permisos['puede_crear_pago']): ?>
+                                <li><a class="dropdown-item" href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>">+ Pago</a></li>
+                            <?php endif; ?>
+                            <?php if ($permisos['puede_editar_grupo']): ?>
+                                <li><a class="dropdown-item" href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>">Editar</a></li>
+                            <?php endif; ?>
+                            <?php if ($permisos['puede_eliminar_grupo']): ?>
+                                <li>
+                                    <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" id="delete-grupo-m-<?= $grupo['id'] ?>">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="button" class="dropdown-item text-danger"
+                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                            data-confirm-title="Eliminar grupo"
+                                            data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
+                                            data-confirm-btn="Eliminar grupo"
+                                            data-confirm-form="delete-grupo-m-<?= $grupo['id'] ?>">Eliminar</button>
+                                    </form>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
                 <?php if ($grupo['descripcion']): ?>
                     <p class="mt-2 mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
@@ -299,6 +334,14 @@
         <?php endif; ?>
 
     </div>
+
+    <!-- FAB grupo - mobile only -->
+    <?php if ($permisos['puede_crear_gasto']): ?>
+    <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="d-md-none fab fab-extended" aria-label="Agregar gasto">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
+        <span>Agregar gasto</span>
+    </a>
+    <?php endif; ?>
 
 <?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>
