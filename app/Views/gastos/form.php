@@ -242,8 +242,24 @@
         }
 
         function formatearMonto(input) {
-            var raw = input.value.replace(',', '.');
-            var num = parseFloat(raw);
+            var valor = input.value;
+            var limpio = valor.replace(/[^0-9,]/g, '');
+            var partes = limpio.split(',');
+            var entero = partes[0].replace(/\D/g, '');
+            var decimal = partes.length > 1 ? partes[1].slice(0, 2) : '';
+            var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            if (decimal !== '' || (valor.includes(',') && partes.length > 1)) {
+                formateado += ',' + decimal;
+            }
+            if (input.value !== formateado) {
+                var selStart = input.selectionStart;
+                input.value = formateado;
+                if (selStart < valor.length) {
+                    input.setSelectionRange(selStart, selStart);
+                }
+            }
+            var numStr = entero + '.' + (decimal || '0');
+            var num = parseFloat(numStr);
             if (!isNaN(num)) {
                 document.getElementById('monto_real').value = num.toFixed(2);
             }
