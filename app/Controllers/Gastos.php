@@ -593,11 +593,15 @@ class Gastos extends BaseController
 
         $userId = session()->get('userId');
         $grupoModel = new Grupo();
-        $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
-        $puedeEditar = $rol === 'admin' || (int) $gasto['pagador_id'] === $userId;
+        $grupo = $grupoModel->find($gasto['grupo_id']);
+        if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+        }
 
-        if (!$puedeEditar) {
-            return redirect()->back()->with('error', 'No tenés permiso para eliminar este recibo.');
+        $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
+        $errorPermiso = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', $userId, (int) $gasto['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to('/gastos')->with('error', $errorPermiso);
         }
 
         if (!empty($gasto['recibo_path'])) {
