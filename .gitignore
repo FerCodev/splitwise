@@ -125,5 +125,8 @@ _modules/*
 /results/
 /phpunit.xml
 /Roadmap.md
+/Roadmap.html
+/public/Roadmap.html
 SplitWiseReviewerCommands.md
+SplitWiseReviewerCommands.html
 .claude/
