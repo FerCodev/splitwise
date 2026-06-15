@@ -64,8 +64,9 @@
                         }
                         $tieneGrupo = !empty($grupoId);
                     ?>
-                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>">
+                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>" style="cursor:pointer" onclick="$emit('openDivisionModal')" data-bs-toggle="modal" data-bs-target="#divisionModal">
                         Pagado por <strong><?= $pagEsVos ? 'vos' : esc($pagNombre) ?></strong> y dividido a partes iguales entre <strong><?= $cantP ?> participante(s)</strong>.
+                        <span class="text-primary ms-1">Editar</span>
                     </div>
                     <?php if (!$tieneGrupo): ?>
                     <div id="divisionSummaryEmpty" class="small text-muted mb-3">
@@ -309,4 +310,5 @@
         });
     </script>
     <?php endif; ?>
+<?= view('partials/_division_modal') ?>
 <?= view('partials/_footer') ?>

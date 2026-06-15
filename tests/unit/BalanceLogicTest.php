@@ -268,4 +268,76 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertCount(1, $deudas);
         $this->assertSame(300.0, $deudas[0]['monto']);
     }
+
+    public function testDivisionMontoFijoConSumaExacta(): void
+    {
+        $divisiones = [];
+        $monto = 600.0;
+        $valores = [1 => 400.0, 2 => 200.0];
+        $totalValor = array_sum($valores);
+        $this->assertSame(600.0, $totalValor);
+
+        foreach ([1, 2] as $uid) {
+            $divisiones[] = $valores[$uid];
+        }
+        $this->assertSame(600.0, round(array_sum($divisiones), 2));
+    }
+
+    public function testDivisionMontoFijoConDiferencia(): void
+    {
+        $monto = 600.0;
+        $valores = [1 => 400.0, 2 => 150.0];
+        $totalValor = array_sum($valores);
+        $diferencia = round($monto - $totalValor, 2);
+        $this->assertSame(50.0, $diferencia);
+    }
+
+    public function testDivisionPorcentajeConSumaCien(): void
+    {
+        $monto = 200.0;
+        $pcts = [1 => 60, 2 => 40];
+        $this->assertEquals(100.0, array_sum($pcts));
+        foreach ($pcts as $uid => $pct) {
+            $calc = round($monto * $pct / 100, 2);
+            $divisiones[] = $calc;
+        }
+        $this->assertSame(200.0, round(array_sum($divisiones), 2));
+        $this->assertSame(120.0, $divisiones[0]);
+        $this->assertSame(80.0, $divisiones[1]);
+    }
+
+    public function testDivisionPartes(): void
+    {
+        $monto = 300.0;
+        $partes = [1 => 1, 2 => 2];
+        $totalPartes = array_sum($partes);
+        $this->assertSame(3, $totalPartes);
+
+        $divisiones = [];
+        foreach ($partes as $uid => $p) {
+            $calc = round($monto * $p / $totalPartes, 2);
+            $divisiones[] = $calc;
+        }
+        $this->assertSame(300.0, round(array_sum($divisiones), 2));
+        $this->assertSame(100.0, $divisiones[0]);
+        $this->assertSame(200.0, $divisiones[1]);
+    }
+
+    public function testDivisionAjuste(): void
+    {
+        $monto = 200.0;
+        $ids = [1, 2];
+        $ajustes = [1 => 50.0, 2 => -50.0];
+        $this->assertSame(0.0, array_sum($ajustes));
+
+        $porcion = round($monto / count($ids), 2);
+        $divisiones = [];
+        foreach ($ids as $uid) {
+            $calc = round($porcion + ($ajustes[$uid] ?? 0), 2);
+            $divisiones[] = $calc;
+        }
+        $this->assertSame(200.0, round(array_sum($divisiones), 2));
+        $this->assertSame(150.0, $divisiones[0]);
+        $this->assertSame(50.0, $divisiones[1]);
+    }
 }
