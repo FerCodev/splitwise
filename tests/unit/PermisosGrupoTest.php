@@ -273,4 +273,28 @@ final class PermisosGrupoTest extends CIUnitTestCase
         $this->assertFalse($p['puede_editar_pago']);
         $this->assertFalse($p['puede_eliminar_pago']);
     }
+
+    public function testGetPermisosAdminActivo(): void
+    {
+        $p = \App\Models\Grupo::getPermisos('admin', 'activo');
+        $this->assertTrue($p['puede_agregar_miembro']);
+        $this->assertTrue($p['puede_cambiar_rol']);
+        $this->assertTrue($p['puede_quitar_miembro']);
+    }
+
+    public function testGetPermisosAdminCerrado(): void
+    {
+        $p = \App\Models\Grupo::getPermisos('admin', 'cerrado');
+        $this->assertFalse($p['puede_agregar_miembro']);
+        $this->assertFalse($p['puede_cambiar_rol']);
+        $this->assertFalse($p['puede_quitar_miembro']);
+    }
+
+    public function testGetPermisosMemberActivo(): void
+    {
+        $p = \App\Models\Grupo::getPermisos('member', 'activo');
+        $this->assertFalse($p['puede_agregar_miembro']);
+        $this->assertFalse($p['puede_cambiar_rol']);
+        $this->assertFalse($p['puede_quitar_miembro']);
+    }
 }
