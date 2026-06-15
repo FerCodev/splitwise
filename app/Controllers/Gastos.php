@@ -141,6 +141,9 @@ class Gastos extends BaseController
             $categoriaId = $categoriaModel->getOtrosId();
         }
 
+        $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
+        $divisionValores = $this->request->getPost('division_valores') ?? [];
+
         $gastoId = $gastoModel->insert([
             'grupo_id' => $grupoId,
             'pagador_id' => $pagadorId,
@@ -148,7 +151,7 @@ class Gastos extends BaseController
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
             'categoria_id' => $categoriaId,
-            'division_tipo' => 'igualitario',
+            'division_tipo' => $divisionTipo,
         ]);
 
         $participanteModel = new GastoParticipante();
@@ -164,7 +167,13 @@ class Gastos extends BaseController
             ]);
         }
 
-        GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds);
+        $valoresMap = [];
+        if (!empty($divisionValores) && is_array($divisionValores)) {
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+        }
+        GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds, $divisionTipo, $valoresMap);
 
         return redirect()->to('/grupos/' . $grupoId)->with('success', 'Gasto creado correctamente.');
     }
