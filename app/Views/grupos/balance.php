@@ -209,9 +209,11 @@
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="fw-bold text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
+                                    <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                                     <button type="button" class="btn btn-success pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" style="min-height:44px">
                                         Pagar
                                     </button>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <div id="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
@@ -243,11 +245,13 @@
                                         <?php else: ?>
                                             <p class="mb-1 small text-muted"><?= esc($d['acreedor']) ?> no tiene medios de cobro registrados.</p>
                                         <?php endif; ?>
+                                        <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                                         <div class="mt-2">
                                             <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id'] . '&pagador_id=' . $d['deudor_id'] . '&receptor_id=' . $acreedorId . '&monto=' . $d['monto'] . '&fecha=' . date('Y-m-d')) ?>" class="btn btn-sm btn-primary">
                                                 Registrar pago
                                             </a>
                                         </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
