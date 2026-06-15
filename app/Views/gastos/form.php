@@ -145,6 +145,61 @@
     </div>
 
     <script>
+        function formatearMonto(input) {
+            var soloDigitos = input.value.replace(/\D/g, '');
+            if (soloDigitos === '') {
+                input.value = '';
+                document.getElementById('monto_real').value = '';
+                return;
+            }
+            var entero = soloDigitos.slice(0, -2) || '0';
+            var decimal = soloDigitos.slice(-2);
+            if (soloDigitos.length <= 2) {
+                entero = '0';
+                decimal = soloDigitos.padStart(2, '0');
+            }
+            var formateado = parseInt(entero, 10).toLocaleString('de-DE') + ',' + decimal;
+            if (input.value !== formateado) {
+                input.value = formateado;
+            }
+            document.getElementById('monto_real').value = entero + '.' + decimal;
+        }
+        var diccionarioCategorias = {
+            'super': 'Supermercado', 'mercado': 'Supermercado', 'supermercado': 'Supermercado',
+            'verduleria': 'Supermercado', 'almacen': 'Supermercado', 'compras': 'Supermercado',
+            'nafta': 'Combustible', 'combustible': 'Combustible', 'gasolina': 'Combustible',
+            'estacionamiento': 'Combustible',
+            'farmacia': 'Farmacia', 'remedio': 'Farmacia', 'medicamento': 'Farmacia',
+            'restaurant': 'Comida', 'comida': 'Comida', 'cena': 'Comida', 'almuerzo': 'Comida',
+            'delivery': 'Comida', 'uber': 'Transporte', 'taxi': 'Transporte',
+            'colectivo': 'Transporte', 'viaje': 'Transporte',
+            'luz': 'Servicios', 'agua': 'Servicios', 'gas': 'Servicios', 'internet': 'Servicios',
+            'alquiler': 'Vivienda', 'expensas': 'Vivienda',
+            'cine': 'Entretenimiento', 'netflix': 'Entretenimiento', 'streaming': 'Entretenimiento',
+        };
+
+        function inferirCategoria(texto) {
+            var lower = texto.toLowerCase().trim();
+            var sugerido = '';
+            for (var key in diccionarioCategorias) {
+                if (lower.includes(key)) { sugerido = diccionarioCategorias[key]; break; }
+            }
+            var el = document.getElementById('categoriaSugerida');
+            var select = document.getElementById('categoria_id');
+            if (sugerido && select) {
+                el.textContent = 'Categor&iacute;a sugerida: ' + sugerido;
+                el.classList.remove('d-none');
+                for (var i = 0; i < select.options.length; i++) {
+                    if (select.options[i].text.toLowerCase() === sugerido.toLowerCase()) {
+                        select.value = select.options[i].value;
+                        break;
+                    }
+                }
+            } else if (el) {
+                el.classList.add('d-none');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var montoInput = document.getElementById('monto');
             if (!montoInput) return;
@@ -204,63 +259,6 @@
             checkboxes.forEach(function(cb) {
                 cb.addEventListener('change', actualizarPreview);
             });
-
-            // Inferencia de categor&iacute;a desde la descripci&oacute;n
-        var diccionarioCategorias = {
-            'super': 'Supermercado', 'mercado': 'Supermercado', 'supermercado': 'Supermercado',
-            'verduleria': 'Supermercado', 'almacen': 'Supermercado', 'compras': 'Supermercado',
-            'nafta': 'Combustible', 'combustible': 'Combustible', 'gasolina': 'Combustible',
-            'estacionamiento': 'Combustible',
-            'farmacia': 'Farmacia', 'remedio': 'Farmacia', 'medicamento': 'Farmacia',
-            'restaurant': 'Comida', 'comida': 'Comida', 'cena': 'Comida', 'almuerzo': 'Comida',
-            'delivery': 'Comida', 'uber': 'Transporte', 'taxi': 'Transporte',
-            'colectivo': 'Transporte', 'viaje': 'Transporte',
-            'luz': 'Servicios', 'agua': 'Servicios', 'gas': 'Servicios', 'internet': 'Servicios',
-            'alquiler': 'Vivienda', 'expensas': 'Vivienda',
-            'cine': 'Entretenimiento', 'netflix': 'Entretenimiento', 'streaming': 'Entretenimiento',
-        };
-
-        function inferirCategoria(texto) {
-            var lower = texto.toLowerCase().trim();
-            var sugerido = '';
-            for (var key in diccionarioCategorias) {
-                if (lower.includes(key)) { sugerido = diccionarioCategorias[key]; break; }
-            }
-            var el = document.getElementById('categoriaSugerida');
-            var select = document.getElementById('categoria_id');
-            if (sugerido && select) {
-                el.textContent = 'Categor&iacute;a sugerida: ' + sugerido;
-                el.classList.remove('d-none');
-                for (var i = 0; i < select.options.length; i++) {
-                    if (select.options[i].text.toLowerCase() === sugerido.toLowerCase()) {
-                        select.value = select.options[i].value;
-                        break;
-                    }
-                }
-            } else if (el) {
-                el.classList.add('d-none');
-            }
-        }
-
-        function formatearMonto(input) {
-            var soloDigitos = input.value.replace(/\D/g, '');
-            if (soloDigitos === '') {
-                input.value = '';
-                document.getElementById('monto_real').value = '';
-                return;
-            }
-            var entero = soloDigitos.slice(0, -2) || '0';
-            var decimal = soloDigitos.slice(-2);
-            if (soloDigitos.length <= 2) {
-                entero = '0';
-                decimal = soloDigitos.padStart(2, '0');
-            }
-            var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + decimal;
-            if (input.value !== formateado) {
-                input.value = formateado;
-            }
-            document.getElementById('monto_real').value = entero + '.' + decimal;
-        }
 
         // Inicializar monto_real si ya hay valor
         (function() {
