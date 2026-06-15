@@ -32,9 +32,6 @@
                     <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <?php if ($permisos['puede_crear_gasto']): ?>
-                        <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill d-md-none">+ Gasto</a>
-                    <?php endif; ?>
                     <!-- Desktop actions -->
                     <div class="d-none d-md-flex gap-2 w-100">
                         <?php if ($permisos['puede_crear_gasto']): ?>
@@ -62,10 +59,13 @@
                     </div>
                     <!-- Mobile actions menu -->
                     <div class="d-md-none dropdown w-100">
-                        <button class="btn btn-outline-secondary w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            M&aacute;s opciones
+                        <button class="btn btn-primary w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Acciones
                         </button>
                         <ul class="dropdown-menu w-100">
+                            <?php if ($permisos['puede_crear_gasto']): ?>
+                                <li><a class="dropdown-item" href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>">+ Gasto</a></li>
+                            <?php endif; ?>
                             <li><a class="dropdown-item" href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>">Balance</a></li>
                             <?php if ($permisos['puede_crear_pago']): ?>
                                 <li><a class="dropdown-item" href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>">+ Pago</a></li>

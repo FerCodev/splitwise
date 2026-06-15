@@ -60,7 +60,7 @@
 
             <!-- Filtros -->
             <div class="d-flex align-items-center gap-2 mb-2">
-                <span class="fw-bold small text-muted">Grupos</span>
+                <span class="fw-bold small text-muted d-none d-md-inline">Grupos</span>
                 <div class="filter-tabs flex-grow-1">
                     <button class="filter-tab active" data-filter="todos" onclick="filtrarGrupos('todos', this)">Todos</button>
                     <button class="filter-tab" data-filter="activos" onclick="filtrarGrupos('activos', this)">Activos</button>
