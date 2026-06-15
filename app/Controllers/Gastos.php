@@ -155,7 +155,7 @@ class Gastos extends BaseController
 
         if ($divisionTipo !== 'igualitario') {
             $valores = array_values($divisionValores);
-            $totalValor = array_sum(array_column($valores, 'valor'));
+            $totalValor = 0;
 
             if (count($valores) !== count($participantesIds)) {
                 return redirect()->back()->withInput()->with('errors', ['division' => 'La cantidad de valores de divisi&oacute;n no coincide con los participantes.']);
@@ -170,6 +170,7 @@ class Gastos extends BaseController
                 return redirect()->back()->withInput()->with('errors', ['division' => 'Los participantes en la divisi&oacute;n no coinciden con los seleccionados.']);
             }
 
+            $valoresNormalizados = [];
             foreach ($valores as $v) {
                 if (empty($v['user_id'])) {
                     return redirect()->back()->withInput()->with('errors', ['division' => 'Falta user_id en un valor de divisi&oacute;n.']);
@@ -181,12 +182,11 @@ class Gastos extends BaseController
                     return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
                 }
                 $valorNumerico = (float) $v['valor'];
-                if ($divisionTipo === 'ajuste') {
-                    continue;
-                }
-                if ($valorNumerico < 0) {
+                if ($divisionTipo !== 'ajuste' && $valorNumerico < 0) {
                     return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos para el modo ' . $divisionTipo . '.']);
                 }
+                $valoresNormalizados[] = ['user_id' => (int) $v['user_id'], 'valor' => $valorNumerico];
+                $totalValor += $valorNumerico;
             }
 
             if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
@@ -203,8 +203,8 @@ class Gastos extends BaseController
                     return redirect()->back()->withInput()->with('errors', ['division' => 'Los ajustes deben sumar $0.']);
                 }
                 $porcionBase = round($monto / count($participantesIds), 2);
-                foreach ($valores as $v) {
-                    $calc = round($porcionBase + (float) ($v['valor'] ?? 0), 2);
+                foreach ($valoresNormalizados as $vn) {
+                    $calc = round($porcionBase + $vn['valor'], 2);
                     if ($calc < 0) {
                         return redirect()->back()->withInput()->with('errors', ['division' => 'Un ajuste gener&oacute; un monto negativo para un participante.']);
                     }
