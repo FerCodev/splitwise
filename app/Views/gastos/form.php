@@ -34,9 +34,8 @@
                         <label for="monto" class="form-label fw-medium">Monto total</label>
                         <input type="text" class="form-control" id="monto" name="monto_visual"
                                value="<?= esc(old('monto_visual', isset($gasto) ? number_format($gasto['monto'], 2, ',', '.') : '')) ?>" required
-                               inputmode="decimal"
-                               oninput="formatearMonto(this)"
-                               onkeypress="return /[0-9,]/.test(event.key)">
+                               inputmode="numeric"
+                               oninput="formatearMonto(this)">
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
                     </div>
 
@@ -244,23 +243,23 @@
         }
 
         function formatearMonto(input) {
-            var valor = input.value;
-            var soloDigitos = valor.replace(/[^0-9,]/g, '');
-            var partes = soloDigitos.split(',');
-            var entero = partes[0];
-            var decimal = partes.length > 1 ? partes[1].slice(0, 2) : '';
-            var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            if (partes.length > 1) {
-                formateado += ',' + decimal;
+            var soloDigitos = input.value.replace(/\D/g, '');
+            if (soloDigitos === '') {
+                input.value = '';
+                document.getElementById('monto_real').value = '';
+                return;
             }
+            var entero = soloDigitos.slice(0, -2) || '0';
+            var decimal = soloDigitos.slice(-2);
+            if (soloDigitos.length <= 2) {
+                entero = '0';
+                decimal = soloDigitos.padStart(2, '0');
+            }
+            var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + decimal;
             if (input.value !== formateado) {
                 input.value = formateado;
             }
-            var numStr = entero + '.' + (decimal || '0');
-            var num = parseFloat(numStr);
-            if (!isNaN(num)) {
-                document.getElementById('monto_real').value = num.toFixed(2);
-            }
+            document.getElementById('monto_real').value = entero + '.' + decimal;
         }
 
         // Inicializar monto_real si ya hay valor
