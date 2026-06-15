@@ -54,45 +54,40 @@
                     </div>
                     <div class="collapse d-md-block" id="masOpcionesGasto">
 
+                    <!-- Grupo (oculto cuando viene por contexto, visible si no hay grupo) -->
+                    <?php if (!empty($grupoId) && !isset($gasto)): ?>
+                    <?php
+                        $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
+                        $grupoActual = reset($grupoActual);
+                    ?>
+                    <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
+                    <?php else: ?>
                     <div class="mb-3">
                         <label for="grupo_id" class="form-label fw-medium">Grupo</label>
-                        <?php if (!empty($grupoId) && !isset($gasto)): ?>
-                        <?php
-                            $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
-                            $grupoActual = reset($grupoActual);
-                        ?>
-                        <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
-                        <input type="text" class="form-control" value="<?= esc($grupoActual['nombre'] ?? '') ?>" disabled>
-                        <?php else: ?>
                         <select class="form-select" id="grupo_id" name="grupo_id" required>
                             <option value="">Seleccionar grupo</option>
                             <?php foreach ($grupos as $g): ?>
                                 <option value="<?= $g['id'] ?>" <?= ($grupoId ?? '') == $g['id'] ? 'selected' : '' ?>><?= esc($g['nombre']) ?></option>
                             <?php endforeach; ?>
                         </select>
-                        <?php endif; ?>
                     </div>
+                    <?php endif; ?>
 
+                    <?php
+                        $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? session()->get('userId'));
+                    ?>
                     <div class="mb-3">
                         <label class="form-label fw-medium">Pagador</label>
-                        <?php if (isset($gasto) && $rol !== 'admin'): ?>
-                            <?php
-                                $pagadorActual = current(array_filter($miembros ?? [], fn($m) => (int) $m['user_id'] === (int) $gasto['pagador_id']));
-                            ?>
-                            <input type="hidden" name="pagador_id" value="<?= $gasto['pagador_id'] ?>">
-                            <input type="text" class="form-control" value="<?= esc($pagadorActual['name'] ?? 'Vos') ?>" disabled>
-                        <?php elseif (isset($gasto) && $rol === 'admin'): ?>
-                            <select class="form-select" id="pagador_id" name="pagador_id" required>
-                                <option value="">Seleccionar pagador</option>
-                                <?php if (isset($miembros)): ?>
-                                    <?php foreach ($miembros as $m): ?>
-                                        <option value="<?= $m['user_id'] ?>" <?= old('pagador_id', $gasto['pagador_id'] ?? '') == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
+                        <?php if (isset($miembros) && count($miembros) > 0): ?>
+                        <select class="form-select" id="pagador_id" name="pagador_id" required>
+                            <option value="">Seleccionar pagador</option>
+                            <?php foreach ($miembros as $m): ?>
+                                <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
                         <?php else: ?>
-                            <input type="text" class="form-control" value="Vos" disabled>
-                            <small class="text-muted">El gasto se registra a tu nombre como pagador.</small>
+                        <input type="text" class="form-control" value="Vos" disabled>
+                        <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
                         <?php endif; ?>
                     </div>
 
