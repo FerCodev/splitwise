@@ -13,6 +13,7 @@ $routes->get('/password/reset/(:any)', 'PasswordResetController::reset/$1');
 $routes->post('/password/reset/(:any)', 'PasswordResetController::cambiarPassword/$1');
 $routes->get('/perfil', 'Perfil::index', ['filter' => 'auth']);
 $routes->post('/perfil/editar-nombre', 'Perfil::editarNombre', ['filter' => 'auth']);
+$routes->post('/perfil/editar-email', 'Perfil::editarEmail', ['filter' => 'auth']);
 $routes->post('/perfil/cambiar-password', 'Perfil::cambiarPassword', ['filter' => 'auth']);
 $routes->get('/dashboard', 'Dashboard::index', ['filter' => 'auth']);
 $routes->get('/grupos', 'Grupos::index', ['filter' => 'auth']);

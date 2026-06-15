@@ -39,6 +39,31 @@ class Perfil extends BaseController
         return redirect()->to('/perfil')->with('success', 'Nombre actualizado correctamente.');
     }
 
+    public function editarEmail()
+    {
+        $rules = [
+            'email' => 'required|valid_email',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $userId = session()->get('userId');
+        $userModel = new User();
+        $email = $this->request->getPost('email');
+
+        $existing = $userModel->where('email', $email)->where('id !=', $userId)->first();
+        if ($existing) {
+            return redirect()->back()->with('error', 'Este email ya está en uso por otro usuario.');
+        }
+
+        $userModel->update($userId, ['email' => $email]);
+        session()->set('userEmail', $email);
+
+        return redirect()->to('/perfil')->with('success', 'Email actualizado correctamente.');
+    }
+
     public function cambiarPassword()
     {
         $rules = [

@@ -57,6 +57,20 @@
 
         <div class="card mb-4">
             <div class="card-body">
+                <h5 class="card-title">Editar email</h5>
+                <form action="<?= base_url('perfil/editar-email') ?>" method="post">
+                    <?= csrf_field() ?>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<?= old('email', esc($user['email'])) ?>" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar email</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
                 <h5 class="card-title">Cambiar contraseña</h5>
                 <form action="<?= base_url('perfil/cambiar-password') ?>" method="post">
                     <?= csrf_field() ?>
