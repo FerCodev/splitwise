@@ -26,11 +26,10 @@ class MediosCobro extends BaseController
     {
         $rules = [
             'nombre' => 'required|min_length[2]|max_length[255]',
-            'tipo' => 'required|in_list[alias,cbu_cvu,link,otro]',
+            'titular' => 'required|max_length[255]',
             'alias' => 'permit_empty|max_length[255]',
             'cbu_cvu' => 'permit_empty|max_length[255]',
             'banco' => 'permit_empty|max_length[255]',
-            'titular' => 'permit_empty|max_length[255]',
             'payment_link' => 'permit_empty|max_length[500]|valid_url_strict',
         ];
 
@@ -51,7 +50,7 @@ class MediosCobro extends BaseController
         $model = new UserPaymentMethod();
         $model->insert([
             'user_id' => session()->get('userId'),
-            'tipo' => $this->request->getPost('tipo'),
+            'tipo' => $this->request->getPost('tipo') ?: 'otro',
             'nombre' => $this->request->getPost('nombre'),
             'alias' => $alias,
             'cbu_cvu' => $cbuCvu,
@@ -88,11 +87,10 @@ class MediosCobro extends BaseController
 
         $rules = [
             'nombre' => 'required|min_length[2]|max_length[255]',
-            'tipo' => 'required|in_list[alias,cbu_cvu,link,otro]',
+            'titular' => 'required|max_length[255]',
             'alias' => 'permit_empty|max_length[255]',
             'cbu_cvu' => 'permit_empty|max_length[255]',
             'banco' => 'permit_empty|max_length[255]',
-            'titular' => 'permit_empty|max_length[255]',
             'payment_link' => 'permit_empty|max_length[500]|valid_url_strict',
         ];
 
@@ -111,7 +109,7 @@ class MediosCobro extends BaseController
         }
 
         $model->update($id, [
-            'tipo' => $this->request->getPost('tipo'),
+            'tipo' => $this->request->getPost('tipo') ?: 'otro',
             'nombre' => $this->request->getPost('nombre'),
             'alias' => $alias,
             'cbu_cvu' => $cbuCvu,
