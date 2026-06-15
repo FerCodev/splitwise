@@ -123,6 +123,7 @@
                         <?php else: ?>
                             <p class="text-muted mb-0">Seleccioná un grupo primero.</p>
                         <?php endif; ?>
+                    </div>
                     </div><!-- /.collapse #masOpcionesGasto -->
 
                     <!-- Preview de división en tiempo real -->
