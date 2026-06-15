@@ -146,23 +146,22 @@
 
     <script>
         function formatearMonto(input) {
-            var soloDigitos = input.value.replace(/\D/g, '');
-            if (soloDigitos === '') {
-                input.value = '';
-                document.getElementById('monto_real').value = '';
-                return;
+            var limpio = input.value.replace(/[^0-9,]/g, '');
+            var partes = limpio.split(',');
+            var entero = partes[0].replace(/\D/g, '');
+            var decimal = partes.length > 1 ? partes.slice(1).join('').replace(/\D/g, '').slice(0, 2) : '';
+            var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            if (partes.length > 1) {
+                formateado += ',' + decimal;
             }
-            var entero = soloDigitos.slice(0, -2) || '0';
-            var decimal = soloDigitos.slice(-2);
-            if (soloDigitos.length <= 2) {
-                entero = '0';
-                decimal = soloDigitos.padStart(2, '0');
-            }
-            var formateado = parseInt(entero, 10).toLocaleString('de-DE') + ',' + decimal;
             if (input.value !== formateado) {
                 input.value = formateado;
             }
-            document.getElementById('monto_real').value = entero + '.' + decimal;
+            var numStr = entero + '.' + (decimal || '0');
+            var num = parseFloat(numStr);
+            if (!isNaN(num)) {
+                document.getElementById('monto_real').value = num.toFixed(2);
+            }
         }
         var diccionarioCategorias = {
             'super': 'Supermercado', 'mercado': 'Supermercado', 'supermercado': 'Supermercado',
@@ -208,7 +207,7 @@
             var previewContent = document.getElementById('divisionPreviewContent');
 
             function actualizarPreview() {
-                var rawValue = montoInput.value.trim();
+                var rawValue = document.getElementById('monto_real').value;
                 var monto = parseFloat(rawValue);
                 var seleccionados = 0;
                 checkboxes.forEach(function(cb) {
