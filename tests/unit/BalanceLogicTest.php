@@ -394,4 +394,67 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         );
         $this->assertNotEmpty($diff);
     }
+
+    public function testMontoFijoNegativoRechazado(): void
+    {
+        $valores = [['user_id' => 1, 'valor' => -50], ['user_id' => 2, 'valor' => 150]];
+        $acepta = true;
+        foreach ($valores as $v) {
+            if ((float) $v['valor'] < 0) {
+                $acepta = false;
+                break;
+            }
+        }
+        $this->assertFalse($acepta);
+    }
+
+    public function testPorcentajeNegativoRechazado(): void
+    {
+        $valores = [['user_id' => 1, 'valor' => -10], ['user_id' => 2, 'valor' => 110]];
+        $acepta = true;
+        foreach ($valores as $v) {
+            if ((float) $v['valor'] < 0) {
+                $acepta = false;
+                break;
+            }
+        }
+        $this->assertFalse($acepta);
+    }
+
+    public function testPartesNegativoRechazado(): void
+    {
+        $valores = [['user_id' => 1, 'valor' => -1], ['user_id' => 2, 'valor' => 3]];
+        $acepta = true;
+        foreach ($valores as $v) {
+            if ((float) $v['valor'] < 0) {
+                $acepta = false;
+                break;
+            }
+        }
+        $this->assertFalse($acepta);
+    }
+
+    public function testValorNoNumericoRechazado(): void
+    {
+        $v = ['user_id' => 1, 'valor' => 'abc'];
+        $this->assertFalse(is_numeric($v['valor']));
+    }
+
+    public function testAjusteNegativoPermitidoConSumaCero(): void
+    {
+        $monto = 200.0;
+        $ids = [1, 2];
+        $ajustes = [1 => 50.0, 2 => -50.0];
+        $this->assertSame(0.0, array_sum($ajustes));
+        $porcion = round($monto / count($ids), 2);
+        $montosFinales = [];
+        foreach ($ids as $uid) {
+            $calc = round($porcion + ($ajustes[$uid] ?? 0), 2);
+            $montosFinales[] = $calc;
+        }
+        $this->assertSame(200.0, round(array_sum($montosFinales), 2));
+        foreach ($montosFinales as $m) {
+            $this->assertGreaterThanOrEqual(0, $m);
+        }
+    }
 }

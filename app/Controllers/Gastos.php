@@ -171,8 +171,21 @@ class Gastos extends BaseController
             }
 
             foreach ($valores as $v) {
+                if (empty($v['user_id'])) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Falta user_id en un valor de divisi&oacute;n.']);
+                }
+                if (!isset($v['valor']) || !is_numeric($v['valor'])) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Valor de divisi&oacute;n inv&aacute;lido para un participante.']);
+                }
                 if (!in_array((int) $v['user_id'], $miembrosIds)) {
                     return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
+                }
+                $valorNumerico = (float) $v['valor'];
+                if ($divisionTipo === 'ajuste') {
+                    continue;
+                }
+                if ($valorNumerico < 0) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos para el modo ' . $divisionTipo . '.']);
                 }
             }
 
