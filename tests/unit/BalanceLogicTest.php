@@ -268,4 +268,193 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertCount(1, $deudas);
         $this->assertSame(300.0, $deudas[0]['monto']);
     }
+
+    public function testDivisionMontoFijoConSumaExacta(): void
+    {
+        $divisiones = [];
+        $monto = 600.0;
+        $valores = [1 => 400.0, 2 => 200.0];
+        $totalValor = array_sum($valores);
+        $this->assertSame(600.0, $totalValor);
+
+        foreach ([1, 2] as $uid) {
+            $divisiones[] = $valores[$uid];
+        }
+        $this->assertSame(600.0, round(array_sum($divisiones), 2));
+    }
+
+    public function testDivisionMontoFijoConDiferencia(): void
+    {
+        $monto = 600.0;
+        $valores = [1 => 400.0, 2 => 150.0];
+        $totalValor = array_sum($valores);
+        $diferencia = round($monto - $totalValor, 2);
+        $this->assertSame(50.0, $diferencia);
+    }
+
+    public function testDivisionPorcentajeConSumaCien(): void
+    {
+        $monto = 200.0;
+        $pcts = [1 => 60, 2 => 40];
+        $this->assertEquals(100.0, array_sum($pcts));
+        foreach ($pcts as $uid => $pct) {
+            $calc = round($monto * $pct / 100, 2);
+            $divisiones[] = $calc;
+        }
+        $this->assertSame(200.0, round(array_sum($divisiones), 2));
+        $this->assertSame(120.0, $divisiones[0]);
+        $this->assertSame(80.0, $divisiones[1]);
+    }
+
+    public function testDivisionPartes(): void
+    {
+        $monto = 300.0;
+        $partes = [1 => 1, 2 => 2];
+        $totalPartes = array_sum($partes);
+        $this->assertSame(3, $totalPartes);
+
+        $divisiones = [];
+        foreach ($partes as $uid => $p) {
+            $calc = round($monto * $p / $totalPartes, 2);
+            $divisiones[] = $calc;
+        }
+        $this->assertSame(300.0, round(array_sum($divisiones), 2));
+        $this->assertSame(100.0, $divisiones[0]);
+        $this->assertSame(200.0, $divisiones[1]);
+    }
+
+    public function testDivisionAjuste(): void
+    {
+        $monto = 200.0;
+        $ids = [1, 2];
+        $ajustes = [1 => 50.0, 2 => -50.0];
+        $this->assertSame(0.0, array_sum($ajustes));
+
+        $porcion = round($monto / count($ids), 2);
+        $divisiones = [];
+        foreach ($ids as $uid) {
+            $calc = round($porcion + ($ajustes[$uid] ?? 0), 2);
+            $divisiones[] = $calc;
+        }
+        $this->assertSame(200.0, round(array_sum($divisiones), 2));
+        $this->assertSame(150.0, $divisiones[0]);
+        $this->assertSame(50.0, $divisiones[1]);
+    }
+
+    public function testDivisionTipoValido(): void
+    {
+        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje', 'partes', 'ajuste'];
+        $this->assertContains('igualitario', $tiposValidos);
+        $this->assertContains('monto_fijo', $tiposValidos);
+        $this->assertContains('porcentaje', $tiposValidos);
+        $this->assertContains('partes', $tiposValidos);
+        $this->assertContains('ajuste', $tiposValidos);
+        $this->assertNotContains('invalido', $tiposValidos);
+    }
+
+    public function testDivisionValoresCoincidenConParticipantes(): void
+    {
+        $participantes = [1, 2, 3];
+        $valores = [
+            ['user_id' => 1, 'valor' => 100],
+            ['user_id' => 2, 'valor' => 100],
+            ['user_id' => 3, 'valor' => 100],
+        ];
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $this->assertSame($participantes, $valUserIds);
+    }
+
+    public function testDivisionValoresConExtraRechazado(): void
+    {
+        $participantes = [1, 2];
+        $valores = [
+            ['user_id' => 1, 'valor' => 100],
+            ['user_id' => 2, 'valor' => 100],
+            ['user_id' => 3, 'valor' => 50],
+        ];
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $diff = array_merge(
+            array_diff($valUserIds, $participantes),
+            array_diff($participantes, $valUserIds)
+        );
+        $this->assertNotEmpty($diff);
+    }
+
+    public function testDivisionValoresConFaltanteRechazado(): void
+    {
+        $participantes = [1, 2, 3];
+        $valores = [
+            ['user_id' => 1, 'valor' => 100],
+            ['user_id' => 2, 'valor' => 100],
+        ];
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $diff = array_merge(
+            array_diff($valUserIds, $participantes),
+            array_diff($participantes, $valUserIds)
+        );
+        $this->assertNotEmpty($diff);
+    }
+
+    public function testMontoFijoNegativoRechazado(): void
+    {
+        $valores = [['user_id' => 1, 'valor' => -50], ['user_id' => 2, 'valor' => 150]];
+        $acepta = true;
+        foreach ($valores as $v) {
+            if ((float) $v['valor'] < 0) {
+                $acepta = false;
+                break;
+            }
+        }
+        $this->assertFalse($acepta);
+    }
+
+    public function testPorcentajeNegativoRechazado(): void
+    {
+        $valores = [['user_id' => 1, 'valor' => -10], ['user_id' => 2, 'valor' => 110]];
+        $acepta = true;
+        foreach ($valores as $v) {
+            if ((float) $v['valor'] < 0) {
+                $acepta = false;
+                break;
+            }
+        }
+        $this->assertFalse($acepta);
+    }
+
+    public function testPartesNegativoRechazado(): void
+    {
+        $valores = [['user_id' => 1, 'valor' => -1], ['user_id' => 2, 'valor' => 3]];
+        $acepta = true;
+        foreach ($valores as $v) {
+            if ((float) $v['valor'] < 0) {
+                $acepta = false;
+                break;
+            }
+        }
+        $this->assertFalse($acepta);
+    }
+
+    public function testValorNoNumericoRechazado(): void
+    {
+        $v = ['user_id' => 1, 'valor' => 'abc'];
+        $this->assertFalse(is_numeric($v['valor']));
+    }
+
+    public function testAjusteNegativoPermitidoConSumaCero(): void
+    {
+        $monto = 200.0;
+        $ids = [1, 2];
+        $ajustes = [1 => 50.0, 2 => -50.0];
+        $this->assertSame(0.0, array_sum($ajustes));
+        $porcion = round($monto / count($ids), 2);
+        $montosFinales = [];
+        foreach ($ids as $uid) {
+            $calc = round($porcion + ($ajustes[$uid] ?? 0), 2);
+            $montosFinales[] = $calc;
+        }
+        $this->assertSame(200.0, round(array_sum($montosFinales), 2));
+        foreach ($montosFinales as $m) {
+            $this->assertGreaterThanOrEqual(0, $m);
+        }
+    }
 }

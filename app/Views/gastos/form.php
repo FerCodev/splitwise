@@ -45,6 +45,38 @@
                                value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
                     </div>
 
+                    <!-- Resumen de divisi&oacute;n (solo en nuevo gasto) -->
+                    <?php if (!isset($gasto)): ?>
+                    <?php
+                        $pagEsVos = true;
+                        $pagNombre = 'vos';
+                        $cantP = 0;
+                        if (!empty($grupoId) && isset($miembros)) {
+                            $cantP = isset($participantesIds) ? count($participantesIds) : count($miembros);
+                            if (isset($gasto)) {
+                                foreach ($miembros as $m) {
+                                    if ((int) $m['user_id'] === (int) $gasto['pagador_id']) {
+                                        $pagNombre = $m['name'];
+                                        $pagEsVos = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        $tieneGrupo = !empty($grupoId);
+                    ?>
+                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#divisionModal">
+                        Pagado por <strong><?= $pagEsVos ? 'vos' : esc($pagNombre) ?></strong> y dividido a partes iguales entre <strong><?= $cantP ?> participante(s)</strong>.
+                        <span class="text-primary ms-1">Editar</span>
+                    </div>
+                    <?php if (!$tieneGrupo): ?>
+                    <div id="divisionSummaryEmpty" class="small text-muted mb-3">
+                        Seleccion&aacute; un grupo para ver el resumen de divisi&oacute;n.
+                    </div>
+                    <?php endif; ?>
+
+                    <?php endif; ?><!-- fin division solo nuevo gasto -->
+
                     <!-- M&aacute;s opciones (colapsable en mobile) -->
                     <div class="d-md-none mb-3">
                         <button class="btn btn-outline-secondary btn-sm w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#masOpcionesGasto" aria-expanded="false">
@@ -281,4 +313,7 @@
         });
     </script>
     <?php endif; ?>
+<?php if (!isset($gasto)): ?>
+<?= view('partials/_division_modal') ?>
+<?php endif; ?>
 <?= view('partials/_footer') ?>
