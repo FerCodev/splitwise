@@ -148,9 +148,33 @@ class Gastos extends BaseController
         $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
         $divisionValores = $this->request->getPost('division_valores') ?? [];
 
+        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje', 'partes', 'ajuste'];
+        if (!in_array($divisionTipo, $tiposValidos, true)) {
+            return redirect()->back()->withInput()->with('errors', ['division' => 'Tipo de divisi&oacute;n inv&aacute;lido.']);
+        }
+
         if ($divisionTipo !== 'igualitario') {
             $valores = array_values($divisionValores);
             $totalValor = array_sum(array_column($valores, 'valor'));
+
+            if (count($valores) !== count($participantesIds)) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'La cantidad de valores de divisi&oacute;n no coincide con los participantes.']);
+            }
+
+            $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+            $diff = array_merge(
+                array_diff($valUserIds, $participantesIds),
+                array_diff($participantesIds, $valUserIds)
+            );
+            if (!empty($diff)) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'Los participantes en la divisi&oacute;n no coinciden con los seleccionados.']);
+            }
+
+            foreach ($valores as $v) {
+                if (!in_array((int) $v['user_id'], $miembrosIds)) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
+                }
+            }
 
             if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
                 return redirect()->back()->withInput()->with('errors', ['division' => 'La suma de montos fijos no coincide con el total del gasto.']);
@@ -214,7 +238,9 @@ class Gastos extends BaseController
                     $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
                 }
             }
-            GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds, $divisionTipo, $valoresMap);
+            if (!GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds, $divisionTipo, $valoresMap)) {
+                throw new \RuntimeException('Error al insertar divisiones.');
+            }
 
             $db->transCommit();
         } catch (\Exception $e) {

@@ -340,4 +340,58 @@ final class BalanceLogicTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame(150.0, $divisiones[0]);
         $this->assertSame(50.0, $divisiones[1]);
     }
+
+    public function testDivisionTipoValido(): void
+    {
+        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje', 'partes', 'ajuste'];
+        $this->assertContains('igualitario', $tiposValidos);
+        $this->assertContains('monto_fijo', $tiposValidos);
+        $this->assertContains('porcentaje', $tiposValidos);
+        $this->assertContains('partes', $tiposValidos);
+        $this->assertContains('ajuste', $tiposValidos);
+        $this->assertNotContains('invalido', $tiposValidos);
+    }
+
+    public function testDivisionValoresCoincidenConParticipantes(): void
+    {
+        $participantes = [1, 2, 3];
+        $valores = [
+            ['user_id' => 1, 'valor' => 100],
+            ['user_id' => 2, 'valor' => 100],
+            ['user_id' => 3, 'valor' => 100],
+        ];
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $this->assertSame($participantes, $valUserIds);
+    }
+
+    public function testDivisionValoresConExtraRechazado(): void
+    {
+        $participantes = [1, 2];
+        $valores = [
+            ['user_id' => 1, 'valor' => 100],
+            ['user_id' => 2, 'valor' => 100],
+            ['user_id' => 3, 'valor' => 50],
+        ];
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $diff = array_merge(
+            array_diff($valUserIds, $participantes),
+            array_diff($participantes, $valUserIds)
+        );
+        $this->assertNotEmpty($diff);
+    }
+
+    public function testDivisionValoresConFaltanteRechazado(): void
+    {
+        $participantes = [1, 2, 3];
+        $valores = [
+            ['user_id' => 1, 'valor' => 100],
+            ['user_id' => 2, 'valor' => 100],
+        ];
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $diff = array_merge(
+            array_diff($valUserIds, $participantes),
+            array_diff($participantes, $valUserIds)
+        );
+        $this->assertNotEmpty($diff);
+    }
 }

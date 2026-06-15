@@ -21,12 +21,12 @@ class GastoDivision extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public static function generarDivisionesIgualitarias(int $gastoId, float $monto, array $participantesIds, string $tipo = 'igualitario', array $valores = []): void
+    public static function generarDivisionesIgualitarias(int $gastoId, float $monto, array $participantesIds, string $tipo = 'igualitario', array $valores = []): bool
     {
         $model = new self();
         $divisiones = [];
         $cantidad = count($participantesIds);
-        if ($cantidad === 0) return;
+        if ($cantidad === 0) return true;
 
         // Primero eliminar divisiones existentes para este gasto
         $model->where('gasto_id', $gastoId)->delete();
@@ -120,8 +120,9 @@ class GastoDivision extends Model
         }
 
         if (!empty($divisiones)) {
-            $model->insertBatch($divisiones);
+            return $model->insertBatch($divisiones) !== false;
         }
+        return true;
     }
 
     public static function getGastosSinDivisiones(): array
