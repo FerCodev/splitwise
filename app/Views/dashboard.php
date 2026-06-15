@@ -6,8 +6,8 @@
         <!-- Acciones principales -->
         <div class="d-flex flex-wrap gap-2 mb-4">
             <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo Grupo</a>
-            <a href="<?= base_url('reportes') ?>" class="btn btn-outline-primary">Reportes</a>
-            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-outline-secondary">Medios de cobro</a>
+            <a href="<?= base_url('reportes') ?>" class="btn btn-outline-primary d-none d-md-inline-flex">Reportes</a>
+            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-outline-secondary d-none d-md-inline-flex">Medios de cobro</a>
         </div>
 
         <?php if (empty($grupos)): ?>
