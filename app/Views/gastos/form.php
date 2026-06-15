@@ -16,7 +16,7 @@
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
-                <form action="<?= isset($gasto) ? base_url('gastos/' . $gasto['id']) : base_url('gastos') ?>" method="post">
+                <form action="<?= isset($gasto) ? base_url('gastos/' . $gasto['id']) : base_url('gastos') ?>" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
                     <?php if (isset($gasto)): ?>
                         <input type="hidden" name="_method" value="PUT">
@@ -43,6 +43,23 @@
                         <label for="fecha" class="form-label fw-medium">Fecha</label>
                         <input type="date" class="form-control" id="fecha" name="fecha"
                                value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
+                        <textarea class="form-control" id="nota" name="nota" rows="2"><?= esc(old('nota', $gasto['nota'] ?? '')) ?></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="recibo" class="form-label fw-medium">Comprobante <small class="text-muted">(opcional, JPG/PNG/WebP/PDF, m&aacute;x 5MB)</small></label>
+                        <input type="file" class="form-control" id="recibo" name="recibo" accept=".jpg,.jpeg,.png,.webp,.pdf">
+                        <?php if (isset($gasto) && !empty($gasto['recibo_nombre'])): ?>
+                            <div class="mt-1 small">
+                                Archivo actual: <?= esc($gasto['recibo_nombre']) ?>
+                                <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="text-primary ms-2" target="_blank">Ver</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="if(confirm('Eliminar recibo?')){fetch('<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>',{method:'DELETE',headers:{'X-CSRF-TOKEN':'<?= csrf_hash() ?>'}}).then(()=>location.reload())}">Eliminar</button>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Resumen de divisi&oacute;n (solo en nuevo gasto) -->

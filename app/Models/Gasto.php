@@ -10,7 +10,7 @@ class Gasto extends Model
 {
     protected $table = 'gastos';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria_id', 'division_tipo', 'nota', 'recibo_path'];
+    protected $allowedFields = ['grupo_id', 'pagador_id', 'descripcion', 'monto', 'fecha', 'categoria_id', 'division_tipo', 'nota', 'recibo_path', 'recibo_nombre', 'recibo_mime', 'recibo_size'];
     protected $useTimestamps = true;
 
     public function getGastosByGrupo(int $grupoId): array

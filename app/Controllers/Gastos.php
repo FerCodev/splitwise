@@ -216,6 +216,12 @@ class Gastos extends BaseController
         $db->transBegin();
 
         try {
+            $reciboData = $this->procesarRecibo();
+            if ($reciboData === false) {
+                $db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.');
+            }
+
             $gastoId = $gastoModel->insert([
                 'grupo_id' => $grupoId,
                 'pagador_id' => $pagadorId,
@@ -224,7 +230,8 @@ class Gastos extends BaseController
                 'fecha' => $this->request->getPost('fecha'),
                 'categoria_id' => $categoriaId,
                 'division_tipo' => $divisionTipo,
-            ]);
+                'nota' => $this->request->getPost('nota') ?: null,
+            ] + ($reciboData ?: []));
 
             if (!$gastoId) {
                 throw new \RuntimeException('Error al crear el gasto.');
@@ -410,14 +417,33 @@ class Gastos extends BaseController
             $categoriaId = $categoriaModel->getOtrosId();
         }
 
-        $gastoModel->update($id, [
+        $reciboData = $this->procesarRecibo();
+        if ($reciboData === false) {
+            return redirect()->back()->withInput()->with('error', 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.');
+        }
+
+        $updateData = [
             'grupo_id' => $grupoIdOriginal,
             'pagador_id' => $pagadorId,
             'descripcion' => $this->request->getPost('descripcion'),
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
             'categoria_id' => $categoriaId,
-        ]);
+            'nota' => $this->request->getPost('nota') ?: null,
+        ];
+
+        // Si se subi&oacute; un recibo nuevo, eliminar el anterior y actualizar
+        if (!empty($reciboData)) {
+            if (!empty($gastoExistente['recibo_path'])) {
+                $oldPath = WRITEPATH . $gastoExistente['recibo_path'];
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+            }
+            $updateData = array_merge($updateData, $reciboData);
+        }
+
+        $gastoModel->update($id, $updateData);
 
         $participanteModel = new GastoParticipante();
         $participanteModel->where('gasto_id', $id)->delete();
@@ -464,6 +490,14 @@ class Gastos extends BaseController
             return redirect()->to('/gastos')->with('error', $errorPermiso);
         }
 
+        // Eliminar archivo de recibo si existe
+        if (!empty($gasto['recibo_path'])) {
+            $path = WRITEPATH . $gasto['recibo_path'];
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
         $gastoModel->delete($id);
 
         return redirect()->to('/gastos')->with('success', 'Gasto eliminado correctamente.');
@@ -487,5 +521,103 @@ class Gastos extends BaseController
             'grupo' => $grupo,
             'rol' => $grupoModel->getUserRol($grupoId, $userId),
         ];
+    }
+
+    private function procesarRecibo(): array|false
+    {
+        $file = $this->request->getFile('recibo');
+        if (!$file || !$file->isValid()) {
+            return []; // sin recibo adjunto
+        }
+
+        $allowedMimes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+        if (!in_array($file->getMimeType(), $allowedMimes)) {
+            return false;
+        }
+
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            return false;
+        }
+
+        $year = date('Y');
+        $month = date('m');
+        $dir = WRITEPATH . 'uploads/recibos/' . $year . '/' . $month;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $extension = $file->getExtension();
+        $safeName = bin2hex(random_bytes(16)) . '.' . $extension;
+        $relativePath = 'uploads/recibos/' . $year . '/' . $month . '/' . $safeName;
+
+        $file->move($dir, $safeName);
+
+        return [
+            'recibo_path' => $relativePath,
+            'recibo_nombre' => $file->getClientName(),
+            'recibo_mime' => $file->getMimeType(),
+            'recibo_size' => $file->getSize(),
+        ];
+    }
+
+    public function recibo(int $id)
+    {
+        $gastoModel = new Gasto();
+        $gasto = $gastoModel->find($id);
+        if (!$gasto || empty($gasto['recibo_path'])) {
+            return redirect()->to('/gastos')->with('error', 'Recibo no encontrado.');
+        }
+
+        $userId = session()->get('userId');
+        $grupoModel = new Grupo();
+        if (!$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este recibo.');
+        }
+
+        $path = WRITEPATH . $gasto['recibo_path'];
+        if (!file_exists($path)) {
+            return redirect()->to('/gastos')->with('error', 'El archivo del recibo ya no existe.');
+        }
+
+        $mime = $gasto['recibo_mime'] ?? mime_content_type($path);
+        return $this->response->download($path, null)->setContentType($mime);
+    }
+
+    public function deleteRecibo(int $id)
+    {
+        $gastoModel = new Gasto();
+        $gasto = $gastoModel->find($id);
+        if (!$gasto) {
+            return redirect()->to('/gastos')->with('error', 'Gasto no encontrado.');
+        }
+
+        $userId = session()->get('userId');
+        $grupoModel = new Grupo();
+        $grupo = $grupoModel->find($gasto['grupo_id']);
+        if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+        }
+
+        $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
+        $errorPermiso = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', $userId, (int) $gasto['pagador_id']);
+        if ($errorPermiso) {
+            return redirect()->to('/gastos')->with('error', $errorPermiso);
+        }
+
+        if (!empty($gasto['recibo_path'])) {
+            $path = WRITEPATH . $gasto['recibo_path'];
+            if (file_exists($path)) {
+                unlink($path);
+            }
+        }
+
+        $gastoModel->update($id, [
+            'recibo_path' => null,
+            'recibo_nombre' => null,
+            'recibo_mime' => null,
+            'recibo_size' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Recibo eliminado correctamente.');
     }
 }
