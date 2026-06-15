@@ -32,63 +32,13 @@
                     <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                    <!-- Desktop actions -->
-                    <div class="d-none d-md-flex gap-2 w-100">
-                        <?php if ($permisos['puede_crear_gasto']): ?>
-                            <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
-                        <?php endif; ?>
-                        <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info flex-fill">Balance</a>
-                        <?php if ($permisos['puede_crear_pago']): ?>
-                            <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-success flex-fill">+ Pago</a>
-                        <?php endif; ?>
-                        <?php if ($permisos['puede_editar_grupo']): ?>
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
-                        <?php endif; ?>
-                        <?php if ($permisos['puede_eliminar_grupo']): ?>
-                            <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-inline" id="delete-grupo-d-<?= $grupo['id'] ?>">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="_method" value="DELETE">
-                                <button type="button" class="btn btn-outline-danger btn-sm"
-                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                    data-confirm-title="Eliminar grupo"
-                                    data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
-                                    data-confirm-btn="Eliminar grupo"
-                                    data-confirm-form="delete-grupo-d-<?= $grupo['id'] ?>">Eliminar</button>
-                            </form>
-                        <?php endif; ?>
-                    </div>
-                    <!-- Mobile actions menu -->
-                    <div class="d-md-none dropdown w-100">
-                        <button class="btn btn-primary w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Acciones
-                        </button>
-                        <ul class="dropdown-menu w-100">
-                            <?php if ($permisos['puede_crear_gasto']): ?>
-                                <li><a class="dropdown-item" href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>">+ Gasto</a></li>
-                            <?php endif; ?>
-                            <li><a class="dropdown-item" href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>">Balance</a></li>
-                            <?php if ($permisos['puede_crear_pago']): ?>
-                                <li><a class="dropdown-item" href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id']) ?>">+ Pago</a></li>
-                            <?php endif; ?>
-                            <?php if ($permisos['puede_editar_grupo']): ?>
-                                <li><a class="dropdown-item" href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>">Editar</a></li>
-                            <?php endif; ?>
-                            <?php if ($permisos['puede_eliminar_grupo']): ?>
-                                <li>
-                                    <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" id="delete-grupo-m-<?= $grupo['id'] ?>">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="dropdown-item text-danger"
-                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                            data-confirm-title="Eliminar grupo"
-                                            data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
-                                            data-confirm-btn="Eliminar grupo"
-                                            data-confirm-form="delete-grupo-m-<?= $grupo['id'] ?>">Eliminar</button>
-                                    </form>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
-                    </div>
+                    <?php if ($permisos['puede_crear_gasto']): ?>
+                        <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary flex-fill">+ Gasto</a>
+                    <?php endif; ?>
+                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info flex-fill">Balance</a>
+                    <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro']): ?>
+                        <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-secondary btn-sm">Configurar grupo</a>
+                    <?php endif; ?>
                 </div>
                 <?php if ($grupo['descripcion']): ?>
                     <p class="mt-2 mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
@@ -173,108 +123,13 @@
             </div>
         </div>
 
-        <!-- Miembros (colapsable en mobile, expandido en desktop) -->
+        <!-- Miembros (resumen, sin gestion) -->
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#miembrosCollapse" role="button" aria-expanded="true">
-                <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
-                <?php if ($permisos['puede_agregar_miembro'] && !empty($usuariosDisponibles)): ?>
-                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation()" data-bs-toggle="collapse" data-bs-target="#agregarMiembroForm" aria-expanded="false">
-                        + Agregar
-                    </button>
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span class="fw-medium"><?= count($miembros) ?> miembro(s)</span>
+                <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro']): ?>
+                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Gestionar</a>
                 <?php endif; ?>
-            </div>
-            <div class="collapse show d-md-block" id="miembrosCollapse">
-                <?php if ($permisos['puede_agregar_miembro'] && !empty($usuariosDisponibles)): ?>
-                    <div class="collapse" id="agregarMiembroForm">
-                        <div class="card-body border-bottom">
-                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
-                                <?= csrf_field() ?>
-                                <div class="col-8 col-md-10">
-                                    <select name="user_id" class="form-select" required>
-                                        <option value="">Agregar miembro...</option>
-                                        <?php foreach ($usuariosDisponibles as $u): ?>
-                                            <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </div>
-                                <div class="col-4 col-md-2">
-                                    <button type="submit" class="btn btn-primary w-100">Agregar</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                <?php endif; ?>
-                <!-- Tabla desktop -->
-                <div class="d-none d-md-block">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Rol</th>
-                                    <?php if ($permisos['puede_cambiar_rol'] || $permisos['puede_quitar_miembro']): ?>
-                                        <th>Acciones</th>
-                                    <?php endif; ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($miembros as $miembro): ?>
-                                    <tr>
-                                        <td class="fw-medium"><?= esc($miembro['name']) ?></td>
-                                        <td><span class="badge bg-<?= $miembro['rol'] === 'admin' ? 'warning' : 'secondary' ?>"><?= $miembro['rol'] === 'admin' ? 'Admin' : 'Miembro' ?></span></td>
-                                        <?php if ($permisos['puede_cambiar_rol'] || $permisos['puede_quitar_miembro']): ?>
-                                            <td><?php if ($miembro['user_id'] !== session()->get('userId')): ?>
-                                                <?php if ($permisos['puede_cambiar_rol']): ?>
-                                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post" class="d-inline">
-                                                        <?= csrf_field() ?>
-                                                        <input type="hidden" name="rol" value="<?= $miembro['rol'] === 'admin' ? 'member' : 'admin' ?>">
-                                                        <button type="submit" class="btn btn-sm <?= $miembro['rol'] === 'admin' ? 'btn-outline-secondary' : 'btn-outline-warning' ?>"><?= $miembro['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?></button>
-                                                    </form>
-                                                <?php endif; ?>
-                                                <?php if ($permisos['puede_quitar_miembro']): ?>
-                                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" class="d-inline" id="quitar-miembro-d-<?= $miembro['user_id'] ?>">
-                                                        <?= csrf_field() ?>
-                                                        <input type="hidden" name="_method" value="DELETE">
-                                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitará este usuario del grupo. Si tiene movimientos asociados, el sistema puede impedir la acción." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-d-<?= $miembro['user_id'] ?>">Quitar</button>
-                                                    </form>
-                                                <?php endif; ?>
-                                            <?php endif; ?></td>
-                                        <?php endif; ?>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <!-- Cards mobile -->
-                <div class="d-md-none">
-                    <?php foreach ($miembros as $miembro): ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="fw-medium"><?= esc($miembro['name']) ?></span>
-                                <span class="badge bg-<?= $miembro['rol'] === 'admin' ? 'warning' : 'secondary' ?>"><?= $miembro['rol'] === 'admin' ? 'Admin' : 'Miembro' ?></span>
-                            </div>
-                            <?php if ($miembro['user_id'] !== session()->get('userId') && ($permisos['puede_cambiar_rol'] || $permisos['puede_quitar_miembro'])): ?>
-                                <div class="d-flex gap-2 mt-1">
-                                    <?php if ($permisos['puede_cambiar_rol']): ?>
-                                        <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id'] . '/rol') ?>" method="post" class="flex-fill">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="rol" value="<?= $miembro['rol'] === 'admin' ? 'member' : 'admin' ?>">
-                                            <button type="submit" class="btn btn-sm btn-outline-warning w-100"><?= $miembro['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?></button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <?php if ($permisos['puede_quitar_miembro']): ?>
-                                        <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $miembro['user_id']) ?>" method="post" class="flex-fill" id="quitar-miembro-m-<?= $miembro['user_id'] ?>">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <button type="button" class="btn btn-outline-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitará este usuario del grupo. Si tiene movimientos asociados, el sistema puede impedir la acción." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-m-<?= $miembro['user_id'] ?>">Quitar</button>
-                                        </form>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
             </div>
         </div>
 

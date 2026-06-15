@@ -64,19 +64,19 @@
             </div>
         </div>
 
-        <?php if (isset($grupo)): ?>
+            <?php if (isset($grupo)): ?>
             <div class="card border-0 shadow-sm mt-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="fw-bold mb-1">Miembros</h5>
-                            <p class="text-muted small mb-0">Gestion&aacute; los miembros desde la pantalla de detalle del grupo.</p>
+                            <p class="text-muted small mb-0">Administrá los miembros desde esta secci&oacute;n.</p>
                         </div>
-                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary">Gestionar miembros</a>
+                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary">Ver grupo</a>
                     </div>
                 </div>
             </div>
-        <?php endif; ?>
+            <?php endif; ?>
     </div>
 
 <?= view('partials/_footer') ?>
