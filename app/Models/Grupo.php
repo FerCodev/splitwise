@@ -173,6 +173,15 @@ class Grupo extends Model
         return $porEstado[$estado] ?? null;
     }
 
+    public static function getPermisos(string $rol, string $estado): array
+    {
+        return [
+            'puede_agregar_miembro' => $rol === 'admin' && self::restriccionEstado($estado, 'miembro_create') === null,
+            'puede_cambiar_rol'     => $rol === 'admin' && self::restriccionEstado($estado, 'miembro_role') === null,
+            'puede_quitar_miembro'  => $rol === 'admin' && self::restriccionEstado($estado, 'miembro_delete') === null,
+        ];
+    }
+
     // ---------------------------------------------------------------
     // Gestion de miembros
     // ---------------------------------------------------------------
