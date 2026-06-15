@@ -159,8 +159,7 @@ class Reportes
         )->getResultArray();
         $pagos = $db->query(
             "SELECT p.id, 'pago' AS tipo, COALESCE(p.descripcion, 'Pago') AS descripcion, p.monto, p.fecha,
-                    CONCAT(pag.name, ' pagó a ', rec.name) AS persona, gr.nombre AS grupo
-               FROM pagos p JOIN users pag ON pag.id = p.pagador_id JOIN users rec ON rec.id = p.receptor_id
+                    CONCAT(pag.name, ' pagó a ', rec.name) AS persona, gr.nombre AS grupo rec.id = p.receptor_id
                JOIN grupos gr ON gr.id = p.grupo_id
                WHERE p.grupo_id IN ({$ids}) ORDER BY p.fecha DESC, p.created_at DESC LIMIT ?",
             [$limit]

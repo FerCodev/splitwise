@@ -94,7 +94,9 @@
         </div>
 
         <!-- Evolucion mensual -->
-        <?php if (!empty($evolucion)): ?>
+        <?php if (!empty($evolucion)):
+            $maxEvol = max(array_column($evolucion, 'total'));
+        ?>
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Evoluci&oacute;n mensual</h5>
@@ -107,7 +109,7 @@
                                 <div class="small text-muted"><?= date('M', strtotime($e['mes'] . '-01')) ?></div>
                                 <div class="fw-bold small">$<?= number_format($e['total'], 0) ?></div>
                                 <div class="progress mt-1" style="height:4px">
-                                    <div class="progress-bar bg-primary" style="width:<?= max(5, ($evolucion[0]['total'] > 0 ? $e['total'] / $evolucion[0]['total'] * 100 : 5)) ?>%"></div>
+                                    <div class="progress-bar bg-primary" style="width:<?= max(5, ($maxEvol > 0 ? $e['total'] / $maxEvol * 100 : 5)) ?>%"></div>
                                 </div>
                             </div>
                         </div>

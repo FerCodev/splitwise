@@ -53,7 +53,7 @@
                                 <div class="mobile-card-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <span class="fw-medium"><?= esc($g['nombre']) ?></span>
+                                            <a href="<?= base_url('grupos/' . $g['id'] . '/reportes') ?>" class="fw-medium text-decoration-none"><?= esc($g['nombre']) ?></a>
                                             <span class="text-muted small ms-2"><?= $g['cantidad'] ?> gasto(s)</span>
                                         </div>
                                         <span class="fw-bold text-primary">$<?= number_format($g['total'], 0) ?></span>
@@ -158,8 +158,9 @@
 
         <!-- Filtros (secundarios) -->
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Filtros</h5>
+                <span class="small text-muted d-none d-md-inline">Los filtros aplican al detalle y exportaci&oacute;n. El resumen mensual siempre muestra el mes actual.</span>
             </div>
             <div class="card-body">
                 <form method="get" class="row g-2 align-items-end">
