@@ -30,55 +30,44 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="tipo" class="form-label fw-medium">Tipo</label>
-                        <select class="form-select" id="tipo" name="tipo" required>
-                            <option value="">Seleccionar tipo</option>
-                            <option value="alias" <?= old('tipo', $medio['tipo'] ?? '') === 'alias' ? 'selected' : '' ?>>Alias</option>
-                            <option value="cbu_cvu" <?= old('tipo', $medio['tipo'] ?? '') === 'cbu_cvu' ? 'selected' : '' ?>>CBU/CVU</option>
-                            <option value="link" <?= old('tipo', $medio['tipo'] ?? '') === 'link' ? 'selected' : '' ?>>Link de pago</option>
-                            <option value="otro" <?= old('tipo', $medio['tipo'] ?? '') === 'otro' ? 'selected' : '' ?>>Otro</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="alias" class="form-label fw-medium">Alias</label>
-                        <input type="text" class="form-control" id="alias" name="alias"
-                               value="<?= esc(old('alias', $medio['alias'] ?? '')) ?>"
-                               maxlength="255" placeholder="Ej: fernando.pagos">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="cbu_cvu" class="form-label fw-medium">CBU/CVU</label>
-                        <input type="text" class="form-control" id="cbu_cvu" name="cbu_cvu"
-                               value="<?= esc(old('cbu_cvu', $medio['cbu_cvu'] ?? '')) ?>"
-                               maxlength="255" placeholder="Ej: 0000003100054332186492">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="banco" class="form-label fw-medium">Banco</label>
-                        <input type="text" class="form-control" id="banco" name="banco"
-                               value="<?= esc(old('banco', $medio['banco'] ?? '')) ?>"
-                               maxlength="255" placeholder="Ej: Banco Galicia">
-                    </div>
-
-                    <div class="mb-3">
                         <label for="titular" class="form-label fw-medium">Titular</label>
                         <input type="text" class="form-control" id="titular" name="titular"
                                value="<?= esc(old('titular', $medio['titular'] ?? '')) ?>"
-                               maxlength="255" placeholder="Ej: Juan Pérez">
+                               maxlength="255" required placeholder="Nombre del titular">
                     </div>
 
                     <div class="mb-3">
-                        <label for="payment_link" class="form-label fw-medium">Link de pago <small class="text-muted">(URL)</small></label>
+                        <label for="cbu_cvu" class="form-label fw-medium">CBU/CVU <small class="text-muted">(requerido si no hay alias)</small></label>
+                        <input type="text" class="form-control" id="cbu_cvu" name="cbu_cvu"
+                               value="<?= esc(old('cbu_cvu', $medio['cbu_cvu'] ?? '')) ?>"
+                               maxlength="255" placeholder="0000000000000000000000">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="alias" class="form-label fw-medium">Alias <small class="text-muted">(requerido si no hay CBU/CVU)</small></label>
+                        <input type="text" class="form-control" id="alias" name="alias"
+                               value="<?= esc(old('alias', $medio['alias'] ?? '')) ?>"
+                               maxlength="255" placeholder="alias.mercadopago">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="banco" class="form-label fw-medium">Banco <small class="text-muted">(opcional)</small></label>
+                        <input type="text" class="form-control" id="banco" name="banco"
+                               value="<?= esc(old('banco', $medio['banco'] ?? '')) ?>"
+                               maxlength="255" placeholder="Ej: Santander, Galicia">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="payment_link" class="form-label fw-medium">Link de pago <small class="text-muted">(opcional)</small></label>
                         <input type="url" class="form-control" id="payment_link" name="payment_link"
                                value="<?= esc(old('payment_link', $medio['payment_link'] ?? '')) ?>"
-                               maxlength="500" placeholder="Ej: https://mpago.la/xxxxx">
+                               maxlength="500" placeholder="https://mpago.li/...">
                     </div>
 
                     <div class="d-flex gap-2">
                         <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-secondary flex-fill">Cancelar</a>
                         <button type="submit" class="btn btn-primary flex-fill">
-                            <?= isset($medio) ? 'Guardar Cambios' : 'Crear medio de cobro' ?>
+                            <?= isset($medio) ? 'Guardar Cambios' : 'Crear Medio' ?>
                         </button>
                     </div>
                 </form>

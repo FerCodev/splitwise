@@ -254,12 +254,21 @@ class Grupos extends BaseController
             return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
         }
 
+        $grupoModel = new Grupo();
         $gastoModel = new \App\Models\Gasto();
         $deudas = $gastoModel->getDeudasByGrupo($id);
+        $miembros = $grupoModel->getMiembros($id);
+        $permisos = $grupoModel->getPermisos($acceso['rol'], $acceso['grupo']['estado']);
+        $usuariosDisponibles = $permisos['puede_agregar_miembro']
+            ? $grupoModel->getUsuariosDisponibles($id)
+            : [];
 
         return view('grupos/form', [
             'grupo' => $acceso['grupo'],
             'deudas' => $deudas,
+            'miembros' => $miembros,
+            'permisos' => $permisos,
+            'usuariosDisponibles' => $usuariosDisponibles,
         ]);
     }
 
