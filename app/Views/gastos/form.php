@@ -45,7 +45,8 @@
                                value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
                     </div>
 
-                    <!-- Resumen de divisi&oacute;n -->
+                    <!-- Resumen de divisi&oacute;n (solo en nuevo gasto) -->
+                    <?php if (!isset($gasto)): ?>
                     <?php
                         $pagEsVos = true;
                         $pagNombre = 'vos';
@@ -64,7 +65,7 @@
                         }
                         $tieneGrupo = !empty($grupoId);
                     ?>
-                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>" style="cursor:pointer" onclick="$emit('openDivisionModal')" data-bs-toggle="modal" data-bs-target="#divisionModal">
+                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#divisionModal">
                         Pagado por <strong><?= $pagEsVos ? 'vos' : esc($pagNombre) ?></strong> y dividido a partes iguales entre <strong><?= $cantP ?> participante(s)</strong>.
                         <span class="text-primary ms-1">Editar</span>
                     </div>
@@ -73,6 +74,8 @@
                         Seleccion&aacute; un grupo para ver el resumen de divisi&oacute;n.
                     </div>
                     <?php endif; ?>
+
+                    <?php endif; ?><!-- fin division solo nuevo gasto -->
 
                     <!-- M&aacute;s opciones (colapsable en mobile) -->
                     <div class="d-md-none mb-3">
@@ -310,5 +313,7 @@
         });
     </script>
     <?php endif; ?>
+<?php if (!isset($gasto)): ?>
 <?= view('partials/_division_modal') ?>
+<?php endif; ?>
 <?= view('partials/_footer') ?>

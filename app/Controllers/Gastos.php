@@ -98,7 +98,7 @@ class Gastos extends BaseController
         }
 
         $grupoId = (int) $this->request->getPost('grupo_id');
-        $pagadorId = session()->get('userId');
+        $pagadorId = (int) ($this->request->getPost('pagador_id') ?: session()->get('userId'));
         $monto = (float) $this->request->getPost('monto');
         $participantesIds = $this->request->getPost('participantes');
 
@@ -122,6 +122,10 @@ class Gastos extends BaseController
         $miembros = $grupoModel->getMiembros($grupoId);
         $miembrosIds = array_column($miembros, 'user_id');
 
+        if (!in_array($pagadorId, $miembrosIds)) {
+            return redirect()->back()->withInput()->with('errors', ['pagador_id' => 'El pagador no pertenece al grupo.']);
+        }
+
         foreach ($participantesIds as $pid) {
             if (!in_array((int) $pid, $miembrosIds)) {
                 return redirect()->back()->withInput()->with('errors', ['participantes' => 'Uno de los participantes no pertenece al grupo.']);
@@ -144,36 +148,79 @@ class Gastos extends BaseController
         $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
         $divisionValores = $this->request->getPost('division_valores') ?? [];
 
-        $gastoId = $gastoModel->insert([
-            'grupo_id' => $grupoId,
-            'pagador_id' => $pagadorId,
-            'descripcion' => $this->request->getPost('descripcion'),
-            'monto' => $monto,
-            'fecha' => $this->request->getPost('fecha'),
-            'categoria_id' => $categoriaId,
-            'division_tipo' => $divisionTipo,
-        ]);
+        if ($divisionTipo !== 'igualitario') {
+            $valores = array_values($divisionValores);
+            $totalValor = array_sum(array_column($valores, 'valor'));
 
-        $participanteModel = new GastoParticipante();
-        foreach ($participantesIds as $i => $pid) {
-            $asignado = $porcion;
-            if ($i === array_key_last($participantesIds)) {
-                $asignado += $diferencias;
+            if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'La suma de montos fijos no coincide con el total del gasto.']);
             }
-            $participanteModel->insert([
-                'gasto_id' => $gastoId,
-                'user_id' => $pid,
-                'monto_asignado' => round($asignado, 2),
+            if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'Los porcentajes deben sumar 100%.']);
+            }
+            if ($divisionTipo === 'partes' && $totalValor < 1) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'Debe haber al menos 1 parte en total.']);
+            }
+            if ($divisionTipo === 'ajuste') {
+                if (abs($totalValor) > 0.01) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Los ajustes deben sumar $0.']);
+                }
+                $porcionBase = round($monto / count($participantesIds), 2);
+                foreach ($valores as $v) {
+                    $calc = round($porcionBase + (float) ($v['valor'] ?? 0), 2);
+                    if ($calc < 0) {
+                        return redirect()->back()->withInput()->with('errors', ['division' => 'Un ajuste gener&oacute; un monto negativo para un participante.']);
+                    }
+                }
+            }
+        }
+
+        $db = db_connect();
+        $db->transBegin();
+
+        try {
+            $gastoId = $gastoModel->insert([
+                'grupo_id' => $grupoId,
+                'pagador_id' => $pagadorId,
+                'descripcion' => $this->request->getPost('descripcion'),
+                'monto' => $monto,
+                'fecha' => $this->request->getPost('fecha'),
+                'categoria_id' => $categoriaId,
+                'division_tipo' => $divisionTipo,
             ]);
-        }
 
-        $valoresMap = [];
-        if (!empty($divisionValores) && is_array($divisionValores)) {
-            foreach ($divisionValores as $dv) {
-                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            if (!$gastoId) {
+                throw new \RuntimeException('Error al crear el gasto.');
             }
+
+            $participanteModel = new GastoParticipante();
+            foreach ($participantesIds as $i => $pid) {
+                $asignado = $porcion;
+                if ($i === array_key_last($participantesIds)) {
+                    $asignado += $diferencias;
+                }
+                if (!$participanteModel->insert([
+                    'gasto_id' => $gastoId,
+                    'user_id' => $pid,
+                    'monto_asignado' => round($asignado, 2),
+                ])) {
+                    throw new \RuntimeException('Error al insertar participante.');
+                }
+            }
+
+            $valoresMap = [];
+            if (!empty($divisionValores) && is_array($divisionValores)) {
+                foreach ($divisionValores as $dv) {
+                    $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+                }
+            }
+            GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds, $divisionTipo, $valoresMap);
+
+            $db->transCommit();
+        } catch (\Exception $e) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', 'Error al crear el gasto. Intentalo de nuevo.');
         }
-        GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds, $divisionTipo, $valoresMap);
 
         return redirect()->to('/grupos/' . $grupoId)->with('success', 'Gasto creado correctamente.');
     }

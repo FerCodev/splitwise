@@ -143,20 +143,14 @@ function aplicarDivision() {
     var container = document.getElementById('divisionValoresContainer');
     container.innerHTML = '';
 
+    var index = 0;
     rows.forEach(function(row) {
         var uid = row.dataset.uid;
         var inp = row.querySelector('.division-valor');
         var v = inp.value.replace(',', '.') || '0';
-        var hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.name = 'division_valores[][user_id]';
-        hidden.value = uid;
-        container.appendChild(hidden);
-        var hidden2 = document.createElement('input');
-        hidden2.type = 'hidden';
-        hidden2.name = 'division_valores[][valor]';
-        hidden2.value = v;
-        container.appendChild(hidden2);
+        container.innerHTML += '<input type="hidden" name="division_valores[' + index + '][user_id]" value="' + uid + '">';
+        container.innerHTML += '<input type="hidden" name="division_valores[' + index + '][valor]" value="' + v + '">';
+        index++;
     });
 
     // Actualizar resumen
