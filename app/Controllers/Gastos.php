@@ -267,14 +267,23 @@ class Gastos extends BaseController
                 }
             }
 
-            $valoresMap = [];
+            $divisionModel = new GastoDivision();
+            $valoresRaw = [];
             if (!empty($divisionValores) && is_array($divisionValores)) {
                 foreach ($divisionValores as $dv) {
-                    $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+                    $valoresRaw[(int) $dv['user_id']] = (float) $dv['valor'];
                 }
             }
-            if (!GastoDivision::generarDivisionesIgualitarias($gastoId, $monto, $participantesIds, $divisionTipo, $valoresMap)) {
-                throw new \RuntimeException('Error al insertar divisiones.');
+            foreach ($participantesIds as $pid) {
+                if (!$divisionModel->insert([
+                    'gasto_id' => $gastoId,
+                    'user_id' => $pid,
+                    'tipo' => $divisionTipo,
+                    'valor' => $valoresRaw[$pid] ?? null,
+                    'monto_calculado' => $participantesMonto[$pid],
+                ])) {
+                    throw new \RuntimeException('Error al insertar division.');
+                }
             }
 
             $db->transCommit();
@@ -556,26 +565,51 @@ class Gastos extends BaseController
             $updateData = array_merge($updateData, $reciboData);
         }
 
-        $gastoModel->update($id, $updateData);
+        $db = db_connect();
+        $db->transBegin();
 
-        $participanteModel = new GastoParticipante();
-        $participanteModel->where('gasto_id', $id)->delete();
+        try {
+            $gastoModel->update($id, $updateData);
 
-        foreach ($participantesIds as $pid) {
-            $participanteModel->insert([
-                'gasto_id' => $id,
-                'user_id' => $pid,
-                'monto_asignado' => $participantesMonto[$pid],
-            ]);
-        }
+            $participanteModel = new GastoParticipante();
+            $participanteModel->where('gasto_id', $id)->delete();
 
-        $valoresMap = [];
-        if (!empty($divisionValores) && is_array($divisionValores)) {
-            foreach ($divisionValores as $dv) {
-                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            foreach ($participantesIds as $pid) {
+                if (!$participanteModel->insert([
+                    'gasto_id' => $id,
+                    'user_id' => $pid,
+                    'monto_asignado' => $participantesMonto[$pid],
+                ])) {
+                    throw new \RuntimeException('Error al insertar participante.');
+                }
             }
+
+            $divisionModel = new GastoDivision();
+            $divisionModel->where('gasto_id', $id)->delete();
+
+            $valoresRaw = [];
+            if (!empty($divisionValores) && is_array($divisionValores)) {
+                foreach ($divisionValores as $dv) {
+                    $valoresRaw[(int) $dv['user_id']] = (float) $dv['valor'];
+                }
+            }
+            foreach ($participantesIds as $pid) {
+                if (!$divisionModel->insert([
+                    'gasto_id' => $id,
+                    'user_id' => $pid,
+                    'tipo' => $divisionTipo,
+                    'valor' => $valoresRaw[$pid] ?? null,
+                    'monto_calculado' => $participantesMonto[$pid],
+                ])) {
+                    throw new \RuntimeException('Error al insertar division.');
+                }
+            }
+
+            $db->transCommit();
+        } catch (\Exception $e) {
+            $db->transRollback();
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar el gasto. Intentalo de nuevo.');
         }
-        GastoDivision::generarDivisionesIgualitarias($id, $monto, $participantesIds, $divisionTipo, $valoresMap);
 
         return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', 'Gasto actualizado correctamente.');
     }
