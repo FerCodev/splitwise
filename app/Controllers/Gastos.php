@@ -146,53 +146,9 @@ class Gastos extends BaseController
             $categoriaId = $categoriaModel->getOtrosId();
         }
 
-        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje'];
-        if (!in_array($divisionTipo, $tiposValidos, true)) {
-            return redirect()->back()->withInput()->with('errors', ['division' => 'Tipo de divisi&oacute;n inv&aacute;lido.']);
-        }
-
-        if ($divisionTipo !== 'igualitario') {
-            $valores = array_values($divisionValores);
-            $totalValor = 0;
-
-            if (count($valores) !== count($participantesIds)) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'La cantidad de valores de divisi&oacute;n no coincide con los participantes.']);
-            }
-
-            $valUserIds = array_map('intval', array_column($valores, 'user_id'));
-            $diff = array_merge(
-                array_diff($valUserIds, $participantesIds),
-                array_diff($participantesIds, $valUserIds)
-            );
-            if (!empty($diff)) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'Los participantes en la divisi&oacute;n no coinciden con los seleccionados.']);
-            }
-
-            $valoresNormalizados = [];
-            foreach ($valores as $v) {
-                if (empty($v['user_id'])) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Falta user_id en un valor de divisi&oacute;n.']);
-                }
-                if (!isset($v['valor']) || !is_numeric($v['valor'])) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Valor de divisi&oacute;n inv&aacute;lido para un participante.']);
-                }
-                if (!in_array((int) $v['user_id'], $miembrosIds)) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
-                }
-                $valorNumerico = (float) $v['valor'];
-                if ($valorNumerico < 0) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos.']);
-                }
-                $valoresNormalizados[] = ['user_id' => (int) $v['user_id'], 'valor' => $valorNumerico];
-                $totalValor += $valorNumerico;
-            }
-
-            if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'La suma de montos fijos no coincide con el total del gasto.']);
-            }
-            if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'Los porcentajes deben sumar 100%.']);
-            }
+        $errorValidacion = $this->validarDivision($divisionTipo, $monto, $participantesIds, $divisionValores, $miembrosIds);
+        if ($errorValidacion !== null) {
+            return redirect()->back()->withInput()->with('errors', $errorValidacion);
         }
 
         $db = db_connect();
@@ -421,55 +377,13 @@ class Gastos extends BaseController
 
         $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
         $divisionValores = $this->request->getPost('division_valores') ?? [];
-
-        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje'];
-        if (!in_array($divisionTipo, $tiposValidos, true)) {
-            return redirect()->back()->withInput()->with('errors', ['division' => 'Tipo de divisi&oacute;n inv&aacute;lido.']);
-        }
-
-        if ($divisionTipo !== 'igualitario') {
-            $valores = array_values($divisionValores);
-            $totalValor = 0;
-
-            if (count($valores) !== count($participantesIds)) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'La cantidad de valores de divisi&oacute;n no coincide con los participantes.']);
-            }
-
-            $valUserIds = array_map('intval', array_column($valores, 'user_id'));
-            $diff = array_merge(
-                array_diff($valUserIds, $participantesIds),
-                array_diff($participantesIds, $valUserIds)
-            );
-            if (!empty($diff)) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'Los participantes en la divisi&oacute;n no coinciden con los seleccionados.']);
-            }
-
-            foreach ($valores as $v) {
-                if (empty($v['user_id'])) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Falta user_id en un valor de divisi&oacute;n.']);
-                }
-                if (!isset($v['valor']) || !is_numeric($v['valor'])) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Valor de divisi&oacute;n inv&aacute;lido para un participante.']);
-                }
-                if (!in_array((int) $v['user_id'], $miembrosIds)) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
-                }
-                $valorNumerico = (float) $v['valor'];
-                if ($valorNumerico < 0) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos.']);
-                }
-                $totalValor += $valorNumerico;
-            }
-
-            if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'La suma de montos fijos no coincide con el total del gasto.']);
-            }
-            if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'Los porcentajes deben sumar 100%.']);
-            }
-        }
-
         $participantesIds = array_unique(array_map('intval', $participantesIds));
+
+        $errorValidacion = $this->validarDivision($divisionTipo, $monto, $participantesIds, $divisionValores, $miembrosIds);
+        if ($errorValidacion !== null) {
+            return redirect()->back()->withInput()->with('errors', $errorValidacion);
+        }
+
         $participantesMonto = Gasto::calcularMontosDivision($divisionTipo, $monto, $participantesIds, $divisionValores);
 
         $updateData = [
@@ -694,5 +608,59 @@ class Gastos extends BaseController
         ]);
 
         return redirect()->back()->with('success', 'Recibo eliminado correctamente.');
+    }
+
+    private function validarDivision(string $divisionTipo, float $monto, array $participantesIds, array $divisionValores, array $miembrosIds): ?array
+    {
+        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje'];
+        if (!in_array($divisionTipo, $tiposValidos, true)) {
+            return ['division' => 'Tipo de divisi&oacute;n inv&aacute;lido.'];
+        }
+
+        if ($divisionTipo === 'igualitario') {
+            return null;
+        }
+
+        $valores = array_values($divisionValores);
+        $totalValor = 0;
+
+        if (count($valores) !== count($participantesIds)) {
+            return ['division' => 'La cantidad de valores de divisi&oacute;n no coincide con los participantes.'];
+        }
+
+        $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+        $diff = array_merge(
+            array_diff($valUserIds, $participantesIds),
+            array_diff($participantesIds, $valUserIds)
+        );
+        if (!empty($diff)) {
+            return ['division' => 'Los participantes en la divisi&oacute;n no coinciden con los seleccionados.'];
+        }
+
+        foreach ($valores as $v) {
+            if (empty($v['user_id'])) {
+                return ['division' => 'Falta user_id en un valor de divisi&oacute;n.'];
+            }
+            if (!isset($v['valor']) || !is_numeric($v['valor'])) {
+                return ['division' => 'Valor de divisi&oacute;n inv&aacute;lido para un participante.'];
+            }
+            if (!in_array((int) $v['user_id'], $miembrosIds)) {
+                return ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.'];
+            }
+            $valorNumerico = (float) $v['valor'];
+            if ($valorNumerico < 0) {
+                return ['division' => 'No se permiten valores negativos.'];
+            }
+            $totalValor += $valorNumerico;
+        }
+
+        if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
+            return ['division' => 'La suma de montos fijos no coincide con el total del gasto.'];
+        }
+        if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
+            return ['division' => 'Los porcentajes deben sumar 100%.'];
+        }
+
+        return null;
     }
 }
