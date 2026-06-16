@@ -166,6 +166,7 @@
                     <h5 class="fw-bold mb-3 mt-2">Actividad reciente</h5>
                     <?php foreach ($movimientos as $m): ?>
                         <?php if ($m['tipo'] === 'gasto'): ?>
+                            <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none">
                             <div class="card border-0 shadow-sm mb-2">
                                 <div class="card-body py-2 px-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -182,7 +183,9 @@
                                     </div>
                                 </div>
                             </div>
+                            </a>
                         <?php else: ?>
+                            <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
                             <div class="card border-0 shadow-sm mb-2">
                                 <div class="card-body py-2 px-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -198,6 +201,7 @@
                                     </div>
                                 </div>
                             </div>
+                            </a>
                         <?php endif; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>

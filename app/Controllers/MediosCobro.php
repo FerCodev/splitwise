@@ -10,7 +10,7 @@ class MediosCobro extends BaseController
     {
         $userId = session()->get('userId');
         $model = new UserPaymentMethod();
-        $medios = $model->getAllByUser($userId);
+        $medios = $model->where('user_id', $userId)->orderBy('favorito', 'DESC')->orderBy('nombre', 'ASC')->findAll();
 
         return view('mis-medios/index', [
             'medios' => $medios,
@@ -26,11 +26,10 @@ class MediosCobro extends BaseController
     {
         $rules = [
             'nombre' => 'required|min_length[2]|max_length[255]',
-            'tipo' => 'required|in_list[alias,cbu_cvu,link,otro]',
+            'titular' => 'required|max_length[255]',
             'alias' => 'permit_empty|max_length[255]',
             'cbu_cvu' => 'permit_empty|max_length[255]',
             'banco' => 'permit_empty|max_length[255]',
-            'titular' => 'permit_empty|max_length[255]',
             'payment_link' => 'permit_empty|max_length[500]|valid_url_strict',
         ];
 
@@ -42,16 +41,16 @@ class MediosCobro extends BaseController
         $cbuCvu = $this->request->getPost('cbu_cvu');
         $paymentLink = $this->request->getPost('payment_link');
 
-        if (empty($alias) && empty($cbuCvu) && empty($paymentLink)) {
+        if (empty($alias) && empty($cbuCvu)) {
             return redirect()->back()->withInput()->with('errors', [
-                'alias' => 'Debe proporcionar al menos uno: Alias, CBU/CVU o Link de pago.',
+                'alias' => 'Debe proporcionar al menos un Alias o CBU/CVU.',
             ]);
         }
 
         $model = new UserPaymentMethod();
         $model->insert([
             'user_id' => session()->get('userId'),
-            'tipo' => $this->request->getPost('tipo'),
+            'tipo' => $this->request->getPost('tipo') ?: 'otro',
             'nombre' => $this->request->getPost('nombre'),
             'alias' => $alias,
             'cbu_cvu' => $cbuCvu,
@@ -70,11 +69,13 @@ class MediosCobro extends BaseController
         $model = new UserPaymentMethod();
         $medio = $model->find($id);
 
-        if (!$medio || (int) $medio['user_id'] !== session()->get('userId')) {
-            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio de cobro no encontrado.');
+        if (!$medio || (int) $medio['user_id'] !== (int) session()->get('userId')) {
+            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio no encontrado.');
         }
 
-        return view('mis-medios/form', ['medio' => $medio]);
+        return view('mis-medios/form', [
+            'medio' => $medio,
+        ]);
     }
 
     public function update(int $id)
@@ -82,17 +83,16 @@ class MediosCobro extends BaseController
         $model = new UserPaymentMethod();
         $medio = $model->find($id);
 
-        if (!$medio || (int) $medio['user_id'] !== session()->get('userId')) {
-            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio de cobro no encontrado.');
+        if (!$medio || (int) $medio['user_id'] !== (int) session()->get('userId')) {
+            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio no encontrado.');
         }
 
         $rules = [
             'nombre' => 'required|min_length[2]|max_length[255]',
-            'tipo' => 'required|in_list[alias,cbu_cvu,link,otro]',
+            'titular' => 'required|max_length[255]',
             'alias' => 'permit_empty|max_length[255]',
             'cbu_cvu' => 'permit_empty|max_length[255]',
             'banco' => 'permit_empty|max_length[255]',
-            'titular' => 'permit_empty|max_length[255]',
             'payment_link' => 'permit_empty|max_length[500]|valid_url_strict',
         ];
 
@@ -104,14 +104,14 @@ class MediosCobro extends BaseController
         $cbuCvu = $this->request->getPost('cbu_cvu');
         $paymentLink = $this->request->getPost('payment_link');
 
-        if (empty($alias) && empty($cbuCvu) && empty($paymentLink)) {
+        if (empty($alias) && empty($cbuCvu)) {
             return redirect()->back()->withInput()->with('errors', [
-                'alias' => 'Debe proporcionar al menos uno: Alias, CBU/CVU o Link de pago.',
+                'alias' => 'Debe proporcionar al menos un Alias o CBU/CVU.',
             ]);
         }
 
         $model->update($id, [
-            'tipo' => $this->request->getPost('tipo'),
+            'tipo' => $this->request->getPost('tipo') ?: 'otro',
             'nombre' => $this->request->getPost('nombre'),
             'alias' => $alias,
             'cbu_cvu' => $cbuCvu,
@@ -128,8 +128,8 @@ class MediosCobro extends BaseController
         $model = new UserPaymentMethod();
         $medio = $model->find($id);
 
-        if (!$medio || (int) $medio['user_id'] !== session()->get('userId')) {
-            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio de cobro no encontrado.');
+        if (!$medio || (int) $medio['user_id'] !== (int) session()->get('userId')) {
+            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio no encontrado.');
         }
 
         $model->delete($id);
@@ -142,18 +142,13 @@ class MediosCobro extends BaseController
         $model = new UserPaymentMethod();
         $medio = $model->find($id);
 
-        if (!$medio || (int) $medio['user_id'] !== session()->get('userId')) {
-            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio de cobro no encontrado.');
+        if (!$medio || (int) $medio['user_id'] !== (int) session()->get('userId')) {
+            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio no encontrado.');
         }
 
-        $nuevoEstado = (int) $medio['activo'] ? 0 : 1;
-        $model->update($id, ['activo' => $nuevoEstado]);
+        $model->update($id, ['activo' => $medio['activo'] ? 0 : 1]);
 
-        $mensaje = $nuevoEstado
-            ? 'Medio de cobro activado correctamente.'
-            : 'Medio de cobro desactivado correctamente.';
-
-        return redirect()->to('/mis-medios-de-cobro')->with('success', $mensaje);
+        return redirect()->to('/mis-medios-de-cobro')->with('success', 'Estado actualizado.');
     }
 
     public function favorito(int $id)
@@ -161,8 +156,8 @@ class MediosCobro extends BaseController
         $model = new UserPaymentMethod();
         $medio = $model->find($id);
 
-        if (!$medio || (int) $medio['user_id'] !== session()->get('userId')) {
-            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio de cobro no encontrado.');
+        if (!$medio || (int) $medio['user_id'] !== (int) session()->get('userId')) {
+            return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio no encontrado.');
         }
 
         if (!(int) $medio['activo']) {

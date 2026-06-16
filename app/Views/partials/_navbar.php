@@ -52,7 +52,7 @@
     </div>
 </nav>
 
-<!-- Header offcanvas menu (mobile) -->
+<!-- Header offcanvas menu (mobile, secundario rapido) -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="headerMenu" aria-label="Men&uacute; principal">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Men&uacute;</h5>
@@ -60,8 +60,6 @@
     </div>
     <div class="offcanvas-body">
         <div class="list-group list-group-flush">
-            <a href="<?= base_url('perfil') ?>" class="list-group-item list-group-item-action">Mi perfil</a>
-            <a href="<?= base_url('reportes') ?>" class="list-group-item list-group-item-action">Reportes</a>
             <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
             <button type="button" class="list-group-item list-group-item-action" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
                 Resumen
@@ -88,13 +86,13 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
         <span>Perfil</span>
     </a>
-    <button class="bottom-tab-item" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-label="M&aacute;s">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
-        <span>M&aacute;s</span>
-    </button>
+    <a href="<?= base_url('reportes') ?>" class="bottom-tab-item <?= tabActive('reportes', $current) ?>">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h7l.793.793a.5.5 0 0 1 .353.146L11.5 2.5h3A1.5 1.5 0 0 1 16 4v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5zM1.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5h-3.5l-1-1H1.5z"/><path d="M5 6.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.m0 2a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.m0 2a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/></svg>
+        <span>Reportes</span>
+    </a>
 </nav>
 
-<!-- Mobile offcanvas menu -->
+<!-- Mobile offcanvas menu (secundario) -->
 <div class="offcanvas offcanvas-bottom" tabindex="-1" id="mobileMenu" aria-label="Men&uacute; mobile">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Men&uacute;</h5>
@@ -102,7 +100,6 @@
     </div>
     <div class="offcanvas-body">
         <div class="list-group list-group-flush">
-            <a href="<?= base_url('reportes') ?>" class="list-group-item list-group-item-action">Reportes</a>
             <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action">Pagos</a>
             <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
             <?php if ($isAdmin): ?>
