@@ -136,43 +136,7 @@ class Gastos extends BaseController
         $divisionValores = $this->request->getPost('division_valores') ?? [];
 
         $participantesIds = array_unique(array_map('intval', $participantesIds));
-        $participantesMonto = [];
-
-        if ($divisionTipo === 'monto_fijo' && !empty($divisionValores)) {
-            $valoresMap = [];
-            foreach ($divisionValores as $dv) {
-                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
-            }
-            foreach ($participantesIds as $uid) {
-                $participantesMonto[$uid] = round($valoresMap[$uid] ?? 0, 2);
-            }
-        } elseif ($divisionTipo === 'porcentaje' && !empty($divisionValores)) {
-            $valoresMap = [];
-            foreach ($divisionValores as $dv) {
-                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
-            }
-            $totalCalc = 0;
-            foreach ($participantesIds as $i => $uid) {
-                $calc = round($monto * ($valoresMap[$uid] ?? 0) / 100, 2);
-                $participantesMonto[$uid] = $calc;
-                $totalCalc += $calc;
-            }
-            $diff = round($monto - $totalCalc, 2);
-            if (abs($diff) > 0.001 && !empty($participantesIds)) {
-                $lastUid = end($participantesIds);
-                $participantesMonto[$lastUid] = round($participantesMonto[$lastUid] + $diff, 2);
-            }
-        } else {
-            $porcion = round($monto / count($participantesIds), 2);
-            $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
-            foreach ($participantesIds as $i => $uid) {
-                $asignado = $porcion;
-                if ($i === array_key_last($participantesIds)) {
-                    $asignado += $diferencias;
-                }
-                $participantesMonto[$uid] = round($asignado, 2);
-            }
-        }
+        $participantesMonto = Gasto::calcularMontosDivision($divisionTipo, $monto, $participantesIds, $divisionValores);
 
         $gastoModel = new Gasto();
         $categoriaModel = model(Categoria::class);
@@ -506,43 +470,7 @@ class Gastos extends BaseController
         }
 
         $participantesIds = array_unique(array_map('intval', $participantesIds));
-        $participantesMonto = [];
-
-        if ($divisionTipo === 'monto_fijo' && !empty($divisionValores)) {
-            $valoresMap = [];
-            foreach ($divisionValores as $dv) {
-                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
-            }
-            foreach ($participantesIds as $uid) {
-                $participantesMonto[$uid] = round($valoresMap[$uid] ?? 0, 2);
-            }
-        } elseif ($divisionTipo === 'porcentaje' && !empty($divisionValores)) {
-            $valoresMap = [];
-            foreach ($divisionValores as $dv) {
-                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
-            }
-            $totalCalc = 0;
-            foreach ($participantesIds as $i => $uid) {
-                $calc = round($monto * ($valoresMap[$uid] ?? 0) / 100, 2);
-                $participantesMonto[$uid] = $calc;
-                $totalCalc += $calc;
-            }
-            $diff = round($monto - $totalCalc, 2);
-            if (abs($diff) > 0.001 && !empty($participantesIds)) {
-                $lastUid = end($participantesIds);
-                $participantesMonto[$lastUid] = round($participantesMonto[$lastUid] + $diff, 2);
-            }
-        } else {
-            $porcion = round($monto / count($participantesIds), 2);
-            $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
-            foreach ($participantesIds as $i => $uid) {
-                $asignado = $porcion;
-                if ($i === array_key_last($participantesIds)) {
-                    $asignado += $diferencias;
-                }
-                $participantesMonto[$uid] = round($asignado, 2);
-            }
-        }
+        $participantesMonto = Gasto::calcularMontosDivision($divisionTipo, $monto, $participantesIds, $divisionValores);
 
         $updateData = [
             'grupo_id' => $grupoIdOriginal,
