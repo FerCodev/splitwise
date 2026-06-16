@@ -133,9 +133,43 @@ class Gastos extends BaseController
         }
 
         $participantesIds = array_unique(array_map('intval', $participantesIds));
-        $porcion = round($monto / count($participantesIds), 2);
+        $participantesMonto = [];
 
-        $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
+        if ($divisionTipo === 'monto_fijo' && !empty($divisionValores)) {
+            $valoresMap = [];
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+            foreach ($participantesIds as $uid) {
+                $participantesMonto[$uid] = round($valoresMap[$uid] ?? 0, 2);
+            }
+        } elseif ($divisionTipo === 'porcentaje' && !empty($divisionValores)) {
+            $valoresMap = [];
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+            $totalCalc = 0;
+            foreach ($participantesIds as $i => $uid) {
+                $calc = round($monto * ($valoresMap[$uid] ?? 0) / 100, 2);
+                $participantesMonto[$uid] = $calc;
+                $totalCalc += $calc;
+            }
+            $diff = round($monto - $totalCalc, 2);
+            if (abs($diff) > 0.001 && !empty($participantesIds)) {
+                $lastUid = end($participantesIds);
+                $participantesMonto[$lastUid] = round($participantesMonto[$lastUid] + $diff, 2);
+            }
+        } else {
+            $porcion = round($monto / count($participantesIds), 2);
+            $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
+            foreach ($participantesIds as $i => $uid) {
+                $asignado = $porcion;
+                if ($i === array_key_last($participantesIds)) {
+                    $asignado += $diferencias;
+                }
+                $participantesMonto[$uid] = round($asignado, 2);
+            }
+        }
 
         $gastoModel = new Gasto();
         $categoriaModel = model(Categoria::class);
@@ -148,7 +182,7 @@ class Gastos extends BaseController
         $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
         $divisionValores = $this->request->getPost('division_valores') ?? [];
 
-        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje', 'partes', 'ajuste'];
+        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje'];
         if (!in_array($divisionTipo, $tiposValidos, true)) {
             return redirect()->back()->withInput()->with('errors', ['division' => 'Tipo de divisi&oacute;n inv&aacute;lido.']);
         }
@@ -182,8 +216,8 @@ class Gastos extends BaseController
                     return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
                 }
                 $valorNumerico = (float) $v['valor'];
-                if ($divisionTipo !== 'ajuste' && $valorNumerico < 0) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos para el modo ' . $divisionTipo . '.']);
+                if ($valorNumerico < 0) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos.']);
                 }
                 $valoresNormalizados[] = ['user_id' => (int) $v['user_id'], 'valor' => $valorNumerico];
                 $totalValor += $valorNumerico;
@@ -194,21 +228,6 @@ class Gastos extends BaseController
             }
             if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
                 return redirect()->back()->withInput()->with('errors', ['division' => 'Los porcentajes deben sumar 100%.']);
-            }
-            if ($divisionTipo === 'partes' && $totalValor < 1) {
-                return redirect()->back()->withInput()->with('errors', ['division' => 'Debe haber al menos 1 parte en total.']);
-            }
-            if ($divisionTipo === 'ajuste') {
-                if (abs($totalValor) > 0.01) {
-                    return redirect()->back()->withInput()->with('errors', ['division' => 'Los ajustes deben sumar $0.']);
-                }
-                $porcionBase = round($monto / count($participantesIds), 2);
-                foreach ($valoresNormalizados as $vn) {
-                    $calc = round($porcionBase + $vn['valor'], 2);
-                    if ($calc < 0) {
-                        return redirect()->back()->withInput()->with('errors', ['division' => 'Un ajuste gener&oacute; un monto negativo para un participante.']);
-                    }
-                }
             }
         }
 
@@ -238,15 +257,11 @@ class Gastos extends BaseController
             }
 
             $participanteModel = new GastoParticipante();
-            foreach ($participantesIds as $i => $pid) {
-                $asignado = $porcion;
-                if ($i === array_key_last($participantesIds)) {
-                    $asignado += $diferencias;
-                }
+            foreach ($participantesIds as $pid) {
                 if (!$participanteModel->insert([
                     'gasto_id' => $gastoId,
                     'user_id' => $pid,
-                    'monto_asignado' => round($asignado, 2),
+                    'monto_asignado' => $participantesMonto[$pid],
                 ])) {
                     throw new \RuntimeException('Error al insertar participante.');
                 }
@@ -335,6 +350,14 @@ class Gastos extends BaseController
         $participantes = $gastoModel->getParticipantes($id);
         $participantesIds = array_column($participantes, 'user_id');
 
+        $gastoDivisiones = model(\App\Models\GastoDivision::class)
+            ->where('gasto_id', $id)
+            ->findAll();
+        $divisionValoresExistentes = [];
+        foreach ($gastoDivisiones as $gd) {
+            $divisionValoresExistentes[(int) $gd['user_id']] = $gd['valor'] ?? '';
+        }
+
         return view('gastos/form', [
             'gasto' => $gasto,
             'rol' => $rol,
@@ -343,6 +366,7 @@ class Gastos extends BaseController
             'miembros' => $miembros,
             'participantesIds' => $participantesIds,
             'categorias' => model(Categoria::class)->getActivas(),
+            'divisionValoresExistentes' => $divisionValoresExistentes,
         ]);
     }
 
@@ -422,6 +446,95 @@ class Gastos extends BaseController
             return redirect()->back()->withInput()->with('error', 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.');
         }
 
+        $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
+        $divisionValores = $this->request->getPost('division_valores') ?? [];
+
+        $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje'];
+        if (!in_array($divisionTipo, $tiposValidos, true)) {
+            return redirect()->back()->withInput()->with('errors', ['division' => 'Tipo de divisi&oacute;n inv&aacute;lido.']);
+        }
+
+        if ($divisionTipo !== 'igualitario') {
+            $valores = array_values($divisionValores);
+            $totalValor = 0;
+
+            if (count($valores) !== count($participantesIds)) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'La cantidad de valores de divisi&oacute;n no coincide con los participantes.']);
+            }
+
+            $valUserIds = array_map('intval', array_column($valores, 'user_id'));
+            $diff = array_merge(
+                array_diff($valUserIds, $participantesIds),
+                array_diff($participantesIds, $valUserIds)
+            );
+            if (!empty($diff)) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'Los participantes en la divisi&oacute;n no coinciden con los seleccionados.']);
+            }
+
+            foreach ($valores as $v) {
+                if (empty($v['user_id'])) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Falta user_id en un valor de divisi&oacute;n.']);
+                }
+                if (!isset($v['valor']) || !is_numeric($v['valor'])) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Valor de divisi&oacute;n inv&aacute;lido para un participante.']);
+                }
+                if (!in_array((int) $v['user_id'], $miembrosIds)) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'Un usuario de la divisi&oacute;n no pertenece al grupo.']);
+                }
+                $valorNumerico = (float) $v['valor'];
+                if ($valorNumerico < 0) {
+                    return redirect()->back()->withInput()->with('errors', ['division' => 'No se permiten valores negativos.']);
+                }
+                $totalValor += $valorNumerico;
+            }
+
+            if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'La suma de montos fijos no coincide con el total del gasto.']);
+            }
+            if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
+                return redirect()->back()->withInput()->with('errors', ['division' => 'Los porcentajes deben sumar 100%.']);
+            }
+        }
+
+        $participantesIds = array_unique(array_map('intval', $participantesIds));
+        $participantesMonto = [];
+
+        if ($divisionTipo === 'monto_fijo' && !empty($divisionValores)) {
+            $valoresMap = [];
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+            foreach ($participantesIds as $uid) {
+                $participantesMonto[$uid] = round($valoresMap[$uid] ?? 0, 2);
+            }
+        } elseif ($divisionTipo === 'porcentaje' && !empty($divisionValores)) {
+            $valoresMap = [];
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+            $totalCalc = 0;
+            foreach ($participantesIds as $i => $uid) {
+                $calc = round($monto * ($valoresMap[$uid] ?? 0) / 100, 2);
+                $participantesMonto[$uid] = $calc;
+                $totalCalc += $calc;
+            }
+            $diff = round($monto - $totalCalc, 2);
+            if (abs($diff) > 0.001 && !empty($participantesIds)) {
+                $lastUid = end($participantesIds);
+                $participantesMonto[$lastUid] = round($participantesMonto[$lastUid] + $diff, 2);
+            }
+        } else {
+            $porcion = round($monto / count($participantesIds), 2);
+            $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
+            foreach ($participantesIds as $i => $uid) {
+                $asignado = $porcion;
+                if ($i === array_key_last($participantesIds)) {
+                    $asignado += $diferencias;
+                }
+                $participantesMonto[$uid] = round($asignado, 2);
+            }
+        }
+
         $updateData = [
             'grupo_id' => $grupoIdOriginal,
             'pagador_id' => $pagadorId,
@@ -429,10 +542,10 @@ class Gastos extends BaseController
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
             'categoria_id' => $categoriaId,
+            'division_tipo' => $divisionTipo,
             'nota' => $this->request->getPost('nota') ?: null,
         ];
 
-        // Si se subi&oacute; un recibo nuevo, eliminar el anterior y actualizar
         if (!empty($reciboData)) {
             if (!empty($gastoExistente['recibo_path'])) {
                 $oldPath = WRITEPATH . $gastoExistente['recibo_path'];
@@ -448,23 +561,23 @@ class Gastos extends BaseController
         $participanteModel = new GastoParticipante();
         $participanteModel->where('gasto_id', $id)->delete();
 
-        $participantesIds = array_unique(array_map('intval', $participantesIds));
-        $porcion = round($monto / count($participantesIds), 2);
-        $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
-
-        foreach ($participantesIds as $i => $pid) {
-            $asignado = $porcion;
-            if ($i === array_key_last($participantesIds)) {
-                $asignado += $diferencias;
-            }
+        foreach ($participantesIds as $pid) {
             $participanteModel->insert([
                 'gasto_id' => $id,
                 'user_id' => $pid,
-                'monto_asignado' => round($asignado, 2),
+                'monto_asignado' => $participantesMonto[$pid],
             ]);
         }
 
-        return redirect()->to('/gastos')->with('success', 'Gasto actualizado correctamente.');
+        $valoresMap = [];
+        if (!empty($divisionValores) && is_array($divisionValores)) {
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+        }
+        GastoDivision::generarDivisionesIgualitarias($id, $monto, $participantesIds, $divisionTipo, $valoresMap);
+
+        return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', 'Gasto actualizado correctamente.');
     }
 
     public function delete(int $id)
