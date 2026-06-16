@@ -132,6 +132,9 @@ class Gastos extends BaseController
             }
         }
 
+        $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
+        $divisionValores = $this->request->getPost('division_valores') ?? [];
+
         $participantesIds = array_unique(array_map('intval', $participantesIds));
         $participantesMonto = [];
 
@@ -178,9 +181,6 @@ class Gastos extends BaseController
         if ($categoriaId <= 0 || !$catValida || !$catValida['activa']) {
             $categoriaId = $categoriaModel->getOtrosId();
         }
-
-        $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
-        $divisionValores = $this->request->getPost('division_valores') ?? [];
 
         $tiposValidos = ['igualitario', 'monto_fijo', 'porcentaje'];
         if (!in_array($divisionTipo, $tiposValidos, true)) {
