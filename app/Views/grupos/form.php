@@ -39,24 +39,34 @@
                         <textarea class="form-control" id="descripcion" name="descripcion" rows="3"><?= esc(old('descripcion', $grupo['descripcion'] ?? '')) ?></textarea>
                     </div>
 
-                    <?php if (!isset($grupo) && !empty($usuarios)): ?>
+                    <?php if (!isset($grupo)): ?>
                         <div class="mb-4">
                             <label class="form-label fw-medium">Miembros iniciales</label>
                             <p class="text-muted small mb-2">Seleccion&aacute; los miembros que quer&eacute;s agregar al grupo. Vos qued&aacute;s como administrador.</p>
-                            <div class="row g-2">
-                                <?php foreach ($usuarios as $u): ?>
-                                    <div class="col-12 col-md-6">
-                                        <div class="form-check">
+                            <?php if (!empty($usuarios)): ?>
+                                <div class="initial-member-list">
+                                    <?php foreach ($usuarios as $u): ?>
+                                        <?php
+                                            $nombre = trim($u['name'] ?? '');
+                                            $inicial = strtoupper(substr($nombre !== '' ? $nombre : ($u['email'] ?? '?'), 0, 1));
+                                        ?>
+                                        <label class="initial-member-option" for="miembro_<?= $u['id'] ?>">
                                             <input class="form-check-input" type="checkbox" name="miembros[]"
                                                    value="<?= $u['id'] ?>" id="miembro_<?= $u['id'] ?>">
-                                            <label class="form-check-label" for="miembro_<?= $u['id'] ?>">
-                                                <?= esc($u['name']) ?>
-                                                <small class="text-muted">&lt;<?= esc($u['email']) ?>&gt;</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
+                                            <span class="initial-member-avatar" aria-hidden="true"><?= esc($inicial) ?></span>
+                                            <span class="initial-member-copy">
+                                                <span class="initial-member-name"><?= esc($u['name']) ?></span>
+                                                <span class="initial-member-email"><?= esc($u['email']) ?></span>
+                                            </span>
+                                        </label>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="initial-member-empty">
+                                    <div class="fw-medium">No hay otros usuarios disponibles</div>
+                                    <div class="text-muted small">Pod&eacute;s crear el grupo y sumar miembros m&aacute;s adelante.</div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endif; ?>
 

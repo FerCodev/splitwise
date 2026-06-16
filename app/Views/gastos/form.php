@@ -39,27 +39,38 @@
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
                     </div>
 
+                    <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>
                     <div class="mb-3">
-                        <label for="fecha" class="form-label fw-medium">Fecha</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha"
-                               value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
+                        <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
+                            M&aacute;s acciones
+                        </button>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
-                        <textarea class="form-control" id="nota" name="nota" rows="2"><?= esc(old('nota', $gasto['nota'] ?? '')) ?></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="recibo" class="form-label fw-medium">Comprobante <small class="text-muted">(opcional, JPG/PNG/WebP/PDF, m&aacute;x 5MB)</small></label>
-                        <input type="file" class="form-control" id="recibo" name="recibo" accept=".jpg,.jpeg,.png,.webp,.pdf">
-                        <?php if (isset($gasto) && !empty($gasto['recibo_nombre'])): ?>
-                            <div class="mt-1 small">
-                                Archivo actual: <?= esc($gasto['recibo_nombre']) ?>
-                                <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="text-primary ms-2" target="_blank">Ver</a>
-                                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="if(confirm('Eliminar recibo?')){fetch('<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>',{method:'DELETE',headers:{'X-CSRF-TOKEN':'<?= csrf_hash() ?>'}}).then(()=>location.reload())}">Eliminar</button>
+                    <div class="collapse <?= $mostrarMasAcciones ? 'show' : '' ?>" id="masAccionesGasto">
+                        <div class="more-actions-panel mb-3">
+                            <div class="mb-3">
+                                <label for="fecha" class="form-label fw-medium">Fecha</label>
+                                <input type="date" class="form-control" id="fecha" name="fecha"
+                                       value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
                             </div>
-                        <?php endif; ?>
+
+                            <div class="mb-3">
+                                <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
+                                <textarea class="form-control" id="nota" name="nota" rows="2"><?= esc(old('nota', $gasto['nota'] ?? '')) ?></textarea>
+                            </div>
+
+                            <div>
+                                <label for="recibo" class="form-label fw-medium">Comprobante <small class="text-muted">(opcional, JPG/PNG/WebP/PDF, m&aacute;x 5MB)</small></label>
+                                <input type="file" class="form-control" id="recibo" name="recibo" accept=".jpg,.jpeg,.png,.webp,.pdf">
+                                <?php if (isset($gasto) && !empty($gasto['recibo_nombre'])): ?>
+                                    <div class="mt-1 small">
+                                        Archivo actual: <?= esc($gasto['recibo_nombre']) ?>
+                                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="text-primary ms-2" target="_blank">Ver</a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="if(confirm('Eliminar recibo?')){fetch('<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>',{method:'DELETE',headers:{'X-CSRF-TOKEN':'<?= csrf_hash() ?>'}}).then(()=>location.reload())}">Eliminar</button>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Grupo -->
@@ -86,6 +97,18 @@
                             <h5 class="mb-0 fw-bold">Divisi&oacute;n del gasto</h5>
                         </div>
                         <div class="card-body">
+                            <?php
+                                $usuarioActualId = (int) session()->get('userId');
+                                $otroMiembro = null;
+                                if (isset($miembros)) {
+                                    foreach ($miembros as $m) {
+                                        if ((int) $m['user_id'] !== $usuarioActualId) {
+                                            $otroMiembro = $m;
+                                            break;
+                                        }
+                                    }
+                                }
+                            ?>
                             <!-- Pagador -->
                             <div class="mb-3">
                                 <label class="form-label fw-medium">Pagado por</label>
@@ -105,57 +128,90 @@
                                 <?php endif; ?>
                             </div>
 
-                            <!-- Modo de division -->
-                            <div class="mb-3">
-                                <label class="form-label fw-medium">Modalidad</label>
-                                <select class="form-select" id="divisionModo" name="division_tipo" onchange="cambiarModoDivision(this.value)">
-                                    <option value="igualitario" <?= old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') === 'igualitario' ? 'selected' : '' ?>>Partes iguales</option>
-                                    <option value="monto_fijo" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'monto_fijo' ? 'selected' : '' ?>>Monto fijo</option>
-                                    <option value="porcentaje" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'porcentaje' ? 'selected' : '' ?>>Porcentaje</option>
-                                </select>
+                            <div class="division-summary mb-3">
+                                <div class="division-summary-title">Por defecto, dividido en partes iguales.</div>
+                                <div id="divisionResumenRapido" class="division-summary-copy">Ingres&aacute; un monto para ver cuánto paga cada uno.</div>
                             </div>
 
-                            <!-- Participantes -->
-                            <div class="mb-2">
-                                <label class="form-label fw-medium">Participantes</label>
-                                <div id="participantesDivision">
-                                    <?php if (isset($miembros)): ?>
-                                        <?php
-                                            $modoActual = old('division_tipo', $gasto['division_tipo'] ?? 'igualitario');
-                                            $divValores = $divisionValoresExistentes ?? [];
-                                        ?>
-                                        <?php foreach ($miembros as $i => $m): $uid = $m['user_id']; ?>
-                                        <div class="d-flex align-items-center gap-2 mb-2 participante-div-row" data-uid="<?= $uid ?>">
-                                            <div class="form-check flex-shrink-0" style="min-width:36px">
+                            <?php if (isset($miembros) && count($miembros) > 0): ?>
+                                <div class="quick-split-list mb-3">
+                                    <button type="button" class="quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
+                                        <span class="quick-split-title">Partes iguales</span>
+                                        <span class="quick-split-copy">Todos participan del gasto.</span>
+                                    </button>
+                                    <button type="button" class="quick-split-option" data-preset="me_paid_others" onclick="aplicarPresetDivision('me_paid_others', this)">
+                                        <span class="quick-split-title">Yo pagu&eacute;, me deben</span>
+                                        <span class="quick-split-copy">Solo los dem&aacute;s consumieron.</span>
+                                    </button>
+                                    <?php if ($otroMiembro): ?>
+                                        <button type="button" class="quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
+                                            <span class="quick-split-title"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
+                                            <span class="quick-split-copy">Dividido en partes iguales.</span>
+                                        </button>
+                                        <button type="button" class="quick-split-option" data-preset="other_paid_me" onclick="aplicarPresetDivision('other_paid_me', this)">
+                                            <span class="quick-split-title">Le debo a <?= esc($otroMiembro['name']) ?></span>
+                                            <span class="quick-split-copy">Solo vos consumiste.</span>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+
+                            <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
+                            <button class="btn btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
+                                M&aacute;s opciones de divisi&oacute;n
+                            </button>
+
+                            <div class="collapse <?= $mostrarOpcionesDivision ? 'show' : '' ?>" id="opcionesDivisionAvanzadas">
+                                <!-- Modo de division -->
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium">Modalidad</label>
+                                    <select class="form-select" id="divisionModo" name="division_tipo" onchange="cambiarModoDivision(this.value)">
+                                        <option value="igualitario" <?= old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') === 'igualitario' ? 'selected' : '' ?>>Partes iguales</option>
+                                        <option value="monto_fijo" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'monto_fijo' ? 'selected' : '' ?>>Monto fijo</option>
+                                        <option value="porcentaje" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'porcentaje' ? 'selected' : '' ?>>Porcentaje</option>
+                                    </select>
+                                </div>
+
+                                <!-- Participantes -->
+                                <div class="mb-2">
+                                    <label class="form-label fw-medium">Participantes</label>
+                                    <div id="participantesDivision">
+                                        <?php if (isset($miembros)): ?>
+                                            <?php
+                                                $modoActual = old('division_tipo', $gasto['division_tipo'] ?? 'igualitario');
+                                                $divValores = $divisionValoresExistentes ?? [];
+                                            ?>
+                                            <?php foreach ($miembros as $i => $m): $uid = $m['user_id']; ?>
+                                            <div class="division-participant-row participante-div-row" data-uid="<?= $uid ?>">
                                                 <input class="form-check-input participante-checkbox" type="checkbox"
                                                        name="participantes[]"
                                                        value="<?= $uid ?>"
                                                        id="participante_<?= $uid ?>"
                                                        <?= isset($participantesIds) && in_array($uid, $participantesIds) ? 'checked' : '' ?>
                                                        onchange="recalcularDivision()">
+                                                <label class="division-participant-name" for="participante_<?= $uid ?>">
+                                                    <?= esc($m['name']) ?>
+                                                </label>
+                                                <input type="text" class="form-control form-control-sm division-valor"
+                                                       data-uid="<?= $uid ?>"
+                                                       value="<?= isset($divValores[$uid]) ? esc((string)$divValores[$uid]) : '' ?>"
+                                                       inputmode="decimal"
+                                                       oninput="recalcularDivision()"
+                                                       style="<?= $modoActual === 'igualitario' ? 'display:none' : '' ?>"
+                                                       placeholder="Valor">
+                                                <span class="division-monto small text-muted">$0,00</span>
                                             </div>
-                                            <label class="form-check-label flex-shrink-0" for="participante_<?= $uid ?>" style="min-width:100px;font-size:14px">
-                                                <?= esc($m['name']) ?>
-                                            </label>
-                                            <input type="text" class="form-control form-control-sm division-valor flex-shrink-0"
-                                                   data-uid="<?= $uid ?>"
-                                                   value="<?= isset($divValores[$uid]) ? esc((string)$divValores[$uid]) : '' ?>"
-                                                   inputmode="decimal"
-                                                   oninput="recalcularDivision()"
-                                                   style="max-width:130px;<?= $modoActual === 'igualitario' ? 'display:none' : '' ?>"
-                                                   placeholder="Valor">
-                                            <span class="division-monto small text-muted" style="min-width:80px">$0,00</span>
-                                        </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <p class="text-muted small mb-0">Seleccion&aacute; un grupo primero.</p>
-                                    <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <p class="text-muted small mb-0">Seleccion&aacute; un grupo primero.</p>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Resultado / Errores -->
-                            <div id="divisionResultado" class="small text-muted mb-1">Ingres&aacute; un monto y seleccion&aacute; participantes para ver la divisi&oacute;n.</div>
-                            <div id="divisionError" class="small text-danger mb-1 d-none"></div>
+                                <!-- Resultado / Errores -->
+                                <div id="divisionResultado" class="small text-muted mb-1">Ingres&aacute; un monto y seleccion&aacute; participantes para ver la divisi&oacute;n.</div>
+                                <div id="divisionError" class="small text-danger mb-1 d-none"></div>
+                            </div>
 
                             <div id="divisionValoresContainer"></div>
                         </div>
@@ -232,6 +288,63 @@
             }
         }
 
+        var usuarioActualId = '<?= (int) session()->get('userId') ?>';
+        var otroMiembroId = '<?= $otroMiembro['user_id'] ?? '' ?>';
+
+        function setPagador(uid) {
+            var pagador = document.getElementById('pagador_id');
+            if (!pagador || !uid) return;
+            var option = pagador.querySelector('option[value="' + uid + '"]');
+            if (option) {
+                pagador.value = uid;
+            }
+        }
+
+        function setParticipantesPorPreset(preset) {
+            var checkboxes = document.querySelectorAll('.participante-checkbox');
+            checkboxes.forEach(function(cb) {
+                if (preset === 'me_paid_others') {
+                    cb.checked = cb.value !== usuarioActualId;
+                } else if (preset === 'other_paid_me') {
+                    cb.checked = cb.value === usuarioActualId;
+                } else {
+                    cb.checked = true;
+                }
+            });
+
+            var alguno = Array.prototype.some.call(checkboxes, function(cb) { return cb.checked; });
+            if (!alguno) {
+                checkboxes.forEach(function(cb) { cb.checked = true; });
+            }
+        }
+
+        function marcarPresetActivo(button) {
+            document.querySelectorAll('.quick-split-option').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            if (button) {
+                button.classList.add('active');
+            }
+        }
+
+        function aplicarPresetDivision(preset, button) {
+            var modo = document.getElementById('divisionModo');
+            if (modo) {
+                modo.value = 'igualitario';
+                cambiarModoDivision('igualitario');
+            }
+
+            if (preset === 'other_paid_equal' || preset === 'other_paid_me') {
+                setPagador(otroMiembroId);
+            } else {
+                setPagador(usuarioActualId);
+            }
+
+            setParticipantesPorPreset(preset);
+            marcarPresetActivo(button);
+            recalcularDivision();
+        }
+
         function cambiarModoDivision(modo) {
             var rows = document.querySelectorAll('.participante-div-row');
             var inputs = document.querySelectorAll('.division-valor');
@@ -250,6 +363,9 @@
                     inp.placeholder = labels[modo] || 'Valor';
                 }
             });
+            if (modo !== 'igualitario') {
+                marcarPresetActivo(null);
+            }
             recalcularDivision();
         }
 
@@ -260,17 +376,24 @@
             var rows = document.querySelectorAll('.participante-div-row:has(.participante-checkbox:checked)');
             var resultado = document.getElementById('divisionResultado');
             var error = document.getElementById('divisionError');
+            var resumenRapido = document.getElementById('divisionResumenRapido');
 
             var seleccionados = rows.length;
 
             if (!rawValue || isNaN(montoTotal) || montoTotal <= 0) {
                 resultado.innerHTML = 'Ingres\u00e1 un monto v\u00e1lido para ver la divisi\u00f3n.';
+                if (resumenRapido) {
+                    resumenRapido.textContent = 'Ingres\u00e1 un monto para ver cu\u00e1nto paga cada uno.';
+                }
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
                 return;
             }
             if (seleccionados === 0) {
                 resultado.innerHTML = 'Seleccion\u00e1 al menos un participante para dividir el gasto.';
+                if (resumenRapido) {
+                    resumenRapido.textContent = 'Seleccion\u00e1 al menos un participante.';
+                }
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
                 return;
@@ -309,10 +432,19 @@
                 if (modo === 'igualitario') {
                     var porcion = montoTotal / seleccionados;
                     resultado.innerHTML = 'Cada uno paga <strong>$' + porcion.toFixed(2) + '</strong>';
+                    if (resumenRapido) {
+                        resumenRapido.textContent = seleccionados + ' participante(s) · $' + porcion.toFixed(2).replace('.', ',') + ' cada uno.';
+                    }
                 } else if (modo === 'monto_fijo') {
                     resultado.innerHTML = 'Total asignado: <strong>$' + totalValor.toFixed(2) + '</strong>';
+                    if (resumenRapido) {
+                        resumenRapido.textContent = 'Divisi\u00f3n por monto fijo.';
+                    }
                 } else if (modo === 'porcentaje') {
                     resultado.innerHTML = 'Porcentajes verificados: <strong>' + totalValor.toFixed(1) + '%</strong>';
+                    if (resumenRapido) {
+                        resumenRapido.textContent = 'Divisi\u00f3n por porcentaje.';
+                    }
                 }
             }
 
