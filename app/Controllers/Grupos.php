@@ -211,21 +211,21 @@ class Grupos extends BaseController
 
         $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_estado');
         if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
+            return redirect()->to("/grupos/$id/editar")->with('error', $errorPermiso);
         }
 
         $nuevoEstado = $this->request->getPost('estado');
         $estadoActual = $acceso['grupo']['estado'] ?? 'activo';
 
         if (!Grupo::transicionValida($estadoActual, $nuevoEstado)) {
-            return redirect()->to("/grupos/$id")->with('error', "No se puede cambiar de \"$estadoActual\" a \"$nuevoEstado\".");
+            return redirect()->to("/grupos/$id/editar")->with('error', "No se puede cambiar de \"$estadoActual\" a \"$nuevoEstado\".");
         }
 
         if ($nuevoEstado === 'liquidado') {
             $gastoModel = new Gasto();
             $deudas = $gastoModel->getDeudasByGrupo($id);
             if (!empty($deudas)) {
-                return redirect()->to("/grupos/$id")->with('error', 'No se puede liquidar el grupo porque hay deudas pendientes.');
+                return redirect()->to("/grupos/$id/editar")->with('error', 'No se puede liquidar el grupo porque hay deudas pendientes.');
             }
         }
 
@@ -238,7 +238,7 @@ class Grupos extends BaseController
             'liquidado' => 'Grupo liquidado correctamente.',
         ];
 
-        return redirect()->to("/grupos/$id")->with('success', $mensajes[$nuevoEstado] ?? 'Estado actualizado.');
+        return redirect()->to("/grupos/$id/editar")->with('success', $mensajes[$nuevoEstado] ?? 'Estado actualizado.');
     }
 
     public function edit(int $id)
@@ -258,7 +258,7 @@ class Grupos extends BaseController
         $gastoModel = new \App\Models\Gasto();
         $deudas = $gastoModel->getDeudasByGrupo($id);
         $miembros = $grupoModel->getMiembros($id);
-        $permisos = $grupoModel->getPermisos($acceso['rol'], $acceso['grupo']['estado']);
+        $permisos = GroupPermission::getAll($acceso['rol'], $acceso['grupo']['estado'], $acceso['userId']);
         $usuariosDisponibles = $permisos['puede_agregar_miembro']
             ? $grupoModel->getUsuariosDisponibles($id)
             : [];
@@ -282,7 +282,7 @@ class Grupos extends BaseController
 
         $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_edit');
         if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
+            return redirect()->to("/grupos/$id/editar")->with('error', $errorPermiso);
         }
 
         $rules = [
@@ -307,7 +307,7 @@ class Grupos extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
         ]);
 
-        return redirect()->to('/grupos')->with('success', 'Grupo actualizado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', 'Grupo actualizado correctamente.');
     }
 
     public function delete(int $id)
@@ -320,7 +320,7 @@ class Grupos extends BaseController
 
         $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_delete');
         if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
+            return redirect()->to("/grupos/$id/editar")->with('error', $errorPermiso);
         }
 
         $grupoModel = new Grupo();
@@ -339,23 +339,23 @@ class Grupos extends BaseController
 
         $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_create');
         if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
+            return redirect()->to("/grupos/$id/editar")->with('error', $errorPermiso);
         }
 
         $userId = (int) $this->request->getPost('user_id');
 
         if ($userId <= 0) {
-            return redirect()->to("/grupos/$id")->with('error', 'Usuario inválido.');
+            return redirect()->to("/grupos/$id/editar")->with('error', 'Usuario inválido.');
         }
 
         $userModel = new \App\Models\User();
         if (!$userModel->find($userId)) {
-            return redirect()->to("/grupos/$id")->with('error', 'Usuario no encontrado.');
+            return redirect()->to("/grupos/$id/editar")->with('error', 'Usuario no encontrado.');
         }
 
         $grupoModel = new Grupo();
         if ($grupoModel->isMiembro($id, $userId)) {
-            return redirect()->to("/grupos/$id")->with('error', 'El usuario ya pertenece al grupo.');
+            return redirect()->to("/grupos/$id/editar")->with('error', 'El usuario ya pertenece al grupo.');
         }
 
         $miembroModel = new GrupoMiembro();
@@ -365,7 +365,7 @@ class Grupos extends BaseController
             'rol' => 'member',
         ]);
 
-        return redirect()->to("/grupos/$id")->with('success', 'Miembro agregado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', 'Miembro agregado correctamente.');
     }
 
     public function cambiarRol(int $id, int $userId)
@@ -378,13 +378,13 @@ class Grupos extends BaseController
 
         $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_role');
         if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
+            return redirect()->to("/grupos/$id/editar")->with('error', $errorPermiso);
         }
 
         $nuevoRol = $this->request->getPost('rol');
 
         if (!in_array($nuevoRol, ['admin', 'member'], true)) {
-            return redirect()->to("/grupos/$id")->with('error', 'Rol inválido.');
+            return redirect()->to("/grupos/$id/editar")->with('error', 'Rol inválido.');
         }
 
         $grupoModel = new Grupo();
@@ -392,7 +392,7 @@ class Grupos extends BaseController
 
         $error = Grupo::puedeCambiarRol($grupoModel->countAdmins($id), $rolActual, $nuevoRol);
         if ($error) {
-            return redirect()->to("/grupos/$id")->with('error', $error);
+            return redirect()->to("/grupos/$id/editar")->with('error', $error);
         }
 
         $miembroModel = new GrupoMiembro();
@@ -401,7 +401,7 @@ class Grupos extends BaseController
             ->set(['rol' => $nuevoRol])
             ->update();
 
-        return redirect()->to("/grupos/$id")->with('success', 'Rol actualizado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', 'Rol actualizado correctamente.');
     }
 
     public function quitarMiembro(int $id, int $userId)
@@ -414,17 +414,17 @@ class Grupos extends BaseController
 
         $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_delete');
         if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
+            return redirect()->to("/grupos/$id/editar")->with('error', $errorPermiso);
         }
 
         if ($userId === session()->get('userId')) {
-            return redirect()->to("/grupos/$id")->with('error', 'No podés eliminarte a vos mismo del grupo.');
+            return redirect()->to("/grupos/$id/editar")->with('error', 'No podés eliminarte a vos mismo del grupo.');
         }
 
         $grupoModel = new Grupo();
 
         if (!$grupoModel->isMiembro($id, $userId)) {
-            return redirect()->to("/grupos/$id")->with('error', 'El usuario no pertenece al grupo.');
+            return redirect()->to("/grupos/$id/editar")->with('error', 'El usuario no pertenece al grupo.');
         }
 
         $rol = $grupoModel->getUserRol($id, $userId);
@@ -433,7 +433,7 @@ class Grupos extends BaseController
 
         $error = Grupo::puedeQuitarMiembro($totalAdmins, $rol, $tieneMovimientos);
         if ($error) {
-            return redirect()->to("/grupos/$id")->with('error', $error);
+            return redirect()->to("/grupos/$id/editar")->with('error', $error);
         }
 
         $miembroModel = new GrupoMiembro();
@@ -441,6 +441,6 @@ class Grupos extends BaseController
             ->where('user_id', $userId)
             ->delete();
 
-        return redirect()->to("/grupos/$id")->with('success', 'Miembro quitado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', 'Miembro quitado correctamente.');
     }
 }
