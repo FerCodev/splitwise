@@ -35,6 +35,157 @@
 .mobile-card-item { padding: 12px 16px; border-bottom: 1px solid #eee; }
 .mobile-card-item:last-child { border-bottom: 0; }
 
+.initial-member-list {
+    display: grid;
+    gap: 8px;
+}
+.initial-member-option {
+    display: grid;
+    grid-template-columns: auto 40px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-height: 58px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.initial-member-option:hover {
+    border-color: rgba(13, 110, 253, 0.45);
+    background: #f8fbff;
+}
+.initial-member-option:has(input:checked) {
+    border-color: var(--primary);
+    background: #eef5ff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+}
+.initial-member-option .form-check-input {
+    margin: 0;
+}
+.initial-member-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9f2ff;
+    color: var(--primary);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.initial-member-copy {
+    display: grid;
+    min-width: 0;
+}
+.initial-member-name {
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.initial-member-email {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.initial-member-empty {
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+    padding: 12px;
+}
+.more-actions-panel {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+    padding: 12px;
+}
+.division-summary {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+    padding: 12px;
+}
+.division-summary-title {
+    color: var(--text);
+    font-weight: 700;
+    line-height: 1.25;
+}
+.division-summary-copy {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.35;
+    margin-top: 2px;
+}
+.quick-split-list {
+    display: grid;
+    gap: 8px;
+}
+.quick-split-option {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: 10px 12px;
+    text-align: left;
+    min-height: 58px;
+    display: grid;
+    gap: 2px;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+}
+.quick-split-option:hover {
+    border-color: rgba(13, 110, 253, 0.45);
+    background: #f8fbff;
+}
+.quick-split-option.active {
+    border-color: var(--primary);
+    background: #eef5ff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+}
+.quick-split-title {
+    color: var(--text);
+    font-weight: 700;
+    line-height: 1.2;
+}
+.quick-split-copy {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.25;
+}
+.division-participant-row {
+    display: grid;
+    grid-template-columns: auto minmax(72px, 1fr) minmax(104px, 128px) minmax(64px, auto);
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.division-participant-row .form-check-input {
+    margin: 0;
+}
+.division-participant-name {
+    font-size: 14px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.division-participant-row .division-valor {
+    min-width: 0;
+}
+.division-monto {
+    text-align: right;
+    white-space: nowrap;
+}
+
 /* Navigation */
 .bottom-tab-bar {
     position: fixed;
@@ -200,6 +351,13 @@
     h5 { font-size: 1rem; }
     .navbar-brand { font-size: 1.1rem; }
     .table-mobile-hidden { display: none !important; }
+    .division-participant-row {
+        grid-template-columns: auto minmax(0, 1fr) minmax(76px, auto);
+    }
+    .division-participant-row .division-valor {
+        grid-column: 2 / 4;
+        width: 100%;
+    }
 }
 
 @media (min-width: 576px) {
