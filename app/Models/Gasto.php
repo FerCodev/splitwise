@@ -222,6 +222,64 @@ class Gasto extends Model
     }
 
     /**
+     * Calcula el monto asignado a cada participante segun el modo de division.
+     * Metodo puro, sin side effects, testeable sin base de datos.
+     *
+     * @param string $divisionTipo igualitario|monto_fijo|porcentaje
+     * @param float  $monto        total del gasto
+     * @param int[]  $participantesIds  ids de participantes
+     * @param array  $divisionValores  raw del form: [['user_id'=>int,'valor'=>string],...]
+     * @return float[]  [user_id => monto_calculado]
+     */
+    public static function calcularMontosDivision(
+        string $divisionTipo,
+        float $monto,
+        array $participantesIds,
+        array $divisionValores = []
+    ): array {
+        $participantesIds = array_unique(array_map('intval', $participantesIds));
+        $participantesMonto = [];
+
+        if ($divisionTipo === 'monto_fijo' && !empty($divisionValores)) {
+            $valoresMap = [];
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+            foreach ($participantesIds as $uid) {
+                $participantesMonto[$uid] = round($valoresMap[$uid] ?? 0, 2);
+            }
+        } elseif ($divisionTipo === 'porcentaje' && !empty($divisionValores)) {
+            $valoresMap = [];
+            foreach ($divisionValores as $dv) {
+                $valoresMap[(int) $dv['user_id']] = (float) $dv['valor'];
+            }
+            $totalCalc = 0;
+            foreach ($participantesIds as $i => $uid) {
+                $calc = round($monto * ($valoresMap[$uid] ?? 0) / 100, 2);
+                $participantesMonto[$uid] = $calc;
+                $totalCalc += $calc;
+            }
+            $diff = round($monto - $totalCalc, 2);
+            if (abs($diff) > 0.001 && !empty($participantesIds)) {
+                $lastUid = end($participantesIds);
+                $participantesMonto[$lastUid] = round($participantesMonto[$lastUid] + $diff, 2);
+            }
+        } else {
+            $porcion = round($monto / count($participantesIds), 2);
+            $diferencias = round($monto - ($porcion * count($participantesIds)), 2);
+            foreach ($participantesIds as $i => $uid) {
+                $asignado = $porcion;
+                if ($i === array_key_last($participantesIds)) {
+                    $asignado += $diferencias;
+                }
+                $participantesMonto[$uid] = round($asignado, 2);
+            }
+        }
+
+        return $participantesMonto;
+    }
+
+    /**
      * Computa el balance a partir de datos pre-cargados.
      * Separado para poder testear sin base de datos.
      */

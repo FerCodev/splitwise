@@ -35,7 +35,7 @@
                         <input type="text" class="form-control" id="monto" name="monto_visual"
                                value="<?= esc(old('monto_visual', isset($gasto) ? number_format($gasto['monto'], 2, ',', '.') : '')) ?>" required
                                inputmode="numeric"
-                               oninput="formatearMonto(this)">
+                               oninput="formatearMonto(this); recalcularDivision();">
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
                     </div>
 
@@ -62,54 +62,9 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Resumen de divisi&oacute;n (solo en nuevo gasto) -->
-                    <?php if (!isset($gasto)): ?>
-                    <?php
-                        $pagEsVos = true;
-                        $pagNombre = 'vos';
-                        $cantP = 0;
-                        if (!empty($grupoId) && isset($miembros)) {
-                            $cantP = isset($participantesIds) ? count($participantesIds) : count($miembros);
-                            if (isset($gasto)) {
-                                foreach ($miembros as $m) {
-                                    if ((int) $m['user_id'] === (int) $gasto['pagador_id']) {
-                                        $pagNombre = $m['name'];
-                                        $pagEsVos = false;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        $tieneGrupo = !empty($grupoId);
-                    ?>
-                    <div id="divisionSummary" class="small text-muted mb-3 <?= !$tieneGrupo ? 'd-none' : '' ?>" style="cursor:pointer" data-bs-toggle="modal" data-bs-target="#divisionModal">
-                        Pagado por <strong><?= $pagEsVos ? 'vos' : esc($pagNombre) ?></strong> y dividido a partes iguales entre <strong><?= $cantP ?> participante(s)</strong>.
-                        <span class="text-primary ms-1">Editar</span>
-                    </div>
-                    <?php if (!$tieneGrupo): ?>
-                    <div id="divisionSummaryEmpty" class="small text-muted mb-3">
-                        Seleccion&aacute; un grupo para ver el resumen de divisi&oacute;n.
-                    </div>
-                    <?php endif; ?>
-
-                    <?php endif; ?><!-- fin division solo nuevo gasto -->
-
-                    <!-- M&aacute;s opciones (colapsable en mobile) -->
-                    <div class="d-md-none mb-3">
-                        <button class="btn btn-outline-secondary btn-sm w-100 text-start" type="button" data-bs-toggle="collapse" data-bs-target="#masOpcionesGasto" aria-expanded="false">
-                            <span class="fw-medium">M&aacute;s opciones</span>
-                            <span class="float-end">+</span>
-                        </button>
-                    </div>
-                    <div class="collapse d-md-block" id="masOpcionesGasto">
-
-                    <!-- Grupo (oculto cuando viene por contexto, visible si no hay grupo) -->
-                    <?php if (!empty($grupoId) && !isset($gasto)): ?>
-                    <?php
-                        $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
-                        $grupoActual = reset($grupoActual);
-                    ?>
-                    <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
+                    <!-- Grupo -->
+                    <?php if (!empty($grupoId)): ?>
+                        <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
                     <?php else: ?>
                     <div class="mb-3">
                         <label for="grupo_id" class="form-label fw-medium">Grupo</label>
@@ -122,58 +77,87 @@
                     </div>
                     <?php endif; ?>
 
-                    <?php
-                        $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? session()->get('userId'));
-                    ?>
-                    <div class="mb-3">
-                        <label class="form-label fw-medium">Pagador</label>
-                        <?php if (isset($miembros) && count($miembros) > 0): ?>
-                        <select class="form-select" id="pagador_id" name="pagador_id" required>
-                            <option value="">Seleccionar pagador</option>
-                            <?php foreach ($miembros as $m): ?>
-                                <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <?php else: ?>
-                        <input type="text" class="form-control" value="Vos" disabled>
-                        <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
-                        <?php endif; ?>
-                    </div>
+                    <!-- Categoria (oculta, inferida desde descripcion) -->
+                    <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? '') ?>">
 
-                    <div class="mb-3">
-                        <label for="categoria_id" class="form-label fw-medium">Categoría</label>
-                        <select class="form-select" id="categoria_id" name="categoria_id">
-                            <option value="">Sin categoría</option>
-                            <?php foreach ($categorias as $cat): ?>
-                                <option value="<?= $cat['id'] ?>" <?= old('categoria_id', $gasto['categoria_id'] ?? '') == $cat['id'] ? 'selected' : '' ?>><?= esc($cat['nombre']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <!-- SECCION UNIFICADA DE DIVISION -->
+                    <div id="divisionSection" class="card border-0 shadow-sm mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0 fw-bold">Divisi&oacute;n del gasto</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Pagador -->
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Pagado por</label>
+                                <?php if (isset($miembros) && count($miembros) > 0): ?>
+                                <select class="form-select" id="pagador_id" name="pagador_id" required>
+                                    <option value="">Seleccionar</option>
+                                    <?php
+                                        $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? session()->get('userId'));
+                                    ?>
+                                    <?php foreach ($miembros as $m): ?>
+                                        <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php else: ?>
+                                <input type="text" class="form-control" value="Vos" disabled>
+                                <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?? session()->get('userId') ?>">
+                                <?php endif; ?>
+                            </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-medium">Participantes (división igualitaria)</label>
-                        <?php if (isset($miembros)): ?>
-                            <?php foreach ($miembros as $m): ?>
-                                <div class="form-check py-1">
-                                    <input class="form-check-input participante-checkbox" type="checkbox" name="participantes[]"
-                                           value="<?= $m['user_id'] ?>"
-                                           id="participante_<?= $m['user_id'] ?>"
-                                           <?= isset($participantesIds) && in_array($m['user_id'], $participantesIds) ? 'checked' : '' ?>>
-                                    <label class="form-check-label" for="participante_<?= $m['user_id'] ?>">
-                                        <?= esc($m['name']) ?>
-                                    </label>
+                            <!-- Modo de division -->
+                            <div class="mb-3">
+                                <label class="form-label fw-medium">Modalidad</label>
+                                <select class="form-select" id="divisionModo" name="division_tipo" onchange="cambiarModoDivision(this.value)">
+                                    <option value="igualitario" <?= old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') === 'igualitario' ? 'selected' : '' ?>>Partes iguales</option>
+                                    <option value="monto_fijo" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'monto_fijo' ? 'selected' : '' ?>>Monto fijo</option>
+                                    <option value="porcentaje" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'porcentaje' ? 'selected' : '' ?>>Porcentaje</option>
+                                </select>
+                            </div>
+
+                            <!-- Participantes -->
+                            <div class="mb-2">
+                                <label class="form-label fw-medium">Participantes</label>
+                                <div id="participantesDivision">
+                                    <?php if (isset($miembros)): ?>
+                                        <?php
+                                            $modoActual = old('division_tipo', $gasto['division_tipo'] ?? 'igualitario');
+                                            $divValores = $divisionValoresExistentes ?? [];
+                                        ?>
+                                        <?php foreach ($miembros as $i => $m): $uid = $m['user_id']; ?>
+                                        <div class="d-flex align-items-center gap-2 mb-2 participante-div-row" data-uid="<?= $uid ?>">
+                                            <div class="form-check flex-shrink-0" style="min-width:36px">
+                                                <input class="form-check-input participante-checkbox" type="checkbox"
+                                                       name="participantes[]"
+                                                       value="<?= $uid ?>"
+                                                       id="participante_<?= $uid ?>"
+                                                       <?= isset($participantesIds) && in_array($uid, $participantesIds) ? 'checked' : '' ?>
+                                                       onchange="recalcularDivision()">
+                                            </div>
+                                            <label class="form-check-label flex-shrink-0" for="participante_<?= $uid ?>" style="min-width:100px;font-size:14px">
+                                                <?= esc($m['name']) ?>
+                                            </label>
+                                            <input type="text" class="form-control form-control-sm division-valor flex-shrink-0"
+                                                   data-uid="<?= $uid ?>"
+                                                   value="<?= isset($divValores[$uid]) ? esc((string)$divValores[$uid]) : '' ?>"
+                                                   inputmode="decimal"
+                                                   oninput="recalcularDivision()"
+                                                   style="max-width:130px;<?= $modoActual === 'igualitario' ? 'display:none' : '' ?>"
+                                                   placeholder="Valor">
+                                            <span class="division-monto small text-muted" style="min-width:80px">$0,00</span>
+                                        </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p class="text-muted small mb-0">Seleccion&aacute; un grupo primero.</p>
+                                    <?php endif; ?>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-muted mb-0">Seleccioná un grupo primero.</p>
-                        <?php endif; ?>
-                    </div>
-                    </div><!-- /.collapse #masOpcionesGasto -->
+                            </div>
 
-                    <!-- Preview de división en tiempo real -->
-                    <div id="divisionPreview" class="card border-0 shadow-sm mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
-                        <div class="card-body py-3" id="divisionPreviewContent">
-                            <p class="text-muted small mb-0">Ingresá un monto y seleccioná participantes para ver cómo se divide.</p>
+                            <!-- Resultado / Errores -->
+                            <div id="divisionResultado" class="small text-muted mb-1">Ingres&aacute; un monto y seleccion&aacute; participantes para ver la divisi&oacute;n.</div>
+                            <div id="divisionError" class="small text-danger mb-1 d-none"></div>
+
+                            <div id="divisionValoresContainer"></div>
                         </div>
                     </div>
 
@@ -208,6 +192,7 @@
                 document.getElementById('monto_real').value = num.toFixed(2);
             }
         }
+
         var diccionarioCategorias = {
             'super': 'Supermercado', 'mercado': 'Supermercado', 'supermercado': 'Supermercado',
             'verduleria': 'Supermercado', 'almacen': 'Supermercado', 'compras': 'Supermercado',
@@ -229,18 +214,15 @@
                 if (lower.includes(key)) { sugerido = diccionarioCategorias[key]; break; }
             }
             var el = document.getElementById('categoriaSugerida');
-            var select = document.getElementById('categoria_id');
-            if (sugerido && select) {
-                var match = false;
-                for (var i = 0; i < select.options.length; i++) {
-                    if (select.options[i].text.toLowerCase() === sugerido.toLowerCase()) {
-                        select.value = select.options[i].value;
-                        match = true;
-                        break;
-                    }
-                }
-                if (match) {
-                    el.textContent = 'Categor\u00eda sugerida: ' + sugerido;
+            var hidden = document.getElementById('categoria_id');
+            if (sugerido) {
+                var valueMap = {};
+                <?php foreach ($categorias as $cat): ?>
+                valueMap['<?= strtolower(esc($cat['nombre'])) ?>'] = '<?= $cat['id'] ?>';
+                <?php endforeach; ?>
+                if (valueMap[sugerido.toLowerCase()]) {
+                    hidden.value = valueMap[sugerido.toLowerCase()];
+                    el.textContent = 'Categor\u00eda: ' + sugerido;
                     el.classList.remove('d-none');
                 } else {
                     el.classList.add('d-none');
@@ -250,74 +232,150 @@
             }
         }
 
+        function cambiarModoDivision(modo) {
+            var rows = document.querySelectorAll('.participante-div-row');
+            var inputs = document.querySelectorAll('.division-valor');
+            var labels = {
+                'igualitario': '\u2014',
+                'monto_fijo': 'Monto fijo ($)',
+                'porcentaje': 'Porcentaje (%)',
+            };
+            inputs.forEach(function(inp) {
+                if (modo === 'igualitario') {
+                    inp.value = '';
+                    inp.style.display = 'none';
+                    inp.placeholder = 'autom\u00e1tico';
+                } else {
+                    inp.style.display = '';
+                    inp.placeholder = labels[modo] || 'Valor';
+                }
+            });
+            recalcularDivision();
+        }
+
+        function recalcularDivision() {
+            var modo = document.getElementById('divisionModo').value;
+            var rawValue = document.getElementById('monto_real').value;
+            var montoTotal = parseFloat(rawValue) || 0;
+            var rows = document.querySelectorAll('.participante-div-row:has(.participante-checkbox:checked)');
+            var resultado = document.getElementById('divisionResultado');
+            var error = document.getElementById('divisionError');
+
+            var seleccionados = rows.length;
+
+            if (!rawValue || isNaN(montoTotal) || montoTotal <= 0) {
+                resultado.innerHTML = 'Ingres\u00e1 un monto v\u00e1lido para ver la divisi\u00f3n.';
+                error.classList.add('d-none');
+                actualizarMontosCalculados(modo, montoTotal, rows, []);
+                return;
+            }
+            if (seleccionados === 0) {
+                resultado.innerHTML = 'Seleccion\u00e1 al menos un participante para dividir el gasto.';
+                error.classList.add('d-none');
+                actualizarMontosCalculados(modo, montoTotal, rows, []);
+                return;
+            }
+
+            var valores = [];
+            rows.forEach(function(row) {
+                var inp = row.querySelector('.division-valor');
+                var cb = row.querySelector('.participante-checkbox');
+                if (cb && cb.checked) {
+                    var v = parseFloat((inp.value || '0').replace(',', '.')) || 0;
+                    valores.push(v);
+                }
+            });
+
+            var totalValor = valores.reduce(function(a, b) { return a + b; }, 0);
+            var errores = [];
+
+            if (modo === 'monto_fijo') {
+                var diff = montoTotal - totalValor;
+                if (Math.abs(diff) > 0.01) {
+                    errores.push(diff > 0 ? 'Faltan $' + diff.toFixed(2) + ' para llegar al total' : 'Excede por $' + Math.abs(diff).toFixed(2));
+                }
+            } else if (modo === 'porcentaje') {
+                if (Math.abs(totalValor - 100) > 0.1) {
+                    errores.push('Los porcentajes deben sumar 100% (actual: ' + totalValor.toFixed(1) + '%)');
+                }
+            }
+
+            if (errores.length > 0) {
+                error.innerHTML = errores.join('<br>');
+                error.classList.remove('d-none');
+                resultado.innerHTML = '';
+            } else {
+                error.classList.add('d-none');
+                if (modo === 'igualitario') {
+                    var porcion = montoTotal / seleccionados;
+                    resultado.innerHTML = 'Cada uno paga <strong>$' + porcion.toFixed(2) + '</strong>';
+                } else if (modo === 'monto_fijo') {
+                    resultado.innerHTML = 'Total asignado: <strong>$' + totalValor.toFixed(2) + '</strong>';
+                } else if (modo === 'porcentaje') {
+                    resultado.innerHTML = 'Porcentajes verificados: <strong>' + totalValor.toFixed(1) + '%</strong>';
+                }
+            }
+
+            actualizarMontosCalculados(modo, montoTotal, rows, valores);
+
+            // Generar hidden inputs for form submission
+            var container = document.getElementById('divisionValoresContainer');
+            container.innerHTML = '';
+            var index = 0;
+            rows.forEach(function(row) {
+                var cb = row.querySelector('.participante-checkbox');
+                if (cb && cb.checked) {
+                    var uid = row.dataset.uid;
+                    var inp = row.querySelector('.division-valor');
+                    var v = (inp.value || '0').replace(',', '.');
+                    container.innerHTML += '<input type="hidden" name="division_valores[' + index + '][user_id]" value="' + uid + '">';
+                    container.innerHTML += '<input type="hidden" name="division_valores[' + index + '][valor]" value="' + v + '">';
+                    index++;
+                }
+            });
+        }
+
+        function actualizarMontosCalculados(modo, montoTotal, rows, valores) {
+            rows.forEach(function(row, i) {
+                var span = row.querySelector('.division-monto');
+                var cb = row.querySelector('.participante-checkbox');
+                if (!span) return;
+                if (!cb || !cb.checked) {
+                    span.textContent = '$0,00';
+                    return;
+                }
+                var v = valores[i] || 0;
+                var calc = 0;
+                if (modo === 'igualitario' && rows.length > 0) {
+                    calc = montoTotal / rows.length;
+                } else if (modo === 'monto_fijo') {
+                    calc = v;
+                } else if (modo === 'porcentaje') {
+                    calc = montoTotal * v / 100;
+                }
+                span.textContent = '$' + calc.toFixed(2).replace('.', ',');
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             var montoInput = document.getElementById('monto');
             if (!montoInput) return;
 
+            var modo = document.getElementById('divisionModo').value;
+            cambiarModoDivision(modo);
+            recalcularDivision();
+
             var checkboxes = document.querySelectorAll('.participante-checkbox');
-            var previewContent = document.getElementById('divisionPreviewContent');
-
-            function actualizarPreview() {
-                var rawValue = document.getElementById('monto_real').value;
-                var monto = parseFloat(rawValue);
-                var seleccionados = 0;
-                checkboxes.forEach(function(cb) {
-                    if (cb.checked) seleccionados++;
-                });
-
-                if (!rawValue || isNaN(monto) || monto <= 0) {
-                    previewContent.innerHTML = '<p class="text-muted small mb-0">Ingresá un monto v&aacute;lido para ver la divisi&oacute;n.</p>';
-                    return;
-                }
-                if (seleccionados === 0) {
-                    previewContent.innerHTML = '<p class="text-muted small mb-0">Seleccion&aacute; al menos un participante para dividir el gasto.</p>';
-                    return;
-                }
-
-                // Misma logica que el backend: round, diferencias, ultimo participante ajustado
-                var porcion = Math.round(monto / seleccionados * 100) / 100;
-                var diferencias = Math.round((monto - porcion * seleccionados) * 100) / 100;
-
-                var html =
-                    '<div class="d-flex justify-content-between small mb-1">' +
-                        '<span class="text-muted">Participantes:</span>' +
-                        '<span class="fw-medium">' + seleccionados + '</span>' +
-                    '</div>' +
-                    '<div class="d-flex justify-content-between small mb-1">' +
-                        '<span class="text-muted">Cada uno paga:</span>' +
-                        '<span class="fw-medium">$' + porcion.toFixed(2) + '</span>' +
-                    '</div>';
-
-                if (diferencias !== 0) {
-                    html +=
-                    '<div class="d-flex justify-content-between small mb-1 text-warning">' +
-                        '<span>Ajuste en el &uacute;ltimo participante:</span>' +
-                        '<span class="fw-medium">$' + diferencias.toFixed(2) + '</span>' +
-                    '</div>';
-                }
-
-                html +=
-                    '<div class="d-flex justify-content-between small fw-bold pt-1 border-top">' +
-                        '<span>Total:</span>' +
-                        '<span>$' + monto.toFixed(2) + '</span>' +
-                    '</div>';
-
-                previewContent.innerHTML = html;
-            }
-
-            montoInput.addEventListener('input', actualizarPreview);
             checkboxes.forEach(function(cb) {
-                cb.addEventListener('change', actualizarPreview);
+                cb.addEventListener('change', recalcularDivision);
             });
 
-        // Inicializar monto_real si ya hay valor
-        (function() {
-            var vis = document.getElementById('monto');
-            var real = document.getElementById('monto_real');
-            if (vis && real && vis.value) { formatearMonto(vis); }
-        })();
-
-        actualizarPreview();
+            (function() {
+                var vis = document.getElementById('monto');
+                var real = document.getElementById('monto_real');
+                if (vis && real && vis.value) { formatearMonto(vis); }
+            })();
+            recalcularDivision();
         });
     </script>
 
@@ -330,7 +388,4 @@
         });
     </script>
     <?php endif; ?>
-<?php if (!isset($gasto)): ?>
-<?= view('partials/_division_modal') ?>
-<?php endif; ?>
 <?= view('partials/_footer') ?>
