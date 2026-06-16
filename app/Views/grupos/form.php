@@ -13,6 +13,12 @@
                 </ul>
             </div>
         <?php endif; ?>
+        <?php if (session()->getFlashdata('error')): ?>
+            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+        <?php endif; ?>
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+        <?php endif; ?>
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">
@@ -55,7 +61,7 @@
                     <?php endif; ?>
 
                     <div class="d-flex gap-2">
-                        <a href="<?= base_url('grupos') ?>" class="btn btn-secondary flex-fill">Cancelar</a>
+                        <a href="<?= isset($grupo) ? base_url('grupos/' . $grupo['id']) : base_url('grupos') ?>" class="btn btn-secondary flex-fill">Cancelar</a>
                         <button type="submit" class="btn btn-primary flex-fill">
                             <?= isset($grupo) ? 'Guardar Cambios' : 'Crear Grupo' ?>
                         </button>
@@ -65,6 +71,67 @@
         </div>
 
             <?php if (isset($grupo) && isset($miembros)): ?>
+            <?php
+                $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
+                $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
+            ?>
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Estado del grupo</h5>
+                    <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
+                </div>
+                <div class="card-body">
+                    <?php if ($permisos['puede_cambiar_estado'] ?? false): ?>
+                        <?php if ($grupo['estado'] === 'activo'): ?>
+                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="cerrar-grupo-<?= $grupo['id'] ?>">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="estado" value="cerrado">
+                                <button type="button" class="btn btn-outline-warning"
+                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                    data-confirm-title="Cerrar grupo"
+                                    data-confirm-msg="Se cerrara el grupo. No se podran crear ni editar gastos, solo registrar pagos para saldar deudas."
+                                    data-confirm-btn="Cerrar grupo"
+                                    data-confirm-class="btn-warning"
+                                    data-confirm-form="cerrar-grupo-<?= $grupo['id'] ?>">Cerrar grupo</button>
+                            </form>
+                        <?php elseif ($grupo['estado'] === 'cerrado'): ?>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="reabrir-grupo-<?= $grupo['id'] ?>">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="estado" value="activo">
+                                    <button type="button" class="btn btn-outline-success"
+                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                        data-confirm-title="Reabrir grupo"
+                                        data-confirm-msg="Se reabrira el grupo. Los miembros podran crear y editar gastos nuevamente."
+                                        data-confirm-btn="Reabrir grupo"
+                                        data-confirm-class="btn-success"
+                                        data-confirm-form="reabrir-grupo-<?= $grupo['id'] ?>">Reabrir grupo</button>
+                                </form>
+                                <?php if (empty($deudas)): ?>
+                                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="liquidar-grupo-<?= $grupo['id'] ?>">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="estado" value="liquidado">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                            data-confirm-title="Liquidar grupo"
+                                            data-confirm-msg="Se liquidara el grupo. Esta accion es definitiva y no se puede deshacer."
+                                            data-confirm-btn="Liquidar grupo"
+                                            data-confirm-class="btn-secondary"
+                                            data-confirm-form="liquidar-grupo-<?= $grupo['id'] ?>">Liquidar grupo</button>
+                                    </form>
+                                <?php else: ?>
+                                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info">Ver deudas pendientes</a>
+                                <?php endif; ?>
+                            </div>
+                        <?php elseif ($grupo['estado'] === 'liquidado'): ?>
+                            <p class="text-muted mb-0">Este grupo est&aacute; finalizado. No se pueden realizar m&aacute;s cambios.</p>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Solo los administradores pueden cambiar el estado del grupo.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
             <div class="card border-0 shadow-sm mt-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
