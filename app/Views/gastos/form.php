@@ -134,23 +134,23 @@
                             </div>
 
                             <?php if (isset($miembros) && count($miembros) > 0): ?>
-                                <div class="quick-split-list mb-3">
-                                    <button type="button" class="quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
-                                        <span class="quick-split-title">Partes iguales</span>
-                                        <span class="quick-split-copy">Todos participan del gasto.</span>
+                                <div class="list-group mb-3">
+                                    <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
+                                        <span class="d-block fw-semibold">Partes iguales</span>
+                                        <span class="d-block small text-muted">Todos participan del gasto.</span>
                                     </button>
-                                    <button type="button" class="quick-split-option" data-preset="me_paid_others" onclick="aplicarPresetDivision('me_paid_others', this)">
-                                        <span class="quick-split-title">Yo pagu&eacute;, me deben</span>
-                                        <span class="quick-split-copy">Solo los dem&aacute;s consumieron.</span>
+                                    <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="me_paid_others" onclick="aplicarPresetDivision('me_paid_others', this)">
+                                        <span class="d-block fw-semibold">Yo pagu&eacute;, me deben</span>
+                                        <span class="d-block small text-muted">Solo los dem&aacute;s consumieron.</span>
                                     </button>
                                     <?php if ($otroMiembro): ?>
-                                        <button type="button" class="quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
-                                            <span class="quick-split-title"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
-                                            <span class="quick-split-copy">Dividido en partes iguales.</span>
+                                        <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
+                                            <span class="d-block fw-semibold"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
+                                            <span class="d-block small text-muted">Dividido en partes iguales.</span>
                                         </button>
-                                        <button type="button" class="quick-split-option" data-preset="other_paid_me" onclick="aplicarPresetDivision('other_paid_me', this)">
-                                            <span class="quick-split-title">Le debo a <?= esc($otroMiembro['name']) ?></span>
-                                            <span class="quick-split-copy">Solo vos consumiste.</span>
+                                        <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_me" onclick="aplicarPresetDivision('other_paid_me', this)">
+                                            <span class="d-block fw-semibold">Le debo a <?= esc($otroMiembro['name']) ?></span>
+                                            <span class="d-block small text-muted">Solo vos consumiste.</span>
                                         </button>
                                     <?php endif; ?>
                                 </div>
