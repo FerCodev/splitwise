@@ -128,33 +128,10 @@
                                 <?php endif; ?>
                             </div>
 
-                            <div class="division-summary mb-3">
-                                <div class="division-summary-title">Por defecto, dividido en partes iguales.</div>
-                                <div id="divisionResumenRapido" class="division-summary-copy">Ingres&aacute; un monto para ver cuánto paga cada uno.</div>
-                            </div>
-
-                            <?php if (isset($miembros) && count($miembros) > 0): ?>
-                                <div class="list-group mb-3">
-                                    <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
-                                        <span class="d-block fw-semibold">Partes iguales</span>
-                                        <span class="d-block small text-muted">Todos participan del gasto.</span>
-                                    </button>
-                                    <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="me_paid_others" onclick="aplicarPresetDivision('me_paid_others', this)">
-                                        <span class="d-block fw-semibold">Yo pagu&eacute;, me deben</span>
-                                        <span class="d-block small text-muted">Solo los dem&aacute;s consumieron.</span>
-                                    </button>
-                                    <?php if ($otroMiembro): ?>
-                                        <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
-                                            <span class="d-block fw-semibold"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
-                                            <span class="d-block small text-muted">Dividido en partes iguales.</span>
-                                        </button>
-                                        <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_me" onclick="aplicarPresetDivision('other_paid_me', this)">
-                                            <span class="d-block fw-semibold">Le debo a <?= esc($otroMiembro['name']) ?></span>
-                                            <span class="d-block small text-muted">Solo vos consumiste.</span>
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
+                            <button type="button" class="division-summary w-100 mb-3" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
+                                <span class="division-summary-title">Por defecto, dividido en partes iguales.</span>
+                                <span id="divisionResumenRapido" class="division-summary-copy">Ingres&aacute; un monto para ver cuánto paga cada uno.</span>
+                            </button>
 
                             <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
                             <button class="btn btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
@@ -327,6 +304,29 @@
             }
         }
 
+        function actualizarResumenDivision(preset) {
+            var titulo = document.querySelector('.division-summary-title');
+            var subtitulo = document.getElementById('divisionResumenRapido');
+            if (!titulo) return;
+            var pagador = document.getElementById('pagador_id');
+            var pagadorNombre = 'Vos';
+            if (pagador && pagador.value) {
+                var opt = pagador.querySelector('option[value="' + pagador.value + '"]');
+                if (opt) pagadorNombre = opt.textContent;
+            }
+            var map = {
+                'equal': { t: pagadorNombre + ' pag\u00f3, dividido en partes iguales', s: 'Todos participan del gasto.' },
+                'me_paid_others': { t: pagadorNombre + ' pag\u00f3 todo', s: 'Solo los dem\u00e1s consumieron.' },
+                'other_paid_equal': { t: pagadorNombre + ' pag\u00f3, dividido en partes iguales', s: 'Dividido en partes iguales.' },
+                'other_paid_me': { t: 'Le deb\u00e9s a ' + pagadorNombre, s: 'Solo vos consumiste.' },
+            };
+            var entry = map[preset];
+            if (entry) {
+                titulo.textContent = entry.t;
+                if (subtitulo) subtitulo.textContent = entry.s;
+            }
+        }
+
         function aplicarPresetDivision(preset, button) {
             var modo = document.getElementById('divisionModo');
             if (modo) {
@@ -343,6 +343,13 @@
             setParticipantesPorPreset(preset);
             marcarPresetActivo(button);
             recalcularDivision();
+            actualizarResumenDivision(preset);
+
+            var modalEl = document.getElementById('divisionPresetModal');
+            if (modalEl) {
+                var modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            }
         }
 
         function cambiarModoDivision(modo) {
@@ -520,4 +527,40 @@
         });
     </script>
     <?php endif; ?>
+<div class="modal fade" id="divisionPresetModal" tabindex="-1" aria-labelledby="divisionPresetModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold" id="divisionPresetModalLabel">&iquest;C&oacute;mo se dividi&oacute; este gasto?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-3">
+                <?php if (isset($miembros) && count($miembros) > 0): ?>
+                    <div class="list-group">
+                        <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
+                            <span class="d-block fw-semibold">Partes iguales</span>
+                            <span class="d-block small text-muted">Todos participan del gasto.</span>
+                        </button>
+                        <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="me_paid_others" onclick="aplicarPresetDivision('me_paid_others', this)">
+                            <span class="d-block fw-semibold">Yo pagu&eacute;, me deben</span>
+                            <span class="d-block small text-muted">Solo los dem&aacute;s consumieron.</span>
+                        </button>
+                        <?php if ($otroMiembro): ?>
+                            <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
+                                <span class="d-block fw-semibold"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
+                                <span class="d-block small text-muted">Dividido en partes iguales.</span>
+                            </button>
+                            <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_me" onclick="aplicarPresetDivision('other_paid_me', this)">
+                                <span class="d-block fw-semibold">Le debo a <?= esc($otroMiembro['name']) ?></span>
+                                <span class="d-block small text-muted">Solo vos consumiste.</span>
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="text-muted mb-0">Seleccion&aacute; un grupo primero.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
 <?= view('partials/_footer') ?>
