@@ -128,7 +128,7 @@
                                 <?php endif; ?>
                             </div>
 
-                            <button type="button" class="division-summary w-100 mb-3" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
+                            <button type="button" class="btn btn-outline-secondary w-100 mb-3 text-start p-3 division-summary" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                                 <span class="division-summary-title">Por defecto, dividido en partes iguales.</span>
                                 <span id="divisionResumenRapido" class="division-summary-copy">Ingres&aacute; un monto para ver cuánto paga cada uno.</span>
                             </button>

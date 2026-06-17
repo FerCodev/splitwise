@@ -103,35 +103,29 @@
     padding: 12px;
 }
 .division-summary {
-    display: block;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    padding: 12px;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s;
+    line-height: 1.4;
 }
-.division-summary:hover {
-    border-color: rgba(13, 110, 253, 0.45);
-    background: #f8fbff;
-}
-.more-actions-panel {
-    border: 1px solid var(--border-strong);
-    border-radius: var(--radius-md);
-    background: var(--surface-muted);
-    padding: 12px;
+.division-summary:hover,
+.division-summary:focus-visible {
+    border-color: var(--primary) !important;
+    background: #f0f5ff !important;
 }
 .division-summary-title {
     color: var(--text);
-    font-weight: 700;
-    line-height: 1.25;
+    font-weight: 600;
+    line-height: 1.3;
 }
 .division-summary-copy {
     color: var(--muted);
     font-size: 13px;
     line-height: 1.35;
     margin-top: 2px;
+}
+.more-actions-panel {
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+    padding: 12px;
 }
 .quick-split-option {
     white-space: normal;
@@ -335,6 +329,9 @@
     .division-participant-row .division-valor {
         grid-column: 2 / 4;
         width: 100%;
+    }
+    #divisionPresetModal .list-group-item {
+        padding: 14px 16px;
     }
 }
 
