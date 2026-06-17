@@ -91,106 +91,25 @@
                     <!-- Categoria (oculta, inferida desde descripcion) -->
                     <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? '') ?>">
 
-                    <!-- SECCION UNIFICADA DE DIVISION -->
-                    <div id="divisionSection" class="card border-0 shadow-sm mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
-                        <div class="card-header bg-white">
-                            <h5 class="mb-0 fw-bold">Divisi&oacute;n del gasto</h5>
-                        </div>
-                        <div class="card-body">
-                            <?php
-                                $usuarioActualId = (int) session()->get('userId');
-                                $otroMiembro = null;
-                                if (isset($miembros)) {
-                                    foreach ($miembros as $m) {
-                                        if ((int) $m['user_id'] !== $usuarioActualId) {
-                                            $otroMiembro = $m;
-                                            break;
-                                        }
-                                    }
+                    <!-- SECCION DIVISION (resumen compacto) -->
+                    <?php
+                        $usuarioActualId = (int) session()->get('userId');
+                        $otroMiembro = null;
+                        if (isset($miembros)) {
+                            foreach ($miembros as $m) {
+                                if ((int) $m['user_id'] !== $usuarioActualId) {
+                                    $otroMiembro = $m;
+                                    break;
                                 }
-                            ?>
-                            <!-- Pagador -->
-                            <div class="mb-3">
-                                <label class="form-label fw-medium">Pagado por</label>
-                                <?php if (isset($miembros) && count($miembros) > 0): ?>
-                                <select class="form-select" id="pagador_id" name="pagador_id" required>
-                                    <option value="">Seleccionar</option>
-                                    <?php
-                                        $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? session()->get('userId'));
-                                    ?>
-                                    <?php foreach ($miembros as $m): ?>
-                                        <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <?php else: ?>
-                                <input type="text" class="form-control" value="Vos" disabled>
-                                <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?? session()->get('userId') ?>">
-                                <?php endif; ?>
-                            </div>
-
-                            <button type="button" class="btn btn-outline-secondary w-100 mb-3 text-start py-2 px-3 division-summary" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
-                                <span class="division-summary-title">Por defecto, dividido en partes iguales.</span>
-                            </button>
-
-                            <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
-                            <button class="btn btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
-                                M&aacute;s opciones de divisi&oacute;n
-                            </button>
-
-                            <div class="collapse <?= $mostrarOpcionesDivision ? 'show' : '' ?>" id="opcionesDivisionAvanzadas">
-                                <!-- Modo de division -->
-                                <div class="mb-3">
-                                    <label class="form-label fw-medium">Modalidad</label>
-                                    <select class="form-select" id="divisionModo" name="division_tipo" onchange="cambiarModoDivision(this.value)">
-                                        <option value="igualitario" <?= old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') === 'igualitario' ? 'selected' : '' ?>>Partes iguales</option>
-                                        <option value="monto_fijo" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'monto_fijo' ? 'selected' : '' ?>>Monto fijo</option>
-                                        <option value="porcentaje" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'porcentaje' ? 'selected' : '' ?>>Porcentaje</option>
-                                    </select>
-                                </div>
-
-                                <!-- Participantes -->
-                                <div class="mb-2">
-                                    <label class="form-label fw-medium">Participantes</label>
-                                    <div id="participantesDivision">
-                                        <?php if (isset($miembros)): ?>
-                                            <?php
-                                                $modoActual = old('division_tipo', $gasto['division_tipo'] ?? 'igualitario');
-                                                $divValores = $divisionValoresExistentes ?? [];
-                                            ?>
-                                            <?php foreach ($miembros as $i => $m): $uid = $m['user_id']; ?>
-                                            <div class="division-participant-row participante-div-row" data-uid="<?= $uid ?>">
-                                                <input class="form-check-input participante-checkbox" type="checkbox"
-                                                       name="participantes[]"
-                                                       value="<?= $uid ?>"
-                                                       id="participante_<?= $uid ?>"
-                                                       <?= isset($participantesIds) && in_array($uid, $participantesIds) ? 'checked' : '' ?>
-                                                       onchange="recalcularDivision()">
-                                                <label class="division-participant-name" for="participante_<?= $uid ?>">
-                                                    <?= esc($m['name']) ?>
-                                                </label>
-                                                <input type="text" class="form-control form-control-sm division-valor"
-                                                       data-uid="<?= $uid ?>"
-                                                       value="<?= isset($divValores[$uid]) ? esc((string)$divValores[$uid]) : '' ?>"
-                                                       inputmode="decimal"
-                                                       oninput="recalcularDivision()"
-                                                       style="<?= $modoActual === 'igualitario' ? 'display:none' : '' ?>"
-                                                       placeholder="Valor">
-                                                <span class="division-monto small text-muted">$0,00</span>
-                                            </div>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <p class="text-muted small mb-0">Seleccion&aacute; un grupo primero.</p>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-
-                                <!-- Resultado / Errores -->
-                                <div id="divisionResultado" class="small text-muted mb-1">Ingres&aacute; un monto y seleccion&aacute; participantes para ver la divisi&oacute;n.</div>
-                                <div id="divisionError" class="small text-danger mb-1 d-none"></div>
-                            </div>
-
-                            <div id="divisionValoresContainer"></div>
-                        </div>
+                            }
+                        }
+                    ?>
+                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                        <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
+                        <button type="button" class="btn btn-outline-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
+                            <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="flex-shrink-0 ms-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                        </button>
                     </div>
 
                     <div class="d-flex gap-2">
@@ -508,7 +427,7 @@
     </script>
     <?php endif; ?>
 <div class="modal fade" id="divisionPresetModal" tabindex="-1" aria-labelledby="divisionPresetModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-fullscreen-md-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-bold" id="divisionPresetModalLabel">&iquest;C&oacute;mo se dividi&oacute; este gasto?</h5>
@@ -516,7 +435,22 @@
             </div>
             <div class="modal-body p-3">
                 <?php if (isset($miembros) && count($miembros) > 0): ?>
-                    <div class="list-group">
+                    <!-- Pagador -->
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Pagado por</label>
+                        <select class="form-select" id="pagador_id" name="pagador_id" required>
+                            <option value="">Seleccionar</option>
+                            <?php
+                                $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? session()->get('userId'));
+                            ?>
+                            <?php foreach ($miembros as $m): ?>
+                                <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <!-- Presets rapidos -->
+                    <div class="list-group mb-3">
                         <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
                             <span class="d-block fw-semibold">Partes iguales</span>
                             <span class="d-block small text-muted">Todos participan del gasto.</span>
@@ -536,9 +470,72 @@
                             </button>
                         <?php endif; ?>
                     </div>
+
+                    <!-- Mas opciones de division -->
+                    <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
+                    <button class="btn btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
+                        M&aacute;s opciones de divisi&oacute;n
+                    </button>
+
+                    <div class="collapse <?= $mostrarOpcionesDivision ? 'show' : '' ?>" id="opcionesDivisionAvanzadas">
+                        <!-- Modo de division -->
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">Modalidad</label>
+                            <select class="form-select" id="divisionModo" name="division_tipo" onchange="cambiarModoDivision(this.value)">
+                                <option value="igualitario" <?= old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') === 'igualitario' ? 'selected' : '' ?>>Partes iguales</option>
+                                <option value="monto_fijo" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'monto_fijo' ? 'selected' : '' ?>>Monto fijo</option>
+                                <option value="porcentaje" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'porcentaje' ? 'selected' : '' ?>>Porcentaje</option>
+                            </select>
+                        </div>
+
+                        <!-- Participantes -->
+                        <div class="mb-2">
+                            <label class="form-label fw-medium">Participantes</label>
+                            <div id="participantesDivision">
+                                <?php if (isset($miembros)): ?>
+                                    <?php
+                                        $modoActual = old('division_tipo', $gasto['division_tipo'] ?? 'igualitario');
+                                        $divValores = $divisionValoresExistentes ?? [];
+                                    ?>
+                                    <?php foreach ($miembros as $i => $m): $uid = $m['user_id']; ?>
+                                    <div class="division-participant-row participante-div-row" data-uid="<?= $uid ?>">
+                                        <input class="form-check-input participante-checkbox" type="checkbox"
+                                               name="participantes[]"
+                                               value="<?= $uid ?>"
+                                               id="participante_<?= $uid ?>"
+                                               <?= isset($participantesIds) && in_array($uid, $participantesIds) ? 'checked' : '' ?>
+                                               onchange="recalcularDivision()">
+                                        <label class="division-participant-name" for="participante_<?= $uid ?>">
+                                            <?= esc($m['name']) ?>
+                                        </label>
+                                        <input type="text" class="form-control form-control-sm division-valor"
+                                               data-uid="<?= $uid ?>"
+                                               value="<?= isset($divValores[$uid]) ? esc((string)$divValores[$uid]) : '' ?>"
+                                               inputmode="decimal"
+                                               oninput="recalcularDivision()"
+                                               style="<?= $modoActual === 'igualitario' ? 'display:none' : '' ?>"
+                                               placeholder="Valor">
+                                        <span class="division-monto small text-muted">$0,00</span>
+                                    </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="text-muted small mb-0">Seleccion&aacute; un grupo primero.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+
+                        <!-- Resultado / Errores -->
+                        <div id="divisionResultado" class="small text-muted mb-1">Ingres&aacute; un monto y seleccion&aacute; participantes para ver la divisi&oacute;n.</div>
+                        <div id="divisionError" class="small text-danger mb-1 d-none"></div>
+                    </div>
+
+                    <div id="divisionValoresContainer"></div>
                 <?php else: ?>
                     <p class="text-muted mb-0">Seleccion&aacute; un grupo primero.</p>
                 <?php endif; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary w-100" data-bs-dismiss="modal">Listo</button>
             </div>
         </div>
     </div>
