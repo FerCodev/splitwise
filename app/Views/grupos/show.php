@@ -36,7 +36,6 @@
                 <?php if ($grupo['descripcion']): ?>
                     <p class="mt-2 mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
                 <?php endif; ?>
-                <p class="text-muted small mt-1 mb-0">Creado el <?= date('d/m/Y H:i', strtotime($grupo['created_at'])) ?></p>
             </div>
         </div>
 
@@ -52,67 +51,78 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center" data-bs-toggle="collapse" data-bs-target="#movimientosCollapse" role="button" aria-expanded="true">
-                <h5 class="mb-0 fw-bold">Movimientos</h5>
-                <div class="d-flex gap-1">
-                    <a href="<?= base_url('gastos?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm" onclick="event.stopPropagation()">Gastos</a>
-                    <a href="<?= base_url('pagos?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-success btn-sm" onclick="event.stopPropagation()">Pagos</a>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fw-bold mb-0">Movimientos</h5>
+            <div class="d-flex gap-1">
+                <a href="<?= base_url('gastos?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm">Gastos</a>
+                <a href="<?= base_url('pagos?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-success btn-sm">Pagos</a>
+            </div>
+        </div>
+
+        <?php if (empty($gastos) && empty($pagos)): ?>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <p class="text-muted mb-0">No hay movimientos en este grupo todav&iacute;a.</p>
                 </div>
             </div>
-            <div class="collapse show d-md-block" id="movimientosCollapse">
-                <?php if (empty($gastos) && empty($pagos)): ?>
-                    <div class="card-body text-center py-4">
-                        <p class="text-muted mb-0">No hay movimientos en este grupo todav&iacute;a.</p>
-                    </div>
+        <?php else: ?>
+            <?php
+                $movimientos = [];
+                foreach ($gastos as $g) {
+                    $movimientos[] = [
+                        'tipo' => 'gasto',
+                        'fecha' => $g['fecha'],
+                        'descripcion' => $g['descripcion'],
+                        'monto' => $g['monto'],
+                        'persona' => $g['pagador_nombre'],
+                        'id' => $g['id'],
+                        'categoria_nombre' => $g['categoria_nombre'] ?? null,
+                    ];
+                }
+                foreach ($pagos as $p) {
+                    $movimientos[] = [
+                        'tipo' => 'pago',
+                        'fecha' => $p['fecha'],
+                        'descripcion' => $p['descripcion'] ?: 'Pago',
+                        'monto' => $p['monto'],
+                        'persona' => $p['pagador_nombre'] . ' pag&oacute; a ' . $p['receptor_nombre'],
+                        'id' => $p['id'],
+                        'categoria_nombre' => null,
+                    ];
+                }
+                usort($movimientos, fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
+                $movimientos = array_slice($movimientos, 0, 10);
+            ?>
+            <?php foreach ($movimientos as $m): ?>
+                <?php if ($m['tipo'] === 'gasto'): ?>
+                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none">
                 <?php else: ?>
-                    <?php
-                        $movimientos = [];
-                        foreach ($gastos as $g) {
-                            $movimientos[] = [
-                                'tipo' => 'gasto',
-                                'fecha' => $g['fecha'],
-                                'descripcion' => $g['descripcion'],
-                                'monto' => $g['monto'],
-                                'persona' => $g['pagador_nombre'],
-                                'id' => $g['id'],
-                            ];
-                        }
-                        foreach ($pagos as $p) {
-                            $movimientos[] = [
-                                'tipo' => 'pago',
-                                'fecha' => $p['fecha'],
-                                'descripcion' => $p['descripcion'] ?: 'Pago',
-                                'monto' => $p['monto'],
-                                'persona' => $p['pagador_nombre'] . ' pag&oacute; a ' . $p['receptor_nombre'],
-                                'id' => $p['id'],
-                            ];
-                        }
-                        usort($movimientos, fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
-                        $movimientos = array_slice($movimientos, 0, 5);
-                    ?>
-                    <?php foreach ($movimientos as $m): ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between align-items-start">
+                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
+                <?php endif; ?>
+                    <div class="card border-0 shadow-sm mb-2">
+                        <div class="card-body py-2 px-3">
+                            <div class="d-flex justify-content-between align-items-center">
                                 <div>
-                                    <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
-                                    <span class="fw-medium small ms-1"><?= esc($m['descripcion']) ?></span>
+                                    <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
+                                    <?php if ($m['categoria_nombre']): ?>
+                                        <span class="badge bg-secondary ms-1"><?= esc($m['categoria_nombre']) ?></span>
+                                    <?php endif; ?>
                                 </div>
                                 <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">$<?= number_format($m['monto'], 2) ?></span>
                             </div>
-                            <div class="text-muted small">
+                            <div class="text-muted small mt-1">
                                 <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                    <?php if (count($gastos) + count($pagos) > 5): ?>
-                        <div class="card-body text-center py-2">
-                            <a href="<?= base_url('gastos?grupo_id=' . $grupo['id']) ?>" class="text-decoration-none small">Ver todos los movimientos &rarr;</a>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
-            </div>
-        </div>
+                    </div>
+                </a>
+            <?php endforeach; ?>
+            <?php if (count($gastos) + count($pagos) > 10): ?>
+                <div class="text-center mb-4">
+                    <a href="<?= base_url('gastos?grupo_id=' . $grupo['id']) ?>" class="text-decoration-none small">Ver todos los movimientos &rarr;</a>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
 
     </div>
 
