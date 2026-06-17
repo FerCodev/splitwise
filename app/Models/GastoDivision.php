@@ -22,9 +22,9 @@ class GastoDivision extends Model
     }
 
     /**
-     * UX4 escribe gasto_divisiones como espejo de gasto_participantes.
-     * Los modos partes/ajuste no estan expuestos en UI ni controller;
-     * quedan pendientes de evaluacion futura (Fase C).
+     * UX4 solo expone igualitario, monto_fijo y porcentaje.
+     * partes y ajuste quedan como soporte tecnico no expuesto/heredado.
+     * No eliminar en Fase B (pendiente evaluacion en Fase C).
      */
     public static function generarDivisionesIgualitarias(int $gastoId, float $monto, array $participantesIds, string $tipo = 'igualitario', array $valores = []): bool
     {

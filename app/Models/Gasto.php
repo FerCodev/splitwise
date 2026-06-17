@@ -154,9 +154,12 @@ class Gasto extends Model
      * Los pagos recibidos REDUCEN el saldo (la deuda del otro se extingue).
      * Los pagos enviados AUMENTAN el saldo (la deuda propia se extingue).
      *
-     * Fuente de verdad del balance: gasto_participantes.monto_asignado.
-     * gasto_divisiones.monto_calculado es espejo/auditoria y no debe usarse
-     * como fuente independiente.
+     * Fuente primaria del balance: gasto_divisiones.monto_calculado
+     * (gastos con divisiones explicitas).
+     * Fallback legacy: gasto_participantes.monto_asignado
+     * (gastos sin divisiones, previos a UX4).
+     * Al crear/editar un gasto, ambas tablas deben escribirse desde el
+     * mismo calculo para mantener sincronia.
      */
     public function getBalanceByGrupo(int $grupoId): array
     {
