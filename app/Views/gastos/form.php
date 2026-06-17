@@ -104,13 +104,12 @@
                             }
                         }
                     ?>
-                    <div id="divisionSection" class="card border-0 shadow-sm mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
-                        <div class="card-body">
-                            <button type="button" class="btn btn-outline-secondary w-100 text-start py-2 px-3 division-summary" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
-                                <span class="fw-semibold">Divisi&oacute;n</span>
-                                <span class="division-summary-title d-block small mt-1">Por defecto, dividido en partes iguales.</span>
-                            </button>
-                        </div>
+                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                        <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
+                        <button type="button" class="btn btn-outline-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
+                            <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="flex-shrink-0 ms-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
+                        </button>
                     </div>
 
                     <div class="d-flex gap-2">
