@@ -128,9 +128,8 @@
                                 <?php endif; ?>
                             </div>
 
-                            <button type="button" class="btn btn-outline-secondary w-100 mb-3 text-start p-3 division-summary" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
+                            <button type="button" class="btn btn-outline-secondary w-100 mb-3 text-start py-2 px-3 division-summary" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                                 <span class="division-summary-title">Por defecto, dividido en partes iguales.</span>
-                                <span id="divisionResumenRapido" class="division-summary-copy">Ingres&aacute; un monto para ver cuánto paga cada uno.</span>
                             </button>
 
                             <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
@@ -306,7 +305,6 @@
 
         function actualizarResumenDivision(preset) {
             var titulo = document.querySelector('.division-summary-title');
-            var subtitulo = document.getElementById('divisionResumenRapido');
             if (!titulo) return;
             var pagador = document.getElementById('pagador_id');
             var pagadorNombre = 'Vos';
@@ -314,16 +312,14 @@
                 var opt = pagador.querySelector('option[value="' + pagador.value + '"]');
                 if (opt) pagadorNombre = opt.textContent;
             }
-            var map = {
-                'equal': { t: pagadorNombre + ' pag\u00f3, dividido en partes iguales', s: 'Todos participan del gasto.' },
-                'me_paid_others': { t: pagadorNombre + ' pag\u00f3 todo', s: 'Solo los dem\u00e1s consumieron.' },
-                'other_paid_equal': { t: pagadorNombre + ' pag\u00f3, dividido en partes iguales', s: 'Dividido en partes iguales.' },
-                'other_paid_me': { t: 'Le deb\u00e9s a ' + pagadorNombre, s: 'Solo vos consumiste.' },
+            var textos = {
+                'equal': pagadorNombre + ' pag\u00f3, dividido en partes iguales',
+                'me_paid_others': pagadorNombre + ' pag\u00f3 todo',
+                'other_paid_equal': pagadorNombre + ' pag\u00f3, dividido en partes iguales',
+                'other_paid_me': 'Le deb\u00e9s a ' + pagadorNombre,
             };
-            var entry = map[preset];
-            if (entry) {
-                titulo.textContent = entry.t;
-                if (subtitulo) subtitulo.textContent = entry.s;
+            if (textos[preset]) {
+                titulo.textContent = textos[preset];
             }
         }
 
@@ -383,24 +379,17 @@
             var rows = document.querySelectorAll('.participante-div-row:has(.participante-checkbox:checked)');
             var resultado = document.getElementById('divisionResultado');
             var error = document.getElementById('divisionError');
-            var resumenRapido = document.getElementById('divisionResumenRapido');
 
             var seleccionados = rows.length;
 
             if (!rawValue || isNaN(montoTotal) || montoTotal <= 0) {
                 resultado.innerHTML = 'Ingres\u00e1 un monto v\u00e1lido para ver la divisi\u00f3n.';
-                if (resumenRapido) {
-                    resumenRapido.textContent = 'Ingres\u00e1 un monto para ver cu\u00e1nto paga cada uno.';
-                }
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
                 return;
             }
             if (seleccionados === 0) {
                 resultado.innerHTML = 'Seleccion\u00e1 al menos un participante para dividir el gasto.';
-                if (resumenRapido) {
-                    resumenRapido.textContent = 'Seleccion\u00e1 al menos un participante.';
-                }
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
                 return;
@@ -439,19 +428,10 @@
                 if (modo === 'igualitario') {
                     var porcion = montoTotal / seleccionados;
                     resultado.innerHTML = 'Cada uno paga <strong>$' + porcion.toFixed(2) + '</strong>';
-                    if (resumenRapido) {
-                        resumenRapido.textContent = seleccionados + ' participante(s) · $' + porcion.toFixed(2).replace('.', ',') + ' cada uno.';
-                    }
                 } else if (modo === 'monto_fijo') {
                     resultado.innerHTML = 'Total asignado: <strong>$' + totalValor.toFixed(2) + '</strong>';
-                    if (resumenRapido) {
-                        resumenRapido.textContent = 'Divisi\u00f3n por monto fijo.';
-                    }
                 } else if (modo === 'porcentaje') {
                     resultado.innerHTML = 'Porcentajes verificados: <strong>' + totalValor.toFixed(1) + '%</strong>';
-                    if (resumenRapido) {
-                        resumenRapido.textContent = 'Divisi\u00f3n por porcentaje.';
-                    }
                 }
             }
 
