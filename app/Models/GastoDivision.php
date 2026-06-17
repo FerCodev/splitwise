@@ -21,6 +21,11 @@ class GastoDivision extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * UX4 escribe gasto_divisiones como espejo de gasto_participantes.
+     * Los modos partes/ajuste no estan expuestos en UI ni controller;
+     * quedan pendientes de evaluacion futura (Fase C).
+     */
     public static function generarDivisionesIgualitarias(int $gastoId, float $monto, array $participantesIds, string $tipo = 'igualitario', array $valores = []): bool
     {
         $model = new self();
