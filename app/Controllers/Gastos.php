@@ -82,8 +82,43 @@ class Gastos extends BaseController
         ]);
     }
 
+    private function normalizarMonto(): void
+    {
+        $raw = $this->request->getPost('monto');
+        $visual = $this->request->getPost('monto_visual');
+
+        // Si monto hidden viene vacio, usar monto_visual como fallback
+        $candidato = $raw;
+        $deVisual = false;
+        if ($candidato === null || $candidato === '') {
+            $candidato = $visual;
+            $deVisual = true;
+        }
+        if ($candidato === null || $candidato === '') {
+            return;
+        }
+
+        $limpio = $candidato;
+
+        // Si tiene coma, es formato argentino: 1.999,87 -> 1999.87
+        if (str_contains($limpio, ',')) {
+            $limpio = str_replace('.', '', $limpio);
+            $limpio = str_replace(',', '.', $limpio);
+        } elseif ($deVisual) {
+            // Viene de monto_visual sin coma: punto es separador de miles
+            $limpio = str_replace('.', '', $limpio);
+        }
+        // Si viene de monto hidden sin coma, ya esta normalizado o es invalido
+
+        if (is_numeric($limpio)) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost() ?: [], ['monto' => $limpio]));
+        }
+    }
+
     public function create()
     {
+        $this->normalizarMonto();
+
         $rules = [
             'descripcion' => 'required|min_length[2]|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
@@ -301,6 +336,8 @@ class Gastos extends BaseController
 
     public function update(int $id)
     {
+        $this->normalizarMonto();
+
         $gastoModel = new Gasto();
         $gastoExistente = $gastoModel->find($id);
 

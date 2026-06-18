@@ -39,7 +39,13 @@
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
                     </div>
 
-                    <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label fw-medium">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha"
+                               value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
+                    </div>
+
+                    <?php $mostrarMasAcciones = isset($gasto) || old('nota'); ?>
                     <div class="mb-3">
                         <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
                             M&aacute;s acciones
@@ -48,12 +54,6 @@
 
                     <div class="collapse <?= $mostrarMasAcciones ? 'show' : '' ?>" id="masAccionesGasto">
                         <div class="more-actions-panel mb-3">
-                            <div class="mb-3">
-                                <label for="fecha" class="form-label fw-medium">Fecha</label>
-                                <input type="date" class="form-control" id="fecha" name="fecha"
-                                       value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
-                            </div>
-
                             <div class="mb-3">
                                 <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
                                 <textarea class="form-control" id="nota" name="nota" rows="2"><?= esc(old('nota', $gasto['nota'] ?? '')) ?></textarea>
@@ -91,9 +91,10 @@
                     <!-- Categoria (oculta, inferida desde descripcion) -->
                     <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? '') ?>">
 
-                    <!-- SECCION DIVISION (resumen compacto) -->
+                    <!-- Pagador -->
                     <?php
                         $usuarioActualId = (int) session()->get('userId');
+                        $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? $usuarioActualId);
                         $otroMiembro = null;
                         if (isset($miembros)) {
                             foreach ($miembros as $m) {
@@ -104,7 +105,27 @@
                             }
                         }
                     ?>
-                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                    <?php $pagadorBloqueado = isset($gasto) && $rol !== 'admin'; ?>
+                    <div class="mb-3 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
+                        <label class="form-label fw-medium">Pagado por</label>
+                        <?php if (isset($miembros) && count($miembros) > 0): ?>
+                        <select class="form-select" id="pagador_id" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?>>
+                            <option value="">Seleccionar</option>
+                            <?php foreach ($miembros as $m): ?>
+                                <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <?php if ($pagadorBloqueado): ?>
+                            <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
+                        <?php endif; ?>
+                        <?php else: ?>
+                        <input type="text" class="form-control" value="Vos" disabled>
+                        <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
+                        <?php endif; ?>
+                    </div>
+
+                    <!-- SECCION DIVISION (resumen compacto) -->
+                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
                         <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
                         <button type="button" class="btn btn-outline-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                             <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
@@ -185,6 +206,7 @@
 
         var usuarioActualId = '<?= (int) session()->get('userId') ?>';
         var otroMiembroId = '<?= $otroMiembro['user_id'] ?? '' ?>';
+        var pagadorBloqueado = <?= (isset($gasto) && $rol !== 'admin') ? 'true' : 'false' ?>;
 
         function setPagador(uid) {
             var pagador = document.getElementById('pagador_id');
@@ -249,10 +271,12 @@
                 cambiarModoDivision('igualitario');
             }
 
-            if (preset === 'other_paid_equal' || preset === 'other_paid_me') {
-                setPagador(otroMiembroId);
-            } else {
-                setPagador(usuarioActualId);
+            if (!pagadorBloqueado) {
+                if (preset === 'other_paid_equal' || preset === 'other_paid_me') {
+                    setPagador(otroMiembroId);
+                } else {
+                    setPagador(usuarioActualId);
+                }
             }
 
             setParticipantesPorPreset(preset);
@@ -435,20 +459,6 @@
             </div>
             <div class="modal-body p-3">
                 <?php if (isset($miembros) && count($miembros) > 0): ?>
-                    <!-- Pagador -->
-                    <div class="mb-4">
-                        <label class="form-label fw-medium">Pagado por</label>
-                        <select class="form-select" id="pagador_id" name="pagador_id" required>
-                            <option value="">Seleccionar</option>
-                            <?php
-                                $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? session()->get('userId'));
-                            ?>
-                            <?php foreach ($miembros as $m): ?>
-                                <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
                     <!-- Presets rapidos -->
                     <div class="list-group mb-3">
                         <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
@@ -459,7 +469,7 @@
                             <span class="d-block fw-semibold">Yo pagu&eacute;, me deben</span>
                             <span class="d-block small text-muted">Solo los dem&aacute;s consumieron.</span>
                         </button>
-                        <?php if ($otroMiembro): ?>
+                        <?php if ($otroMiembro && !$pagadorBloqueado): ?>
                             <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
                                 <span class="d-block fw-semibold"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
                                 <span class="d-block small text-muted">Dividido en partes iguales.</span>
