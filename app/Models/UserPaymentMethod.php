@@ -23,14 +23,6 @@ class UserPaymentMethod extends Model
             ->findAll();
     }
 
-    public function getAllByUser(int $userId): array
-    {
-        return $this->where('user_id', $userId)
-            ->orderBy('favorito', 'DESC')
-            ->orderBy('created_at', 'ASC')
-            ->findAll();
-    }
-
     public function marcarFavorito(int $id, int $userId): void
     {
         $this->where('user_id', $userId)
@@ -41,14 +33,4 @@ class UserPaymentMethod extends Model
         $this->update($id, ['favorito' => 1]);
     }
 
-    public function getFavoritoByUser(int $userId): ?array
-    {
-        $row = $this->where('user_id', $userId)
-            ->where('favorito', 1)
-            ->where('activo', 1)
-            ->get()
-            ->getRowArray();
-
-        return $row ?: null;
-    }
 }

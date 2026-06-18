@@ -11,16 +11,6 @@ class GastoDivision extends Model
     protected $allowedFields = ['gasto_id', 'user_id', 'tipo', 'valor', 'monto_calculado'];
     protected $useTimestamps = true;
 
-    public function gasto()
-    {
-        return $this->belongsTo(Gasto::class, 'gasto_id');
-    }
-
-    public function usuario()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
     /**
      * UX4 solo expone igualitario, monto_fijo y porcentaje.
      * partes y ajuste quedan como soporte tecnico no expuesto/heredado.
@@ -130,16 +120,4 @@ class GastoDivision extends Model
         return true;
     }
 
-    public static function getGastosSinDivisiones(): array
-    {
-        $db = db_connect();
-        return $db->table('gastos')
-            ->select('gastos.id')
-            ->where('gastos.division_tipo', 'igualitario')
-            ->whereNotIn('gastos.id', function ($qb) {
-                $qb->select('gasto_id')->from('gasto_divisiones');
-            })
-            ->get()
-            ->getResultArray();
-    }
 }
