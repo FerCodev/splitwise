@@ -45,23 +45,50 @@ class Dashboard extends BaseController
 
         $resumen = Grupo::computeDashboardResumen($grupos);
 
-        $ultimosGastos = $gastoModel->getUltimosGastosByUser($userId, 5);
-        $ultimosPagos = $pagoModel->getUltimosPagosByUser($userId, 5);
+        $ultimosGastos = $gastoModel->getUltimosGastosByUser($userId, 10);
+        $ultimosPagos = $pagoModel->getUltimosPagosByUser($userId, 10);
 
-        // Combinar ultimos movimientos para el feed
         $movimientos = array_merge(
             array_map(fn($g) => array_merge($g, ['tipo' => 'gasto']), $ultimosGastos),
             array_map(fn($p) => array_merge($p, ['tipo' => 'pago']), $ultimosPagos)
         );
         usort($movimientos, fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
-        $movimientos = array_slice($movimientos, 0, 10);
+        $movimientos = array_slice($movimientos, 0, 20);
+
+        // Deudas pendientes del usuario
+        $deudasPendientes = [];
+        foreach ($grupos as $g) {
+            $balance = $gastoModel->getBalanceByGrupo($g['id']);
+            $deudas = Gasto::computeDeudasFromBalance($balance);
+            foreach ($deudas as $d) {
+                if ((int) $d['deudor_id'] === $userId || (int) $d['acreedor_id'] === $userId) {
+                    $d['grupo_id'] = $g['id'];
+                    $d['grupo_nombre'] = $g['nombre'];
+                    $deudasPendientes[] = $d;
+                }
+            }
+        }
+        usort($deudasPendientes, fn($a, $b) => $b['monto'] - $a['monto']);
+        $deudasPendientes = array_slice($deudasPendientes, 0, 6);
+
+        $totalDebe = 0;
+        $totalLeDeben = 0;
+        foreach ($deudasPendientes as $d) {
+            if ((int) $d['deudor_id'] === $userId) {
+                $totalDebe += $d['monto'];
+            }
+            if ((int) $d['acreedor_id'] === $userId) {
+                $totalLeDeben += $d['monto'];
+            }
+        }
 
         return view('dashboard', array_merge(
             [
                 'grupos' => $grupos,
-                'ultimosGastos' => $ultimosGastos,
-                'ultimosPagos' => $ultimosPagos,
                 'movimientos' => $movimientos,
+                'deudasPendientes' => $deudasPendientes,
+                'totalDebe' => round($totalDebe, 2),
+                'totalLeDeben' => round($totalLeDeben, 2),
             ],
             $resumen
         ));
