@@ -125,7 +125,7 @@
                     </div>
 
                     <!-- SECCION DIVISION (resumen compacto) -->
-                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
                         <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
                         <button type="button" class="btn btn-outline-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                             <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
