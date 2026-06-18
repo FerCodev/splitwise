@@ -39,13 +39,7 @@
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
                     </div>
 
-                    <div class="mb-3">
-                        <label for="fecha" class="form-label fw-medium">Fecha</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha"
-                               value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
-                    </div>
-
-                    <?php $mostrarMasAcciones = isset($gasto) || old('nota'); ?>
+                    <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>
                     <div class="mb-3">
                         <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
                             M&aacute;s acciones
@@ -54,6 +48,11 @@
 
                     <div class="collapse <?= $mostrarMasAcciones ? 'show' : '' ?>" id="masAccionesGasto">
                         <div class="more-actions-panel mb-3">
+                            <div class="mb-3">
+                                <label for="fecha" class="form-label fw-medium">Fecha</label>
+                                <input type="date" class="form-control" id="fecha" name="fecha"
+                                       value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
+                            </div>
                             <div class="mb-3">
                                 <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
                                 <textarea class="form-control" id="nota" name="nota" rows="2"><?= esc(old('nota', $gasto['nota'] ?? '')) ?></textarea>
