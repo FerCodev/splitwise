@@ -47,6 +47,7 @@
                             </a>
                         </div>
                         <div class="col-6 col-md-3">
+                            <a href="<?= base_url('reportes') ?>" class="text-decoration-none">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body py-2 px-3">
                                     <div class="d-flex align-items-center gap-2">
@@ -61,6 +62,7 @@
                                     </div>
                                 </div>
                             </div>
+                            </a>
                         </div>
                         <div class="col-6 col-md-3">
                             <a href="#deudas-section" class="text-decoration-none">
@@ -223,7 +225,7 @@
                         </div>
                         </a>
                     <?php endforeach; ?>
-                    <?php if (count($deudasPendientes) >= 6): ?>
+                    <?php if ($hayMasDeudas): ?>
                         <div class="text-center mt-2">
                             <a href="<?= base_url('grupos') ?>" class="text-decoration-none small">Ver m&aacute;s</a>
                         </div>

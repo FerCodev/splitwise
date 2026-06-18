@@ -19,6 +19,10 @@ class Dashboard extends BaseController
         $actividades = $grupoModel->getUltimaActividadByUser($userId);
         $ultimosMovs = $grupoModel->getUltimoMovimientoByUser($userId);
 
+        $deudasPendientes = [];
+        $totalDebe = 0;
+        $totalLeDeben = 0;
+
         foreach ($grupos as &$grupo) {
             $balance = $gastoModel->getBalanceByGrupo($grupo['id']);
             $deudas = Gasto::computeDeudasFromBalance($balance);
@@ -38,6 +42,21 @@ class Dashboard extends BaseController
             $grupo['deudas_count'] = count($deudas);
             $grupo['ultima_actividad'] = $actividades[$gid] ?? $grupo['created_at'];
             $grupo['ultimo_movimiento'] = $ultimosMovs[$gid] ?? null;
+
+            // Acumular deudas pendientes del usuario desde el mismo calculo
+            foreach ($deudas as $d) {
+                if ((int) $d['deudor_id'] === $userId || (int) $d['acreedor_id'] === $userId) {
+                    $d['grupo_id'] = $gid;
+                    $d['grupo_nombre'] = $grupo['nombre'];
+                    $deudasPendientes[] = $d;
+                    if ((int) $d['deudor_id'] === $userId) {
+                        $totalDebe += $d['monto'];
+                    }
+                    if ((int) $d['acreedor_id'] === $userId) {
+                        $totalLeDeben += $d['monto'];
+                    }
+                }
+            }
         }
         unset($grupo);
 
@@ -55,32 +74,10 @@ class Dashboard extends BaseController
         usort($movimientos, fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
         $movimientos = array_slice($movimientos, 0, 20);
 
-        // Deudas pendientes del usuario
-        $deudasPendientes = [];
-        foreach ($grupos as $g) {
-            $balance = $gastoModel->getBalanceByGrupo($g['id']);
-            $deudas = Gasto::computeDeudasFromBalance($balance);
-            foreach ($deudas as $d) {
-                if ((int) $d['deudor_id'] === $userId || (int) $d['acreedor_id'] === $userId) {
-                    $d['grupo_id'] = $g['id'];
-                    $d['grupo_nombre'] = $g['nombre'];
-                    $deudasPendientes[] = $d;
-                }
-            }
-        }
-        usort($deudasPendientes, fn($a, $b) => $b['monto'] - $a['monto']);
+        $totalDeudasPendientes = count($deudasPendientes);
+        usort($deudasPendientes, fn($a, $b) => $b['monto'] <=> $a['monto']);
         $deudasPendientes = array_slice($deudasPendientes, 0, 6);
-
-        $totalDebe = 0;
-        $totalLeDeben = 0;
-        foreach ($deudasPendientes as $d) {
-            if ((int) $d['deudor_id'] === $userId) {
-                $totalDebe += $d['monto'];
-            }
-            if ((int) $d['acreedor_id'] === $userId) {
-                $totalLeDeben += $d['monto'];
-            }
-        }
+        $hayMasDeudas = $totalDeudasPendientes > 6;
 
         return view('dashboard', array_merge(
             [
