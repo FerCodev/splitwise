@@ -85,12 +85,37 @@ class Gastos extends BaseController
     private function normalizarMonto(): void
     {
         $raw = $this->request->getPost('monto');
-        if ($raw !== null) {
-            $limpio = str_replace(['.', ','], ['', '.'], $raw);
-            if (is_numeric($limpio)) {
-                $request = service('request');
-                $request->setGlobal('post', array_merge($request->getPost() ?: [], ['monto' => $limpio]));
+        $visual = $this->request->getPost('monto_visual');
+
+        $candidato = $raw;
+        if ($candidato === null || $candidato === '') {
+            $candidato = $visual;
+        }
+        if ($candidato === null || $candidato === '') {
+            return;
+        }
+
+        $limpio = $candidato;
+        // Si tiene coma, es formato argentino: 1.999,87 -> 1999.87
+        if (str_contains($limpio, ',')) {
+            $limpio = str_replace('.', '', $limpio);
+            $limpio = str_replace(',', '.', $limpio);
+        } elseif (str_contains($limpio, '.')) {
+            // Sin coma: puede ser normal (1999.87) o argentino sin decimales (1.999)
+            // Si tiene mas de un punto, son separadores de miles
+            if (substr_count($limpio, '.') > 1) {
+                $limpio = str_replace('.', '', $limpio);
+            } else {
+                // Un solo punto: verificar si parece separador de miles
+                $partes = explode('.', $limpio);
+                if (strlen($partes[1] ?? '') !== 2) {
+                    $limpio = str_replace('.', '', $limpio);
+                }
             }
+        }
+
+        if (is_numeric($limpio)) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost() ?: [], ['monto' => $limpio]));
         }
     }
 

@@ -105,15 +105,19 @@
                             }
                         }
                     ?>
+                    <?php $pagadorBloqueado = isset($gasto) && $rol !== 'admin'; ?>
                     <div class="mb-3 <?= !isset($miembros) ? 'd-none' : '' ?>">
                         <label class="form-label fw-medium">Pagado por</label>
                         <?php if (isset($miembros) && count($miembros) > 0): ?>
-                        <select class="form-select" id="pagador_id" name="pagador_id" required>
+                        <select class="form-select" id="pagador_id" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?>>
                             <option value="">Seleccionar</option>
                             <?php foreach ($miembros as $m): ?>
                                 <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <?php if ($pagadorBloqueado): ?>
+                            <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
+                        <?php endif; ?>
                         <?php else: ?>
                         <input type="text" class="form-control" value="Vos" disabled>
                         <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
