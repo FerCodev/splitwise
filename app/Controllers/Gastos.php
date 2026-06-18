@@ -87,32 +87,28 @@ class Gastos extends BaseController
         $raw = $this->request->getPost('monto');
         $visual = $this->request->getPost('monto_visual');
 
+        // Si monto hidden viene vacio, usar monto_visual como fallback
         $candidato = $raw;
+        $deVisual = false;
         if ($candidato === null || $candidato === '') {
             $candidato = $visual;
+            $deVisual = true;
         }
         if ($candidato === null || $candidato === '') {
             return;
         }
 
         $limpio = $candidato;
+
         // Si tiene coma, es formato argentino: 1.999,87 -> 1999.87
         if (str_contains($limpio, ',')) {
             $limpio = str_replace('.', '', $limpio);
             $limpio = str_replace(',', '.', $limpio);
-        } elseif (str_contains($limpio, '.')) {
-            // Sin coma: puede ser normal (1999.87) o argentino sin decimales (1.999)
-            // Si tiene mas de un punto, son separadores de miles
-            if (substr_count($limpio, '.') > 1) {
-                $limpio = str_replace('.', '', $limpio);
-            } else {
-                // Un solo punto: verificar si parece separador de miles
-                $partes = explode('.', $limpio);
-                if (strlen($partes[1] ?? '') !== 2) {
-                    $limpio = str_replace('.', '', $limpio);
-                }
-            }
+        } elseif ($deVisual) {
+            // Viene de monto_visual sin coma: punto es separador de miles
+            $limpio = str_replace('.', '', $limpio);
         }
+        // Si viene de monto hidden sin coma, ya esta normalizado o es invalido
 
         if (is_numeric($limpio)) {
             $this->request->setGlobal('post', array_merge($this->request->getPost() ?: [], ['monto' => $limpio]));

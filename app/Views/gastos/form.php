@@ -106,7 +106,7 @@
                         }
                     ?>
                     <?php $pagadorBloqueado = isset($gasto) && $rol !== 'admin'; ?>
-                    <div class="mb-3 <?= !isset($miembros) ? 'd-none' : '' ?>">
+                    <div class="mb-3 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
                         <label class="form-label fw-medium">Pagado por</label>
                         <?php if (isset($miembros) && count($miembros) > 0): ?>
                         <select class="form-select" id="pagador_id" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?>>
@@ -206,6 +206,7 @@
 
         var usuarioActualId = '<?= (int) session()->get('userId') ?>';
         var otroMiembroId = '<?= $otroMiembro['user_id'] ?? '' ?>';
+        var pagadorBloqueado = <?= (isset($gasto) && $rol !== 'admin') ? 'true' : 'false' ?>;
 
         function setPagador(uid) {
             var pagador = document.getElementById('pagador_id');
@@ -270,10 +271,12 @@
                 cambiarModoDivision('igualitario');
             }
 
-            if (preset === 'other_paid_equal' || preset === 'other_paid_me') {
-                setPagador(otroMiembroId);
-            } else {
-                setPagador(usuarioActualId);
+            if (!pagadorBloqueado) {
+                if (preset === 'other_paid_equal' || preset === 'other_paid_me') {
+                    setPagador(otroMiembroId);
+                } else {
+                    setPagador(usuarioActualId);
+                }
             }
 
             setParticipantesPorPreset(preset);
@@ -466,7 +469,7 @@
                             <span class="d-block fw-semibold">Yo pagu&eacute;, me deben</span>
                             <span class="d-block small text-muted">Solo los dem&aacute;s consumieron.</span>
                         </button>
-                        <?php if ($otroMiembro): ?>
+                        <?php if ($otroMiembro && !$pagadorBloqueado): ?>
                             <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="other_paid_equal" onclick="aplicarPresetDivision('other_paid_equal', this)">
                                 <span class="d-block fw-semibold"><?= esc($otroMiembro['name']) ?> pag&oacute;</span>
                                 <span class="d-block small text-muted">Dividido en partes iguales.</span>
