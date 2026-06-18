@@ -327,6 +327,9 @@
     #divisionPresetModal .list-group-item {
         padding: 14px 16px;
     }
+    .grupo-movimiento-card .card-body {
+        padding: 14px 16px;
+    }
 }
 
 @media (min-width: 576px) {
