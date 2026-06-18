@@ -36,7 +36,10 @@
                             <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info w-100 py-2">Ver balance</a>
                         </div>
                         <div class="col-6">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">Configurar grupo</a>
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">
+                                <span class="d-none d-sm-inline">Configurar grupo</span>
+                                <span class="d-inline d-sm-none">Configurar</span>
+                            </a>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -48,12 +51,9 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <span class="text-muted small">Transferencias sugeridas</span>
-                        <div class="fw-bold fs-5"><?= count($deudas) ?></div>
-                    </div>
-                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info btn-sm">Ver balance</a>
+                <div>
+                    <span class="text-muted small">Transferencias sugeridas</span>
+                    <div class="fw-bold fs-5"><?= count($deudas) ?></div>
                 </div>
             </div>
         </div>
