@@ -98,54 +98,6 @@ class Gasto extends Model
             ->getResultArray();
     }
 
-    public function getSaldosByGrupo(int $grupoId): array
-    {
-        $gastos = $this->where('grupo_id', $grupoId)->findAll();
-        $miembros = model(GrupoMiembro::class)
-            ->select('grupo_miembros.*, users.name, users.email')
-            ->join('users', 'users.id = grupo_miembros.user_id')
-            ->where('grupo_miembros.grupo_id', $grupoId)
-            ->findAll();
-
-        $saldos = [];
-        foreach ($miembros as $m) {
-            $saldos[$m['user_id']] = [
-                'user_id' => $m['user_id'],
-                'name' => $m['name'],
-                'pago' => 0,
-                'debe' => 0,
-                'saldo' => 0,
-            ];
-        }
-
-        foreach ($gastos as $gasto) {
-            $participantes = $this->getParticipantes($gasto['id']);
-            $pagadorId = $gasto['pagador_id'];
-
-            foreach ($participantes as $p) {
-                if ($p['user_id'] == $pagadorId) {
-                    continue;
-                }
-                if (isset($saldos[$pagadorId])) {
-                    $saldos[$pagadorId]['pago'] += $p['monto_asignado'];
-                }
-                if (isset($saldos[$p['user_id']])) {
-                    $saldos[$p['user_id']]['debe'] += $p['monto_asignado'];
-                }
-            }
-        }
-
-        foreach ($saldos as &$s) {
-            $s['saldo'] = $s['pago'] - $s['debe'];
-        }
-
-        usort($saldos, function ($a, $b) {
-            return $b['saldo'] - $a['saldo'];
-        });
-
-        return $saldos;
-    }
-
     /**
      * Calcula el balance completo por usuario incluyendo pagos.
      *
