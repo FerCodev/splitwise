@@ -82,8 +82,22 @@ class Gastos extends BaseController
         ]);
     }
 
+    private function normalizarMonto(): void
+    {
+        $raw = $this->request->getPost('monto');
+        if ($raw !== null) {
+            $limpio = str_replace(['.', ','], ['', '.'], $raw);
+            if (is_numeric($limpio)) {
+                $request = service('request');
+                $request->setGlobal('post', array_merge($request->getPost() ?: [], ['monto' => $limpio]));
+            }
+        }
+    }
+
     public function create()
     {
+        $this->normalizarMonto();
+
         $rules = [
             'descripcion' => 'required|min_length[2]|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
@@ -301,6 +315,8 @@ class Gastos extends BaseController
 
     public function update(int $id)
     {
+        $this->normalizarMonto();
+
         $gastoModel = new Gasto();
         $gastoExistente = $gastoModel->find($id);
 
