@@ -92,7 +92,7 @@
                 <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
                 <?php endif; ?>
                     <div class="card border-0 shadow-sm mb-2 grupo-movimiento-card">
-                        <div class="card-body py-2 px-3">
+                        <div class="card-body py-3 px-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
