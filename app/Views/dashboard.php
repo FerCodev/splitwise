@@ -24,42 +24,82 @@
             <?php
                 $activos = array_filter($grupos, fn($g) => $g['estado'] === 'activo');
                 $inactivos = array_filter($grupos, fn($g) => $g['estado'] !== 'activo');
+                $userId = (int) session()->get('userId');
             ?>
 
-            <!-- Resumen colapsable -->
+            <!-- Resumen superior -->
             <div class="mb-4">
                 <div class="collapse d-md-block" id="resumenCollapse">
-                    <div class="row g-2 mt-2">
-                        <div class="col-3 col-md-3 col-lg-2">
-                            <div class="card border-0 shadow-sm text-center py-2 h-100">
-                                <div class="small text-muted lh-1">Activos</div>
-                                <div class="fw-bold fs-5 text-success"><?= $cantidadActivos ?></div>
+                    <div class="row g-2">
+                        <div class="col-6 col-md-3">
+                            <a href="<?= base_url('grupos') ?>" class="text-decoration-none">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-primary flex-shrink-0" viewBox="0 0 16 16"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>
+                                        <div class="min-width-0">
+                                            <div class="small text-muted lh-1">Grupos activos</div>
+                                            <div class="fw-bold fs-5"><?= $cantidadActivos ?></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            </a>
                         </div>
-                        <div class="col-3 col-md-3 col-lg-2">
-                            <div class="card border-0 shadow-sm text-center py-2 h-100">
-                                <div class="small text-muted lh-1">Saldo</div>
-                                <div class="fw-bold fs-5 <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">$<?= number_format(abs($globalSaldo), 0) ?></div>
+                        <div class="col-6 col-md-3">
+                            <a href="<?= base_url('reportes') ?>" class="text-decoration-none">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="<?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?> flex-shrink-0" viewBox="0 0 16 16"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-6 8c0 1 1 1 1 1h6s1 0 1-1-1-4-6-4-6 3-6 4Zm10-8a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM3.5 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
+                                        <div class="min-width-0">
+                                            <div class="small text-muted lh-1">Saldo total</div>
+                                            <div class="fw-bold fs-5 <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
+                                                $<?= number_format(abs($globalSaldo), 0) ?>
+                                                <small class="fw-normal text-muted fs-6"><?= $globalSaldo >= 0 ? 'a favor' : 'deb&eacute;s' ?></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            </a>
                         </div>
-                        <div class="col-3 col-md-3 col-lg-2">
-                            <div class="card border-0 shadow-sm text-center py-2 h-100">
-                                <div class="small text-muted lh-1">A favor</div>
-                                <div class="fw-bold fs-5 text-success"><?= $gruposAFavor ?></div>
+                        <div class="col-6 col-md-3">
+                            <a href="#deudas-section" class="text-decoration-none">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-warning flex-shrink-0" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Zm-9 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6Z"/></svg>
+                                        <div class="min-width-0">
+                                            <div class="small text-muted lh-1">Deb&#233;s</div>
+                                            <div class="fw-bold fs-5 text-danger">$<?= number_format($totalDebe, 0) ?></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            </a>
                         </div>
-                        <div class="col-3 col-md-3 col-lg-2">
-                            <div class="card border-0 shadow-sm text-center py-2 h-100">
-                                <div class="small text-muted lh-1">Deb&eacute;s</div>
-                                <div class="fw-bold fs-5 text-danger"><?= $gruposDebe ?></div>
+                        <div class="col-6 col-md-3">
+                            <a href="#deudas-section" class="text-decoration-none">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body py-2 px-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-success flex-shrink-0" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5ZM5.5 9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5Z"/></svg>
+                                        <div class="min-width-0">
+                                            <div class="small text-muted lh-1">Te deben</div>
+                                            <div class="fw-bold fs-5 text-success">$<?= number_format($totalLeDeben, 0) ?></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Filtros -->
-            <div class="d-flex align-items-center gap-2 mb-2">
+            <!-- Filtros del feed -->
+            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                 <span class="fw-bold small text-muted d-none d-md-inline">Grupos</span>
                 <div class="filter-tabs flex-grow-1">
                     <button class="filter-tab active" data-filter="todos" onclick="filtrarGrupos('todos', this)">Todos</button>
@@ -126,10 +166,7 @@
                             <div class="row g-3 mt-2">
                                 <?php foreach ($inactivos as $grupo): ?>
                                     <?php
-                                        $badgeEstado = [
-                                            'cerrado' => 'bg-warning text-dark',
-                                            'liquidado' => 'bg-secondary',
-                                        ];
+                                        $badgeEstado = ['cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
                                         $claseBadge = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
                                         $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : '');
                                     ?>
@@ -160,50 +197,121 @@
                 </div>
             </div>
 
-            <!-- Actividad reciente -->
-            <div class="filter-section" data-section="actividad">
-                <?php if (!empty($movimientos)): ?>
-                    <h5 class="fw-bold mb-3 mt-2">Actividad reciente</h5>
-                    <?php foreach ($movimientos as $m): ?>
-                        <?php if ($m['tipo'] === 'gasto'): ?>
-                            <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm mb-2">
-                                <div class="card-body py-2 px-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
-                                            <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
-                                        </div>
-                                        <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
+            <!-- Deudas pendientes -->
+            <div id="deudas-section" class="mb-4">
+                <h5 class="fw-bold mb-3">Deudas pendientes</h5>
+                <?php if (empty($deudasPendientes)): ?>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-4">
+                            <p class="text-muted mb-0">No ten&eacute;s deudas pendientes.</p>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($deudasPendientes as $d): ?>
+                        <?php $esDeudor = (int) $d['deudor_id'] === $userId; ?>
+                        <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="text-decoration-none">
+                        <div class="card border-0 shadow-sm mb-2">
+                            <div class="card-body py-2 px-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="fw-medium small">
+                                            <?= $esDeudor ? 'Deb&eacute;s a ' . esc($d['acreedor']) : 'Te debe ' . esc($d['deudor']) ?>
+                                        </span>
+                                        <span class="text-muted small ms-1"><?= esc($d['grupo_nombre']) ?></span>
                                     </div>
-                                    <div class="text-muted small">
-                                        <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot;
-                                        <?= esc($m['pagador_nombre']) ?> &middot;
-                                        <span class="badge bg-light text-dark"><?= esc($m['categoria_nombre'] ?? 'Otros') ?></span>
-                                    </div>
+                                    <span class="fw-bold small <?= $esDeudor ? 'text-danger' : 'text-success' ?>">$<?= number_format($d['monto'], 2) ?></span>
                                 </div>
                             </div>
-                            </a>
-                        <?php else: ?>
-                            <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm mb-2">
-                                <div class="card-body py-2 px-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <span class="fw-medium small">Pago</span>
-                                            <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
-                                        </div>
-                                        <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
-                                    </div>
-                                    <div class="text-muted small">
-                                        <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot;
-                                        <?= esc($m['pagador_nombre']) ?> pag&oacute; a <?= esc($m['receptor_nombre']) ?>
-                                    </div>
-                                </div>
-                            </div>
-                            </a>
-                        <?php endif; ?>
+                        </div>
+                        </a>
                     <?php endforeach; ?>
+                    <?php if ($hayMasDeudas): ?>
+                        <div class="text-center mt-2">
+                            <a href="<?= base_url('grupos') ?>" class="text-decoration-none small">Ver m&aacute;s</a>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Actividad reciente con filtros -->
+            <div class="filter-section" data-section="actividad">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="fw-bold mb-0">Actividad reciente</h5>
+                    <div class="d-flex gap-2">
+                        <select id="feedFiltroGrupo" class="form-select form-select-sm" style="width:auto;max-width:160px" onchange="filtrarFeed()">
+                            <option value="">Todos los grupos</option>
+                            <?php foreach ($grupos as $g): ?>
+                                <option value="<?= $g['id'] ?>"><?= esc($g['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <select id="feedFiltroPeriodo" class="form-select form-select-sm" style="width:auto;max-width:120px" onchange="filtrarFeed()">
+                            <option value="">Todas</option>
+                            <option value="hoy">Hoy</option>
+                            <option value="semana">Esta semana</option>
+                            <option value="mes">Este mes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <?php if (!empty($movimientos)): ?>
+                    <div id="feedContainer">
+                        <?php foreach ($movimientos as $m): ?>
+                            <?php
+                                $fechaTs = strtotime($m['fecha']);
+                                $fechaTag = date('Y-m-d', $fechaTs);
+                            ?>
+                            <?php if ($m['tipo'] === 'gasto'): ?>
+                                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                <div class="card border-0 shadow-sm mb-2">
+                                    <div class="card-body py-2 px-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
+                                                <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
+                                            </div>
+                                            <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <?= date('d/m/Y', $fechaTs) ?> &middot;
+                                            <?= esc($m['pagador_nombre']) ?> &middot;
+                                            <span class="badge bg-light text-dark"><?= esc($m['categoria_nombre'] ?? 'Otros') ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                </a>
+                            <?php else: ?>
+                                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                <div class="card border-0 shadow-sm mb-2">
+                                    <div class="card-body py-2 px-3">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <span class="fw-medium small">Pago</span>
+                                                <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
+                                            </div>
+                                            <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
+                                        </div>
+                                        <div class="text-muted small">
+                                            <?= date('d/m/Y', $fechaTs) ?> &middot;
+                                            <?= esc($m['pagador_nombre']) ?> pag&oacute; a <?= esc($m['receptor_nombre']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                </a>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                    <div id="feedEmpty" class="card border-0 shadow-sm d-none">
+                        <div class="card-body text-center py-4">
+                            <p class="text-muted mb-0">No hay movimientos para este filtro.</p>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center py-4">
+                            <p class="text-muted mb-0">No hay actividad reciente.</p>
+                            <a href="<?= base_url('grupos') ?>" class="btn btn-outline-primary btn-sm mt-2">Entrar a un grupo</a>
+                        </div>
+                    </div>
                 <?php endif; ?>
             </div>
 
@@ -211,20 +319,44 @@
             function filtrarGrupos(filtro, btn) {
                 document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
                 btn.classList.add('active');
-                var sections = document.querySelectorAll('.filter-section');
-                sections.forEach(function(s) {
-                    if (filtro === 'todos') {
-                        s.style.display = '';
-                    } else if (filtro === 'activos') {
-                        s.style.display = (s.dataset.section === 'activos' || s.dataset.section === 'actividad') ? '' : 'none';
-                    } else if (filtro === 'cerrados') {
+                document.querySelectorAll('.filter-section').forEach(function(s) {
+                    if (filtro === 'todos') { s.style.display = ''; }
+                    else if (filtro === 'activos') { s.style.display = (s.dataset.section === 'activos' || s.dataset.section === 'actividad') ? '' : 'none'; }
+                    else if (filtro === 'cerrados') {
                         s.style.display = (s.dataset.section === 'activos' || s.dataset.section === 'actividad') ? 'none' : '';
-                        if (s.dataset.section === 'inactivos') {
-                            var det = s.querySelector('details');
-                            if (det) det.open = true;
-                        }
+                        if (s.dataset.section === 'inactivos') { var d = s.querySelector('details'); if (d) d.open = true; }
                     }
                 });
+            }
+
+            function filtrarFeed() {
+                var grupoFiltro = document.getElementById('feedFiltroGrupo').value;
+                var periodoFiltro = document.getElementById('feedFiltroPeriodo').value;
+                var items = document.querySelectorAll('.feed-item');
+                var visible = 0;
+
+                var ahora = new Date();
+                var hoyStr = ahora.toISOString().slice(0, 10);
+
+                var inicioSemana = new Date(ahora);
+                inicioSemana.setDate(ahora.getDate() - ahora.getDay());
+                var inicioSemanaStr = inicioSemana.toISOString().slice(0, 10);
+
+                var inicioMesStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-01';
+
+                items.forEach(function(item) {
+                    var gId = item.dataset.grupoId;
+                    var f = item.dataset.fecha;
+                    var cumpleGrupo = !grupoFiltro || gId === grupoFiltro;
+                    var cumpleFecha = true;
+                    if (periodoFiltro === 'hoy') { cumpleFecha = f === hoyStr; }
+                    else if (periodoFiltro === 'semana') { cumpleFecha = f >= inicioSemanaStr; }
+                    else if (periodoFiltro === 'mes') { cumpleFecha = f >= inicioMesStr; }
+                    if (cumpleGrupo && cumpleFecha) { item.style.display = ''; visible++; }
+                    else { item.style.display = 'none'; }
+                });
+
+                document.getElementById('feedEmpty').classList.toggle('d-none', visible > 0);
             }
             </script>
 
