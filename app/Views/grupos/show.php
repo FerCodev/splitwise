@@ -49,15 +49,6 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <div>
-                    <span class="text-muted small">Transferencias sugeridas</span>
-                    <div class="fw-bold fs-5"><?= count($deudas) ?></div>
-                </div>
-            </div>
-        </div>
-
         <h5 class="fw-bold mb-2">Movimientos</h5>
 
         <?php if (empty($gastos) && empty($pagos)): ?>
