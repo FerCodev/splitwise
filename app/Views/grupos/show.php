@@ -31,7 +31,14 @@
                     <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
                 </div>
                 <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro'] || $permisos['puede_cambiar_estado']): ?>
-                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">Configurar grupo</a>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info w-100 py-2">Ver balance</a>
+                        </div>
+                        <div class="col-6">
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">Configurar grupo</a>
+                        </div>
+                    </div>
                 <?php endif; ?>
                 <?php if ($grupo['descripcion']): ?>
                     <p class="mt-2 mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
@@ -51,13 +58,7 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <h5 class="fw-bold mb-0">Movimientos</h5>
-            <div class="d-flex gap-1">
-                <a href="<?= base_url('gastos?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm">Gastos</a>
-                <a href="<?= base_url('pagos?grupo_id=' . $grupo['id']) ?>" class="btn btn-outline-success btn-sm">Pagos</a>
-            </div>
-        </div>
+        <h5 class="fw-bold mb-2">Movimientos</h5>
 
         <?php if (empty($gastos) && empty($pagos)): ?>
             <div class="card border-0 shadow-sm mb-4">
@@ -85,7 +86,7 @@
                         'fecha' => $p['fecha'],
                         'descripcion' => $p['descripcion'] ?: 'Pago',
                         'monto' => $p['monto'],
-                        'persona' => $p['pagador_nombre'] . ' pag&oacute; a ' . $p['receptor_nombre'],
+                        'persona' => $p['pagador_nombre'] . ' pagó a ' . $p['receptor_nombre'],
                         'id' => $p['id'],
                         'categoria_nombre' => null,
                     ];
@@ -99,7 +100,7 @@
                 <?php else: ?>
                 <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
                 <?php endif; ?>
-                    <div class="card border-0 shadow-sm mb-2">
+                    <div class="card border-0 shadow-sm mb-2 grupo-movimiento-card">
                         <div class="card-body py-2 px-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
