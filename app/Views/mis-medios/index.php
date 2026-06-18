@@ -15,168 +15,100 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-0 d-none d-md-block">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tipo</th>
-                                <th>Alias</th>
-                                <th>CBU/CVU</th>
-                                <th>Banco</th>
-                                <th>Estado</th>
-                                <th>Fav.</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($medios)): ?>
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">No ten&eacute;s medios de cobro registrados.</td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($medios as $m): ?>
-                                    <tr>
-                                        <td class="fw-medium"><?= esc($m['nombre'] ?? $m['tipo']) ?></td>
-                                        <td>
-                                            <span class="badge bg-info text-dark"><?= esc($m['tipo']) ?></span>
-                                        </td>
-                                        <td><?= esc($m['alias'] ?? '-') ?></td>
-                                        <td>
-                                            <?php if ($m['cbu_cvu']): ?>
-                                                <span class="cbu-cvu-text"><?= esc($m['cbu_cvu']) ?></span>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary ms-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" title="Copiar CBU/CVU">
-                                                    Copiar
-                                                </button>
-                                            <?php else: ?>
-                                                -
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?= esc($m['banco'] ?? '-') ?></td>
-                                        <td>
-                                            <?php if ($m['activo']): ?>
-                                                <span class="badge bg-success">Activo</span>
-                                            <?php else: ?>
-                                                <span class="badge bg-danger">Inactivo</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <?php if ($m['favorito']): ?>
-                                                <span class="text-warning" title="Favorito">&starf;</span>
-                                            <?php else: ?>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Marcar como favorito">&star;</button>
-                                                </form>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
-                                                <?php if ($m['activo']): ?>
-                                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-medio-<?= $m['id'] ?>">
-                                                        <?= csrf_field() ?>
-                                                        <button type="button" class="btn btn-sm btn-outline-warning"
-                                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                            data-confirm-title="Desactivar medio de cobro"
-                                                            data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n para que otros miembros te paguen."
-                                                            data-confirm-btn="Desactivar"
-                                                            data-confirm-form="toggle-medio-<?= $m['id'] ?>">Desactivar</button>
-                                                    </form>
-                                                <?php else: ?>
-                                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline">
-                                                        <?= csrf_field() ?>
-                                                        <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
-                                                    </form>
-                                                <?php endif; ?>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" id="delete-medio-<?= $m['id'] ?>">
-                                                    <?= csrf_field() ?>
-                                                    <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                        data-confirm-title="Eliminar medio de cobro"
-                                                        data-confirm-msg="Se eliminar&aacute; este medio de cobro de tu perfil. Los pagos ya registrados no se modifican."
-                                                        data-confirm-btn="Eliminar"
-                                                        data-confirm-form="delete-medio-<?= $m['id'] ?>">Eliminar</button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+        <?php if (empty($medios)): ?>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <p class="text-muted mb-3">No ten&eacute;s medios de cobro registrados.</p>
+                    <a href="<?= base_url('mis-medios-de-cobro/nuevo') ?>" class="btn btn-primary">Agregar medio de cobro</a>
                 </div>
             </div>
-            <div class="d-md-none">
-                <?php if (empty($medios)): ?>
-                    <div class="card-body text-center py-4">
-                        <p class="text-muted mb-0">No ten&eacute;s medios de cobro registrados.</p>
-                    </div>
-                <?php else: ?>
-                    <?php foreach ($medios as $m): ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="fw-medium"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
-                                    <span class="badge bg-info text-dark ms-1"><?= esc($m['tipo']) ?></span>
+        <?php else: ?>
+            <div class="row g-3">
+                <?php foreach ($medios as $m): ?>
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="fw-semibold"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
+                                        <?php if ($m['favorito']): ?>
+                                            <span class="text-warning ms-1" title="Favorito">&starf;</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <?php if ($m['activo']): ?>
+                                            <span class="badge bg-success">Activo</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-danger">Inactivo</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-center gap-1">
+
+                                <div class="small text-muted mb-2">
+                                    <?php if ($m['titular']): ?>
+                                        <div><span class="fw-medium">Titular:</span> <?= esc($m['titular']) ?></div>
+                                    <?php endif; ?>
+                                    <?php if ($m['alias']): ?>
+                                        <div><span class="fw-medium">Alias:</span> <?= esc($m['alias']) ?>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" title="Copiar alias">Copiar</button>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($m['cbu_cvu']): ?>
+                                        <div><span class="fw-medium">CBU/CVU:</span> <?= esc($m['cbu_cvu']) ?>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" title="Copiar CBU/CVU">Copiar</button>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($m['banco']): ?>
+                                        <div><span class="fw-medium">Banco:</span> <?= esc($m['banco']) ?></div>
+                                    <?php endif; ?>
+                                    <?php if ($m['payment_link']): ?>
+                                        <div><span class="fw-medium">Link:</span>
+                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer">Abrir</a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                                    <?php if (!$m['favorito']): ?>
+                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="btn btn-outline-warning btn-sm" title="Marcar como favorito">Favorito</button>
+                                        </form>
+                                    <?php endif; ?>
                                     <?php if ($m['activo']): ?>
-                                        <span class="badge bg-success">Activo</span>
+                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-medio-<?= $m['id'] ?>">
+                                            <?= csrf_field() ?>
+                                            <button type="button" class="btn btn-outline-warning btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                data-confirm-title="Desactivar medio"
+                                                data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n de pago."
+                                                data-confirm-btn="Desactivar"
+                                                data-confirm-form="toggle-medio-<?= $m['id'] ?>">Desactivar</button>
+                                        </form>
                                     <?php else: ?>
-                                        <span class="badge bg-danger">Inactivo</span>
+                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="btn btn-outline-success btn-sm">Activar</button>
+                                        </form>
                                     <?php endif; ?>
-                                    <?php if ($m['favorito']): ?>
-                                        <span class="text-warning" title="Favorito">&starf;</span>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <?php if ($m['alias']): ?>
-                                <div class="small mt-1"><span class="text-muted">Alias:</span> <?= esc($m['alias']) ?></div>
-                            <?php endif; ?>
-                            <?php if ($m['cbu_cvu']): ?>
-                                <div class="small"><span class="text-muted">CBU/CVU:</span> <?= esc($m['cbu_cvu']) ?></div>
-                            <?php endif; ?>
-                            <?php if ($m['banco']): ?>
-                                <div class="small"><span class="text-muted">Banco:</span> <?= esc($m['banco']) ?></div>
-                            <?php endif; ?>
-                            <div class="mt-2 d-flex gap-1 flex-wrap">
-                                <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
-                                <?php if ($m['activo']): ?>
-                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="flex-fill" id="toggle-medio-m-<?= $m['id'] ?>">
+                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" id="delete-medio-<?= $m['id'] ?>">
                                         <?= csrf_field() ?>
-                                        <button type="button" class="btn btn-sm btn-outline-warning w-100"
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
                                             data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                            data-confirm-title="Desactivar medio de cobro"
-                                            data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n para que otros miembros te paguen."
-                                            data-confirm-btn="Desactivar"
-                                            data-confirm-form="toggle-medio-m-<?= $m['id'] ?>">Desactivar</button>
+                                            data-confirm-title="Eliminar medio"
+                                            data-confirm-msg="Se eliminar&aacute; este medio de cobro. Los pagos ya registrados no se modifican."
+                                            data-confirm-btn="Eliminar"
+                                            data-confirm-form="delete-medio-<?= $m['id'] ?>">Eliminar</button>
                                     </form>
-                                <?php else: ?>
-                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="flex-fill">
-                                        <?= csrf_field() ?>
-                                        <button type="submit" class="btn btn-sm btn-outline-success w-100">Activar</button>
-                                    </form>
-                                <?php endif; ?>
-                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="flex-fill" id="delete-medio-m-<?= $m['id'] ?>">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="button" class="btn btn-outline-danger btn-sm w-100"
-                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                        data-confirm-title="Eliminar medio de cobro"
-                                        data-confirm-msg="Se eliminar&aacute; este medio de cobro de tu perfil. Los pagos ya registrados no se modifican."
-                                        data-confirm-btn="Eliminar"
-                                        data-confirm-form="delete-medio-m-<?= $m['id'] ?>">Eliminar</button>
-                                </form>
+                                </div>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
             </div>
-        </div>
+        <?php endif; ?>
     </div>
 
     <script>
@@ -185,12 +117,10 @@
                 var texto = this.getAttribute('data-copiar');
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(texto).then(function() {
-                        var textoOriginal = this.textContent;
+                        var original = this.textContent;
                         this.textContent = 'Copiado!';
                         var self = this;
-                        setTimeout(function() {
-                            self.textContent = textoOriginal;
-                        }, 2000);
+                        setTimeout(function() { self.textContent = original; }, 2000);
                     }.bind(this)).catch(function() {
                         fallbackCopiar(texto, this);
                     }.bind(this));
@@ -201,23 +131,21 @@
         });
 
         function fallbackCopiar(texto, btn) {
-            var textarea = document.createElement('textarea');
-            textarea.value = texto;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
+            var ta = document.createElement('textarea');
+            ta.value = texto;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
             try {
                 document.execCommand('copy');
-                var textoOriginal = btn.textContent;
+                var original = btn.textContent;
                 btn.textContent = 'Copiado!';
-                setTimeout(function() {
-                    btn.textContent = textoOriginal;
-                }, 2000);
+                setTimeout(function() { btn.textContent = original; }, 2000);
             } catch (e) {
-                alert('No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
+                alert('No se pudo copiar al portapapeles.');
             }
-            document.body.removeChild(textarea);
+            document.body.removeChild(ta);
         }
     </script>
 
