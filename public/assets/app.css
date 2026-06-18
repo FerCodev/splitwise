@@ -333,6 +333,7 @@
     }
     .grupo-movimiento-card .card-body {
         padding: 14px 16px;
+        min-height: 72px;
     }
 }
 
