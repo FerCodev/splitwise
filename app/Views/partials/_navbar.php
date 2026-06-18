@@ -52,18 +52,35 @@
     </div>
 </nav>
 
-<!-- Header offcanvas menu (mobile, secundario rapido) -->
+<!-- Header offcanvas menu (mobile) -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="headerMenu" aria-label="Men&uacute; principal">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title">Men&uacute;</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
-    <div class="offcanvas-body">
+    <div class="offcanvas-body p-0">
         <div class="list-group list-group-flush">
+            <div class="list-group-item">
+                <div class="fw-semibold"><?= esc(session()->get('userName')) ?></div>
+                <div class="text-muted small"><?= esc(session()->get('userEmail')) ?></div>
+            </div>
+            <a href="<?= base_url('perfil') ?>" class="list-group-item list-group-item-action">Mi perfil</a>
+            <a href="<?= base_url('grupos') ?>" class="list-group-item list-group-item-action">Grupos</a>
+            <a href="<?= base_url('gastos') ?>" class="list-group-item list-group-item-action">Gastos</a>
+            <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action">Pagos</a>
+            <a href="<?= base_url('reportes') ?>" class="list-group-item list-group-item-action">Reportes</a>
             <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
-            <button type="button" class="list-group-item list-group-item-action" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
-                Resumen
-            </button>
+            <?php if ($current === 'dashboard'): ?>
+                <button type="button" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
+                    Resumen
+                </button>
+            <?php endif; ?>
+            <?php if ($isAdmin): ?>
+                <div class="list-group-item small text-muted fw-medium">Administraci&oacute;n</div>
+                <a href="<?= base_url('categorias') ?>" class="list-group-item list-group-item-action ps-4">Categor&iacute;as</a>
+                <a href="<?= base_url('usuarios') ?>" class="list-group-item list-group-item-action ps-4">Usuarios</a>
+            <?php endif; ?>
+            <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action text-danger fw-medium">Cerrar Sesi&oacute;n</a>
         </div>
     </div>
 </div>
@@ -92,24 +109,4 @@
     </a>
 </nav>
 
-<!-- Mobile offcanvas menu (secundario) -->
-<div class="offcanvas offcanvas-bottom" tabindex="-1" id="mobileMenu" aria-label="Men&uacute; mobile">
-    <div class="offcanvas-header">
-        <h5 class="offcanvas-title">Men&uacute;</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-    </div>
-    <div class="offcanvas-body">
-        <div class="list-group list-group-flush">
-            <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action">Pagos</a>
-            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
-            <?php if ($isAdmin): ?>
-                <div class="list-group-item small text-muted fw-medium">Administraci&oacute;n</div>
-                <a href="<?= base_url('categorias') ?>" class="list-group-item list-group-item-action ps-4">Categor&iacute;as</a>
-                <a href="<?= base_url('usuarios') ?>" class="list-group-item list-group-item-action ps-4">Usuarios</a>
-            <?php endif; ?>
-            <div class="list-group-item list-group-item-action text-danger fw-medium" onclick="location.href='<?= base_url('logout') ?>'" style="cursor:pointer;">
-                Cerrar Sesi&oacute;n
-            </div>
-        </div>
-    </div>
-</div>
+
