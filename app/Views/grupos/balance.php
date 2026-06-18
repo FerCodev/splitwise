@@ -219,6 +219,7 @@
                             <div id="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
                                 <div class="card border">
                                     <div class="card-body py-2 px-3">
+                                        <p class="mb-1 small text-muted">Al registrar el pago, se actualizar&aacute; el saldo del grupo.</p>
                                         <?php if (!empty($mediosPorAcreedor[$acreedorId])): ?>
                                             <p class="mb-1 small text-muted fw-medium">Medios de cobro de <?= esc($d['acreedor']) ?>:</p>
                                             <?php foreach ($mediosPorAcreedor[$acreedorId] as $m): ?>
@@ -248,8 +249,9 @@
                                         <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                                         <div class="mt-2">
                                             <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id'] . '&pagador_id=' . $d['deudor_id'] . '&receptor_id=' . $acreedorId . '&monto=' . $d['monto'] . '&fecha=' . date('Y-m-d')) ?>" class="btn btn-sm btn-primary">
-                                                Registrar pago
+                                                Registrar pago manual
                                             </a>
+                                            <p class="small text-muted mt-1 mb-0">Se registrar&aacute; un pago de <?= esc($d['deudor']) ?> a <?= esc($d['acreedor']) ?> por $<?= number_format($d['monto'], 2) ?>.</p>
                                         </div>
                                         <?php endif; ?>
                                     </div>
