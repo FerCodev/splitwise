@@ -21,6 +21,11 @@ class GastoDivision extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /**
+     * UX4 solo expone igualitario, monto_fijo y porcentaje.
+     * partes y ajuste quedan como soporte tecnico no expuesto/heredado.
+     * No eliminar en Fase B (pendiente evaluacion en Fase C).
+     */
     public static function generarDivisionesIgualitarias(int $gastoId, float $monto, array $participantesIds, string $tipo = 'igualitario', array $valores = []): bool
     {
         $model = new self();
