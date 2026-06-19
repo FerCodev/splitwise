@@ -811,20 +811,6 @@ body {
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
-.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-info, .btn-secondary {
-    color: #fff !important;
-}
-.btn-warning {
-    background-color: var(--warning) !important;
-    border-color: var(--warning) !important;
-    color: #fff !important;
-}
-.btn-warning:hover,
-.btn-warning:focus {
-    background-color: #9f6600 !important;
-    border-color: #9f6600 !important;
-    color: #fff !important;
-}
 .bg-warning {
     background-color: var(--warning) !important;
     color: #fff !important;
