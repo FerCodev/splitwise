@@ -62,6 +62,8 @@ class PasswordResetController extends BaseController
                     $response->with('error', 'Ocurrió un problema al enviar el email. Intentalo de nuevo más tarde.');
                 }
             }
+        } else {
+            log_message('info', 'SMTP no configurado. Token generado pero no se envio email a ' . $user['email']);
         }
 
         return $response;

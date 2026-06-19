@@ -65,6 +65,7 @@ class PasswordReset extends Model
     public static function enviarEmail(string $to, string $subject, string $message): bool
     {
         if (!self::smtpConfigurado()) {
+            log_message('error', 'Intento de envio de email sin configuracion SMTP completa');
             return false;
         }
 
@@ -76,15 +77,22 @@ class PasswordReset extends Model
             $email->SMTPPass = env('email.SMTPPass');
             $email->SMTPPort = (int) (env('email.SMTPPort') ?: 587);
             $email->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
+            $email->SMTPAuth = true;
 
             $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'SplitWise');
             $email->setTo($to);
             $email->setSubject($subject);
             $email->setMessage($message);
 
-            return $email->send();
+            $result = $email->send();
+
+            if (!$result) {
+                log_message('error', 'Email no enviado a ' . $to . '. Debug: ' . print_r($email->getDebugMessage(), true));
+            }
+
+            return $result;
         } catch (\Throwable $e) {
-            log_message('error', 'Error al enviar email: ' . $e->getMessage());
+            log_message('error', 'Excepcion al enviar email a ' . $to . ': ' . $e->getMessage());
             return false;
         }
     }
