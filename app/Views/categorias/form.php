@@ -1,8 +1,8 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($categoria) ? 'Editar' : 'Nueva') . ' Categor&iacute;a']) ?>
-<?= view('partials/_navbar', ['pageTitle' => isset($categoria) ? 'Editar categoría' : 'Nueva categoría']) ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($categoria) ? 'Editar categor&iacute;a' : 'Nueva categor&iacute;a']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($categoria) ? 'Editar Categor&iacute;a' : 'Nueva Categor&iacute;a' ?></h2>
+        <h2 class="mb-3 d-none d-md-block"><?= isset($categoria) ? 'Editar Categor&iacute;a' : 'Nueva Categor&iacute;a' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -14,7 +14,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
+        <div class="card">
             <div class="card-body">
                 <form action="<?= isset($categoria) ? base_url('categorias/' . $categoria['id']) : base_url('categorias') ?>" method="post">
                     <?= csrf_field() ?>
@@ -23,7 +23,7 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="nombre" class="form-label fw-medium">Nombre</label>
+                        <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" name="nombre"
                                value="<?= esc(old('nombre', $categoria['nombre'] ?? '')) ?>"
                                maxlength="50" required>

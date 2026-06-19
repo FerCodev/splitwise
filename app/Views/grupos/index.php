@@ -2,9 +2,9 @@
 <?= view('partials/_navbar', ['pageTitle' => 'Grupos']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0 d-none d-md-block">Mis Grupos</h2>
-            <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0 d-none d-md-block">Mis Grupos</h2>
+            <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary btn-sm d-none d-md-inline-flex">+ Nuevo</a>
         </div>
 
         <?php if (session()->getFlashdata('success')): ?>
@@ -16,63 +16,55 @@
         <?php endif; ?>
 
         <?php if (empty($grupos)): ?>
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:64px;height:64px;background:#e2e8f0;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#64748b" viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1A.26.26 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.27.27 0 0 1-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></svg>
-                    </div>
-                    <p class="text-muted mb-3">No ten&eacute;s grupos a&uacute;n. Cre&aacute; uno nuevo.</p>
-                    <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary">Crear Grupo</a>
-                </div>
+            <div class="empty-state">
+                <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1A.26.26 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.27.27 0 0 1-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></svg>
+                <div class="empty-state-title">No ten&eacute;s grupos a&uacute;n</div>
+                <div class="empty-state-text">Cre&aacute; tu primer grupo para empezar a compartir gastos.</div>
+                <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary">Crear Grupo</a>
             </div>
         <?php else: ?>
-            <div class="row g-3">
+            <?php
+                $avatarColors = ['avatar-blue', 'avatar-green', 'avatar-purple', 'avatar-orange', 'avatar-teal', 'avatar-pink', 'avatar-red', 'avatar-indigo'];
+                $colorIdx = 0;
+            ?>
+            <div class="card">
                 <?php foreach ($grupos as $grupo): ?>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card h-100 border-0 shadow-sm">
-                            <div class="card-body">
-                                <?php
-                                    $badgeClases = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
-                                    $clase = $badgeClases[$grupo['estado']] ?? 'bg-secondary';
-                                    $avatarColors = ['activo' => ['bg' => '#dbeafe', 'text' => '#2563eb'], 'cerrado' => ['bg' => '#fef3c7', 'text' => '#d97706'], 'liquidado' => ['bg' => '#e2e8f0', 'text' => '#64748b']];
-                                    $avatarColor = $avatarColors[$grupo['estado']] ?? $avatarColors['liquidado'];
-                                ?>
-                                <div class="d-flex align-items-start gap-3 mb-2">
-                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:48px;height:48px;background:<?= $avatarColor['bg'] ?>;font-weight:700;color:<?= $avatarColor['text'] ?>;font-size:1.2rem;">
-                                        <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <h5 class="card-title fw-bold mb-0"><?= esc($grupo['nombre']) ?></h5>
-                                            <span class="badge <?= $clase ?> flex-shrink-0"><?= ucfirst($grupo['estado']) ?></span>
-                                        </div>
-                                        <p class="card-text text-muted small mb-0 mt-1"><?= esc($grupo['descripcion'] ?? 'Sin descripción') ?></p>
-                                    </div>
-                                </div>
+                    <?php
+                        $badgeClases = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
+                        $clase = $badgeClases[$grupo['estado']] ?? 'bg-secondary';
+                        $avaColor = $avatarColors[$colorIdx % count($avatarColors)];
+                        $colorIdx++;
+                    ?>
+                    <div class="financial-list-item" style="border-bottom:1px solid var(--border);">
+                        <div class="avatar <?= $avaColor ?>"><?= esc(mb_strtoupper(mb_substr($grupo['nombre'], 0, 1))) ?></div>
+                        <div class="financial-list-item-info">
+                            <div class="financial-list-item-title">
+                                <?= esc($grupo['nombre']) ?>
+                                <span class="badge <?= $clase ?>" style="font-size:10px;padding:2px 6px;margin-left:6px;"><?= ucfirst($grupo['estado']) ?></span>
                             </div>
-                            <div class="card-footer bg-transparent border-0 pt-0 d-flex gap-2">
-                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-primary flex-fill">Abrir</a>
-                                <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-secondary flex-fill">Editar</a>
-                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="flex-fill" id="delete-grupo-<?= $grupo['id'] ?>">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="button" class="btn btn-danger w-100"
-                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                        data-confirm-title="Eliminar grupo"
-                                        data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
-                                        data-confirm-btn="Eliminar grupo"
-                                        data-confirm-form="delete-grupo-<?= $grupo['id'] ?>">Eliminar</button>
-                                </form>
-                            </div>
+                            <div class="financial-list-item-subtitle"><?= esc($grupo['descripcion'] ?? 'Sin descripci&oacute;n') ?></div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-primary btn-sm">Abrir</a>
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-secondary btn-sm d-none d-md-inline-flex">Editar</a>
+                            <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="d-none d-md-inline" id="delete-grupo-<?= $grupo['id'] ?>">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="button" class="btn btn-danger btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                    data-confirm-title="Eliminar grupo"
+                                    data-confirm-msg="Se eliminar&aacute; el grupo y ya no podr&aacute;s consultarlo. Esta acci&oacute;n no se puede deshacer."
+                                    data-confirm-btn="Eliminar grupo"
+                                    data-confirm-form="delete-grupo-<?= $grupo['id'] ?>">Eliminar</button>
+                            </form>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
-        <a href="<?= base_url('grupos/nuevo') ?>" class="fab fab-extended d-md-none">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
-            <span>Nuevo grupo</span>
+        <a href="<?= base_url('grupos/nuevo') ?>" class="d-md-none fab" aria-label="Nuevo grupo">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
         </a>
     </div>
 

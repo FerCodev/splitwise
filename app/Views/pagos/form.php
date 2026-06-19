@@ -3,7 +3,7 @@
 
     <?php $prefill = $prefill ?? []; ?>
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
+        <h2 class="mb-3 d-none d-md-block"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -15,7 +15,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
+        <div class="card">
             <div class="card-body">
                 <form action="<?= isset($pago) ? base_url('pagos/' . $pago['id']) : base_url('pagos') ?>" method="post">
                     <?= csrf_field() ?>
@@ -24,25 +24,25 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label fw-medium">Descripción <small class="text-muted">(opcional)</small></label>
+                        <label for="descripcion" class="form-label">Descripci&oacute;n <small class="text-muted">(opcional)</small></label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion"
                                value="<?= esc(old('descripcion', $pago['descripcion'] ?? '')) ?>">
                     </div>
 
                     <div class="mb-3">
-                        <label for="monto" class="form-label fw-medium">Monto</label>
+                        <label for="monto" class="form-label">Monto</label>
                         <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
                                value="<?= esc(old('monto', $pago['monto'] ?? $prefill['monto'] ?? '')) ?>" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="fecha" class="form-label fw-medium">Fecha</label>
+                        <label for="fecha" class="form-label">Fecha</label>
                         <input type="date" class="form-control" id="fecha" name="fecha"
                                value="<?= esc(old('fecha', $pago['fecha'] ?? $prefill['fecha'] ?? date('Y-m-d'))) ?>" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="grupo_id" class="form-label fw-medium">Grupo</label>
+                        <label for="grupo_id" class="form-label">Grupo</label>
                         <?php if (!empty($grupoId) && !isset($pago)): ?>
                         <?php
                             $grupoActual = array_filter($grupos, fn($g) => $g['id'] == $grupoId);
@@ -61,7 +61,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-medium">Pagador (quien entrega el dinero)</label>
+                        <label class="form-label">Pagador (quien entrega el dinero)</label>
                         <?php if (isset($pago) && $rol !== 'admin'): ?>
                             <?php
                                 $pagadorActual = current(array_filter($miembros ?? [], fn($m) => (int) $m['user_id'] === (int) $pago['pagador_id']));
@@ -83,8 +83,8 @@
                         <?php endif; ?>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="receptor_id" class="form-label fw-medium">Receptor (quien recibe el dinero)</label>
+                    <div class="mb-3">
+                        <label for="receptor_id" class="form-label">Receptor (quien recibe el dinero)</label>
                         <select class="form-select" id="receptor_id" name="receptor_id" required>
                             <option value="">Seleccionar receptor</option>
                             <?php if (isset($miembros)): ?>

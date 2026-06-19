@@ -2,7 +2,7 @@
 <?= view('partials/_navbar', ['pageTitle' => isset($gasto) ? 'Editar gasto' : 'Nuevo gasto']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
+        <h2 class="mb-3 d-none d-md-block"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -14,7 +14,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
+        <div class="card">
             <div class="card-body">
                 <form action="<?= isset($gasto) ? base_url('gastos/' . $gasto['id']) : base_url('gastos') ?>" method="post" enctype="multipart/form-data">
                     <?= csrf_field() ?>
@@ -23,7 +23,7 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label fw-medium">Descripci&oacute;n</label>
+                        <label for="descripcion" class="form-label">Descripci&oacute;n</label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion"
                                value="<?= esc(old('descripcion', $gasto['descripcion'] ?? '')) ?>" required
                                oninput="inferirCategoria(this.value)">
@@ -31,7 +31,7 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="monto" class="form-label fw-medium">Monto total</label>
+                        <label for="monto" class="form-label">Monto total</label>
                         <input type="text" class="form-control" id="monto" name="monto_visual"
                                value="<?= esc(old('monto_visual', isset($gasto) ? number_format($gasto['monto'], 2, ',', '.') : '')) ?>" required
                                inputmode="numeric"
@@ -42,24 +42,24 @@
                     <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>
                     <div class="mb-3">
                         <button class="btn btn-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
-                            M&aacute;s acciones
+                            M&aacute;s opciones
                         </button>
                     </div>
 
                     <div class="collapse <?= $mostrarMasAcciones ? 'show' : '' ?>" id="masAccionesGasto">
-                        <div class="more-actions-panel mb-3">
+                        <div style="padding:12px;background:var(--surface);border-radius:var(--radius-md);margin-bottom:12px;">
                             <div class="mb-3">
-                                <label for="fecha" class="form-label fw-medium">Fecha</label>
+                                <label for="fecha" class="form-label">Fecha</label>
                                 <input type="date" class="form-control" id="fecha" name="fecha"
                                        value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
                             </div>
                             <div class="mb-3">
-                                <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
+                                <label for="nota" class="form-label">Nota <small class="text-muted">(opcional)</small></label>
                                 <textarea class="form-control" id="nota" name="nota" rows="2"><?= esc(old('nota', $gasto['nota'] ?? '')) ?></textarea>
                             </div>
 
                             <div>
-                                <label for="recibo" class="form-label fw-medium">Comprobante <small class="text-muted">(opcional, JPG/PNG/WebP/PDF, m&aacute;x 5MB)</small></label>
+                                <label for="recibo" class="form-label">Comprobante <small class="text-muted">(opcional, JPG/PNG/WebP/PDF, m&aacute;x 5MB)</small></label>
                                 <input type="file" class="form-control" id="recibo" name="recibo" accept=".jpg,.jpeg,.png,.webp,.pdf">
                                 <?php if (isset($gasto) && !empty($gasto['recibo_nombre'])): ?>
                                     <div class="mt-1 small">
@@ -72,12 +72,11 @@
                         </div>
                     </div>
 
-                    <!-- Grupo -->
                     <?php if (!empty($grupoId)): ?>
                         <input type="hidden" name="grupo_id" value="<?= $grupoId ?>">
                     <?php else: ?>
                     <div class="mb-3">
-                        <label for="grupo_id" class="form-label fw-medium">Grupo</label>
+                        <label for="grupo_id" class="form-label">Grupo</label>
                         <select class="form-select" id="grupo_id" name="grupo_id" required>
                             <option value="">Seleccionar grupo</option>
                             <?php foreach ($grupos as $g): ?>
@@ -87,10 +86,8 @@
                     </div>
                     <?php endif; ?>
 
-                    <!-- Categoria (oculta, inferida desde descripcion) -->
                     <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? '') ?>">
 
-                    <!-- Pagador -->
                     <?php
                         $usuarioActualId = (int) session()->get('userId');
                         $pagadorDefault = old('pagador_id', $gasto['pagador_id'] ?? $usuarioActualId);
@@ -135,9 +132,8 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- SECCION DIVISION (resumen compacto) -->
-                    <div id="divisionSection" class="mb-4 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
-                        <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
+                    <div id="divisionSection" class="mb-3 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
+                        <label class="form-label">Divisi&oacute;n del gasto</label>
                         <button type="button" class="btn btn-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                             <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="flex-shrink-0 ms-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
@@ -223,9 +219,7 @@
             var pagador = document.getElementById('pagadorSelect');
             if (!pagador || !uid) return;
             var option = pagador.querySelector('option[value="' + uid + '"]');
-            if (option) {
-                pagador.value = uid;
-            }
+            if (option) { pagador.value = uid; }
             actualizarLabelPagador();
         }
 
@@ -234,9 +228,7 @@
             var label = document.getElementById('pagadorLabel');
             if (!pagador || !label) return;
             var option = pagador.options[pagador.selectedIndex];
-            if (option && option.value) {
-                label.textContent = option.textContent;
-            }
+            if (option && option.value) { label.textContent = option.textContent; }
         }
 
         function pagadorSeleccionado(select) {
@@ -251,28 +243,17 @@
         function setParticipantesPorPreset(preset) {
             var checkboxes = document.querySelectorAll('.participante-checkbox');
             checkboxes.forEach(function(cb) {
-                if (preset === 'me_paid_others') {
-                    cb.checked = cb.value !== usuarioActualId;
-                } else if (preset === 'other_paid_me') {
-                    cb.checked = cb.value === usuarioActualId;
-                } else {
-                    cb.checked = true;
-                }
+                if (preset === 'me_paid_others') { cb.checked = cb.value !== usuarioActualId; }
+                else if (preset === 'other_paid_me') { cb.checked = cb.value === usuarioActualId; }
+                else { cb.checked = true; }
             });
-
             var alguno = Array.prototype.some.call(checkboxes, function(cb) { return cb.checked; });
-            if (!alguno) {
-                checkboxes.forEach(function(cb) { cb.checked = true; });
-            }
+            if (!alguno) { checkboxes.forEach(function(cb) { cb.checked = true; }); }
         }
 
         function marcarPresetActivo(button) {
-            document.querySelectorAll('.quick-split-option').forEach(function(btn) {
-                btn.classList.remove('active');
-            });
-            if (button) {
-                button.classList.add('active');
-            }
+            document.querySelectorAll('.quick-split-option').forEach(function(btn) { btn.classList.remove('active'); });
+            if (button) { button.classList.add('active'); }
         }
 
         function actualizarResumenDivision(preset) {
@@ -290,59 +271,33 @@
                 'other_paid_equal': pagadorNombre + ' pag\u00f3, dividido en partes iguales',
                 'other_paid_me': 'Le deb\u00e9s a ' + pagadorNombre,
             };
-            if (textos[preset]) {
-                titulo.textContent = textos[preset];
-            }
+            if (textos[preset]) { titulo.textContent = textos[preset]; }
         }
 
         function aplicarPresetDivision(preset, button) {
             var modo = document.getElementById('divisionModo');
-            if (modo) {
-                modo.value = 'igualitario';
-                cambiarModoDivision('igualitario');
-            }
-
+            if (modo) { modo.value = 'igualitario'; cambiarModoDivision('igualitario'); }
             if (!pagadorBloqueado) {
-                if (preset === 'other_paid_equal' || preset === 'other_paid_me') {
-                    setPagador(otroMiembroId);
-                } else {
-                    setPagador(usuarioActualId);
-                }
+                if (preset === 'other_paid_equal' || preset === 'other_paid_me') { setPagador(otroMiembroId); }
+                else { setPagador(usuarioActualId); }
             }
-
             setParticipantesPorPreset(preset);
             marcarPresetActivo(button);
             recalcularDivision();
             actualizarResumenDivision(preset);
-
             var modalEl = document.getElementById('divisionPresetModal');
-            if (modalEl) {
-                var modal = bootstrap.Modal.getInstance(modalEl);
-                if (modal) modal.hide();
-            }
+            if (modalEl) { var modal = bootstrap.Modal.getInstance(modalEl); if (modal) modal.hide(); }
         }
 
         function cambiarModoDivision(modo) {
             var rows = document.querySelectorAll('.participante-div-row');
             var inputs = document.querySelectorAll('.division-valor');
-            var labels = {
-                'igualitario': '\u2014',
-                'monto_fijo': 'Monto fijo ($)',
-                'porcentaje': 'Porcentaje (%)',
-            };
+            var labels = { 'igualitario': '\u2014', 'monto_fijo': 'Monto fijo ($)', 'porcentaje': 'Porcentaje (%)' };
             inputs.forEach(function(inp) {
-                if (modo === 'igualitario') {
-                    inp.value = '';
-                    inp.style.display = 'none';
-                    inp.placeholder = 'autom\u00e1tico';
-                } else {
-                    inp.style.display = '';
-                    inp.placeholder = labels[modo] || 'Valor';
-                }
+                if (modo === 'igualitario') { inp.value = ''; inp.style.display = 'none'; inp.placeholder = 'autom\u00e1tico'; }
+                else { inp.style.display = ''; inp.placeholder = labels[modo] || 'Valor'; }
             });
-            if (modo !== 'igualitario') {
-                marcarPresetActivo(null);
-            }
+            if (modo !== 'igualitario') { marcarPresetActivo(null); }
             recalcularDivision();
         }
 
@@ -353,7 +308,6 @@
             var rows = document.querySelectorAll('.participante-div-row:has(.participante-checkbox:checked)');
             var resultado = document.getElementById('divisionResultado');
             var error = document.getElementById('divisionError');
-
             var seleccionados = rows.length;
 
             if (!rawValue || isNaN(montoTotal) || montoTotal <= 0) {
@@ -384,13 +338,9 @@
 
             if (modo === 'monto_fijo') {
                 var diff = montoTotal - totalValor;
-                if (Math.abs(diff) > 0.01) {
-                    errores.push(diff > 0 ? 'Faltan $' + diff.toFixed(2) + ' para llegar al total' : 'Excede por $' + Math.abs(diff).toFixed(2));
-                }
+                if (Math.abs(diff) > 0.01) { errores.push(diff > 0 ? 'Faltan $' + diff.toFixed(2) + ' para llegar al total' : 'Excede por $' + Math.abs(diff).toFixed(2)); }
             } else if (modo === 'porcentaje') {
-                if (Math.abs(totalValor - 100) > 0.1) {
-                    errores.push('Los porcentajes deben sumar 100% (actual: ' + totalValor.toFixed(1) + '%)');
-                }
+                if (Math.abs(totalValor - 100) > 0.1) { errores.push('Los porcentajes deben sumar 100% (actual: ' + totalValor.toFixed(1) + '%)'); }
             }
 
             if (errores.length > 0) {
@@ -411,7 +361,6 @@
 
             actualizarMontosCalculados(modo, montoTotal, rows, valores);
 
-            // Generar hidden inputs for form submission
             var container = document.getElementById('divisionValoresContainer');
             container.innerHTML = '';
             var index = 0;
@@ -433,19 +382,12 @@
                 var span = row.querySelector('.division-monto');
                 var cb = row.querySelector('.participante-checkbox');
                 if (!span) return;
-                if (!cb || !cb.checked) {
-                    span.textContent = '$0,00';
-                    return;
-                }
+                if (!cb || !cb.checked) { span.textContent = '$0,00'; return; }
                 var v = valores[i] || 0;
                 var calc = 0;
-                if (modo === 'igualitario' && rows.length > 0) {
-                    calc = montoTotal / rows.length;
-                } else if (modo === 'monto_fijo') {
-                    calc = v;
-                } else if (modo === 'porcentaje') {
-                    calc = montoTotal * v / 100;
-                }
+                if (modo === 'igualitario' && rows.length > 0) { calc = montoTotal / rows.length; }
+                else if (modo === 'monto_fijo') { calc = v; }
+                else if (modo === 'porcentaje') { calc = montoTotal * v / 100; }
                 span.textContent = '$' + calc.toFixed(2).replace('.', ',');
             });
         }
@@ -453,16 +395,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             var montoInput = document.getElementById('monto');
             if (!montoInput) return;
-
             var modo = document.getElementById('divisionModo').value;
             cambiarModoDivision(modo);
             recalcularDivision();
-
             var checkboxes = document.querySelectorAll('.participante-checkbox');
-            checkboxes.forEach(function(cb) {
-                cb.addEventListener('change', recalcularDivision);
-            });
-
+            checkboxes.forEach(function(cb) { cb.addEventListener('change', recalcularDivision); });
             (function() {
                 var vis = document.getElementById('monto');
                 var real = document.getElementById('monto_real');
@@ -485,12 +422,11 @@
     <div class="modal-dialog modal-fullscreen-md-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="divisionPresetModalLabel">&iquest;C&oacute;mo se dividi&oacute; este gasto?</h5>
+                <h5 class="modal-title" id="divisionPresetModalLabel">&iquest;C&oacute;mo se dividi&oacute; este gasto?</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body p-3">
                 <?php if (isset($miembros) && count($miembros) > 0): ?>
-                    <!-- Presets rapidos -->
                     <div class="list-group mb-3">
                         <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
                             <span class="d-block fw-semibold">Partes iguales</span>
@@ -512,16 +448,14 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Mas opciones de division -->
                     <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
                     <button class="btn btn-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
                         M&aacute;s opciones de divisi&oacute;n
                     </button>
 
                     <div class="collapse <?= $mostrarOpcionesDivision ? 'show' : '' ?>" id="opcionesDivisionAvanzadas">
-                        <!-- Modo de division -->
                         <div class="mb-3">
-                            <label class="form-label fw-medium">Modalidad</label>
+                            <label class="form-label">Modalidad</label>
                             <select class="form-select" id="divisionModo" name="division_tipo" onchange="cambiarModoDivision(this.value)">
                                 <option value="igualitario" <?= old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') === 'igualitario' ? 'selected' : '' ?>>Partes iguales</option>
                                 <option value="monto_fijo" <?= old('division_tipo', $gasto['division_tipo'] ?? '') === 'monto_fijo' ? 'selected' : '' ?>>Monto fijo</option>
@@ -529,9 +463,8 @@
                             </select>
                         </div>
 
-                        <!-- Participantes -->
                         <div class="mb-2">
-                            <label class="form-label fw-medium">Participantes</label>
+                            <label class="form-label">Participantes</label>
                             <div id="participantesDivision">
                                 <?php if (isset($miembros)): ?>
                                     <?php
@@ -565,7 +498,6 @@
                             </div>
                         </div>
 
-                        <!-- Resultado / Errores -->
                         <div id="divisionResultado" class="small text-muted mb-1">Ingres&aacute; un monto y seleccion&aacute; participantes para ver la divisi&oacute;n.</div>
                         <div id="divisionError" class="small text-danger mb-1 d-none"></div>
                     </div>

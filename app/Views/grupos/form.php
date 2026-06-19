@@ -2,7 +2,7 @@
 <?= view('partials/_navbar', ['pageTitle' => isset($grupo) ? 'Editar grupo' : 'Nuevo grupo']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($grupo) ? 'Editar Grupo' : 'Nuevo Grupo' ?></h2>
+        <h2 class="mb-3 d-none d-md-block"><?= isset($grupo) ? 'Editar Grupo' : 'Nuevo Grupo' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -20,7 +20,7 @@
             <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
+        <div class="card mb-3">
             <div class="card-body">
                 <form action="<?= isset($grupo) ? base_url('grupos/' . $grupo['id']) : base_url('grupos') ?>" method="post">
                     <?= csrf_field() ?>
@@ -29,19 +29,19 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="nombre" class="form-label fw-medium">Nombre</label>
+                        <label for="nombre" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="nombre" name="nombre"
                                value="<?= esc(old('nombre', $grupo['nombre'] ?? '')) ?>" required>
                     </div>
 
-                    <div class="mb-4">
-                        <label for="descripcion" class="form-label fw-medium">Descripci&oacute;n</label>
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripci&oacute;n</label>
                         <textarea class="form-control" id="descripcion" name="descripcion" rows="3"><?= esc(old('descripcion', $grupo['descripcion'] ?? '')) ?></textarea>
                     </div>
 
                     <?php if (!isset($grupo)): ?>
-                        <div class="mb-4">
-                            <label class="form-label fw-medium">Miembros iniciales</label>
+                        <div class="mb-3">
+                            <label class="form-label">Miembros iniciales</label>
                             <p class="text-muted small mb-2">Seleccion&aacute; los miembros que quer&eacute;s agregar al grupo. Vos qued&aacute;s como administrador.</p>
                             <?php if (!empty($usuarios)): ?>
                                 <div class="initial-member-list">
@@ -85,9 +85,9 @@
                 $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
                 $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
             ?>
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">Estado del grupo</h5>
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Estado del grupo</h5>
                     <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
                 </div>
                 <div class="card-body">
@@ -142,75 +142,57 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-sm mt-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Miembros (<?= count($miembros) ?>)</h5>
                 </div>
                 <?php if (!empty($usuariosDisponibles)): ?>
-                <div class="card-body border-bottom">
-                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
+                <div class="card-body" style="border-bottom:1px solid var(--border);">
+                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="d-flex gap-2 align-items-end">
                         <?= csrf_field() ?>
-                        <div class="col-8 col-md-10">
-                            <select name="user_id" class="form-select" required>
-                                <option value="">Agregar miembro...</option>
-                                <?php foreach ($usuariosDisponibles as $u): ?>
-                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-4 col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
-                        </div>
+                        <select name="user_id" class="form-select flex-fill" required>
+                            <option value="">Agregar miembro...</option>
+                            <?php foreach ($usuariosDisponibles as $u): ?>
+                                <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Agregar</button>
                     </form>
                 </div>
                 <?php endif; ?>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Rol</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($miembros as $m): ?>
-                                <tr>
-                                    <td class="fw-medium"><?= esc($m['name']) ?></td>
-                                    <td>
-                                        <span class="badge bg-<?= $m['rol'] === 'admin' ? 'warning' : 'secondary' ?>">
-                                            <?= $m['rol'] === 'admin' ? 'Admin' : 'Miembro' ?>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <?php if ((int) $m['user_id'] !== (int) session()->get('userId')): ?>
-                                            <div class="d-flex gap-1">
-                                                <?php if ($permisos['puede_cambiar_rol'] ?? false): ?>
-                                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id'] . '/rol') ?>" method="post" class="d-inline">
-                                                    <?= csrf_field() ?>
-                                                    <input type="hidden" name="rol" value="<?= $m['rol'] === 'admin' ? 'member' : 'admin' ?>">
-                                                    <button type="submit" class="btn btn-sm <?= $m['rol'] === 'admin' ? 'btn-secondary' : 'btn-warning' ?>"><?= $m['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?></button>
-                                                </form>
-                                                <?php endif; ?>
-                                                <?php if ($permisos['puede_quitar_miembro'] ?? false): ?>
-                                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id']) ?>" method="post" class="d-inline" id="quitar-miembro-<?= $m['user_id'] ?>">
-                                                    <?= csrf_field() ?>
-                                                    <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitará este usuario del grupo." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-<?= $m['user_id'] ?>">Quitar</button>
-                                                </form>
-                                                <?php endif; ?>
-                                            </div>
-                                        <?php else: ?>
-                                            <span class="text-muted small">Sos vos</span>
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                <?php foreach ($miembros as $m): ?>
+                    <div class="financial-list-item">
+                        <div class="avatar avatar-sm" style="background:var(--primary-light);color:var(--primary);"><?= esc(mb_strtoupper(mb_substr(trim($m['name']), 0, 1))) ?></div>
+                        <div class="financial-list-item-info">
+                            <div class="financial-list-item-title" style="font-size:14px;"><?= esc($m['name']) ?></div>
+                            <div class="financial-list-item-subtitle">
+                                <span class="badge bg-<?= $m['rol'] === 'admin' ? 'warning' : 'secondary' ?>" style="font-size:10px;padding:2px 6px;">
+                                    <?= $m['rol'] === 'admin' ? 'Admin' : 'Miembro' ?>
+                                </span>
+                            </div>
+                        </div>
+                        <?php if ((int) $m['user_id'] !== (int) session()->get('userId')): ?>
+                            <div class="d-flex gap-1">
+                                <?php if ($permisos['puede_cambiar_rol'] ?? false): ?>
+                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id'] . '/rol') ?>" method="post" class="d-inline">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="rol" value="<?= $m['rol'] === 'admin' ? 'member' : 'admin' ?>">
+                                    <button type="submit" class="btn btn-sm <?= $m['rol'] === 'admin' ? 'btn-secondary' : 'btn-warning' ?>"><?= $m['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?></button>
+                                </form>
+                                <?php endif; ?>
+                                <?php if ($permisos['puede_quitar_miembro'] ?? false): ?>
+                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id']) ?>" method="post" class="d-inline" id="quitar-miembro-<?= $m['user_id'] ?>">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="_method" value="DELETE">
+                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitar&aacute; este usuario del grupo." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-<?= $m['user_id'] ?>">Quitar</button>
+                                </form>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted small">Sos vos</span>
+                        <?php endif; ?>
                     </div>
-                </div>
+                <?php endforeach; ?>
             </div>
             <?php endif; ?>
     </div>
