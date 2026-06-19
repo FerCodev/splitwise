@@ -2,9 +2,14 @@
 <?= view('partials/_navbar', ['pageTitle' => 'Gastos']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0 d-none d-md-block">Gastos</h2>
-            <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="mb-0 d-none d-md-block">Gastos</h2>
+            <div class="d-flex gap-2">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#gastoFilterModal">
+                    Filtrar
+                </button>
+                <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary btn-sm d-none d-md-inline-flex">+ Nuevo</a>
+            </div>
         </div>
 
         <?php if (session()->getFlashdata('success')): ?>
@@ -15,95 +20,73 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#gastoFilterModal" aria-label="Filtros">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
-                Filtrar
-            </button>
-        </div>
-
         <?php if (empty($gastos)): ?>
-            <div class="card border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:64px;height:64px;background:#dbeafe;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#2563eb" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
-                    </div>
-                    <p class="text-muted mb-0">No hay gastos registrados.</p>
-                </div>
+            <div class="empty-state">
+                <svg class="empty-state-icon" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
+                <div class="empty-state-title">No hay gastos registrados</div>
+                <div class="empty-state-text">Registr&aacute; tu primer gasto para empezar a dividir.</div>
+                <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary">Nuevo gasto</a>
             </div>
         <?php else: ?>
-            <div class="d-none d-md-block">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th><a href="<?= base_url('gastos?sort=fecha&order=') ?><?= ($filters['sort'] ?? 'fecha') === 'fecha' && ($filters['order'] ?? 'DESC') === 'DESC' ? 'ASC' : 'DESC' ?>&amp;<?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Fecha <?= ($filters['sort'] ?? 'fecha') === 'fecha' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
-                                        <th>Descripción</th>
-                                        <th><a href="<?= base_url('gastos?sort=monto&order=') ?><?= ($filters['sort'] ?? '') === 'monto' && ($filters['order'] ?? '') === 'DESC' ? 'ASC' : 'DESC' ?>&amp;<?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Monto <?= ($filters['sort'] ?? '') === 'monto' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
-                                        <th>Pagó</th>
-                                        <th><a href="<?= base_url('gastos?sort=grupo_nombre&order=') ?><?= ($filters['sort'] ?? '') === 'grupo_nombre' && ($filters['order'] ?? '') === 'DESC' ? 'ASC' : 'DESC' ?>&amp;<?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Grupo <?= ($filters['sort'] ?? '') === 'grupo_nombre' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
-                                        <th>Categoría</th>
-                                        <th>Participantes</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($gastos as $gasto): ?>
-                                        <tr>
-                                            <td><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></td>
-                                            <td><?= esc($gasto['descripcion']) ?></td>
-                                            <td class="fw-medium">$<?= number_format($gasto['monto'], 2) ?></td>
-                                            <td><?= esc($gasto['pagador_nombre']) ?></td>
-                                            <td><?= esc($gasto['grupo_nombre']) ?></td>
-                                            <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span></td>
-                                            <td><?= $gasto['total_participantes'] ?></td>
-                                            <td>
-                                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-sm btn-info">Ver detalle</a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+            <!-- Desktop table -->
+            <div class="card d-none d-md-block">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th><a href="<?= base_url('gastos?sort=fecha&order=') ?><?= ($filters['sort'] ?? 'fecha') === 'fecha' && ($filters['order'] ?? 'DESC') === 'DESC' ? 'ASC' : 'DESC' ?>&amp;<?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Fecha <?= ($filters['sort'] ?? 'fecha') === 'fecha' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
+                                <th>Descripci&oacute;n</th>
+                                <th><a href="<?= base_url('gastos?sort=monto&order=') ?><?= ($filters['sort'] ?? '') === 'monto' && ($filters['order'] ?? '') === 'DESC' ? 'ASC' : 'DESC' ?>&amp;<?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Monto <?= ($filters['sort'] ?? '') === 'monto' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
+                                <th>Pag&oacute;</th>
+                                <th><a href="<?= base_url('gastos?sort=grupo_nombre&order=') ?><?= ($filters['sort'] ?? '') === 'grupo_nombre' && ($filters['order'] ?? '') === 'DESC' ? 'ASC' : 'DESC' ?>&amp;<?= http_build_query(array_diff_key($filters, ['sort' => '', 'order' => ''])) ?>" class="text-decoration-none text-dark">Grupo <?= ($filters['sort'] ?? '') === 'grupo_nombre' ? ($filters['order'] ?? 'DESC') === 'DESC' ? '↓' : '↑' : '' ?></a></th>
+                                <th>Categor&iacute;a</th>
+                                <th>Part.</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($gastos as $gasto): ?>
+                                <tr>
+                                    <td><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></td>
+                                    <td><?= esc($gasto['descripcion']) ?></td>
+                                    <td class="financial-amount text-primary">-$<?= number_format($gasto['monto'], 2) ?></td>
+                                    <td><?= esc($gasto['pagador_nombre']) ?></td>
+                                    <td><?= esc($gasto['grupo_nombre']) ?></td>
+                                    <td><span class="badge bg-secondary"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span></td>
+                                    <td><?= $gasto['total_participantes'] ?></td>
+                                    <td><a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-info btn-sm">Ver</a></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="d-md-none">
+            <!-- Mobile list -->
+            <div class="card d-md-none">
                 <?php foreach ($gastos as $gasto): ?>
-                    <div class="card border-0 shadow-sm mb-2" style="border-left: 3px solid #2563eb;">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="fw-medium"><?= esc($gasto['descripcion']) ?></div>
-                                <div class="fw-bold fs-5 text-primary">$<?= number_format($gasto['monto'], 2) ?></div>
-                            </div>
-                            <div class="text-muted small mt-1">
-                                <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot;
-                                <?= esc($gasto['pagador_nombre']) ?>
-                            </div>
-                            <div class="text-muted small">
-                                <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
-                                Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
-                            </div>
-                            <div class="mt-2">
-                                <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="btn btn-info btn-sm">Ver detalle</a>
+                    <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="financial-list-item financial-list-item-clickable text-decoration-none" style="color:inherit;border-left:3px solid var(--primary);">
+                        <div class="financial-list-item-info">
+                            <div class="financial-list-item-title" style="font-size:14px;"><?= esc($gasto['descripcion']) ?></div>
+                            <div class="financial-list-item-subtitle">
+                                <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot; <?= esc($gasto['pagador_nombre']) ?> &middot; <?= esc($gasto['grupo_nombre']) ?>
                             </div>
                         </div>
-                    </div>
+                        <div class="financial-list-item-amount text-primary">
+                            -$<?= number_format($gasto['monto'], 2) ?>
+                        </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
         <?php if (isset($pager)): ?>
-            <div class="pagination-wrap mt-4">
+            <div class="pagination-wrap mt-3">
                 <?= $pager->links() ?>
             </div>
         <?php endif; ?>
 
-        <a href="<?= base_url('gastos/nuevo') ?>" class="fab fab-extended d-md-none">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
-            <span>Nuevo gasto</span>
+        <a href="<?= base_url('gastos/nuevo') ?>" class="d-md-none fab" aria-label="Nuevo gasto">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
         </a>
     </div>
 
@@ -113,7 +96,7 @@
             <div class="modal-content">
                 <form method="get">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="gastoFilterModalLabel">Filtrar gastos</h5>
+                        <h5 class="modal-title" id="gastoFilterModalLabel">Filtrar gastos</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
