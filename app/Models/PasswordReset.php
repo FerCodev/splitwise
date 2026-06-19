@@ -88,13 +88,13 @@ class PasswordReset extends Model
             $email->setMessage($message);
 
             if (!$email->send()) {
-                log_message('error', 'Fallo envio email a ' . $to . '. Debug: ' . $email->getDebugMessage());
+                log_message('error', 'Fallo envio de email de recuperacion');
                 return false;
             }
 
             return true;
         } catch (\Throwable $e) {
-            log_message('error', 'Excepcion al enviar email a ' . $to . ': ' . $e->getMessage());
+            log_message('error', 'Excepcion en envio de email de recuperacion');
             return false;
         }
     }
