@@ -19,7 +19,7 @@
                     </div>
                     <?php if ($permisos['puede_editar_pago'] || $permisos['puede_eliminar_pago']): ?>
                     <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
+                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -53,13 +53,13 @@
                 <?php if ($permisos['puede_editar_pago'] || $permisos['puede_eliminar_pago']): ?>
                 <div class="d-none d-md-flex gap-2 mt-3">
                     <?php if ($permisos['puede_editar_pago']): ?>
-                        <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                        <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_pago']): ?>
                         <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" id="delete-pago-d-<?= $pago['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-outline-danger btn-sm"
+                            <button type="button" class="btn btn-danger btn-sm"
                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                 data-confirm-title="Eliminar pago"
                                 data-confirm-msg="Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer."

@@ -41,7 +41,7 @@
 
                     <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>
                     <div class="mb-3">
-                        <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
+                        <button class="btn btn-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
                             M&aacute;s acciones
                         </button>
                     </div>
@@ -65,7 +65,7 @@
                                     <div class="mt-1 small">
                                         Archivo actual: <?= esc($gasto['recibo_nombre']) ?>
                                         <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="text-primary ms-2" target="_blank">Ver</a>
-                                        <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="if(confirm('Eliminar recibo?')){fetch('<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>',{method:'DELETE',headers:{'X-CSRF-TOKEN':'<?= csrf_hash() ?>'}}).then(()=>location.reload())}">Eliminar</button>
+                                        <button type="button" class="btn btn-sm btn-danger ms-2" onclick="if(confirm('Eliminar recibo?')){fetch('<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>',{method:'DELETE',headers:{'X-CSRF-TOKEN':'<?= csrf_hash() ?>'}}).then(()=>location.reload())}">Eliminar</button>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -121,7 +121,7 @@
                             <span class="text-muted small">Pagado por</span>
                             <span class="fw-medium" id="pagadorLabel"><?= esc($pagadorNombre) ?></span>
                             <?php if (!$pagadorBloqueado && isset($miembros) && count($miembros) > 0): ?>
-                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="cambiarPagadorBtn" onclick="document.getElementById('pagadorSelect').classList.toggle('d-none');this.classList.toggle('d-none')">Cambiar</button>
+                                <button type="button" class="btn btn-sm btn-secondary py-0 px-2" id="cambiarPagadorBtn" onclick="document.getElementById('pagadorSelect').classList.toggle('d-none');this.classList.toggle('d-none')">Cambiar</button>
                             <?php endif; ?>
                         </div>
                         <select class="form-select form-select-sm mt-1 d-none" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?> onchange="pagadorSeleccionado(this)">
@@ -138,7 +138,7 @@
                     <!-- SECCION DIVISION (resumen compacto) -->
                     <div id="divisionSection" class="mb-4 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
                         <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
-                        <button type="button" class="btn btn-outline-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
+                        <button type="button" class="btn btn-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                             <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="flex-shrink-0 ms-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
                         </button>
@@ -514,7 +514,7 @@
 
                     <!-- Mas opciones de division -->
                     <?php $mostrarOpcionesDivision = isset($gasto) && old('division_tipo', $gasto['division_tipo'] ?? 'igualitario') !== 'igualitario'; ?>
-                    <button class="btn btn-outline-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
+                    <button class="btn btn-secondary w-100 mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#opcionesDivisionAvanzadas" aria-expanded="<?= $mostrarOpcionesDivision ? 'true' : 'false' ?>" aria-controls="opcionesDivisionAvanzadas">
                         M&aacute;s opciones de divisi&oacute;n
                     </button>
 

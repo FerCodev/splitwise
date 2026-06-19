@@ -2,7 +2,7 @@
 <?= view('partials/_navbar') ?>
 
     <div class="container mt-3 mt-md-4">
-        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver al grupo</a>
+        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3">&larr; Volver al grupo</a>
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
@@ -106,7 +106,7 @@
                                 <div class="progress-bar bg-primary" style="width:<?= $pagadoPct ?>%" title="Pag&oacute;"></div>
                                 <div class="progress-bar bg-warning" style="width:<?= $consumidoPct ?>%" title="Consumi&oacute;"></div>
                             </div>
-                            <button class="btn btn-sm btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#<?= $collapseId ?>" aria-expanded="false">
+                            <button class="btn btn-sm btn-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#<?= $collapseId ?>" aria-expanded="false">
                                 Ver detalle
                             </button>
                             <div class="collapse mt-2" id="<?= $collapseId ?>">
@@ -228,14 +228,14 @@
                                                     <div class="d-flex flex-wrap gap-1 mt-1">
                                                         <?php if ($m['alias']): ?>
                                                             <span class="small text-muted me-2">Alias: <?= esc($m['alias']) ?></span>
-                                                            <button type="button" class="btn btn-outline-secondary copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" style="min-height:44px">Copiar alias</button>
+                                                            <button type="button" class="btn btn-secondary copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" style="min-height:44px">Copiar alias</button>
                                                         <?php endif; ?>
                                                         <?php if ($m['cbu_cvu']): ?>
                                                             <span class="small text-muted me-2">CBU/CVU: <?= esc($m['cbu_cvu']) ?></span>
-                                                            <button type="button" class="btn btn-outline-secondary copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" style="min-height:44px">Copiar CBU/CVU</button>
+                                                            <button type="button" class="btn btn-secondary copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" style="min-height:44px">Copiar CBU/CVU</button>
                                                         <?php endif; ?>
                                                         <?php if ($m['payment_link']): ?>
-                                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-primary" style="min-height:44px">Abrir link de pago</a>
+                                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="min-height:44px">Abrir link de pago</a>
                                                         <?php endif; ?>
                                                         <?php if ($m['banco']): ?>
                                                             <span class="small text-muted">- <?= esc($m['banco']) ?></span>

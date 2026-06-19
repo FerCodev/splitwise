@@ -5,8 +5,8 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold mb-0">Reportes</h2>
             <div class="d-flex gap-1">
-                <a href="<?= base_url('reportes/exportar-pdf') ?>" class="btn btn-outline-danger btn-sm">PDF</a>
-                <a href="<?= base_url('reportes/exportar?' . http_build_query($filters)) ?>" class="btn btn-outline-success btn-sm">CSV</a>
+                <a href="<?= base_url('reportes/exportar-pdf') ?>" class="btn btn-danger btn-sm">PDF</a>
+                <a href="<?= base_url('reportes/exportar?' . http_build_query($filters)) ?>" class="btn btn-success btn-sm">CSV</a>
             </div>
         </div>
 
@@ -192,7 +192,7 @@
                     </div>
                     <div class="col-12 col-md-3 d-flex gap-1">
                         <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
-                        <a href="<?= base_url('reportes') ?>" class="btn btn-outline-secondary flex-fill">Limpiar</a>
+                        <a href="<?= base_url('reportes') ?>" class="btn btn-secondary flex-fill">Limpiar</a>
                     </div>
                 </form>
             </div>

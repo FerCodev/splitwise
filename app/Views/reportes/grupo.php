@@ -2,7 +2,7 @@
 <?= view('partials/_navbar') ?>
 
     <div class="container mt-3 mt-md-4">
-        <a href="<?= base_url('reportes') ?>" class="btn btn-outline-secondary btn-sm mb-3">&larr; Volver a reportes</a>
+        <a href="<?= base_url('reportes') ?>" class="btn btn-secondary btn-sm mb-3">&larr; Volver a reportes</a>
 
         <h2 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h2>
         <p class="text-muted small mb-4">Reporte del grupo</p>

@@ -17,7 +17,7 @@
                     </div>
                     <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
                     <div class="dropdown">
-                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
+                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -52,13 +52,13 @@
                 <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
                 <div class="d-none d-md-flex gap-2 mt-3">
                     <?php if ($permisos['puede_editar_gasto']): ?>
-                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_gasto']): ?>
                         <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" id="delete-gasto-d-<?= $gasto['id'] ?>">
                             <?= csrf_field() ?>
                             <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-outline-danger btn-sm"
+                            <button type="button" class="btn btn-danger btn-sm"
                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                 data-confirm-title="Eliminar gasto"
                                 data-confirm-msg="Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer."
@@ -85,7 +85,7 @@
                     <span class="text-muted small fw-medium">Comprobante:</span>
                     <div class="mt-1">
                         <span class="small"><?= esc($gasto['recibo_nombre'] ?? 'Archivo adjunto') ?></span>
-                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="btn btn-sm btn-outline-primary ms-2" target="_blank">Ver</a>
+                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="btn btn-sm btn-primary ms-2" target="_blank">Ver</a>
                     </div>
                 </div>
                 <?php endif; ?>
