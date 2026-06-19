@@ -124,7 +124,7 @@
                                 <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="cambiarPagadorBtn" onclick="document.getElementById('pagadorSelect').classList.toggle('d-none');this.classList.toggle('d-none')">Cambiar</button>
                             <?php endif; ?>
                         </div>
-                        <select class="form-select form-select-sm mt-1 d-none" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?>>
+                        <select class="form-select form-select-sm mt-1 d-none" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?> onchange="pagadorSeleccionado(this)">
                             <option value="">Seleccionar</option>
                             <?php foreach ($miembros as $m): ?>
                                 <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
@@ -226,10 +226,26 @@
             if (option) {
                 pagador.value = uid;
             }
+            actualizarLabelPagador();
+        }
+
+        function actualizarLabelPagador() {
+            var pagador = document.getElementById('pagadorSelect');
             var label = document.getElementById('pagadorLabel');
-            if (label && option) {
+            if (!pagador || !label) return;
+            var option = pagador.options[pagador.selectedIndex];
+            if (option && option.value) {
                 label.textContent = option.textContent;
             }
+        }
+
+        function pagadorSeleccionado(select) {
+            if (!select.value) return;
+            actualizarLabelPagador();
+            select.classList.add('d-none');
+            var btn = document.getElementById('cambiarPagadorBtn');
+            if (btn) btn.classList.remove('d-none');
+            recalcularDivision();
         }
 
         function setParticipantesPorPreset(preset) {
