@@ -209,9 +209,14 @@
 
         <!-- Por categoria (tabla desktop) -->
         <?php if (!empty($porCategoria)): ?>
-        <div class="card border-0 shadow-sm report-card mb-4 d-none d-md-block">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Detalle por categor&iacute;a</h5>
+        <div class="card border-0 shadow-sm mb-4 d-none d-md-block">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:28px;height:28px;background:#fef3c7;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#d97706" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.393-.13-.803-.264-1.186-.406-1.078-.401-1.868-.465-2.604-.138v-6.972c0-.507-.133-.954-.4-1.358a1.2 1.2 0 0 0-.479-.458c-.295-.166-.651-.19-1.078-.093-.47.106-.896.336-1.356.628V2.828zm0 10.344c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v.174c-.393.13-.803.264-1.186.406-1.078.401-1.868.465-2.604.138a6.017 6.017 0 0 1-2.71-.576v-.174z"/></svg>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Detalle por categor&iacute;a</h5>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
@@ -230,9 +235,14 @@
 
         <!-- Por grupo (tabla desktop) -->
         <?php if (!empty($porGrupo)): ?>
-        <div class="card border-0 shadow-sm report-card mb-4 d-none d-md-block">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Detalle por grupo</h5>
+        <div class="card border-0 shadow-sm mb-4 d-none d-md-block">
+            <div class="card-header bg-white border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:28px;height:28px;background:#dbeafe;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#2563eb" viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1A.26.26 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.27.27 0 0 1-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></svg>
+                    </div>
+                    <h5 class="mb-0 fw-bold">Detalle por grupo</h5>
+                </div>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
