@@ -1,10 +1,10 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Gastos']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Gastos']) ?>
 
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">Gastos</h2>
-            <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary">+ Nuevo</a>
+            <h2 class="fw-bold mb-0 d-none d-md-block">Gastos</h2>
+            <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
         </div>
 
         <?php if (session()->getFlashdata('success')): ?>
@@ -127,10 +127,15 @@
         <?php endif; ?>
 
         <?php if (isset($pager)): ?>
-            <div class="mt-4">
+            <div class="pagination-wrap mt-4">
                 <?= $pager->links() ?>
             </div>
         <?php endif; ?>
+
+        <a href="<?= base_url('gastos/nuevo') ?>" class="fab fab-extended d-md-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
+            <span>Nuevo gasto</span>
+        </a>
     </div>
 
 <?= view('partials/_footer') ?>

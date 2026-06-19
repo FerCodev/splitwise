@@ -1,8 +1,8 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($grupo) ? 'Editar' : 'Nuevo') . ' Grupo']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($grupo) ? 'Editar grupo' : 'Nuevo grupo']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4"><?= isset($grupo) ? 'Editar Grupo' : 'Nuevo Grupo' ?></h2>
+        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($grupo) ? 'Editar Grupo' : 'Nuevo Grupo' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -143,32 +143,25 @@
             </div>
 
             <div class="card border-0 shadow-sm mt-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-white">
                     <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
-                    <?php if (!empty($usuariosDisponibles)): ?>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#agregarMiembroForm" aria-expanded="false">
-                        + Agregar
-                    </button>
-                    <?php endif; ?>
                 </div>
                 <?php if (!empty($usuariosDisponibles)): ?>
-                <div class="collapse" id="agregarMiembroForm">
-                    <div class="card-body border-bottom">
-                        <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
-                            <?= csrf_field() ?>
-                            <div class="col-8 col-md-10">
-                                <select name="user_id" class="form-select" required>
-                                    <option value="">Agregar miembro...</option>
-                                    <?php foreach ($usuariosDisponibles as $u): ?>
-                                        <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-4 col-md-2">
-                                <button type="submit" class="btn btn-primary w-100">Agregar</button>
-                            </div>
-                        </form>
-                    </div>
+                <div class="card-body border-bottom">
+                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
+                        <?= csrf_field() ?>
+                        <div class="col-8 col-md-10">
+                            <select name="user_id" class="form-select" required>
+                                <option value="">Agregar miembro...</option>
+                                <?php foreach ($usuariosDisponibles as $u): ?>
+                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                        </div>
+                    </form>
                 </div>
                 <?php endif; ?>
                 <div class="card-body p-0">

@@ -1,9 +1,9 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Categor&iacute;as']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Categorías']) ?>
 
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0">Categor&iacute;as</h2>
+            <h2 class="fw-bold mb-0 d-none d-md-block">Categor&iacute;as</h2>
             <a href="<?= base_url('categorias/nuevo') ?>" class="btn btn-primary">+ Nueva</a>
         </div>
 

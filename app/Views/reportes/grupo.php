@@ -1,10 +1,10 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Reporte: ' . $grupo['nombre']]) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Reporte']) ?>
 
     <div class="container mt-3 mt-md-4">
         <a href="<?= base_url('reportes') ?>" class="btn btn-secondary btn-sm mb-3">&larr; Volver a reportes</a>
 
-        <h2 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h2>
+        <h2 class="fw-bold mb-1 d-none d-md-block"><?= esc($grupo['nombre']) ?></h2>
         <p class="text-muted small mb-4">Reporte del grupo</p>
 
         <!-- Resumen -->

@@ -1,5 +1,5 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Balance: ' . $grupo['nombre']]) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Balance']) ?>
 
     <div class="container mt-3 mt-md-4">
         <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3">&larr; Volver al grupo</a>

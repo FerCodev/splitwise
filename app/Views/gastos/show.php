@@ -1,5 +1,5 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . $gasto['descripcion']]) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Detalle de gasto']) ?>
 
     <div class="container mt-3 mt-md-4">
 

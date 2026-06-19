@@ -1,8 +1,8 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($medio) ? 'Editar' : 'Nuevo') . ' medio de cobro']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($medio) ? 'Editar medio' : 'Nuevo medio']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4"><?= isset($medio) ? 'Editar medio de cobro' : 'Nuevo medio de cobro' ?></h2>
+        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($medio) ? 'Editar medio de cobro' : 'Nuevo medio de cobro' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
