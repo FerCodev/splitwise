@@ -71,26 +71,28 @@ class PasswordReset extends Model
 
         try {
             $email = \Config\Services::email();
-            $email->protocol = 'smtp';
-            $email->SMTPHost = env('email.SMTPHost');
-            $email->SMTPUser = env('email.SMTPUser');
-            $email->SMTPPass = env('email.SMTPPass');
-            $email->SMTPPort = (int) (env('email.SMTPPort') ?: 587);
-            $email->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
-            $email->SMTPAuth = true;
+            $email->initialize([
+                'protocol'  => 'smtp',
+                'SMTPHost'  => env('email.SMTPHost'),
+                'SMTPUser'  => env('email.SMTPUser'),
+                'SMTPPass'  => env('email.SMTPPass'),
+                'SMTPPort'  => (int) (env('email.SMTPPort') ?: 587),
+                'SMTPCrypto' => env('email.SMTPCrypto') ?: 'tls',
+                'mailType'  => 'text',
+                'charset'   => 'UTF-8',
+            ]);
 
             $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'SplitWise');
             $email->setTo($to);
             $email->setSubject($subject);
             $email->setMessage($message);
 
-            $result = $email->send();
-
-            if (!$result) {
-                log_message('error', 'Email no enviado a ' . $to . '. Debug: ' . print_r($email->getDebugMessage(), true));
+            if (!$email->send()) {
+                log_message('error', 'Fallo envio email a ' . $to . '. Debug: ' . $email->getDebugMessage());
+                return false;
             }
 
-            return $result;
+            return true;
         } catch (\Throwable $e) {
             log_message('error', 'Excepcion al enviar email a ' . $to . ': ' . $e->getMessage());
             return false;
