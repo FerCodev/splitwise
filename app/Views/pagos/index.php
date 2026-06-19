@@ -25,6 +25,9 @@
         <?php if (empty($pagos)): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:64px;height:64px;background:#dcfce7;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#16a34a" viewBox="0 0 16 16"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3zm1 0v10h12V3H2zm10.5 5.5a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0 0 1h7a.5.5 0 0 0 .5-.5zm0 3a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0 0 1h7a.5.5 0 0 0 .5-.5z"/></svg>
+                    </div>
                     <p class="text-muted mb-0">No hay pagos registrados.</p>
                 </div>
             </div>
@@ -67,7 +70,7 @@
             </div>
             <div class="d-md-none">
                 <?php foreach ($pagos as $pago): ?>
-                    <div class="card border-0 shadow-sm mb-2">
+                    <div class="card border-0 shadow-sm mb-2" style="border-left: 3px solid #16a34a;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="fw-medium"><?= esc($pago['descripcion'] ?: 'Pago') ?></div>

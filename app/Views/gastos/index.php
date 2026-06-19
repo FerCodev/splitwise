@@ -25,6 +25,9 @@
         <?php if (empty($gastos)): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:64px;height:64px;background:#dbeafe;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#2563eb" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
+                    </div>
                     <p class="text-muted mb-0">No hay gastos registrados.</p>
                 </div>
             </div>
@@ -69,7 +72,7 @@
             </div>
             <div class="d-md-none">
                 <?php foreach ($gastos as $gasto): ?>
-                    <div class="card border-0 shadow-sm mb-2">
+                    <div class="card border-0 shadow-sm mb-2" style="border-left: 3px solid #2563eb;">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div class="fw-medium"><?= esc($gasto['descripcion']) ?></div>

@@ -17,18 +17,30 @@
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
         ?>
 
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);">
             <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h4 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h4>
-                    <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:56px;height:56px;background:#dbeafe;font-weight:700;color:#2563eb;font-size:1.5rem;">
+                        <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h4 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h4>
+                            <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <span class="fw-bold fs-5 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                        $<?= number_format(abs($miSaldo), 2) ?>
-                        <small class="fw-normal text-muted fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
-                    </span>
-                    <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
+                <div class="card border-0 mb-3" style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>;">
+                    <div class="card-body py-3 text-center">
+                        <div class="small text-muted mb-1">Tu balance</div>
+                        <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
+                            $<?= number_format(abs($miSaldo), 2) ?>
+                            <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
+                        </div>
+                    </div>
                 </div>
                 <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro'] || $permisos['puede_cambiar_estado']): ?>
                     <div class="row g-2">
@@ -49,11 +61,19 @@
             </div>
         </div>
 
-        <h5 class="fw-bold mb-2">Movimientos</h5>
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:28px;height:28px;background:#dbeafe;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#2563eb" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
+            </div>
+            <h5 class="fw-bold mb-0">Movimientos</h5>
+        </div>
 
         <?php if (empty($gastos) && empty($pagos)): ?>
             <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body text-center py-4">
+                <div class="card-body text-center py-5">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
+                    </div>
                     <p class="text-muted mb-0">No hay movimientos en este grupo todav&iacute;a.</p>
                 </div>
             </div>
@@ -91,13 +111,14 @@
                 <?php else: ?>
                 <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
                 <?php endif; ?>
-                    <div class="card border-0 shadow-sm mb-2 grupo-movimiento-card">
+                    <div class="card border-0 shadow-sm mb-2 grupo-movimiento-card" style="border-left: 3px solid <?= $m['tipo'] === 'gasto' ? '#2563eb' : '#16a34a' ?>;">
                         <div class="card-body py-3 px-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
+                                    <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?> me-1"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
                                     <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
                                     <?php if ($m['categoria_nombre']): ?>
-                                        <span class="badge bg-secondary ms-1"><?= esc($m['categoria_nombre']) ?></span>
+                                        <span class="badge bg-light text-dark ms-1"><?= esc($m['categoria_nombre']) ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">$<?= number_format($m['monto'], 2) ?></span>
