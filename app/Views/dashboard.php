@@ -235,22 +235,11 @@
 
             <!-- Actividad reciente con filtros -->
             <div class="filter-section" data-section="actividad">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold mb-0">Actividad reciente</h5>
-                    <div class="d-flex gap-2">
-                        <select id="feedFiltroGrupo" class="form-select form-select-sm" style="width:auto;max-width:160px" onchange="filtrarFeed()">
-                            <option value="">Todos los grupos</option>
-                            <?php foreach ($grupos as $g): ?>
-                                <option value="<?= $g['id'] ?>"><?= esc($g['nombre']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <select id="feedFiltroPeriodo" class="form-select form-select-sm" style="width:auto;max-width:120px" onchange="filtrarFeed()">
-                            <option value="">Todas</option>
-                            <option value="hoy">Hoy</option>
-                            <option value="semana">Esta semana</option>
-                            <option value="mes">Este mes</option>
-                        </select>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
+                    </button>
                 </div>
 
                 <?php if (!empty($movimientos)): ?>
@@ -361,6 +350,41 @@
             </script>
 
         <?php endif; ?>
+    </div>
+
+    <!-- Filtros de actividad - Modal -->
+    <div class="modal fade" id="feedFilterModal" tabindex="-1" aria-labelledby="feedFilterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="feedFilterModalLabel">Filtrar actividad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Grupo</label>
+                        <select id="feedFiltroGrupo" class="form-select" onchange="filtrarFeed()">
+                            <option value="">Todos los grupos</option>
+                            <?php foreach ($grupos as $g): ?>
+                                <option value="<?= $g['id'] ?>"><?= esc($g['nombre']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Per&iacute;odo</label>
+                        <select id="feedFiltroPeriodo" class="form-select" onchange="filtrarFeed()">
+                            <option value="">Todas</option>
+                            <option value="hoy">Hoy</option>
+                            <option value="semana">Esta semana</option>
+                            <option value="mes">Este mes</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- FAB extendido - mobile only -->
