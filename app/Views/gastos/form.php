@@ -104,11 +104,27 @@
                             }
                         }
                     ?>
-                    <?php $pagadorBloqueado = isset($gasto) && $rol !== 'admin'; ?>
+                    <?php
+                        $pagadorBloqueado = isset($gasto) && $rol !== 'admin';
+                        $pagadorNombre = 'Vos';
+                        if (isset($miembros)) {
+                            foreach ($miembros as $m) {
+                                if ((int) $m['user_id'] === (int) $pagadorDefault) {
+                                    $pagadorNombre = $m['name'];
+                                    break;
+                                }
+                            }
+                        }
+                    ?>
                     <div class="mb-3 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
-                        <label class="form-label fw-medium">Pagado por</label>
-                        <?php if (isset($miembros) && count($miembros) > 0): ?>
-                        <select class="form-select" id="pagador_id" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?>>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-muted small">Pagado por</span>
+                            <span class="fw-medium" id="pagadorLabel"><?= esc($pagadorNombre) ?></span>
+                            <?php if (!$pagadorBloqueado && isset($miembros) && count($miembros) > 0): ?>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="cambiarPagadorBtn" onclick="document.getElementById('pagadorSelect').classList.toggle('d-none');this.classList.toggle('d-none')">Cambiar</button>
+                            <?php endif; ?>
+                        </div>
+                        <select class="form-select form-select-sm mt-1 d-none" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?> onchange="pagadorSeleccionado(this)">
                             <option value="">Seleccionar</option>
                             <?php foreach ($miembros as $m): ?>
                                 <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
@@ -116,10 +132,6 @@
                         </select>
                         <?php if ($pagadorBloqueado): ?>
                             <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
-                        <?php endif; ?>
-                        <?php else: ?>
-                        <input type="text" class="form-control" value="Vos" disabled>
-                        <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
                         <?php endif; ?>
                     </div>
 
@@ -208,12 +220,32 @@
         var pagadorBloqueado = <?= (isset($gasto) && $rol !== 'admin') ? 'true' : 'false' ?>;
 
         function setPagador(uid) {
-            var pagador = document.getElementById('pagador_id');
+            var pagador = document.getElementById('pagadorSelect');
             if (!pagador || !uid) return;
             var option = pagador.querySelector('option[value="' + uid + '"]');
             if (option) {
                 pagador.value = uid;
             }
+            actualizarLabelPagador();
+        }
+
+        function actualizarLabelPagador() {
+            var pagador = document.getElementById('pagadorSelect');
+            var label = document.getElementById('pagadorLabel');
+            if (!pagador || !label) return;
+            var option = pagador.options[pagador.selectedIndex];
+            if (option && option.value) {
+                label.textContent = option.textContent;
+            }
+        }
+
+        function pagadorSeleccionado(select) {
+            if (!select.value) return;
+            actualizarLabelPagador();
+            select.classList.add('d-none');
+            var btn = document.getElementById('cambiarPagadorBtn');
+            if (btn) btn.classList.remove('d-none');
+            recalcularDivision();
         }
 
         function setParticipantesPorPreset(preset) {
@@ -246,7 +278,7 @@
         function actualizarResumenDivision(preset) {
             var titulo = document.querySelector('.division-summary-title');
             if (!titulo) return;
-            var pagador = document.getElementById('pagador_id');
+            var pagador = document.getElementById('pagadorSelect');
             var pagadorNombre = 'Vos';
             if (pagador && pagador.value) {
                 var opt = pagador.querySelector('option[value="' + pagador.value + '"]');
