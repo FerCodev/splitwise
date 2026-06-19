@@ -136,4 +136,8 @@ _modules/*
 SplitWiseReviewerCommands.md
 SplitWiseReviewerCommands.html
 .claude/
-.opencode/
+.opencode/*
+!.opencode/skills/
+.opencode/skills/*
+!.opencode/skills/impeccable/
+!.opencode/skills/impeccable/**
