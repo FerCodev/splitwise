@@ -44,7 +44,7 @@
                                     <td><?= $user['role'] === 'admin' ? '<span class="badge bg-warning text-dark">Admin</span>' : '<span class="badge bg-secondary">User</span>' ?></td>
                                     <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
                                     <td>
-                                        <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                                        <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -60,7 +60,7 @@
                         <div class="mb-1"><?= $user['role'] === 'admin' ? '<span class="badge bg-warning text-dark">Admin</span>' : '<span class="badge bg-secondary">User</span>' ?></div>
                         <div class="text-muted small">Creado: <?= date('d/m/Y', strtotime($user['created_at'])) ?></div>
                         <div class="mt-2">
-                            <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                            <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                         </div>
                     </div>
                 <?php endforeach; ?>

@@ -71,7 +71,7 @@
                             <label for="password" class="form-label fw-medium">Nueva contraseña</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <button type="submit" class="btn btn-outline-warning">Actualizar contraseña</button>
+                        <button type="submit" class="btn btn-warning">Actualizar contraseña</button>
                     </form>
                 </div>
             </div>

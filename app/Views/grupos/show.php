@@ -33,7 +33,7 @@
                 <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro'] || $permisos['puede_cambiar_estado']): ?>
                     <div class="row g-2">
                         <div class="col-6">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info w-100 py-2">Ver balance</a>
+                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-info w-100 py-2">Ver balance</a>
                         </div>
                         <div class="col-6">
                             <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">

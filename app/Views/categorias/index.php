@@ -52,13 +52,13 @@
                                     <td>
                                         <div class="d-flex gap-1">
                                             <?php if ($c['nombre'] !== $protegida): ?>
-                                                <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-sm btn-outline-primary">Editar</a>
+                                                <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-sm btn-primary">Editar</a>
                                             <?php endif; ?>
                                             <?php if ($c['nombre'] !== $protegida): ?>
                                                 <?php if ($c['activa']): ?>
                                                     <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-cat-<?= $c['id'] ?>">
                                                         <?= csrf_field() ?>
-                                                        <button type="button" class="btn btn-sm btn-outline-warning"
+                                                        <button type="button" class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                             data-confirm-title="Desactivar categor&iacute;a"
                                                             data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
@@ -68,14 +68,14 @@
                                                 <?php else: ?>
                                                     <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="d-inline">
                                                         <?= csrf_field() ?>
-                                                        <button type="submit" class="btn btn-sm btn-outline-success">Activar</button>
+                                                        <button type="submit" class="btn btn-sm btn-success">Activar</button>
                                                     </form>
                                                 <?php endif; ?>
                                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
                                                         <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="d-inline" id="delete-cat-<?= $c['id'] ?>">
                                                             <?= csrf_field() ?>
                                                             <input type="hidden" name="_method" value="DELETE">
-                                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                            <button type="button" class="btn btn-sm btn-danger"
                                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                                 data-confirm-title="Eliminar categor&iacute;a"
                                                                 data-confirm-msg="Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos."
@@ -120,11 +120,11 @@
                             <div class="text-muted small mt-1"><?= $usadas[(int) $c['id']] ?? 0 ?> gasto(s)</div>
                             <div class="mt-2 d-flex gap-1 flex-wrap">
                                 <?php if ($c['nombre'] !== $protegida): ?>
-                                    <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm flex-fill">Editar</a>
+                                    <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-primary btn-sm flex-fill">Editar</a>
                                     <?php if ($c['activa']): ?>
                                         <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="flex-fill" id="toggle-cat-m-<?= $c['id'] ?>">
                                             <?= csrf_field() ?>
-                                            <button type="button" class="btn btn-sm btn-outline-warning w-100"
+                                            <button type="button" class="btn btn-sm btn-warning w-100"
                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                 data-confirm-title="Desactivar categor&iacute;a"
                                                 data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
@@ -134,14 +134,14 @@
                                     <?php else: ?>
                                         <form action="<?= base_url('categorias/' . $c['id'] . '/toggle') ?>" method="post" class="flex-fill">
                                             <?= csrf_field() ?>
-                                            <button type="submit" class="btn btn-sm btn-outline-success w-100">Activar</button>
+                                            <button type="submit" class="btn btn-sm btn-success w-100">Activar</button>
                                         </form>
                                     <?php endif; ?>
                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
                                         <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="flex-fill" id="delete-cat-m-<?= $c['id'] ?>">
                                             <?= csrf_field() ?>
                                             <input type="hidden" name="_method" value="DELETE">
-                                            <button type="button" class="btn btn-outline-danger btn-sm w-100"
+                                            <button type="button" class="btn btn-danger btn-sm w-100"
                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                 data-confirm-title="Eliminar categor&iacute;a"
                                                 data-confirm-msg="Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos."

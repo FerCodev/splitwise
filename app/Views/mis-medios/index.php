@@ -50,12 +50,12 @@
                                     <?php endif; ?>
                                     <?php if ($m['alias']): ?>
                                         <div><span class="fw-medium">Alias:</span> <?= esc($m['alias']) ?>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" title="Copiar alias">Copiar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" title="Copiar alias">Copiar</button>
                                         </div>
                                     <?php endif; ?>
                                     <?php if ($m['cbu_cvu']): ?>
                                         <div><span class="fw-medium">CBU/CVU:</span> <?= esc($m['cbu_cvu']) ?>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" title="Copiar CBU/CVU">Copiar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" title="Copiar CBU/CVU">Copiar</button>
                                         </div>
                                     <?php endif; ?>
                                     <?php if ($m['banco']): ?>
@@ -69,17 +69,17 @@
                                 </div>
 
                                 <div class="d-flex gap-1 flex-wrap">
-                                    <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                                    <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                                     <?php if (!$m['favorito']): ?>
                                         <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline">
                                             <?= csrf_field() ?>
-                                            <button type="submit" class="btn btn-outline-warning btn-sm" title="Marcar como favorito">Favorito</button>
+                                            <button type="submit" class="btn btn-warning btn-sm" title="Marcar como favorito">Favorito</button>
                                         </form>
                                     <?php endif; ?>
                                     <?php if ($m['activo']): ?>
                                         <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-medio-<?= $m['id'] ?>">
                                             <?= csrf_field() ?>
-                                            <button type="button" class="btn btn-outline-warning btn-sm"
+                                            <button type="button" class="btn btn-warning btn-sm"
                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                 data-confirm-title="Desactivar medio"
                                                 data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n de pago."
@@ -89,13 +89,13 @@
                                     <?php else: ?>
                                         <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline">
                                             <?= csrf_field() ?>
-                                            <button type="submit" class="btn btn-outline-success btn-sm">Activar</button>
+                                            <button type="submit" class="btn btn-success btn-sm">Activar</button>
                                         </form>
                                     <?php endif; ?>
                                     <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" id="delete-medio-<?= $m['id'] ?>">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                        <button type="button" class="btn btn-danger btn-sm"
                                             data-bs-toggle="modal" data-bs-target="#confirmModal"
                                             data-confirm-title="Eliminar medio"
                                             data-confirm-msg="Se eliminar&aacute; este medio de cobro. Los pagos ya registrados no se modifican."

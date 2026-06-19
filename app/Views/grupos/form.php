@@ -96,7 +96,7 @@
                             <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="cerrar-grupo-<?= $grupo['id'] ?>">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="estado" value="cerrado">
-                                <button type="button" class="btn btn-outline-warning"
+                                <button type="button" class="btn btn-warning"
                                     data-bs-toggle="modal" data-bs-target="#confirmModal"
                                     data-confirm-title="Cerrar grupo"
                                     data-confirm-msg="Se cerrara el grupo. No se podran crear ni editar gastos, solo registrar pagos para saldar deudas."
@@ -109,7 +109,7 @@
                                 <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="reabrir-grupo-<?= $grupo['id'] ?>">
                                     <?= csrf_field() ?>
                                     <input type="hidden" name="estado" value="activo">
-                                    <button type="button" class="btn btn-outline-success"
+                                    <button type="button" class="btn btn-success"
                                         data-bs-toggle="modal" data-bs-target="#confirmModal"
                                         data-confirm-title="Reabrir grupo"
                                         data-confirm-msg="Se reabrira el grupo. Los miembros podran crear y editar gastos nuevamente."
@@ -121,7 +121,7 @@
                                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="liquidar-grupo-<?= $grupo['id'] ?>">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="estado" value="liquidado">
-                                        <button type="button" class="btn btn-outline-secondary"
+                                        <button type="button" class="btn btn-secondary"
                                             data-bs-toggle="modal" data-bs-target="#confirmModal"
                                             data-confirm-title="Liquidar grupo"
                                             data-confirm-msg="Se liquidara el grupo. Esta accion es definitiva y no se puede deshacer."
@@ -130,7 +130,7 @@
                                             data-confirm-form="liquidar-grupo-<?= $grupo['id'] ?>">Liquidar grupo</button>
                                     </form>
                                 <?php else: ?>
-                                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-info">Ver deudas pendientes</a>
+                                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-info">Ver deudas pendientes</a>
                                 <?php endif; ?>
                             </div>
                         <?php elseif ($grupo['estado'] === 'liquidado'): ?>
@@ -146,7 +146,7 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
                     <?php if (!empty($usuariosDisponibles)): ?>
-                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#agregarMiembroForm" aria-expanded="false">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#agregarMiembroForm" aria-expanded="false">
                         + Agregar
                     </button>
                     <?php endif; ?>
@@ -197,14 +197,14 @@
                                                 <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id'] . '/rol') ?>" method="post" class="d-inline">
                                                     <?= csrf_field() ?>
                                                     <input type="hidden" name="rol" value="<?= $m['rol'] === 'admin' ? 'member' : 'admin' ?>">
-                                                    <button type="submit" class="btn btn-sm <?= $m['rol'] === 'admin' ? 'btn-outline-secondary' : 'btn-outline-warning' ?>"><?= $m['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?></button>
+                                                    <button type="submit" class="btn btn-sm <?= $m['rol'] === 'admin' ? 'btn-secondary' : 'btn-warning' ?>"><?= $m['rol'] === 'admin' ? 'Hacer miembro' : 'Hacer admin' ?></button>
                                                 </form>
                                                 <?php endif; ?>
                                                 <?php if ($permisos['puede_quitar_miembro'] ?? false): ?>
                                                 <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id']) ?>" method="post" class="d-inline" id="quitar-miembro-<?= $m['user_id'] ?>">
                                                     <?= csrf_field() ?>
                                                     <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitará este usuario del grupo." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-<?= $m['user_id'] ?>">Quitar</button>
+                                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitará este usuario del grupo." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-<?= $m['user_id'] ?>">Quitar</button>
                                                 </form>
                                                 <?php endif; ?>
                                             </div>

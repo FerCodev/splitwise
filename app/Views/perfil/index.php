@@ -94,7 +94,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Accesos rápidos</h5>
-                <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-outline-primary">Mis medios de cobro</a>
+                <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-primary">Mis medios de cobro</a>
             </div>
         </div>
     </div>
