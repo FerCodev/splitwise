@@ -18,6 +18,9 @@
         <?php if (empty($medios)): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:64px;height:64px;background:#e2e8f0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#64748b" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Zm-9 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6Z"/></svg>
+                    </div>
                     <p class="text-muted mb-3">No ten&eacute;s medios de cobro registrados.</p>
                     <a href="<?= base_url('mis-medios-de-cobro/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">Agregar medio de cobro</a>
                 </div>
@@ -26,46 +29,53 @@
             <div class="row g-3">
                 <?php foreach ($medios as $m): ?>
                     <div class="col-12">
-                        <div class="card border-0 shadow-sm">
+                        <div class="card border-0 shadow-sm" style="border-left: 3px solid <?= $m['activo'] ? '#16a34a' : '#dc2626' ?>;">
                             <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <div>
-                                        <span class="fw-semibold"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
-                                        <?php if ($m['favorito']): ?>
-                                            <span class="text-warning ms-1" title="Favorito">&starf;</span>
-                                        <?php endif; ?>
+                                <div class="d-flex align-items-start gap-3 mb-2">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:42px;height:42px;background:<?= $m['activo'] ? '#dcfce7' : '#fee2e2' ?>;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="<?= $m['activo'] ? '#16a34a' : '#dc2626' ?>" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Zm-9 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6Z"/></svg>
                                     </div>
-                                    <div class="d-flex align-items-center gap-1">
-                                        <?php if ($m['activo']): ?>
-                                            <span class="badge bg-success">Activo</span>
-                                        <?php else: ?>
-                                            <span class="badge bg-danger">Inactivo</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start mb-1">
+                                            <div>
+                                                <span class="fw-semibold"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
+                                                <?php if ($m['favorito']): ?>
+                                                    <span class="text-warning ms-1" title="Favorito">&starf;</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-1">
+                                                <?php if ($m['activo']): ?>
+                                                    <span class="badge bg-success">Activo</span>
+                                                <?php else: ?>
+                                                    <span class="badge bg-danger">Inactivo</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
 
-                                <div class="small text-muted mb-2">
-                                    <?php if ($m['titular']): ?>
-                                        <div><span class="fw-medium">Titular:</span> <?= esc($m['titular']) ?></div>
-                                    <?php endif; ?>
-                                    <?php if ($m['alias']): ?>
-                                        <div><span class="fw-medium">Alias:</span> <?= esc($m['alias']) ?>
-                                            <button type="button" class="btn btn-sm btn-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" title="Copiar alias">Copiar</button>
+                                        <div class="small text-muted mb-2">
+                                            <?php if ($m['titular']): ?>
+                                                <div><span class="fw-medium">Titular:</span> <?= esc($m['titular']) ?></div>
+                                            <?php endif; ?>
+                                            <?php if ($m['alias']): ?>
+                                                <div><span class="fw-medium">Alias:</span> <?= esc($m['alias']) ?>
+                                                    <button type="button" class="btn btn-sm btn-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" title="Copiar alias">Copiar</button>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($m['cbu_cvu']): ?>
+                                                <div><span class="fw-medium">CBU/CVU:</span> <?= esc($m['cbu_cvu']) ?>
+                                                    <button type="button" class="btn btn-sm btn-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" title="Copiar CBU/CVU">Copiar</button>
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ($m['banco']): ?>
+                                                <div><span class="fw-medium">Banco:</span> <?= esc($m['banco']) ?></div>
+                                            <?php endif; ?>
+                                            <?php if ($m['payment_link']): ?>
+                                                <div><span class="fw-medium">Link:</span>
+                                                    <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer">Abrir</a>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
-                                    <?php endif; ?>
-                                    <?php if ($m['cbu_cvu']): ?>
-                                        <div><span class="fw-medium">CBU/CVU:</span> <?= esc($m['cbu_cvu']) ?>
-                                            <button type="button" class="btn btn-sm btn-secondary py-0 px-1 copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" title="Copiar CBU/CVU">Copiar</button>
-                                        </div>
-                                    <?php endif; ?>
-                                    <?php if ($m['banco']): ?>
-                                        <div><span class="fw-medium">Banco:</span> <?= esc($m['banco']) ?></div>
-                                    <?php endif; ?>
-                                    <?php if ($m['payment_link']): ?>
-                                        <div><span class="fw-medium">Link:</span>
-                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer">Abrir</a>
-                                        </div>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
 
                                 <div class="d-flex gap-1 flex-wrap">

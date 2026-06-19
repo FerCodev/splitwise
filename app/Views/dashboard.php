@@ -33,13 +33,15 @@
                     <div class="row g-2">
                         <div class="col-6 col-md-3">
                             <a href="<?= base_url('grupos') ?>" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body py-2 px-3">
+                            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #eff6ff 0%, #fff 100%);">
+                                <div class="card-body py-3 px-3">
                                     <div class="d-flex align-items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-primary flex-shrink-0" viewBox="0 0 16 16"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:40px;height:40px;background:#dbeafe;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#2563eb" viewBox="0 0 16 16"><path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>
+                                        </div>
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Grupos activos</div>
-                                            <div class="fw-bold fs-5"><?= $cantidadActivos ?></div>
+                                            <div class="fw-bold fs-5 text-primary"><?= $cantidadActivos ?></div>
                                         </div>
                                     </div>
                                 </div>
@@ -48,10 +50,12 @@
                         </div>
                         <div class="col-6 col-md-3">
                             <a href="<?= base_url('reportes') ?>" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body py-2 px-3">
+                            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, <?= $globalSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?> 0%, #fff 100%);">
+                                <div class="card-body py-3 px-3">
                                     <div class="d-flex align-items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="<?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?> flex-shrink-0" viewBox="0 0 16 16"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-6 8c0 1 1 1 1 1h6s1 0 1-1-1-4-6-4-6 3-6 4Zm10-8a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM3.5 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:40px;height:40px;background:<?= $globalSaldo >= 0 ? '#dcfce7' : '#fee2e2' ?>;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="<?= $globalSaldo >= 0 ? '#16a34a' : '#dc2626' ?>" viewBox="0 0 16 16"><path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm-6 8c0 1 1 1 1 1h6s1 0 1-1-1-4-6-4-6 3-6 4Zm10-8a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2ZM3.5 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>
+                                        </div>
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Saldo total</div>
                                             <div class="fw-bold fs-5 <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
@@ -66,10 +70,12 @@
                         </div>
                         <div class="col-6 col-md-3">
                             <a href="#deudas-section" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body py-2 px-3">
+                            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #fef2f2 0%, #fff 100%);">
+                                <div class="card-body py-3 px-3">
                                     <div class="d-flex align-items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-warning flex-shrink-0" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Zm-9 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6Z"/></svg>
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:40px;height:40px;background:#fee2e2;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#dc2626" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Zm-9 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6Z"/></svg>
+                                        </div>
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Deb&#233;s</div>
                                             <div class="fw-bold fs-5 text-danger">$<?= number_format($totalDebe, 0) ?></div>
@@ -81,10 +87,12 @@
                         </div>
                         <div class="col-6 col-md-3">
                             <a href="#deudas-section" class="text-decoration-none">
-                            <div class="card border-0 shadow-sm h-100">
-                                <div class="card-body py-2 px-3">
+                            <div class="card border-0 shadow-sm h-100" style="background: linear-gradient(135deg, #f0fdf4 0%, #fff 100%);">
+                                <div class="card-body py-3 px-3">
                                     <div class="d-flex align-items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="text-success flex-shrink-0" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5ZM5.5 9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5Z"/></svg>
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:40px;height:40px;background:#dcfce7;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#16a34a" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5ZM5.5 9a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5Z"/></svg>
+                                        </div>
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Te deben</div>
                                             <div class="fw-bold fs-5 text-success">$<?= number_format($totalLeDeben, 0) ?></div>
@@ -123,16 +131,23 @@
                                 <div class="col-12 col-md-6 col-lg-4" data-estado="activo">
                                     <div class="card border-0 shadow-sm h-100">
                                         <div class="card-body">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <h6 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h6>
-                                                <span class="badge bg-success">Activo</span>
-                                            </div>
-                                            <div class="d-flex justify-content-between small mb-2">
-                                                <span class="text-muted">Saldo:</span>
-                                                <span class="fw-medium <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
+                                            <div class="d-flex align-items-start gap-3 mb-2">
+                                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:42px;height:42px;background:#dbeafe;font-weight:700;color:#2563eb;font-size:1.1rem;">
+                                                    <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
+                                                </div>
+                                                <div class="flex-grow-1 min-width-0">
+                                                    <div class="d-flex justify-content-between align-items-start">
+                                                        <h6 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h6>
+                                                        <span class="badge bg-success flex-shrink-0">Activo</span>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between small mt-1">
+                                                        <span class="text-muted">Saldo:</span>
+                                                        <span class="fw-semibold <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <?php if ($mv): ?>
-                                                <div class="small mt-1">
+                                                <div class="small mt-2">
                                                     <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
                                                     <span class="text-muted ms-1"><?= esc(mb_substr($mv['descripcion'], 0, 40)) ?></span>
                                                     <span class="fw-medium float-end">$<?= number_format($mv['monto'], 2) ?></span>
@@ -171,15 +186,22 @@
                                         $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : '');
                                     ?>
                                     <div class="col-12 col-md-6 col-lg-4" data-estado="<?= $grupo['estado'] ?>">
-                                        <div class="card border-0 shadow-sm h-100">
+                                        <div class="card border-0 shadow-sm h-100" style="opacity:0.8;">
                                             <div class="card-body">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <h6 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h6>
-                                                    <span class="badge <?= $claseBadge ?>"><?= ucfirst($grupo['estado']) ?></span>
-                                                </div>
-                                                <div class="d-flex justify-content-between small mb-2">
-                                                    <span class="text-muted">Saldo:</span>
-                                                    <span class="fw-medium <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
+                                                <div class="d-flex align-items-start gap-3 mb-2">
+                                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:42px;height:42px;background:#e2e8f0;font-weight:700;color:#64748b;font-size:1.1rem;">
+                                                        <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
+                                                    </div>
+                                                    <div class="flex-grow-1 min-width-0">
+                                                        <div class="d-flex justify-content-between align-items-start">
+                                                            <h6 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h6>
+                                                            <span class="badge <?= $claseBadge ?> flex-shrink-0"><?= ucfirst($grupo['estado']) ?></span>
+                                                        </div>
+                                                        <div class="d-flex justify-content-between small mt-1">
+                                                            <span class="text-muted">Saldo:</span>
+                                                            <span class="fw-semibold <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                                 <div class="text-muted small">
                                                     <?= $grupo['deudas_count'] ?> transferencia(s) pendiente(s)
@@ -199,10 +221,18 @@
 
             <!-- Deudas pendientes -->
             <div id="deudas-section" class="mb-4">
-                <h5 class="fw-bold mb-3">Deudas pendientes</h5>
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:32px;height:32px;background:#fef2f2;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#dc2626" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Zm-9 2a.5.5 0 0 0 0 1h4a.5.5 0 0 0 0-1H6Z"/></svg>
+                    </div>
+                    <h5 class="fw-bold mb-0">Deudas pendientes</h5>
+                </div>
                 <?php if (empty($deudasPendientes)): ?>
                     <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-4">
+                        <div class="card-body text-center py-5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#dcfce7;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#16a34a" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                            </div>
                             <p class="text-muted mb-0">No ten&eacute;s deudas pendientes.</p>
                         </div>
                     </div>
@@ -210,8 +240,8 @@
                     <?php foreach ($deudasPendientes as $d): ?>
                         <?php $esDeudor = (int) $d['deudor_id'] === $userId; ?>
                         <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm mb-2">
-                            <div class="card-body py-2 px-3">
+                        <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid <?= $esDeudor ? '#dc2626' : '#16a34a' ?>;">
+                            <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <span class="fw-medium small">
@@ -251,7 +281,7 @@
                             ?>
                             <?php if ($m['tipo'] === 'gasto'): ?>
                                 <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2 feed-card">
+                                <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid #2563eb;">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -270,7 +300,7 @@
                                 </a>
                             <?php else: ?>
                                 <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2 feed-card">
+                                <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid #16a34a;">
                                     <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
@@ -290,7 +320,10 @@
                         <?php endforeach; ?>
                     </div>
                     <div id="feedEmpty" class="card border-0 shadow-sm d-none">
-                        <div class="card-body text-center py-4">
+                        <div class="card-body text-center py-5">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                            </div>
                             <p class="text-muted mb-0">No hay movimientos para este filtro.</p>
                         </div>
                     </div>
