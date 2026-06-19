@@ -10,25 +10,27 @@
             </div>
         </div>
 
-        <!-- Resumen mensual - compact strip -->
-        <div class="balance-strip mb-3">
-            <div class="balance-strip-label">Resumen del mes</div>
-            <div class="balance-strip-amount <?= $resumenMensual['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
-                $<?= number_format(abs($resumenMensual['saldo']), 2) ?>
-                <span style="font-size:14px;font-weight:600;" class="text-muted"><?= $resumenMensual['saldo'] >= 0 ? 'saldo a favor' : 'saldo en contra' ?></span>
-            </div>
-            <div class="balance-strip-detail">
-                <div class="balance-strip-detail-item">
-                    <span class="text-muted">Gastado:</span>
-                    <span class="financial-amount text-primary">$<?= number_format($resumenMensual['total_gastado'], 2) ?></span>
+        <!-- Resumen mensual - card style -->
+        <div class="dash-card mb-3">
+            <div class="dash-card-body">
+                <div class="balance-strip-label">Resumen del mes</div>
+                <div class="balance-strip-amount <?= $resumenMensual['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
+                    $<?= number_format(abs($resumenMensual['saldo']), 2) ?>
+                    <span style="font-size:14px;font-weight:600;" class="text-muted"><?= $resumenMensual['saldo'] >= 0 ? 'saldo a favor' : 'saldo en contra' ?></span>
                 </div>
-                <div class="balance-strip-detail-item">
-                    <span class="text-muted">Pagado:</span>
-                    <span class="financial-amount text-success">$<?= number_format($resumenMensual['total_pagado'], 2) ?></span>
-                </div>
-                <div class="balance-strip-detail-item">
-                    <span class="text-muted">Grupos:</span>
-                    <span class="financial-amount"><?= $resumenMensual['grupos_activos'] ?></span>
+                <div class="balance-strip-detail">
+                    <div class="balance-strip-detail-item">
+                        <span class="text-muted">Gastado:</span>
+                        <span class="financial-amount text-primary">$<?= number_format($resumenMensual['total_gastado'], 2) ?></span>
+                    </div>
+                    <div class="balance-strip-detail-item">
+                        <span class="text-muted">Pagado:</span>
+                        <span class="financial-amount text-success">$<?= number_format($resumenMensual['total_pagado'], 2) ?></span>
+                    </div>
+                    <div class="balance-strip-detail-item">
+                        <span class="text-muted">Grupos:</span>
+                        <span class="financial-amount"><?= $resumenMensual['grupos_activos'] ?></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -36,8 +38,8 @@
         <div class="row g-3 mb-3">
             <!-- Top grupos -->
             <div class="col-12 col-md-6">
-                <div class="card h-100">
-                    <div class="card-header">
+                <div class="dash-card h-100">
+                    <div class="dash-card-header">
                         <h5 class="mb-0">Top grupos por gasto</h5>
                     </div>
                     <?php if (empty($topGrupos)): ?>
@@ -46,18 +48,18 @@
                         </div>
                     <?php else: ?>
                         <?php foreach ($topGrupos as $i => $g): ?>
-                            <a href="<?= base_url('grupos/' . $g['id'] . '/reportes') ?>" class="financial-list-item financial-list-item-clickable text-decoration-none" style="color:inherit;">
+                            <a href="<?= base_url('grupos/' . $g['id'] . '/reportes') ?>" class="dash-list-item text-decoration-none">
                                 <div style="width:24px;text-align:center;font-size:13px;font-weight:700;color:var(--muted);"><?= $i + 1 ?></div>
-                                <div class="financial-list-item-info">
-                                    <div class="financial-list-item-title" style="font-size:14px;"><?= esc($g['nombre']) ?></div>
-                                    <div class="financial-list-item-subtitle"><?= $g['cantidad'] ?> gasto(s)</div>
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title" style="font-size:14px;"><?= esc($g['nombre']) ?></div>
+                                    <div class="dash-list-item-subtitle"><?= $g['cantidad'] ?> gasto(s)</div>
                                 </div>
                                 <div style="flex:1;max-width:80px;">
                                     <div class="progress" style="height:4px;">
                                         <div class="progress-bar" style="width:<?= ($i === 0 && $topGrupos[0]['total'] > 0) ? ($g['total'] / $topGrupos[0]['total'] * 100) : ($topGrupos[0]['total'] > 0 ? $g['total'] / $topGrupos[0]['total'] * 100 : 0) ?>%;background:var(--primary);"></div>
                                     </div>
                                 </div>
-                                <div class="financial-list-item-amount text-primary">$<?= number_format($g['total'], 0) ?></div>
+                                <div class="dash-list-item-amount text-primary">$<?= number_format($g['total'], 0) ?></div>
                             </a>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -66,8 +68,8 @@
 
             <!-- Top categorias -->
             <div class="col-12 col-md-6">
-                <div class="card h-100">
-                    <div class="card-header">
+                <div class="dash-card h-100">
+                    <div class="dash-card-header">
                         <h5 class="mb-0">Top categor&iacute;as</h5>
                     </div>
                     <?php if (empty($topCategorias)): ?>
@@ -76,20 +78,20 @@
                         </div>
                     <?php else: ?>
                         <?php foreach ($topCategorias as $i => $c): ?>
-                            <div class="financial-list-item">
+                            <div class="dash-list-item">
                                 <div style="width:24px;text-align:center;font-size:13px;font-weight:700;color:var(--muted);"><?= $i + 1 ?></div>
-                                <div class="financial-list-item-info">
-                                    <div class="financial-list-item-title" style="font-size:14px;">
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title" style="font-size:14px;">
                                         <span class="badge bg-secondary"><?= esc($c['categoria']) ?></span>
                                     </div>
-                                    <div class="financial-list-item-subtitle"><?= $c['cantidad'] ?> gasto(s)</div>
+                                    <div class="dash-list-item-subtitle"><?= $c['cantidad'] ?> gasto(s)</div>
                                 </div>
                                 <div style="flex:1;max-width:80px;">
                                     <div class="progress" style="height:4px;">
                                         <div class="progress-bar" style="width:<?= ($topCategorias[0]['total'] > 0) ? ($c['total'] / $topCategorias[0]['total'] * 100) : 0 ?>%;background:var(--warning);"></div>
                                     </div>
                                 </div>
-                                <div class="financial-list-item-amount">$<?= number_format($c['total'], 0) ?></div>
+                                <div class="dash-list-item-amount">$<?= number_format($c['total'], 0) ?></div>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -100,8 +102,8 @@
         <div class="row g-3 mb-3">
             <!-- Ultimos movimientos -->
             <div class="col-12 col-md-6">
-                <div class="card h-100">
-                    <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="dash-card h-100">
+                    <div class="dash-card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">&Uacute;ltimos movimientos</h5>
                         <button type="button" class="btn btn-primary feed-filter-btn btn-sm" data-bs-toggle="modal" data-bs-target="#reportFilterModal" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
@@ -113,18 +115,18 @@
                         </div>
                     <?php else: ?>
                         <?php foreach ($movimientos as $m): ?>
-                            <a href="<?= base_url(($m['tipo'] === 'gasto' ? 'gastos/' : 'pagos/') . $m['id']) ?>" class="report-movement-link">
-                                <div class="financial-list-item financial-list-item-clickable report-movement-card report-movement-<?= $m['tipo'] === 'gasto' ? 'expense' : 'payment' ?>" style="color:inherit;">
-                                    <div class="financial-list-item-info">
-                                        <div class="financial-list-item-title" style="font-size:14px;">
+                            <a href="<?= base_url(($m['tipo'] === 'gasto' ? 'gastos/' : 'pagos/') . $m['id']) ?>" class="text-decoration-none">
+                                <div class="dash-list-item dash-list-item-bordered" style="border-left:3px solid <?= $m['tipo'] === 'gasto' ? 'var(--primary)' : 'var(--accent)' ?>;color:var(--ink);">
+                                    <div class="dash-list-item-info">
+                                        <div class="dash-list-item-title" style="font-size:14px;">
                                             <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>" style="font-size:10px;padding:2px 6px;margin-right:4px;"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
                                             <?= esc(mb_substr($m['descripcion'], 0, 30)) ?>
                                         </div>
-                                        <div class="financial-list-item-subtitle">
+                                        <div class="dash-list-item-subtitle">
                                             <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?> &middot; <?= esc($m['grupo']) ?>
                                         </div>
                                     </div>
-                                    <div class="financial-list-item-amount <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">
+                                    <div class="dash-list-item-amount <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">
                                         $<?= number_format($m['monto'], 2) ?>
                                     </div>
                                 </div>
@@ -136,8 +138,8 @@
 
             <!-- Pagos pendientes -->
             <div class="col-12 col-md-6">
-                <div class="card h-100">
-                    <div class="card-header">
+                <div class="dash-card h-100">
+                    <div class="dash-card-header">
                         <h5 class="mb-0">Pagos pendientes</h5>
                     </div>
                     <?php if (empty($deudas)): ?>
@@ -147,15 +149,15 @@
                         </div>
                     <?php else: ?>
                         <?php foreach ($deudas as $d): ?>
-                            <div class="financial-list-item" style="border-left:3px solid var(--danger);">
-                                <div class="financial-list-item-info">
-                                    <div class="financial-list-item-title" style="font-size:14px;">
+                            <div class="dash-list-item" style="border-left:3px solid var(--danger);">
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title" style="font-size:14px;">
                                         <strong><?= esc($d['deudor']) ?></strong>
                                         <span class="text-muted" style="font-weight:400;"> le debe a </span>
                                         <strong><?= esc($d['acreedor']) ?></strong>
                                     </div>
                                 </div>
-                                <div class="financial-list-item-amount text-danger">
+                                <div class="dash-list-item-amount text-danger">
                                     $<?= number_format($d['monto'], 2) ?>
                                 </div>
                             </div>
@@ -167,8 +169,8 @@
 
         <!-- Por categoria (tabla desktop) -->
         <?php if (!empty($porCategoria)): ?>
-        <div class="card mb-3 d-none d-md-block">
-            <div class="card-header">
+        <div class="dash-card mb-3 d-none d-md-block">
+            <div class="dash-card-header">
                 <h5 class="mb-0">Detalle por categor&iacute;a</h5>
             </div>
             <div class="table-responsive">
@@ -192,8 +194,8 @@
 
         <!-- Por grupo (tabla desktop) -->
         <?php if (!empty($porGrupo)): ?>
-        <div class="card mb-3 d-none d-md-block">
-            <div class="card-header">
+        <div class="dash-card mb-3 d-none d-md-block">
+            <div class="dash-card-header">
                 <h5 class="mb-0">Detalle por grupo</h5>
             </div>
             <div class="table-responsive">

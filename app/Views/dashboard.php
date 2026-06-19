@@ -22,42 +22,42 @@
                 $colorIdx = 0;
             ?>
 
-            <!-- Balance Strip -->
-            <div class="balance-strip">
-                <div class="balance-strip-label">Tu saldo total</div>
-                <div class="balance-strip-amount <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                    $<?= number_format(abs($globalSaldo), 2) ?>
-                    <span style="font-size:14px;font-weight:600;" class="text-muted"><?= $globalSaldo >= 0 ? 'a favor' : 'deb&eacute;s' ?></span>
-                </div>
-                <div class="balance-strip-detail">
-                    <div class="balance-strip-detail-item">
-                        <span class="status-dot status-dot-danger"></span>
-                        <span class="text-muted">Deb&eacute;s:</span>
-                        <span class="financial-amount text-danger">$<?= number_format($totalDebe, 2) ?></span>
+            <!-- Balance Strip - card style -->
+            <div class="dash-card mb-3">
+                <div class="dash-card-body">
+                    <div class="balance-strip-label">Tu saldo total</div>
+                    <div class="balance-strip-amount <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
+                        $<?= number_format(abs($globalSaldo), 2) ?>
+                        <span style="font-size:14px;font-weight:600;" class="text-muted"><?= $globalSaldo >= 0 ? 'a favor' : 'deb&eacute;s' ?></span>
                     </div>
-                    <div class="balance-strip-detail-item">
-                        <span class="status-dot status-dot-active"></span>
-                        <span class="text-muted">Te deben:</span>
-                        <span class="financial-amount text-success">$<?= number_format($totalLeDeben, 2) ?></span>
+                    <div class="balance-strip-detail">
+                        <div class="balance-strip-detail-item">
+                            <span class="status-dot status-dot-danger"></span>
+                            <span class="text-muted">Deb&eacute;s:</span>
+                            <span class="financial-amount text-danger">$<?= number_format($totalDebe, 2) ?></span>
+                        </div>
+                        <div class="balance-strip-detail-item">
+                            <span class="status-dot status-dot-active"></span>
+                            <span class="text-muted">Te deben:</span>
+                            <span class="financial-amount text-success">$<?= number_format($totalLeDeben, 2) ?></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Quick stats row -->
-            <div class="d-flex gap-3 py-3 px-2" style="border-bottom:1px solid var(--border);">
-                <a href="<?= base_url('grupos') ?>" class="text-decoration-none" style="flex:1;">
-                    <div style="text-align:center;">
+            <div class="dash-card mb-3">
+                <div class="d-flex">
+                    <a href="<?= base_url('grupos') ?>" class="text-decoration-none" style="flex:1;padding:12px;text-align:center;">
                         <div class="financial-amount" style="font-size:20px;color:var(--primary);"><?= $cantidadActivos ?></div>
                         <div style="font-size:12px;color:var(--muted);font-weight:600;">Grupos activos</div>
-                    </div>
-                </a>
-                <div style="width:1px;background:var(--border);"></div>
-                <a href="<?= base_url('gastos') ?>" class="text-decoration-none" style="flex:1;">
-                    <div style="text-align:center;">
+                    </a>
+                    <div style="width:1px;background:var(--border);"></div>
+                    <a href="<?= base_url('gastos') ?>" class="text-decoration-none" style="flex:1;padding:12px;text-align:center;">
                         <div class="financial-amount" style="font-size:20px;color:var(--ink);"><?= count($grupos) ?></div>
                         <div style="font-size:12px;color:var(--muted);font-weight:600;">Total grupos</div>
-                    </div>
-                </a>
+                    </a>
+                </div>
             </div>
 
             <!-- Filtros del feed -->
@@ -74,11 +74,13 @@
                 <!-- Grupos activos -->
                 <div class="filter-section" data-section="activos">
                     <?php if (empty($activos)): ?>
-                        <div class="empty-state" style="padding:24px;">
-                            <div class="empty-state-text">No ten&eacute;s grupos activos.</div>
+                        <div class="dash-card mb-3">
+                            <div class="empty-state" style="padding:24px;">
+                                <div class="empty-state-text">No ten&eacute;s grupos activos.</div>
+                            </div>
                         </div>
                     <?php else: ?>
-                        <div class="card mb-3">
+                        <div class="dash-card mb-3">
                             <?php foreach ($activos as $grupo): ?>
                                 <?php
                                     $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : 'text-muted');
@@ -86,11 +88,11 @@
                                     $avaColor = $avatarColors[$colorIdx % count($avatarColors)];
                                     $colorIdx++;
                                 ?>
-                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="financial-list-item financial-list-item-clickable text-decoration-none" style="color:inherit;" data-estado="activo">
+                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="dash-list-item text-decoration-none" data-estado="activo">
                                     <div class="avatar <?= $avaColor ?>"><?= esc(mb_strtoupper(mb_substr($grupo['nombre'], 0, 1))) ?></div>
-                                    <div class="financial-list-item-info">
-                                        <div class="financial-list-item-title"><?= esc($grupo['nombre']) ?></div>
-                                        <div class="financial-list-item-subtitle">
+                                    <div class="dash-list-item-info">
+                                        <div class="dash-list-item-title"><?= esc($grupo['nombre']) ?></div>
+                                        <div class="dash-list-item-subtitle">
                                             <?php if ($mv): ?>
                                                 <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>" style="font-size:10px;padding:2px 6px;"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
                                                 <?= esc(mb_substr($mv['descripcion'], 0, 30)) ?> &middot; <?= date('d/m', strtotime($mv['fecha'])) ?>
@@ -99,7 +101,7 @@
                                             <?php endif; ?>
                                         </div>
                                     </div>
-                                    <div class="financial-list-item-amount <?= $saldoClase ?>">
+                                    <div class="dash-list-item-amount <?= $saldoClase ?>">
                                         $<?= number_format(abs($grupo['mi_saldo']), 2) ?>
                                         <div style="font-size:10px;font-weight:600;"><?= $grupo['mi_saldo'] > 0 ? 'a favor' : ($grupo['mi_saldo'] < 0 ? 'deb&eacute;s' : ''); ?></div>
                                     </div>
@@ -117,7 +119,7 @@
                                 <summary class="section-header-title" style="cursor:pointer;padding:12px 0;">
                                     Cerrados / Liquidados (<?= count($inactivos) ?>)
                                 </summary>
-                                <div class="card">
+                                <div class="dash-card">
                                     <?php foreach ($inactivos as $grupo): ?>
                                         <?php
                                             $badgeEstado = ['cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
@@ -126,16 +128,16 @@
                                             $avaColor = $avatarColors[$colorIdx % count($avatarColors)];
                                             $colorIdx++;
                                         ?>
-                                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="financial-list-item financial-list-item-clickable text-decoration-none" style="color:inherit;opacity:0.75;" data-estado="<?= $grupo['estado'] ?>">
+                                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="dash-list-item text-decoration-none" style="opacity:0.75;" data-estado="<?= $grupo['estado'] ?>">
                                             <div class="avatar" style="background:var(--surface-alt);color:var(--muted);"><?= esc(mb_strtoupper(mb_substr($grupo['nombre'], 0, 1))) ?></div>
-                                            <div class="financial-list-item-info">
-                                                <div class="financial-list-item-title"><?= esc($grupo['nombre']) ?></div>
-                                                <div class="financial-list-item-subtitle">
+                                            <div class="dash-list-item-info">
+                                                <div class="dash-list-item-title"><?= esc($grupo['nombre']) ?></div>
+                                                <div class="dash-list-item-subtitle">
                                                     <span class="badge <?= $claseBadge ?>" style="font-size:10px;padding:2px 6px;"><?= ucfirst($grupo['estado']) ?></span>
                                                     <?= $grupo['deudas_count'] ?> transferencia(s) pendiente(s)
                                                 </div>
                                             </div>
-                                            <div class="financial-list-item-amount <?= $saldoClase ?>">
+                                            <div class="dash-list-item-amount <?= $saldoClase ?>">
                                                 $<?= number_format(abs($grupo['mi_saldo']), 2) ?>
                                             </div>
                                         </a>
@@ -153,27 +155,27 @@
                     <div class="section-header-title">Deudas pendientes</div>
                 </div>
                 <?php if (empty($deudasPendientes)): ?>
-                    <div class="card">
-                        <div class="financial-list-item" style="justify-content:center;flex-direction:column;text-align:center;padding:24px;">
+                    <div class="dash-card">
+                        <div class="dash-list-item" style="justify-content:center;flex-direction:column;text-align:center;padding:24px;">
                             <span class="status-dot status-dot-active" style="width:10px;height:10px;margin-bottom:8px;"></span>
                             <span style="font-size:14px;color:var(--muted);">No ten&eacute;s deudas pendientes</span>
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="card">
+                    <div class="dash-card">
                         <?php foreach ($deudasPendientes as $d): ?>
                             <?php $esDeudor = (int) $d['deudor_id'] === $userId; ?>
-                            <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="financial-list-item financial-list-item-clickable text-decoration-none" style="color:inherit;">
+                            <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="dash-list-item text-decoration-none">
                                 <div class="avatar avatar-sm" style="background:<?= $esDeudor ? 'var(--danger-light)' : 'var(--accent-light)' ?>;color:<?= $esDeudor ? 'var(--danger)' : 'var(--accent)' ?>;">
                                     <?= $esDeudor ? '↑' : '↓' ?>
                                 </div>
-                                <div class="financial-list-item-info">
-                                    <div class="financial-list-item-title" style="font-size:14px;">
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title" style="font-size:14px;">
                                         <?= $esDeudor ? 'Deb&eacute;s a ' . esc($d['acreedor']) : 'Te debe ' . esc($d['deudor']) ?>
                                     </div>
-                                    <div class="financial-list-item-subtitle"><?= esc($d['grupo_nombre']) ?></div>
+                                    <div class="dash-list-item-subtitle"><?= esc($d['grupo_nombre']) ?></div>
                                 </div>
-                                <div class="financial-list-item-amount <?= $esDeudor ? 'text-danger' : 'text-success' ?>">
+                                <div class="dash-list-item-amount <?= $esDeudor ? 'text-danger' : 'text-success' ?>">
                                     $<?= number_format($d['monto'], 2) ?>
                                 </div>
                             </a>
@@ -197,46 +199,46 @@
                 </div>
 
                 <?php if (!empty($movimientos)): ?>
-                    <div class="card" id="feedContainer">
+                    <div class="dash-card" id="feedContainer">
                         <?php foreach ($movimientos as $m): ?>
                             <?php
                                 $fechaTs = strtotime($m['fecha']);
                                 $fechaTag = date('Y-m-d', $fechaTs);
                             ?>
                             <?php if ($m['tipo'] === 'gasto'): ?>
-                                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="financial-list-item financial-list-item-clickable text-decoration-none feed-item" style="color:inherit;border-left:3px solid var(--primary);" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                    <div class="financial-list-item-info">
-                                        <div class="financial-list-item-title" style="font-size:14px;"><?= esc($m['descripcion']) ?></div>
-                                        <div class="financial-list-item-subtitle">
+                                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="dash-list-item dash-list-item-bordered text-decoration-none feed-item" style="border-left:3px solid var(--primary);" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                    <div class="dash-list-item-info">
+                                        <div class="dash-list-item-title" style="font-size:14px;"><?= esc($m['descripcion']) ?></div>
+                                        <div class="dash-list-item-subtitle">
                                             <?= date('d/m/Y', $fechaTs) ?> &middot; <?= esc($m['pagador_nombre']) ?> &middot; <?= esc($m['grupo_nombre']) ?>
                                         </div>
                                     </div>
-                                    <div class="financial-list-item-amount text-primary">
+                                    <div class="dash-list-item-amount text-primary">
                                         -$<?= number_format($m['monto'], 2) ?>
                                     </div>
                                 </a>
                             <?php else: ?>
-                                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="financial-list-item financial-list-item-clickable text-decoration-none feed-item" style="color:inherit;border-left:3px solid var(--accent);" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                    <div class="financial-list-item-info">
-                                        <div class="financial-list-item-title" style="font-size:14px;">Pago</div>
-                                        <div class="financial-list-item-subtitle">
+                                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="dash-list-item dash-list-item-bordered text-decoration-none feed-item" style="border-left:3px solid var(--accent);" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                    <div class="dash-list-item-info">
+                                        <div class="dash-list-item-title" style="font-size:14px;">Pago</div>
+                                        <div class="dash-list-item-subtitle">
                                             <?= date('d/m/Y', $fechaTs) ?> &middot; <?= esc($m['pagador_nombre']) ?> &rarr; <?= esc($m['receptor_nombre']) ?>
                                         </div>
                                     </div>
-                                    <div class="financial-list-item-amount text-success">
+                                    <div class="dash-list-item-amount text-success">
                                         $<?= number_format($m['monto'], 2) ?>
                                     </div>
                                 </a>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
-                    <div id="feedEmpty" class="card d-none">
-                        <div class="financial-list-item" style="justify-content:center;flex-direction:column;text-align:center;padding:24px;">
+                    <div id="feedEmpty" class="dash-card d-none">
+                        <div class="dash-list-item" style="justify-content:center;flex-direction:column;text-align:center;padding:24px;">
                             <span style="font-size:14px;color:var(--muted);">No hay movimientos para este filtro.</span>
                         </div>
                     </div>
                 <?php else: ?>
-                    <div class="card">
+                    <div class="dash-card">
                         <div class="empty-state" style="padding:24px;">
                             <div class="empty-state-text">No hay actividad reciente.</div>
                             <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm">Entrar a un grupo</a>

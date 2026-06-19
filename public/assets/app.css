@@ -1345,3 +1345,89 @@ a:hover {
     .desktop-main { margin-left: 0; }
     .desktop-topbar { display: none !important; }
 }
+
+/* --- Dashboard Cards (mobile-friendly) --- */
+.dash-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.dash-card-body {
+    padding: 16px;
+}
+
+.dash-card-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+}
+
+.dash-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+    color: var(--ink);
+    transition: background-color 0.1s ease;
+}
+
+.dash-list-item:last-child {
+    border-bottom: 0;
+}
+
+.dash-list-item:hover {
+    background: var(--surface);
+}
+
+.dash-list-item-bordered {
+    border-left: 3px solid var(--primary);
+}
+
+.dash-list-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.dash-list-item-title {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--ink);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dash-list-item-subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+.dash-list-item-amount {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+@media (max-width: 575.98px) {
+    .dash-card {
+        border: 1.5px solid var(--border-strong);
+    }
+    .dash-list-item {
+        padding: 12px 14px;
+    }
+    .dash-list-item-title {
+        font-size: 14px;
+    }
+    .dash-list-item-amount {
+        font-size: 14px;
+    }
+}

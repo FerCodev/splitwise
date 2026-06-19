@@ -14,23 +14,25 @@
         ?>
 
         <!-- Group summary -->
-        <div class="balance-strip mb-3">
-            <div class="d-flex align-items-center gap-2 mb-2">
-                <h3 class="mb-0"><?= esc($grupo['nombre']) ?></h3>
-                <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
-            </div>
-            <div class="balance-strip-detail">
-                <div class="balance-strip-detail-item">
-                    <span class="text-muted">Miembros:</span>
-                    <span class="financial-amount"><?= count($miembros) ?></span>
+        <div class="dash-card mb-3">
+            <div class="dash-card-body">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <h3 class="mb-0"><?= esc($grupo['nombre']) ?></h3>
+                    <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
                 </div>
-                <div class="balance-strip-detail-item">
-                    <span class="text-muted">Gastado:</span>
-                    <span class="financial-amount">$<?= number_format($totalGastado, 2) ?></span>
-                </div>
-                <div class="balance-strip-detail-item">
-                    <span class="text-muted">Pagado:</span>
-                    <span class="financial-amount">$<?= number_format($totalPagado, 2) ?></span>
+                <div class="balance-strip-detail">
+                    <div class="balance-strip-detail-item">
+                        <span class="text-muted">Miembros:</span>
+                        <span class="financial-amount"><?= count($miembros) ?></span>
+                    </div>
+                    <div class="balance-strip-detail-item">
+                        <span class="text-muted">Gastado:</span>
+                        <span class="financial-amount">$<?= number_format($totalGastado, 2) ?></span>
+                    </div>
+                    <div class="balance-strip-detail-item">
+                        <span class="text-muted">Pagado:</span>
+                        <span class="financial-amount">$<?= number_format($totalPagado, 2) ?></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -40,14 +42,14 @@
             <div class="section-header-title">Balance por usuario</div>
         </div>
         <?php if (empty($balance)): ?>
-            <div class="card mb-3">
+            <div class="dash-card mb-3">
                 <div class="empty-state" style="padding:24px;">
                     <div class="empty-state-text">No hay datos de balance para mostrar.</div>
                 </div>
             </div>
         <?php else: ?>
             <!-- Desktop table -->
-            <div class="card mb-3 d-none d-md-block">
+            <div class="dash-card mb-3 d-none d-md-block">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -84,7 +86,7 @@
                 </div>
             </div>
             <!-- Mobile list -->
-            <div class="card mb-3 d-md-none">
+            <div class="dash-card mb-3 d-md-none">
                 <?php
                     $avatarColors = ['avatar-blue', 'avatar-green', 'avatar-purple', 'avatar-orange', 'avatar-teal', 'avatar-pink', 'avatar-red', 'avatar-indigo'];
                     $colorIdx = 0;
@@ -97,16 +99,16 @@
                         $saldoClase = $b['saldo'] >= 0 ? 'text-success' : 'text-danger';
                         $collapseId = 'detalle-' . $b['user_id'];
                     ?>
-                    <div class="financial-list-item" style="flex-wrap:wrap;">
+                    <div class="dash-list-item" style="flex-wrap:wrap;">
                         <div class="avatar <?= $avaColor ?>"><?= $inicial ?></div>
-                        <div class="financial-list-item-info">
-                            <div class="financial-list-item-title"><?= esc($b['name']) ?></div>
-                            <div class="financial-list-item-subtitle">
+                        <div class="dash-list-item-info">
+                            <div class="dash-list-item-title"><?= esc($b['name']) ?></div>
+                            <div class="dash-list-item-subtitle">
                                 Pag&oacute;: $<?= number_format($b['total_pagado_gastos'], 2) ?> &middot;
                                 Consumi&oacute;: $<?= number_format($b['total_consumido'], 2) ?>
                             </div>
                         </div>
-                        <div class="financial-list-item-amount <?= $saldoClase ?>">
+                        <div class="dash-list-item-amount <?= $saldoClase ?>">
                             $<?= number_format(abs($b['saldo']), 2) ?>
                             <div style="font-size:10px;font-weight:600;"><?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?></div>
                         </div>
@@ -148,13 +150,13 @@
             <div class="section-header-title">Gastos por categor&iacute;a</div>
         </div>
         <?php if (empty($gastosPorCategoria)): ?>
-            <div class="card mb-3">
+            <div class="dash-card mb-3">
                 <div class="empty-state" style="padding:24px;">
                     <div class="empty-state-text">No hay gastos registrados.</div>
                 </div>
             </div>
         <?php else: ?>
-            <div class="card mb-3 d-none d-md-block">
+            <div class="dash-card mb-3 d-none d-md-block">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -176,16 +178,16 @@
                     </table>
                 </div>
             </div>
-            <div class="card mb-3 d-md-none">
+            <div class="dash-card mb-3 d-md-none">
                 <?php foreach ($gastosPorCategoria as $cat): ?>
-                    <div class="financial-list-item">
-                        <div class="financial-list-item-info">
-                            <div class="financial-list-item-title" style="font-size:14px;">
+                    <div class="dash-list-item">
+                        <div class="dash-list-item-info">
+                            <div class="dash-list-item-title" style="font-size:14px;">
                                 <span class="badge bg-secondary"><?= esc($cat['categoria_nombre']) ?></span>
                             </div>
-                            <div class="financial-list-item-subtitle"><?= $cat['cantidad'] ?> gasto(s)</div>
+                            <div class="dash-list-item-subtitle"><?= $cat['cantidad'] ?> gasto(s)</div>
                         </div>
-                        <div class="financial-list-item-amount">$<?= number_format($cat['total'], 2) ?></div>
+                        <div class="dash-list-item-amount">$<?= number_format($cat['total'], 2) ?></div>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -196,26 +198,26 @@
             <div class="section-header-title">Transferencias sugeridas</div>
         </div>
         <?php if (empty($deudas)): ?>
-            <div class="card mb-3">
-                <div class="financial-list-item" style="justify-content:center;flex-direction:column;text-align:center;padding:24px;">
+            <div class="dash-card mb-3">
+                <div class="dash-list-item" style="justify-content:center;flex-direction:column;text-align:center;padding:24px;">
                     <span class="status-dot status-dot-active" style="width:10px;height:10px;margin-bottom:8px;"></span>
                     <span style="font-size:14px;color:var(--muted);">El grupo est&aacute; saldado. No hay deudas pendientes.</span>
                 </div>
             </div>
         <?php else: ?>
-            <div class="card mb-3">
+            <div class="dash-card mb-3">
                 <?php foreach ($deudas as $d): ?>
                     <?php $acreedorId = (int) $d['acreedor_id']; ?>
-                    <div class="financial-list-item" style="flex-wrap:wrap;border-left:3px solid var(--danger);">
-                        <div class="financial-list-item-info">
-                            <div class="financial-list-item-title" style="font-size:14px;">
+                    <div class="dash-list-item" style="flex-wrap:wrap;border-left:3px solid var(--danger);">
+                        <div class="dash-list-item-info">
+                            <div class="dash-list-item-title" style="font-size:14px;">
                                 <strong><?= esc($d['deudor']) ?></strong>
                                 <span class="text-muted" style="font-weight:400;"> le debe a </span>
                                 <strong><?= esc($d['acreedor']) ?></strong>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-2">
-                            <div class="financial-list-item-amount text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
+                            <div class="dash-list-item-amount text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
                             <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                             <button type="button" class="btn btn-success btn-sm pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
                                 Pagar
@@ -267,8 +269,8 @@
         <?php endif; ?>
 
         <?php if ($grupo['estado'] === 'cerrado' && empty($deudas) && $rol === 'admin'): ?>
-            <div class="card mb-3">
-                <div class="card-body text-center" style="padding:24px;">
+            <div class="dash-card mb-3">
+                <div class="dash-card-body text-center" style="padding:24px;">
                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
                         <?= csrf_field() ?>
                         <input type="hidden" name="estado" value="liquidado">
@@ -278,8 +280,8 @@
                 </div>
             </div>
         <?php elseif ($grupo['estado'] === 'cerrado' && !empty($deudas) && $rol === 'admin'): ?>
-            <div class="card mb-3">
-                <div class="card-body text-center" style="padding:24px;">
+            <div class="dash-card mb-3">
+                <div class="dash-card-body text-center" style="padding:24px;">
                     <p class="text-muted mb-0">
                         Hay deudas pendientes. Registr&aacute; los pagos correspondientes antes de liquidar.
                     </p>
