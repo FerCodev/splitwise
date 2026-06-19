@@ -1,5 +1,5 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Dashboard']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Home']) ?>
 
     <div class="container mt-3 mt-md-4">
 
@@ -99,7 +99,7 @@
             </div>
 
             <!-- Filtros del feed -->
-            <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
                 <span class="fw-bold small text-muted d-none d-md-inline">Grupos</span>
                 <div class="filter-tabs flex-grow-1">
                     <button class="filter-tab active" data-filter="todos" onclick="filtrarGrupos('todos', this)">Todos</button>
@@ -147,7 +147,7 @@
                                             <?php endif; ?>
                                         </div>
                                         <div class="card-footer bg-transparent border-0 pt-0">
-                                            <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm w-100">Entrar</a>
+                                            <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-primary btn-sm w-100">Entrar</a>
                                         </div>
                                     </div>
                                 </div>
@@ -186,7 +186,7 @@
                                                 </div>
                                             </div>
                                             <div class="card-footer bg-transparent border-0 pt-0">
-                                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-secondary btn-sm w-100">Ver</a>
+                                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm w-100">Ver</a>
                                             </div>
                                         </div>
                                     </div>
@@ -237,7 +237,7 @@
             <div class="filter-section" data-section="actividad">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="fw-bold mb-0">Actividad reciente</h5>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
+                    <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
                     </button>
                 </div>
@@ -251,8 +251,8 @@
                             ?>
                             <?php if ($m['tipo'] === 'gasto'): ?>
                                 <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2">
-                                    <div class="card-body py-2 px-3">
+                                <div class="card border-0 shadow-sm mb-2 feed-card">
+                                    <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
@@ -270,8 +270,8 @@
                                 </a>
                             <?php else: ?>
                                 <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2">
-                                    <div class="card-body py-2 px-3">
+                                <div class="card border-0 shadow-sm mb-2 feed-card">
+                                    <div class="card-body">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <span class="fw-medium small">Pago</span>
@@ -298,7 +298,7 @@
                     <div class="card border-0 shadow-sm">
                         <div class="card-body text-center py-4">
                             <p class="text-muted mb-0">No hay actividad reciente.</p>
-                            <a href="<?= base_url('grupos') ?>" class="btn btn-outline-primary btn-sm mt-2">Entrar a un grupo</a>
+                            <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm mt-2">Entrar a un grupo</a>
                         </div>
                     </div>
                 <?php endif; ?>

@@ -5,9 +5,9 @@
     <title>Mi perfil - SplitWise</title>
 </head>
 <body>
-    <?= view('partials/_navbar') ?>
+    <?= view('partials/_navbar', ['pageTitle' => 'Perfil']) ?>
     <div class="container py-4">
-        <h2 class="mb-4">Mi perfil</h2>
+        <h2 class="mb-4 d-none d-md-block">Mi perfil</h2>
 
         <?php if (session()->getFlashdata('success')): ?>
             <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>

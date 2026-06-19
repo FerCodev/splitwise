@@ -1,8 +1,8 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' Gasto']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($gasto) ? 'Editar gasto' : 'Nuevo gasto']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
+        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">

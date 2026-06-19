@@ -65,26 +65,36 @@ class PasswordReset extends Model
     public static function enviarEmail(string $to, string $subject, string $message): bool
     {
         if (!self::smtpConfigurado()) {
+            log_message('error', 'Intento de envio de email sin configuracion SMTP completa');
             return false;
         }
 
         try {
             $email = \Config\Services::email();
-            $email->protocol = 'smtp';
-            $email->SMTPHost = env('email.SMTPHost');
-            $email->SMTPUser = env('email.SMTPUser');
-            $email->SMTPPass = env('email.SMTPPass');
-            $email->SMTPPort = (int) (env('email.SMTPPort') ?: 587);
-            $email->SMTPCrypto = env('email.SMTPCrypto') ?: 'tls';
+            $email->initialize([
+                'protocol'  => 'smtp',
+                'SMTPHost'  => env('email.SMTPHost'),
+                'SMTPUser'  => env('email.SMTPUser'),
+                'SMTPPass'  => env('email.SMTPPass'),
+                'SMTPPort'  => (int) (env('email.SMTPPort') ?: 587),
+                'SMTPCrypto' => env('email.SMTPCrypto') ?: 'tls',
+                'mailType'  => 'text',
+                'charset'   => 'UTF-8',
+            ]);
 
             $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'SplitWise');
             $email->setTo($to);
             $email->setSubject($subject);
             $email->setMessage($message);
 
-            return $email->send();
+            if (!$email->send()) {
+                log_message('error', 'Fallo envio de email de recuperacion');
+                return false;
+            }
+
+            return true;
         } catch (\Throwable $e) {
-            log_message('error', 'Error al enviar email: ' . $e->getMessage());
+            log_message('error', 'Excepcion en envio de email de recuperacion');
             return false;
         }
     }

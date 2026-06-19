@@ -1,9 +1,9 @@
 <?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($pago) ? 'Editar' : 'Nuevo') . ' Pago']) ?>
-<?= view('partials/_navbar') ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($pago) ? 'Editar pago' : 'Nuevo pago']) ?>
 
     <?php $prefill = $prefill ?? []; ?>
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
+        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($pago) ? 'Editar Pago' : 'Nuevo Pago' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">

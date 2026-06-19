@@ -1,6 +1,7 @@
 <?php
     $current = service('uri')->getSegment(1) ?: 'dashboard';
     $isAdmin = session()->get('userRole') === 'admin';
+    $mobileTitle = $pageTitle ?? 'Home';
     function tabActive($tab, $current) {
         return $tab === $current ? 'active' : '';
     }
@@ -42,45 +43,51 @@
 
 <!-- Mobile top bar -->
 <nav class="navbar navbar-dark bg-primary d-md-none">
-    <div class="container">
-        <a class="navbar-brand" href="<?= base_url('dashboard') ?>">SplitWise</a>
-        <?php if ($current !== 'login'): ?>
-            <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#headerMenu" aria-label="Men&uacute;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
-            </button>
-        <?php endif; ?>
+    <div class="container mobile-topbar">
+        <span class="mobile-page-title"><?= esc($mobileTitle) ?></span>
     </div>
 </nav>
 
 <!-- Header offcanvas menu (mobile) -->
-<div class="offcanvas offcanvas-end" tabindex="-1" id="headerMenu" aria-label="Men&uacute; principal">
-    <div class="offcanvas-header">
+<div class="offcanvas offcanvas-end mobile-menu" tabindex="-1" id="headerMenu" aria-label="Men&uacute; principal">
+    <div class="offcanvas-header mobile-menu-header">
         <h5 class="offcanvas-title">Men&uacute;</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
     </div>
-    <div class="offcanvas-body p-0">
-        <div class="list-group list-group-flush">
-            <div class="list-group-item">
-                <div class="fw-semibold"><?= esc(session()->get('userName')) ?></div>
-                <div class="text-muted small"><?= esc(session()->get('userEmail')) ?></div>
+    <div class="offcanvas-body mobile-menu-body">
+        <div class="mobile-menu-user">
+            <div class="mobile-menu-avatar" aria-hidden="true"><?= esc(strtoupper(substr((string) session()->get('userName'), 0, 1))) ?></div>
+            <div class="mobile-menu-user-copy">
+                <div class="mobile-menu-name"><?= esc(session()->get('userName')) ?></div>
+                <div class="mobile-menu-email"><?= esc(session()->get('userEmail')) ?></div>
             </div>
-            <a href="<?= base_url('perfil') ?>" class="list-group-item list-group-item-action">Mi perfil</a>
-            <a href="<?= base_url('grupos') ?>" class="list-group-item list-group-item-action">Grupos</a>
-            <a href="<?= base_url('gastos') ?>" class="list-group-item list-group-item-action">Gastos</a>
-            <a href="<?= base_url('pagos') ?>" class="list-group-item list-group-item-action">Pagos</a>
-            <a href="<?= base_url('reportes') ?>" class="list-group-item list-group-item-action">Reportes</a>
-            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="list-group-item list-group-item-action">Mis medios de cobro</a>
+        </div>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-section-title">Navegaci&oacute;n</div>
+            <a href="<?= base_url('perfil') ?>" class="mobile-menu-link">Mi perfil</a>
+            <a href="<?= base_url('grupos') ?>" class="mobile-menu-link">Grupos</a>
+            <a href="<?= base_url('gastos') ?>" class="mobile-menu-link">Gastos</a>
+            <a href="<?= base_url('pagos') ?>" class="mobile-menu-link">Pagos</a>
+            <a href="<?= base_url('reportes') ?>" class="mobile-menu-link">Reportes</a>
+            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="mobile-menu-link">Mis medios de cobro</a>
             <?php if ($current === 'dashboard'): ?>
-                <button type="button" class="list-group-item list-group-item-action" data-bs-dismiss="offcanvas" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
+                <button type="button" class="mobile-menu-link mobile-menu-link-button" data-bs-dismiss="offcanvas" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
                     Resumen
                 </button>
             <?php endif; ?>
-            <?php if ($isAdmin): ?>
-                <div class="list-group-item small text-muted fw-medium">Administraci&oacute;n</div>
-                <a href="<?= base_url('categorias') ?>" class="list-group-item list-group-item-action ps-4">Categor&iacute;as</a>
-                <a href="<?= base_url('usuarios') ?>" class="list-group-item list-group-item-action ps-4">Usuarios</a>
-            <?php endif; ?>
-            <a href="<?= base_url('logout') ?>" class="list-group-item list-group-item-action text-danger fw-medium">Cerrar Sesi&oacute;n</a>
+        </div>
+
+        <?php if ($isAdmin): ?>
+            <div class="mobile-menu-section">
+                <div class="mobile-menu-section-title">Administraci&oacute;n</div>
+                <a href="<?= base_url('categorias') ?>" class="mobile-menu-link">Categor&iacute;as</a>
+                <a href="<?= base_url('usuarios') ?>" class="mobile-menu-link">Usuarios</a>
+            </div>
+        <?php endif; ?>
+
+        <div class="mobile-menu-section mobile-menu-session">
+            <a href="<?= base_url('logout') ?>" class="mobile-menu-link mobile-menu-link-danger">Cerrar sesi&oacute;n</a>
         </div>
     </div>
 </div>
@@ -99,6 +106,10 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/></svg>
         <span>Perfil</span>
     </a>
+    <button type="button" class="bottom-tab-item" data-bs-toggle="offcanvas" data-bs-target="#headerMenu" aria-label="Men&uacute;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/></svg>
+        <span>Men&uacute;</span>
+    </button>
 </nav>
 
 

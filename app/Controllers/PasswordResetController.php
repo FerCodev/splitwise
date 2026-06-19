@@ -42,7 +42,6 @@ class PasswordResetController extends BaseController
             $response->with('dev_reset_link', $link);
         }
 
-        // Enviar email real si SMTP esta configurado en .env
         if (PasswordReset::smtpConfigurado()) {
             $enviado = PasswordReset::enviarEmail(
                 $user['email'],
@@ -57,11 +56,10 @@ class PasswordResetController extends BaseController
             );
 
             if (!$enviado) {
-                log_message('error', 'Fallo al enviar email de recuperacion a ' . $user['email']);
-                if (ENVIRONMENT !== 'development') {
-                    $response->with('error', 'Ocurrió un problema al enviar el email. Intentalo de nuevo más tarde.');
-                }
+                log_message('error', 'Fallo envio de email de recuperacion');
             }
+        } else {
+            log_message('info', 'SMTP no configurado. Email de recuperacion no enviado.');
         }
 
         return $response;
