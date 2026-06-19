@@ -2,7 +2,7 @@
 <?= view('partials/_navbar', ['pageTitle' => isset($user) ? 'Editar usuario' : 'Nuevo usuario']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($user) ? 'Editar Usuario' : 'Nuevo Usuario' ?></h2>
+        <h2 class="mb-3 d-none d-md-block"><?= isset($user) ? 'Editar Usuario' : 'Nuevo Usuario' ?></h2>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
@@ -14,7 +14,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card mb-3">
             <div class="card-body">
                 <form action="<?= isset($user) ? base_url('usuarios/' . $user['id']) : base_url('usuarios') ?>" method="post">
                     <?= csrf_field() ?>
@@ -23,19 +23,19 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="name" class="form-label fw-medium">Nombre</label>
+                        <label for="name" class="form-label">Nombre</label>
                         <input type="text" class="form-control" id="name" name="name"
                                value="<?= esc(old('name', $user['name'] ?? '')) ?>" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="email" class="form-label fw-medium">Email</label>
+                        <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email"
                                value="<?= esc(old('email', $user['email'] ?? '')) ?>" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="role" class="form-label fw-medium">Rol global</label>
+                        <label for="role" class="form-label">Rol global</label>
                         <select class="form-select" id="role" name="role">
                             <option value="user" <?= old('role', $user['role'] ?? '') === 'user' ? 'selected' : '' ?>>Usuario</option>
                             <option value="admin" <?= old('role', $user['role'] ?? '') === 'admin' ? 'selected' : '' ?>>Administrador</option>
@@ -43,8 +43,8 @@
                     </div>
 
                     <?php if (!isset($user)): ?>
-                        <div class="mb-4">
-                            <label for="password" class="form-label fw-medium">Contraseña</label>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contrase&ntilde;a</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
                     <?php endif; ?>
@@ -60,18 +60,18 @@
         </div>
 
         <?php if (isset($user)): ?>
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold">Cambiar contraseña</h5>
-                </div>
+            <div class="section-header">
+                <div class="section-header-title">Cambiar contrase&ntilde;a</div>
+            </div>
+            <div class="card">
                 <div class="card-body">
                     <form action="<?= base_url('usuarios/' . $user['id'] . '/password') ?>" method="post">
                         <?= csrf_field() ?>
                         <div class="mb-3">
-                            <label for="password" class="form-label fw-medium">Nueva contraseña</label>
+                            <label for="password" class="form-label">Nueva contrase&ntilde;a</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                         </div>
-                        <button type="submit" class="btn btn-warning">Actualizar contraseña</button>
+                        <button type="submit" class="btn btn-warning">Actualizar contrase&ntilde;a</button>
                     </form>
                 </div>
             </div>
