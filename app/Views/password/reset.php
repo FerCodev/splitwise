@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SplitWise - Nueva contrase&ntilde;a</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= base_url('assets/app.css') ?>" rel="stylesheet">
 </head>
-<body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
+<body style="background:var(--surface);min-height:100vh;display:flex;align-items:center;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-4">
-                <div class="card shadow">
-                    <div class="card-body p-4">
-                        <h3 class="text-center mb-1">SplitWise</h3>
-                        <p class="text-center text-muted small mb-4">Nueva contrase&ntilde;a</p>
+                <div style="text-align:center;margin-bottom:32px;">
+                    <h1 style="font-size:28px;font-weight:800;color:var(--primary);letter-spacing:-0.02em;">SplitWise</h1>
+                    <p style="color:var(--muted);font-size:14px;margin:4px 0 0;">Nueva contrase&ntilde;a</p>
+                </div>
+                <div class="card">
+                    <div class="card-body" style="padding:24px;">
 
                         <?php if (session()->getFlashdata('error')): ?>
                             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
