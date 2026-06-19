@@ -210,8 +210,8 @@
                     <?php foreach ($deudasPendientes as $d): ?>
                         <?php $esDeudor = (int) $d['deudor_id'] === $userId; ?>
                         <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="text-decoration-none">
-                        <div class="card border-0 shadow-sm mb-2">
-                            <div class="card-body py-2 px-3">
+                        <div class="card border-0 shadow-sm mb-2 feed-card">
+                            <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <span class="fw-medium small">
