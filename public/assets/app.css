@@ -294,6 +294,9 @@
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
+.btn-primary, .btn-success, .btn-danger, .btn-warning, .btn-info, .btn-secondary {
+    color: #fff !important;
+}
 .progress-bar {
     transition: width 0.3s ease;
 }
