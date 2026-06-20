@@ -89,6 +89,9 @@
 
                     <!-- Categoria (oculta, inferida desde descripcion) -->
                     <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? '') ?>">
+                    <input type="hidden" name="division_tipo" id="divisionTipoHidden" value="<?= esc(old('division_tipo', $gasto['division_tipo'] ?? 'igualitario')) ?>">
+                    <div id="participantesHiddenContainer"></div>
+                    <div id="divisionValoresContainer"></div>
 
                     <!-- Pagador -->
                     <?php
@@ -347,7 +350,14 @@
         }
 
         function recalcularDivision() {
-            var modo = document.getElementById('divisionModo').value;
+            var modoSelect = document.getElementById('divisionModo');
+            if (!modoSelect) return;
+
+            var modo = modoSelect.value;
+            var tipoHidden = document.getElementById('divisionTipoHidden');
+            if (tipoHidden) {
+                tipoHidden.value = modo;
+            }
             var rawValue = document.getElementById('monto_real').value;
             var montoTotal = parseFloat(rawValue) || 0;
             var rows = document.querySelectorAll('.participante-div-row:has(.participante-checkbox:checked)');
@@ -360,12 +370,14 @@
                 resultado.innerHTML = 'Ingres\u00e1 un monto v\u00e1lido para ver la divisi\u00f3n.';
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
+                sincronizarDivisionHidden(rows);
                 return;
             }
             if (seleccionados === 0) {
                 resultado.innerHTML = 'Seleccion\u00e1 al menos un participante para dividir el gasto.';
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
+                sincronizarDivisionHidden(rows);
                 return;
             }
 
@@ -410,10 +422,17 @@
             }
 
             actualizarMontosCalculados(modo, montoTotal, rows, valores);
+            sincronizarDivisionHidden(rows);
+        }
 
-            // Generar hidden inputs for form submission
+        function sincronizarDivisionHidden(rows) {
+            var participantesContainer = document.getElementById('participantesHiddenContainer');
             var container = document.getElementById('divisionValoresContainer');
+            if (!participantesContainer || !container) return;
+
+            participantesContainer.innerHTML = '';
             container.innerHTML = '';
+
             var index = 0;
             rows.forEach(function(row) {
                 var cb = row.querySelector('.participante-checkbox');
@@ -421,6 +440,7 @@
                     var uid = row.dataset.uid;
                     var inp = row.querySelector('.division-valor');
                     var v = (inp.value || '0').replace(',', '.');
+                    participantesContainer.innerHTML += '<input type="hidden" name="participantes[]" value="' + uid + '">';
                     container.innerHTML += '<input type="hidden" name="division_valores[' + index + '][user_id]" value="' + uid + '">';
                     container.innerHTML += '<input type="hidden" name="division_valores[' + index + '][valor]" value="' + v + '">';
                     index++;
@@ -454,7 +474,10 @@
             var montoInput = document.getElementById('monto');
             if (!montoInput) return;
 
-            var modo = document.getElementById('divisionModo').value;
+            var modoSelect = document.getElementById('divisionModo');
+            if (!modoSelect) return;
+
+            var modo = modoSelect.value;
             cambiarModoDivision(modo);
             recalcularDivision();
 
@@ -570,7 +593,6 @@
                         <div id="divisionError" class="small text-danger mb-1 d-none"></div>
                     </div>
 
-                    <div id="divisionValoresContainer"></div>
                 <?php else: ?>
                     <p class="text-muted mb-0">Seleccion&aacute; un grupo primero.</p>
                 <?php endif; ?>

@@ -15,8 +15,8 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-0 d-none d-md-block">
+        <div class="card border-0 shadow-sm d-none d-md-block">
+            <div class="card-body p-0">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0">
                         <thead class="table-light">
@@ -93,15 +93,20 @@
                     </table>
                 </div>
             </div>
-            <div class="d-md-none">
-                <?php if (empty($categorias)): ?>
+        </div>
+
+        <div class="d-md-none">
+            <?php if (empty($categorias)): ?>
+                <div class="card border-0 shadow-sm mb-3">
                     <div class="card-body text-center py-4">
                         <p class="text-muted mb-0">No hay categor&iacute;as registradas.</p>
                     </div>
-                <?php else: ?>
-                    <?php foreach ($categorias as $c): ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between align-items-start">
+                </div>
+            <?php else: ?>
+                <?php foreach ($categorias as $c): ?>
+                    <div class="card border-0 shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start gap-3">
                                 <div>
                                     <span class="fw-medium"><?= esc($c['nombre']) ?></span>
                                     <?php if ($c['nombre'] === $protegida): ?>
@@ -118,7 +123,7 @@
                                 </div>
                             </div>
                             <div class="text-muted small mt-1"><?= $usadas[(int) $c['id']] ?? 0 ?> gasto(s)</div>
-                            <div class="mt-2 d-flex gap-1 flex-wrap">
+                            <div class="mt-3 d-flex gap-1 flex-wrap">
                                 <?php if ($c['nombre'] !== $protegida): ?>
                                     <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-primary btn-sm flex-fill">Editar</a>
                                     <?php if ($c['activa']): ?>
@@ -152,12 +157,11 @@
                                 <?php endif; ?>
                             </div>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
-
-        <?php if (isset($pager)): ?>
+        <?php if (isset($pager) && $pager->getPageCount() > 1): ?>
             <div class="mt-4">
                 <?= $pager->links() ?>
             </div>
