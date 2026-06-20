@@ -8,15 +8,53 @@ class Perfil extends BaseController
 {
     public function index()
     {
-        $userId = session()->get('userId');
-        $userModel = new User();
-        $user = $userModel->find($userId);
-
+        $user = $this->currentUser();
         if (!$user) {
             return redirect()->to('/logout');
         }
 
         return view('perfil/index', ['user' => $user]);
+    }
+
+    public function editar()
+    {
+        $user = $this->currentUser();
+        if (!$user) {
+            return redirect()->to('/logout');
+        }
+
+        return view('perfil/editar', ['user' => $user]);
+    }
+
+    public function actualizar()
+    {
+        $rules = [
+            'name' => 'required|min_length[2]|max_length[255]',
+            'email' => 'required|valid_email',
+        ];
+
+        if (!$this->validate($rules)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $userId = session()->get('userId');
+        $userModel = new User();
+        $name = $this->request->getPost('name');
+        $email = $this->request->getPost('email');
+
+        $existing = $userModel->where('email', $email)->where('id !=', $userId)->first();
+        if ($existing) {
+            return redirect()->back()->withInput()->with('error', 'Este email ya est&aacute; en uso por otro usuario.');
+        }
+
+        $userModel->update($userId, [
+            'name' => $name,
+            'email' => $email,
+        ]);
+        session()->set('userName', $name);
+        session()->set('userEmail', $email);
+
+        return redirect()->to('/perfil')->with('success', 'Perfil actualizado correctamente.');
     }
 
     public function editarNombre()
@@ -55,13 +93,18 @@ class Perfil extends BaseController
 
         $existing = $userModel->where('email', $email)->where('id !=', $userId)->first();
         if ($existing) {
-            return redirect()->back()->with('error', 'Este email ya está en uso por otro usuario.');
+            return redirect()->back()->with('error', 'Este email ya est&aacute; en uso por otro usuario.');
         }
 
         $userModel->update($userId, ['email' => $email]);
         session()->set('userEmail', $email);
 
         return redirect()->to('/perfil')->with('success', 'Email actualizado correctamente.');
+    }
+
+    public function password()
+    {
+        return view('perfil/password');
     }
 
     public function cambiarPassword()
@@ -86,7 +129,7 @@ class Perfil extends BaseController
 
         $currentPassword = $this->request->getPost('current_password');
         if (!password_verify($currentPassword, $user['password'])) {
-            return redirect()->back()->with('error', 'La contraseña actual no es correcta.');
+            return redirect()->back()->with('error', 'La contrase&ntilde;a actual no es correcta.');
         }
 
         $newPassword = $this->request->getPost('new_password');
@@ -94,6 +137,14 @@ class Perfil extends BaseController
             'password' => password_hash($newPassword, PASSWORD_DEFAULT),
         ]);
 
-        return redirect()->to('/perfil')->with('success', 'Contraseña actualizada correctamente.');
+        return redirect()->to('/perfil')->with('success', 'Contrase&ntilde;a actualizada correctamente.');
+    }
+
+    private function currentUser(): ?array
+    {
+        $userId = session()->get('userId');
+        $userModel = new User();
+
+        return $userModel->find($userId);
     }
 }

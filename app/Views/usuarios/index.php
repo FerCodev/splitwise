@@ -84,7 +84,7 @@
             <span>Nuevo usuario</span>
         </a>
 
-        <?php if (isset($pager)): ?>
+        <?php if (isset($pager) && $pager->getPageCount() > 1): ?>
             <div class="mt-4">
                 <?= $pager->links() ?>
             </div>

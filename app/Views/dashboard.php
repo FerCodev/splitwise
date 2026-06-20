@@ -3,6 +3,9 @@
 
     <div class="container mt-3 mt-md-4">
 
+        <!-- ===== MOBILE (visible < 992px) ===== -->
+        <div class="d-lg-none">
+
         <!-- Acciones principales -->
         <div class="d-flex flex-wrap gap-2 mb-4">
             <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo Grupo</a>
@@ -265,76 +268,73 @@
 
             <!-- Actividad reciente con filtros -->
             <div class="filter-section" data-section="actividad">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0">Actividad reciente</h5>
-                    <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
-                    </button>
-                </div>
-
-                <?php if (!empty($movimientos)): ?>
-                    <div id="feedContainer">
-                        <?php foreach ($movimientos as $m): ?>
-                            <?php
-                                $fechaTs = strtotime($m['fecha']);
-                                $fechaTag = date('Y-m-d', $fechaTs);
-                            ?>
-                            <?php if ($m['tipo'] === 'gasto'): ?>
-                                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid #2563eb;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
-                                                <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
-                                            </div>
-                                            <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
-                                        </div>
-                                        <div class="text-muted small">
-                                            <?= date('d/m/Y', $fechaTs) ?> &middot;
-                                            <?= esc($m['pagador_nombre']) ?> &middot;
-                                            <span class="badge bg-light text-dark"><?= esc($m['categoria_nombre'] ?? 'Otros') ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                </a>
-                            <?php else: ?>
-                                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid #16a34a;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="fw-medium small">Pago</span>
-                                                <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
-                                            </div>
-                                            <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
-                                        </div>
-                                        <div class="text-muted small">
-                                            <?= date('d/m/Y', $fechaTs) ?> &middot;
-                                            <?= esc($m['pagador_nombre']) ?> pag&oacute; a <?= esc($m['receptor_nombre']) ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                </a>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Actividad reciente</h5>
+                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
+                        </button>
                     </div>
-                    <div id="feedEmpty" class="card border-0 shadow-sm d-none">
-                        <div class="card-body text-center py-5">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                    <div class="card-body report-movement-list">
+                        <?php if (!empty($movimientos)): ?>
+                            <div id="feedContainer">
+                                <?php foreach ($movimientos as $m): ?>
+                                    <?php
+                                        $fechaTs = strtotime($m['fecha']);
+                                        $fechaTag = date('Y-m-d', $fechaTs);
+                                    ?>
+                                    <?php if ($m['tipo'] === 'gasto'): ?>
+                                        <a href="<?= base_url('gastos/' . $m['id']) ?>" class="report-movement-link feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                        <div class="report-movement-card report-movement-expense feed-card" style="border-left: 3px solid #2563eb;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
+                                                    <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
+                                                </div>
+                                                <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <?= date('d/m/Y', $fechaTs) ?> &middot;
+                                                <?= esc($m['pagador_nombre']) ?> &middot;
+                                                <span class="badge bg-light text-dark"><?= esc($m['categoria_nombre'] ?? 'Otros') ?></span>
+                                            </div>
+                                        </div>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                        <div class="report-movement-card report-movement-payment feed-card" style="border-left: 3px solid #16a34a;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="fw-medium small">Pago</span>
+                                                    <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
+                                                </div>
+                                                <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <?= date('d/m/Y', $fechaTs) ?> &middot;
+                                                <?= esc($m['pagador_nombre']) ?> pag&oacute; a <?= esc($m['receptor_nombre']) ?>
+                                            </div>
+                                        </div>
+                                        </a>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </div>
-                            <p class="text-muted mb-0">No hay movimientos para este filtro.</p>
-                        </div>
+                            <div id="feedEmpty" class="d-none">
+                                <div class="text-center py-5">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                                    </div>
+                                    <p class="text-muted mb-0">No hay movimientos para este filtro.</p>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">No hay actividad reciente.</p>
+                                <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm mt-2">Entrar a un grupo</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php else: ?>
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-4">
-                            <p class="text-muted mb-0">No hay actividad reciente.</p>
-                            <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm mt-2">Entrar a un grupo</a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
 
             <script>
@@ -383,7 +383,258 @@
             </script>
 
         <?php endif; ?>
-    </div>
+        </div><!-- /d-lg-none mobile wrapper -->
+
+        <!-- ===== DESKTOP (visible >= 992px) ===== -->
+        <div class="d-none d-lg-block">
+            <?php
+                $avatarColors = ['avatar-blue', 'avatar-green', 'avatar-purple', 'avatar-orange', 'avatar-teal', 'avatar-pink', 'avatar-red', 'avatar-indigo'];
+                $colorIdx = 0;
+            ?>
+
+            <!-- Balance Strip -->
+            <div class="dash-card mb-3">
+                <div class="dash-card-body">
+                    <div class="balance-strip-label">Tu saldo total</div>
+                    <div class="balance-strip-amount <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
+                        $<?= number_format(abs($globalSaldo), 2) ?>
+                        <span class="text-muted" style="font-size:14px;"><?= $globalSaldo >= 0 ? 'a favor' : 'deb&eacute;s' ?></span>
+                    </div>
+                    <div class="balance-strip-detail">
+                        <div class="balance-strip-detail-item">
+                            <span class="status-dot status-dot-danger"></span>
+                            <span class="text-muted">Deb&eacute;s:</span>
+                            <span class="financial-amount text-danger">$<?= number_format($totalDebe, 2) ?></span>
+                        </div>
+                        <div class="balance-strip-detail-item">
+                            <span class="status-dot status-dot-active"></span>
+                            <span class="text-muted">Te deben:</span>
+                            <span class="financial-amount text-success">$<?= number_format($totalLeDeben, 2) ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="dash-card mb-3">
+                <div class="d-flex">
+                    <a href="<?= base_url('grupos') ?>" class="text-decoration-none" style="flex:1;padding:12px 16px;text-align:center;">
+                        <div class="financial-amount" style="font-size:20px;color:var(--primary);"><?= $cantidadActivos ?></div>
+                        <div style="font-size:12px;color:var(--muted);font-weight:600;">Grupos activos</div>
+                    </a>
+                    <div style="width:1px;background:var(--border);"></div>
+                    <span style="flex:1;padding:12px 16px;text-align:center;">
+                        <div class="financial-amount" style="font-size:20px;"><?= count($grupos) ?></div>
+                        <div style="font-size:12px;color:var(--muted);font-weight:600;">Total grupos</div>
+                    </span>
+                </div>
+            </div>
+
+            <?php
+                $activos = array_filter($grupos, fn($g) => $g['estado'] === 'activo');
+                $inactivos = array_filter($grupos, fn($g) => $g['estado'] !== 'activo');
+                $userId = (int) session()->get('userId');
+            ?>
+
+            <!-- Grupos activos -->
+            <?php if (!empty($activos)): ?>
+                <div class="section-header">
+                    <div class="section-header-title">Grupos activos</div>
+                    <a href="<?= base_url('grupos/nuevo') ?>" class="section-header-action btn btn-primary btn-sm">+ Nuevo</a>
+                </div>
+                <div class="dash-card mb-3">
+                    <?php foreach ($activos as $grupo): ?>
+                        <?php
+                            $avaColor = $avatarColors[$colorIdx % 8];
+                            $colorIdx++;
+                            $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : 'text-muted');
+                            $mv = $grupo['ultimo_movimiento'];
+                        ?>
+                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="dash-list-item text-decoration-none">
+                            <div class="avatar <?= $avaColor ?>"><?= esc(mb_strtoupper(mb_substr($grupo['nombre'], 0, 1))) ?></div>
+                            <div class="dash-list-item-info">
+                                <div class="dash-list-item-title"><?= esc($grupo['nombre']) ?></div>
+                                <?php if ($mv): ?>
+                                    <div class="dash-list-item-subtitle">
+                                        <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
+                                        <?= esc(mb_substr($mv['descripcion'], 0, 30)) ?> &middot; <?= date('d/m', strtotime($mv['fecha'])) ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="dash-list-item-subtitle">Creado el <?= date('d/m/Y', strtotime($grupo['created_at'])) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="dash-list-item-amount <?= $saldoClase ?>">
+                                $<?= number_format(abs($grupo['mi_saldo']), 2) ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="dash-card mb-3">
+                    <div class="dash-list-item" style="justify-content:flex-start;color:var(--muted);">
+                        No ten&eacute;s grupos activos.
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Grupos inactivos -->
+            <?php if (!empty($inactivos)): ?>
+                <details class="mb-3">
+                    <summary class="section-header-title" style="cursor:pointer;display:inline-block;padding:4px 0;">
+                        Cerrados / Liquidados (<?= count($inactivos) ?>)
+                    </summary>
+                    <div class="dash-card mt-2">
+                        <?php foreach ($inactivos as $grupo): ?>
+                            <?php
+                                $avaColor = $avatarColors[$colorIdx % 8];
+                                $colorIdx++;
+                                $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : 'text-muted');
+                                $badgeEstado = ['cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
+                                $claseBadge = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
+                            ?>
+                            <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="dash-list-item text-decoration-none" style="opacity:0.75;">
+                                <div class="avatar <?= $avaColor ?>" style="opacity:0.6;"><?= esc(mb_strtoupper(mb_substr($grupo['nombre'], 0, 1))) ?></div>
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title"><?= esc($grupo['nombre']) ?></div>
+                                    <div class="dash-list-item-subtitle">
+                                        <span class="badge <?= $claseBadge ?>"><?= ucfirst($grupo['estado']) ?></span>
+                                        <?= $grupo['deudas_count'] ?> transf. pend.
+                                    </div>
+                                </div>
+                                <div class="dash-list-item-amount <?= $saldoClase ?>">
+                                    $<?= number_format(abs($grupo['mi_saldo']), 2) ?>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </details>
+            <?php endif; ?>
+
+            <!-- Deudas pendientes -->
+            <div class="mb-3">
+                <div class="section-header">
+                    <div class="section-header-title">Deudas pendientes</div>
+                </div>
+                <?php if (empty($deudasPendientes)): ?>
+                    <div class="dash-card">
+                        <div class="dash-list-item" style="justify-content:flex-start;">
+                            <span class="status-dot status-dot-active"></span>
+                            <span style="color:var(--muted);">No ten&eacute;s deudas pendientes</span>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="dash-card">
+                        <?php foreach ($deudasPendientes as $d): ?>
+                            <?php $esDeudor = (int)$d['deudor_id'] === $userId; ?>
+                            <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="dash-list-item text-decoration-none">
+                                <div class="avatar avatar-sm" style="background:<?= $esDeudor ? 'var(--danger-light)' : 'var(--accent-light)' ?>;color:<?= $esDeudor ? 'var(--danger)' : 'var(--accent)' ?>;">
+                                    <?= $esDeudor ? '&uarr;' : '&darr;' ?>
+                                </div>
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title">
+                                        <?= $esDeudor ? 'Deb&eacute;s a ' . esc($d['acreedor']) : 'Te debe ' . esc($d['deudor']) ?>
+                                    </div>
+                                    <div class="dash-list-item-subtitle"><?= esc($d['grupo_nombre']) ?></div>
+                                </div>
+                                <div class="dash-list-item-amount <?= $esDeudor ? 'text-danger' : 'text-success' ?>">
+                                    $<?= number_format($d['monto'], 2) ?>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php if ($hayMasDeudas): ?>
+                        <div style="text-align:right;padding:8px 0;">
+                            <a href="<?= base_url('grupos') ?>" class="section-header-action">Ver m&aacute;s</a>
+                        </div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Actividad reciente -->
+            <div class="section-header">
+                <div class="section-header-title">Actividad reciente</div>
+                <button type="button" class="btn btn-primary feed-filter-btn btn-sm" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                </button>
+            </div>
+            <?php if (!empty($movimientos)): ?>
+                <div class="dash-card" id="feedContainerDesktop">
+                    <?php foreach ($movimientos as $m): ?>
+                        <?php
+                            $fechaTs = strtotime($m['fecha']);
+                            $fechaTag = date('Y-m-d', $fechaTs);
+                        ?>
+                        <?php if ($m['tipo'] === 'gasto'): ?>
+                            <a href="<?= base_url('gastos/' . $m['id']) ?>" class="dash-list-item dash-list-item-bordered text-decoration-none feed-item-desk" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>" style="border-left:3px solid var(--primary);">
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title"><?= esc($m['descripcion']) ?></div>
+                                    <div class="dash-list-item-subtitle">
+                                        <?= date('d/m/Y', $fechaTs) ?> &middot; <?= esc($m['pagador_nombre']) ?> &middot; <?= esc($m['grupo_nombre']) ?>
+                                    </div>
+                                </div>
+                                <div class="dash-list-item-amount text-primary">-$<?= number_format($m['monto'], 2) ?></div>
+                            </a>
+                        <?php else: ?>
+                            <a href="<?= base_url('pagos/' . $m['id']) ?>" class="dash-list-item dash-list-item-bordered text-decoration-none feed-item-desk" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>" style="border-left:3px solid var(--accent);">
+                                <div class="dash-list-item-info">
+                                    <div class="dash-list-item-title">Pago</div>
+                                    <div class="dash-list-item-subtitle">
+                                        <?= date('d/m/Y', $fechaTs) ?> &middot; <?= esc($m['pagador_nombre']) ?> &rarr; <?= esc($m['receptor_nombre']) ?>
+                                    </div>
+                                </div>
+                                <div class="dash-list-item-amount text-success">$<?= number_format($m['monto'], 2) ?></div>
+                            </a>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                <div id="feedEmptyDesktop" class="dash-card d-none">
+                    <div class="empty-state">
+                        <p class="empty-state-text">No hay movimientos para este filtro.</p>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="dash-card">
+                    <div class="empty-state">
+                        <p class="empty-state-text">No hay actividad reciente.</p>
+                        <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm">Entrar a un grupo</a>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <script>
+            function filtrarFeedDesktop() {
+                var grupoFiltro = document.getElementById('feedFiltroGrupo').value;
+                var periodoFiltro = document.getElementById('feedFiltroPeriodo').value;
+                var items = document.querySelectorAll('.feed-item-desk');
+                var visible = 0;
+
+                var ahora = new Date();
+                var hoyStr = ahora.toISOString().slice(0, 10);
+
+                var inicioSemana = new Date(ahora);
+                inicioSemana.setDate(ahora.getDate() - ahora.getDay());
+                var inicioSemanaStr = inicioSemana.toISOString().slice(0, 10);
+
+                var inicioMesStr = ahora.getFullYear() + '-' + String(ahora.getMonth() + 1).padStart(2, '0') + '-01';
+
+                items.forEach(function(item) {
+                    var gId = item.dataset.grupoId;
+                    var f = item.dataset.fecha;
+                    var cumpleGrupo = !grupoFiltro || gId === grupoFiltro;
+                    var cumpleFecha = true;
+                    if (periodoFiltro === 'hoy') { cumpleFecha = f === hoyStr; }
+                    else if (periodoFiltro === 'semana') { cumpleFecha = f >= inicioSemanaStr; }
+                    else if (periodoFiltro === 'mes') { cumpleFecha = f >= inicioMesStr; }
+                    if (cumpleGrupo && cumpleFecha) { item.style.display = ''; visible++; }
+                    else { item.style.display = 'none'; }
+                });
+
+                document.getElementById('feedEmptyDesktop').classList.toggle('d-none', visible > 0);
+            }
+            </script>
+        </div><!-- /d-none d-lg-block desktop wrapper -->
+
+    </div><!-- /container -->
 
     <!-- Filtros de actividad - Modal -->
     <div class="modal fade" id="feedFilterModal" tabindex="-1" aria-labelledby="feedFilterModalLabel" aria-hidden="true">
@@ -396,7 +647,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label fw-medium">Grupo</label>
-                        <select id="feedFiltroGrupo" class="form-select" onchange="filtrarFeed()">
+                        <select id="feedFiltroGrupo" class="form-select" onchange="filtrarFeed();filtrarFeedDesktop()">
                             <option value="">Todos los grupos</option>
                             <?php foreach ($grupos as $g): ?>
                                 <option value="<?= $g['id'] ?>"><?= esc($g['nombre']) ?></option>
@@ -405,7 +656,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-medium">Per&iacute;odo</label>
-                        <select id="feedFiltroPeriodo" class="form-select" onchange="filtrarFeed()">
+                        <select id="feedFiltroPeriodo" class="form-select" onchange="filtrarFeed();filtrarFeedDesktop()">
                             <option value="">Todas</option>
                             <option value="hoy">Hoy</option>
                             <option value="semana">Esta semana</option>
@@ -419,11 +670,5 @@
             </div>
         </div>
     </div>
-
-    <!-- FAB extendido - mobile only -->
-    <a href="<?= base_url('grupos/nuevo') ?>" class="d-md-none fab fab-extended" aria-label="Nuevo grupo">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
-        <span>Nuevo grupo</span>
-    </a>
 
 <?= view('partials/_footer') ?>
