@@ -46,7 +46,7 @@ class Grupos extends BaseController
     public function new()
     {
         $userModel = new \App\Models\User();
-        $usuarios = $userModel->select('id, name, email')->where('id !=', session()->get('userId'))->orderBy('name', 'ASC')->findAll();
+        $usuarios = $userModel->select('id, name, email')->where('id !=', session()->get('userId'))->where('role !=', 'admin')->orderBy('name', 'ASC')->findAll();
 
         return view('grupos/form', ['usuarios' => $usuarios]);
     }
@@ -349,8 +349,13 @@ class Grupos extends BaseController
         }
 
         $userModel = new \App\Models\User();
-        if (!$userModel->find($userId)) {
+        $user = $userModel->find($userId);
+        if (!$user) {
             return redirect()->to("/grupos/$id/editar")->with('error', 'Usuario no encontrado.');
+        }
+
+        if (($user['role'] ?? '') === 'admin') {
+            return redirect()->to("/grupos/$id/editar")->with('error', 'Los administradores globales no pueden ser miembros de grupos.');
         }
 
         $grupoModel = new Grupo();
