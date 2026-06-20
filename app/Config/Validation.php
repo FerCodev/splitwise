@@ -23,8 +23,6 @@ class Validation extends BaseConfig
     public array $ruleSets = [
         Rules::class,
         FormatRules::class,
-        FileRules::class,
-        CreditCardRules::class,
     ];
 
     /**

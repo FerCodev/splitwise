@@ -255,44 +255,6 @@ class Reportes
         ];
     }
 
-    public static function aplicarFiltros(array $rows, array $filters = []): array
-    {
-        return array_values(array_filter($rows, static function (array $row) use ($filters): bool {
-            if (!empty($filters['grupo_id']) && (int) ($row['grupo_id'] ?? 0) !== (int) $filters['grupo_id']) return false;
-            if (!empty($filters['categoria_id']) && (int) ($row['categoria_id'] ?? 0) !== (int) $filters['categoria_id']) return false;
-            $fecha = (string) ($row['fecha'] ?? '');
-            if (!empty($filters['fecha_desde']) && $fecha < (string) $filters['fecha_desde']) return false;
-            if (!empty($filters['fecha_hasta']) && $fecha > (string) $filters['fecha_hasta']) return false;
-            return true;
-        }));
-    }
-
-    public static function agruparGastosPorCategoria(array $rows): array
-    {
-        $agrupado = [];
-        foreach ($rows as $row) {
-            $categoria = (string) ($row['categoria'] ?? $row['categoria_nombre'] ?? 'Otros');
-            if ($categoria === '') $categoria = 'Otros';
-            if (!isset($agrupado[$categoria])) $agrupado[$categoria] = ['categoria' => $categoria, 'cantidad' => 0, 'total' => 0.0];
-            $agrupado[$categoria]['cantidad']++;
-            $agrupado[$categoria]['total'] += (float) ($row['monto'] ?? 0);
-        }
-        return self::ordenarAgrupadoPorTotal($agrupado);
-    }
-
-    public static function agruparGastosPorGrupo(array $rows): array
-    {
-        $agrupado = [];
-        foreach ($rows as $row) {
-            $grupo = (string) ($row['grupo'] ?? $row['grupo_nombre'] ?? 'Sin grupo');
-            if ($grupo === '') $grupo = 'Sin grupo';
-            if (!isset($agrupado[$grupo])) $agrupado[$grupo] = ['grupo' => $grupo, 'cantidad' => 0, 'total' => 0.0];
-            $agrupado[$grupo]['cantidad']++;
-            $agrupado[$grupo]['total'] += (float) ($row['monto'] ?? 0);
-        }
-        return self::ordenarAgrupadoPorTotal($agrupado);
-    }
-
     public static function formatearFilasCsv(array $rows): array
     {
         $lineas = [];

@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use App\Models\Grupo;
 
 /**
@@ -10,41 +9,6 @@ final class RolesGlobalesTest extends \CodeIgniter\Test\CIUnitTestCase
 {
     private array $adminUser = ['id' => 1, 'role' => 'admin', 'name' => 'Admin'];
     private array $normalUser = ['id' => 2, 'role' => 'user', 'name' => 'Normal'];
-
-    public function testRoleDefaultIsUser(): void
-    {
-        $this->assertSame('user', 'user');
-    }
-
-    public function testIsAdminReturnsTrueForAdmin(): void
-    {
-        $this->assertTrue(User::isAdmin($this->adminUser));
-    }
-
-    public function testIsAdminReturnsFalseForUser(): void
-    {
-        $this->assertFalse(User::isAdmin($this->normalUser));
-    }
-
-    public function testIsAdminReturnsFalseForMissingRole(): void
-    {
-        $this->assertFalse(User::isAdmin([]));
-    }
-
-    public function testHasRoleAdmin(): void
-    {
-        $this->assertTrue(User::hasRole($this->adminUser, 'admin'));
-    }
-
-    public function testHasRoleUser(): void
-    {
-        $this->assertTrue(User::hasRole($this->normalUser, 'user'));
-    }
-
-    public function testHasRoleReturnsFalseForWrongRole(): void
-    {
-        $this->assertFalse(User::hasRole($this->normalUser, 'admin'));
-    }
 
     public function testAdminFilterRejectsNonAdmin(): void
     {

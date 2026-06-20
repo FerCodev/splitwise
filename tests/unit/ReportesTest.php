@@ -46,9 +46,6 @@ final class ReportesTest extends CIUnitTestCase
         $this->assertTrue(method_exists(Reportes::class, 'ultimosMovimientos'));
         $this->assertTrue(method_exists(Reportes::class, 'gastosParaExportar'));
         $this->assertTrue(method_exists(Reportes::class, 'calcularResumen'));
-        $this->assertTrue(method_exists(Reportes::class, 'aplicarFiltros'));
-        $this->assertTrue(method_exists(Reportes::class, 'agruparGastosPorCategoria'));
-        $this->assertTrue(method_exists(Reportes::class, 'agruparGastosPorGrupo'));
         $this->assertTrue(method_exists(Reportes::class, 'formatearFilasCsv'));
     }
 
@@ -71,92 +68,6 @@ final class ReportesTest extends CIUnitTestCase
         $this->assertSame(500.0, $resumen['total_gastado']);
         $this->assertSame(100.34, $resumen['total_pagado']);
         $this->assertSame(50.34, $resumen['saldo']);
-    }
-
-    public function testAplicarFiltrosPorGrupo(): void
-    {
-        $rows = Reportes::aplicarFiltros($this->gastos, ['grupo_id' => 1]);
-
-        $this->assertCount(2, $rows);
-        $this->assertSame(['Luz', 'Super'], array_column($rows, 'descripcion'));
-    }
-
-    public function testAplicarFiltrosPorCategoria(): void
-    {
-        $rows = Reportes::aplicarFiltros($this->gastos, ['categoria_id' => 11]);
-
-        $this->assertCount(2, $rows);
-        $this->assertSame(['Super', 'Cena'], array_column($rows, 'descripcion'));
-    }
-
-    public function testAplicarFiltrosPorFechas(): void
-    {
-        $rows = Reportes::aplicarFiltros($this->gastos, [
-            'fecha_desde' => '2026-06-02',
-            'fecha_hasta' => '2026-06-30',
-        ]);
-
-        $this->assertCount(1, $rows);
-        $this->assertSame('Super', $rows[0]['descripcion']);
-    }
-
-    public function testAplicarFiltrosCombinados(): void
-    {
-        $rows = Reportes::aplicarFiltros($this->gastos, [
-            'grupo_id' => 1,
-            'categoria_id' => 11,
-            'fecha_desde' => '2026-06-01',
-            'fecha_hasta' => '2026-06-30',
-        ]);
-
-        $this->assertCount(1, $rows);
-        $this->assertSame('Super', $rows[0]['descripcion']);
-    }
-
-    public function testAgruparGastosPorCategoria(): void
-    {
-        $rows = Reportes::agruparGastosPorCategoria($this->gastos);
-
-        $this->assertSame('Comida', $rows[0]['categoria']);
-        $this->assertSame(2, $rows[0]['cantidad']);
-        $this->assertSame(5500.50, $rows[0]['total']);
-        $this->assertSame('Servicios', $rows[1]['categoria']);
-        $this->assertSame(1000.0, $rows[1]['total']);
-    }
-
-    public function testAgruparGastosPorCategoriaUsaOtrosSiFaltaNombre(): void
-    {
-        $rows = Reportes::agruparGastosPorCategoria([
-            ['categoria' => '', 'monto' => 100],
-            ['monto' => 50],
-        ]);
-
-        $this->assertSame('Otros', $rows[0]['categoria']);
-        $this->assertSame(2, $rows[0]['cantidad']);
-        $this->assertSame(150.0, $rows[0]['total']);
-    }
-
-    public function testAgruparGastosPorGrupo(): void
-    {
-        $rows = Reportes::agruparGastosPorGrupo($this->gastos);
-
-        $this->assertSame('Casa', $rows[0]['grupo']);
-        $this->assertSame(2, $rows[0]['cantidad']);
-        $this->assertSame(3500.50, $rows[0]['total']);
-        $this->assertSame('Viaje', $rows[1]['grupo']);
-        $this->assertSame(3000.0, $rows[1]['total']);
-    }
-
-    public function testAgruparGastosPorGrupoUsaSinGrupoSiFaltaNombre(): void
-    {
-        $rows = Reportes::agruparGastosPorGrupo([
-            ['grupo' => '', 'monto' => 100],
-            ['monto' => 50],
-        ]);
-
-        $this->assertSame('Sin grupo', $rows[0]['grupo']);
-        $this->assertSame(2, $rows[0]['cantidad']);
-        $this->assertSame(150.0, $rows[0]['total']);
     }
 
     public function testFormatearFilasCsvConDatos(): void
@@ -184,12 +95,5 @@ final class ReportesTest extends CIUnitTestCase
     public function testFormatearFilasCsvVacio(): void
     {
         $this->assertSame([], Reportes::formatearFilasCsv([]));
-    }
-
-    public function testFiltroConceptualDeAlcancePorUsuarioNoAceptaGrupoNoIncluido(): void
-    {
-        $rows = Reportes::aplicarFiltros($this->gastos, ['grupo_id' => 999]);
-
-        $this->assertSame([], $rows);
     }
 }
