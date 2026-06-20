@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splitwise-pwa-v1';
+const CACHE_NAME = 'splitwise-pwa-v2';
 const CORE_ASSETS = [
   '/SplitWise/assets/app.css',
   '/SplitWise/manifest.webmanifest',
