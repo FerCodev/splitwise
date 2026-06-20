@@ -23,40 +23,47 @@
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:56px;height:56px;background:#dbeafe;font-weight:700;color:#2563eb;font-size:1.5rem;">
                         <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
                     </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h4 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h4>
-                            <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
+                    <div class="flex-grow-1 min-width-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h4 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h4>
+                            <?php if ($permisos['puede_editar_grupo']): ?>
+                                <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="grupo-gear-btn flex-shrink-0 ms-2" aria-label="Configurar grupo">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434L8.932.727zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
+                                </a>
+                            <?php endif; ?>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
-                        </div>
+                        <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
                     </div>
                 </div>
-                <div class="card border-0 mb-3" style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>;">
-                    <div class="card-body py-3 text-center">
-                        <div class="small text-muted mb-1">Tu balance</div>
-                        <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                            $<?= number_format(abs($miSaldo), 2) ?>
-                            <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
+
+                <?php $balanceUrl = $permisos['puede_crear_pago'] ? base_url('pagos/nuevo?grupo_id=' . $grupo['id']) : base_url('grupos/' . $grupo['id'] . '/balance'); ?>
+                <a href="<?= $miSaldo < 0 ? $balanceUrl : base_url('grupos/' . $grupo['id'] . '/balance') ?>"
+                   class="grupo-balance-card text-decoration-none d-block card border-0 mb-3"
+                   style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>; transition: filter 0.15s;">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="text-center flex-grow-1">
+                                <div class="small text-muted mb-1">Tu balance</div>
+                                <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
+                                    $<?= number_format(abs($miSaldo), 2) ?>
+                                    <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 text-muted ps-2">
+                                <?php if ($miSaldo < 0): ?>
+                                    <span class="small fw-semibold text-danger">Pagar &rarr;</span>
+                                <?php elseif ($miSaldo > 0): ?>
+                                    <span class="small fw-semibold text-success">Ver balance &rarr;</span>
+                                <?php else: ?>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/></svg>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro'] || $permisos['puede_cambiar_estado']): ?>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-info w-100 py-2">Ver balance</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">
-                                <span class="d-none d-sm-inline">Configurar grupo</span>
-                                <span class="d-inline d-sm-none">Configurar</span>
-                            </a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                </a>
+
                 <?php if ($grupo['descripcion']): ?>
-                    <p class="mt-2 mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
+                    <p class="mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
                 <?php endif; ?>
             </div>
         </div>

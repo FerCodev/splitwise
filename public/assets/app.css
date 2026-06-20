@@ -1357,3 +1357,25 @@ body {
     width: 18px;
     height: 18px;
 }
+
+/* --- Grupo detail card --- */
+.grupo-gear-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+.grupo-gear-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: var(--surface);
+}
+.grupo-balance-card:hover {
+    filter: brightness(0.96);
+}
