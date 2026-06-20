@@ -1,4 +1,10 @@
-<?= view('partials/_head', ['title' => 'Mi perfil - SplitWise']) ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <?= view('partials/_head') ?>
+    <title>Mi perfil - SplitWise</title>
+</head>
+<body>
     <?= view('partials/_navbar', ['pageTitle' => 'Perfil']) ?>
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Mi perfil</h2>
@@ -47,3 +53,5 @@
         </div>
     </div>
     <?= view('partials/_footer') ?>
+</body>
+</html>
