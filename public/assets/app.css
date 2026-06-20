@@ -1410,3 +1410,57 @@ body {
 .grupo-balance-card:hover {
     filter: brightness(0.96);
 }
+.grupo-balance-button {
+    padding: 0;
+    text-align: inherit;
+    appearance: none;
+    cursor: pointer;
+}
+.pagar-balance-modal .modal-content,
+.pagar-balance-modal {
+    border-radius: var(--radius-lg);
+}
+.pagar-balance-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-muted);
+}
+.pagar-balance-summary span {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+.deuda-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.deuda-option:hover,
+.deuda-option.is-selected {
+    border-color: var(--primary);
+    background: #eef5ff;
+    box-shadow: 0 1px 6px rgba(13, 110, 253, 0.12);
+}
+.deuda-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+.deuda-option span {
+    display: grid;
+    gap: 2px;
+}
+.deuda-option small {
+    color: var(--muted);
+}

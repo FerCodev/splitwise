@@ -10,7 +10,7 @@ class Dashboard extends BaseController
 {
     public function index()
     {
-        $userId = session()->get('userId');
+        $userId = (int) session()->get('userId');
         $grupoModel = new Grupo();
         $gastoModel = new Gasto();
         $pagoModel = new Pago();
@@ -84,6 +84,7 @@ class Dashboard extends BaseController
                 'grupos' => $grupos,
                 'movimientos' => $movimientos,
                 'deudasPendientes' => $deudasPendientes,
+                'hayMasDeudas' => $hayMasDeudas,
                 'totalDebe' => round($totalDebe, 2),
                 'totalLeDeben' => round($totalLeDeben, 2),
             ],
