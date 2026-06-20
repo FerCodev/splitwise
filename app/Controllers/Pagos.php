@@ -40,6 +40,13 @@ class Pagos extends BaseController
         $pagos = $pagoModel->getPagosWithFilters($filters, 10);
         $pager = $pagoModel->pager;
 
+        if ($this->request->getGet('partial')) {
+            return view('pagos/_items', [
+                'pagos' => $pagos,
+                'filters' => $filters,
+            ]);
+        }
+
         return view('pagos/index', [
             'pagos' => $pagos,
             'grupos' => $grupos,

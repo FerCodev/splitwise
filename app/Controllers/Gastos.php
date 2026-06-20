@@ -40,6 +40,13 @@ class Gastos extends BaseController
         $gastos = $gastoModel->getGastosWithFilters($filters, 10);
         $pager = $gastoModel->pager;
 
+        if ($this->request->getGet('partial')) {
+            return view('gastos/_items', [
+                'gastos' => $gastos,
+                'filters' => $filters,
+            ]);
+        }
+
         return view('gastos/index', [
             'gastos' => $gastos,
             'grupos' => $grupos,
