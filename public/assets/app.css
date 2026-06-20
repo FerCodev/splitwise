@@ -389,7 +389,7 @@ body {
 }
 
 /* Navigation */
-.navbar.d-md-none {
+.navbar.d-lg-none {
     position: sticky;
     top: 0;
     z-index: 1040;
