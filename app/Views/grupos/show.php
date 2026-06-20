@@ -40,24 +40,11 @@
                 <a href="<?= $miSaldo < 0 ? $balanceUrl : base_url('grupos/' . $grupo['id'] . '/balance') ?>"
                    class="grupo-balance-card text-decoration-none d-block card border-0 mb-3"
                    style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>; transition: filter 0.15s;">
-                    <div class="card-body py-3">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div class="text-center flex-grow-1">
-                                <div class="small text-muted mb-1">Tu balance</div>
-                                <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                                    $<?= number_format(abs($miSaldo), 2) ?>
-                                    <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 text-muted ps-2">
-                                <?php if ($miSaldo < 0): ?>
-                                    <span class="small fw-semibold text-danger">Pagar &rarr;</span>
-                                <?php elseif ($miSaldo > 0): ?>
-                                    <span class="small fw-semibold text-success">Ver balance &rarr;</span>
-                                <?php else: ?>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"/></svg>
-                                <?php endif; ?>
-                            </div>
+                    <div class="card-body py-3 text-center">
+                        <div class="small text-muted mb-1">Tu balance</div>
+                        <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
+                            $<?= number_format(abs($miSaldo), 2) ?>
+                            <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
                         </div>
                     </div>
                 </a>
