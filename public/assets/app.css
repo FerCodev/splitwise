@@ -1322,3 +1322,37 @@ body {
         font-size: 14px;
     }
 }
+
+/* --- Password visibility toggle --- */
+.password-wrapper {
+    position: relative;
+}
+.password-wrapper .form-control {
+    padding-right: 44px;
+}
+.password-toggle {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px 8px;
+    cursor: pointer;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    min-width: 36px;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+.password-toggle:hover {
+    color: var(--text);
+    background: var(--surface-muted);
+}
+.password-toggle svg {
+    width: 18px;
+    height: 18px;
+}

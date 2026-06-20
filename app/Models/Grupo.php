@@ -324,11 +324,11 @@ class Grupo extends Model
 
     public function getUsuariosDisponibles(int $grupoId): array
     {
-        $sql = 'SELECT id, name, email FROM users WHERE id NOT IN (
+        $sql = 'SELECT id, name, email FROM users WHERE role != ? AND id NOT IN (
                     SELECT user_id FROM grupo_miembros WHERE grupo_id = ?
                 ) ORDER BY name ASC';
 
-        return $this->db->query($sql, [$grupoId])->getResultArray();
+        return $this->db->query($sql, ['admin', $grupoId])->getResultArray();
     }
 
     // ---------------------------------------------------------------
