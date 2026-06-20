@@ -17,8 +17,11 @@
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
         ?>
 
-        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);">
+        <div class="card border-0 shadow-sm mb-4 position-relative" style="background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);">
             <div class="card-body">
+                <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="grupo-gear-btn grupo-gear-btn-floating" aria-label="Configurar grupo" title="Configurar grupo">
+                    <span aria-hidden="true">⚙️</span>
+                </a>
                 <div class="d-flex align-items-start gap-3 mb-3">
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:56px;height:56px;background:#dbeafe;font-weight:700;color:#2563eb;font-size:1.5rem;">
                         <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
@@ -26,11 +29,6 @@
                     <div class="flex-grow-1 min-width-0">
                         <div class="d-flex justify-content-between align-items-start">
                             <h4 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h4>
-                            <?php if ($permisos['puede_editar_grupo']): ?>
-                                <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="grupo-gear-btn flex-shrink-0 ms-2" aria-label="Configurar grupo">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8.932.727c-.243-.97-1.62-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.62 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.62.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.62 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434L8.932.727zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
-                                </a>
-                            <?php endif; ?>
                         </div>
                         <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
                     </div>

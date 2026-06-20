@@ -1369,7 +1369,20 @@ body {
     color: var(--muted);
     border: 1px solid var(--border);
     background: #fff;
+    font-size: 1.25rem;
+    line-height: 1;
+    text-decoration: none;
     transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.grupo-gear-btn span {
+    display: block;
+    line-height: 1;
+}
+.grupo-gear-btn-floating {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 2;
 }
 .grupo-gear-btn:hover {
     color: var(--text);
