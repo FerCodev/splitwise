@@ -15,13 +15,6 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
-        <div class="d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
-                Filtrar
-            </button>
-        </div>
-
         <?php if (empty($pagos)): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
@@ -34,6 +27,12 @@
         <?php else: ?>
             <div class="d-none d-md-block">
                 <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Pagos</h5>
+                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                        </button>
+                    </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
@@ -69,25 +68,35 @@
                 </div>
             </div>
             <div class="d-md-none">
-                <?php foreach ($pagos as $pago): ?>
-                    <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-link" style="border-left: 3px solid #16a34a;">
-                        <div class="card-body mobile-transaction-body">
-                            <div class="mobile-transaction-main">
-                                <div class="mobile-transaction-info">
-                                    <div class="fw-medium mobile-transaction-title"><?= esc($pago['descripcion'] ?: 'Pago') ?></div>
-                                    <div class="text-muted small mt-1">
-                                        <?= date('d/m/Y', strtotime($pago['fecha'])) ?> &middot;
-                                        <?= esc($pago['pagador_nombre']) ?> &rarr; <?= esc($pago['receptor_nombre']) ?>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Pagos</h5>
+                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                        </button>
+                    </div>
+                    <div class="card-body p-2">
+                        <?php foreach ($pagos as $pago): ?>
+                            <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-link" style="border-left: 3px solid #16a34a;">
+                                <div class="card-body mobile-transaction-body">
+                                    <div class="mobile-transaction-main">
+                                        <div class="mobile-transaction-info">
+                                            <div class="fw-medium mobile-transaction-title"><?= esc($pago['descripcion'] ?: 'Pago') ?></div>
+                                            <div class="text-muted small mt-1">
+                                                <?= date('d/m/Y', strtotime($pago['fecha'])) ?> &middot;
+                                                <?= esc($pago['pagador_nombre']) ?> &rarr; <?= esc($pago['receptor_nombre']) ?>
+                                            </div>
+                                            <div class="text-muted small mobile-transaction-meta">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
+                                        </div>
+                                        <div class="mobile-transaction-side">
+                                            <div class="fw-bold fs-5 text-success mobile-transaction-amount">$<?= number_format($pago['monto'], 2) ?></div>
+                                        </div>
                                     </div>
-                                    <div class="text-muted small mobile-transaction-meta">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
                                 </div>
-                                <div class="mobile-transaction-side">
-                                    <div class="fw-bold fs-5 text-success mobile-transaction-amount">$<?= number_format($pago['monto'], 2) ?></div>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
             </div>
         <?php endif; ?>
 
@@ -97,7 +106,7 @@
             </div>
         <?php endif; ?>
 
-        <a href="<?= base_url('pagos/nuevo') ?>" class="fab fab-extended d-md-none">
+        <a href="<?= base_url('pagos/nuevo') ?>" class="fab fab-extended d-lg-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
             <span>Nuevo pago</span>
         </a>
