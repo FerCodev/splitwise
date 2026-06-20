@@ -1,10 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <?= view('partials/_head') ?>
-    <title>Cambiar contrase&ntilde;a - SplitWise</title>
-</head>
-<body>
+<?= view('partials/_head', ['title' => 'Cambiar contrase&ntilde;a - SplitWise']) ?>
     <?= view('partials/_navbar', ['pageTitle' => 'Cambiar contrase&ntilde;a']) ?>
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Cambiar contrase&ntilde;a</h2>
@@ -48,5 +42,3 @@
         </div>
     </div>
     <?= view('partials/_footer') ?>
-</body>
-</html>
