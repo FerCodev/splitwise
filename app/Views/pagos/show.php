@@ -45,9 +45,10 @@
                     <?php endif; ?>
                 </div>
                 <h5 class="fw-bold mb-1"><?= $pago['descripcion'] ? esc($pago['descripcion']) : 'Pago #' . $pago['id'] ?></h5>
-                <p class="text-muted small mb-0">
-                    <a href="<?= base_url('grupos/' . $pago['grupo_id']) ?>"><?= esc($pago['grupo_nombre']) ?></a>
-                    &middot; <?= date('d/m/Y', strtotime($pago['fecha'])) ?>
+                <p class="text-muted small mb-0 d-flex flex-wrap align-items-center gap-1">
+                    <a href="<?= base_url('grupos/' . $pago['grupo_id']) ?>" class="meta-pill-link"><?= esc($pago['grupo_nombre']) ?></a>
+                    <span>&middot;</span>
+                    <span><?= date('d/m/Y', strtotime($pago['fecha'])) ?></span>
                 </p>
                 <!-- Desktop actions -->
                 <?php if ($permisos['puede_editar_pago'] || $permisos['puede_eliminar_pago']): ?>

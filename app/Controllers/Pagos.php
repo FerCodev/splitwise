@@ -136,6 +136,10 @@ class Pagos extends BaseController
             return redirect()->to('/grupos/' . $grupoId)->with('success', 'Pago registrado correctamente.');
         }
 
+        if ($this->request->getPost('origen') === 'grupo_balance_detalle') {
+            return redirect()->to('/grupos/' . $grupoId . '/balance')->with('success', 'Pago registrado correctamente.');
+        }
+
         return redirect()->to('/pagos')->with('success', 'Pago registrado correctamente.');
     }
 

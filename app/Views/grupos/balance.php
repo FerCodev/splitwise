@@ -248,10 +248,26 @@
                                         <?php endif; ?>
                                         <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                                         <div class="mt-2">
-                                            <a href="<?= base_url('pagos/nuevo?grupo_id=' . $grupo['id'] . '&pagador_id=' . $d['deudor_id'] . '&receptor_id=' . $acreedorId . '&monto=' . $d['monto'] . '&fecha=' . date('Y-m-d')) ?>" class="btn btn-sm btn-primary">
+                                            <button type="button" class="btn btn-sm btn-primary pago-manual-btn" data-target="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
                                                 Registrar pago manual
-                                            </a>
+                                            </button>
                                             <p class="small text-muted mt-1 mb-0">Se registrar&aacute; un pago de <?= esc($d['deudor']) ?> a <?= esc($d['acreedor']) ?> por $<?= number_format($d['monto'], 2) ?>.</p>
+                                            <form action="<?= base_url('pagos') ?>" method="post" id="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="grupo_id" value="<?= (int) $grupo['id'] ?>">
+                                                <input type="hidden" name="receptor_id" value="<?= $acreedorId ?>">
+                                                <input type="hidden" name="descripcion" value="Pago de deuda - <?= esc($grupo['nombre']) ?>">
+                                                <input type="hidden" name="origen" value="grupo_balance_detalle">
+                                                <div class="mb-2">
+                                                    <label class="form-label small mb-1">Monto</label>
+                                                    <input type="number" step="0.01" min="0.01" name="monto" class="form-control" value="<?= esc(number_format((float) $d['monto'], 2, '.', '')) ?>" required>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label small mb-1">Fecha</label>
+                                                    <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-success w-100">Confirmar pago</button>
+                                            </form>
                                         </div>
                                         <?php endif; ?>
                                     </div>
@@ -287,6 +303,16 @@
 
     <script>
         document.querySelectorAll('.pagar-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetId = this.getAttribute('data-target');
+                var target = document.getElementById(targetId);
+                if (target) {
+                    target.classList.toggle('d-none');
+                }
+            });
+        });
+
+        document.querySelectorAll('.pago-manual-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var targetId = this.getAttribute('data-target');
                 var target = document.getElementById(targetId);
