@@ -43,10 +43,12 @@
                     <?php endif; ?>
                 </div>
                 <h5 class="fw-bold mb-1"><?= esc($gasto['descripcion']) ?></h5>
-                <p class="text-muted small mb-0">
-                    <a href="<?= base_url('grupos/' . $gasto['grupo_id']) ?>"><?= esc($gasto['grupo_nombre']) ?></a>
-                    &middot; <?= date('d/m/Y', strtotime($gasto['fecha'])) ?>
-                    &middot; <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
+                <p class="text-muted small mb-0 d-flex flex-wrap align-items-center gap-1">
+                    <a href="<?= base_url('grupos/' . $gasto['grupo_id']) ?>" class="meta-pill-link"><?= esc($gasto['grupo_nombre']) ?></a>
+                    <span>&middot;</span>
+                    <span><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></span>
+                    <span>&middot;</span>
+                    <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
                 </p>
                 <!-- Desktop actions -->
                 <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>

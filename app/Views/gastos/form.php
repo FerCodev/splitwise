@@ -23,20 +23,20 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label fw-medium">Descripci&oacute;n</label>
-                        <input type="text" class="form-control" id="descripcion" name="descripcion"
-                               value="<?= esc(old('descripcion', $gasto['descripcion'] ?? '')) ?>" required
-                               oninput="inferirCategoria(this.value)">
-                        <div id="categoriaSugerida" class="mt-1 small text-muted d-none"></div>
-                    </div>
-
-                    <div class="mb-3">
                         <label for="monto" class="form-label fw-medium">Monto total</label>
                         <input type="text" class="form-control" id="monto" name="monto_visual"
                                value="<?= esc(old('monto_visual', isset($gasto) ? number_format($gasto['monto'], 2, ',', '.') : '')) ?>" required
                                inputmode="numeric"
                                oninput="formatearMonto(this); recalcularDivision();">
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label fw-medium">Descripci&oacute;n <small class="text-muted">(opcional)</small></label>
+                        <input type="text" class="form-control" id="descripcion" name="descripcion"
+                               value="<?= esc(old('descripcion', $gasto['descripcion'] ?? '')) ?>"
+                               oninput="inferirCategoria(this.value)">
+                        <div id="categoriaSugerida" class="mt-1 small text-muted d-none"></div>
                     </div>
 
                     <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>

@@ -17,23 +17,27 @@
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
         ?>
 
-        <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);">
+        <div class="card border-0 shadow-sm mb-4 position-relative" style="background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);">
             <div class="card-body">
+                <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="grupo-gear-btn grupo-gear-btn-floating" aria-label="Configurar grupo" title="Configurar grupo">
+                    <span aria-hidden="true">⚙️</span>
+                </a>
                 <div class="d-flex align-items-start gap-3 mb-3">
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:56px;height:56px;background:#dbeafe;font-weight:700;color:#2563eb;font-size:1.5rem;">
                         <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
                     </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h4 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h4>
-                            <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
+                    <div class="flex-grow-1 min-width-0">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h4 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h4>
                         </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-<?= $rol === 'admin' ? 'warning' : 'secondary' ?>"><?= $rol === 'admin' ? 'Admin' : 'Miembro' ?></span>
-                        </div>
+                        <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
                     </div>
                 </div>
-                <div class="card border-0 mb-3" style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>;">
+
+                <?php $balanceUrl = $permisos['puede_crear_pago'] ? base_url('pagos/nuevo?grupo_id=' . $grupo['id']) : base_url('grupos/' . $grupo['id'] . '/balance'); ?>
+                <a href="<?= $miSaldo < 0 ? $balanceUrl : base_url('grupos/' . $grupo['id'] . '/balance') ?>"
+                   class="grupo-balance-card text-decoration-none d-block card border-0 mb-3"
+                   style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>; transition: filter 0.15s;">
                     <div class="card-body py-3 text-center">
                         <div class="small text-muted mb-1">Tu balance</div>
                         <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
@@ -41,22 +45,10 @@
                             <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
                         </div>
                     </div>
-                </div>
-                <?php if ($permisos['puede_editar_grupo'] || $permisos['puede_agregar_miembro'] || $permisos['puede_cambiar_estado']): ?>
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-info w-100 py-2">Ver balance</a>
-                        </div>
-                        <div class="col-6">
-                            <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-primary w-100 py-2">
-                                <span class="d-none d-sm-inline">Configurar grupo</span>
-                                <span class="d-inline d-sm-none">Configurar</span>
-                            </a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                </a>
+
                 <?php if ($grupo['descripcion']): ?>
-                    <p class="mt-2 mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
+                    <p class="mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>
                 <?php endif; ?>
             </div>
         </div>

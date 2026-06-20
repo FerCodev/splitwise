@@ -120,7 +120,7 @@ class Gastos extends BaseController
         $this->normalizarMonto();
 
         $rules = [
-            'descripcion' => 'required|min_length[2]|max_length[255]',
+            'descripcion' => 'permit_empty|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
             'fecha' => 'required|valid_date',
             'grupo_id' => 'required|is_natural_no_zero',
@@ -135,6 +135,10 @@ class Gastos extends BaseController
         $grupoId = (int) $this->request->getPost('grupo_id');
         $pagadorId = (int) ($this->request->getPost('pagador_id') ?: session()->get('userId'));
         $monto = (float) $this->request->getPost('monto');
+        $descripcion = trim((string) $this->request->getPost('descripcion'));
+        if ($descripcion === '') {
+            $descripcion = 'Gasto';
+        }
         $participantesIds = $this->request->getPost('participantes');
 
         if (!is_array($participantesIds) || count($participantesIds) < 1) {
@@ -199,7 +203,7 @@ class Gastos extends BaseController
             $gastoId = $gastoModel->insert([
                 'grupo_id' => $grupoId,
                 'pagador_id' => $pagadorId,
-                'descripcion' => $this->request->getPost('descripcion'),
+                'descripcion' => $descripcion,
                 'monto' => $monto,
                 'fecha' => $this->request->getPost('fecha'),
                 'categoria_id' => $categoriaId,
@@ -346,7 +350,7 @@ class Gastos extends BaseController
         }
 
         $rules = [
-            'descripcion' => 'required|min_length[2]|max_length[255]',
+            'descripcion' => 'permit_empty|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
             'fecha' => 'required|valid_date',
             'participantes' => 'required',
@@ -358,6 +362,10 @@ class Gastos extends BaseController
         }
 
         $monto = (float) $this->request->getPost('monto');
+        $descripcion = trim((string) $this->request->getPost('descripcion'));
+        if ($descripcion === '') {
+            $descripcion = 'Gasto';
+        }
         $participantesIds = $this->request->getPost('participantes');
 
         if (!is_array($participantesIds) || count($participantesIds) < 1) {
@@ -426,7 +434,7 @@ class Gastos extends BaseController
         $updateData = [
             'grupo_id' => $grupoIdOriginal,
             'pagador_id' => $pagadorId,
-            'descripcion' => $this->request->getPost('descripcion'),
+            'descripcion' => $descripcion,
             'monto' => $monto,
             'fecha' => $this->request->getPost('fecha'),
             'categoria_id' => $categoriaId,
