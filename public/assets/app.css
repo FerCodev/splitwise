@@ -241,6 +241,24 @@ body {
     margin-top: 4px;
     line-height: 1.45;
 }
+.meta-pill-link {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    padding: 0.18rem 0.55rem;
+    border-radius: 999px;
+    background: #eaf2ff;
+    color: #0b5ed7;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+}
+.meta-pill-link:hover,
+.meta-pill-link:focus-visible {
+    background: #dbeafe;
+    color: #084298;
+    text-decoration: none;
+}
 .mobile-transaction-side {
     display: flex;
     flex-direction: column;
