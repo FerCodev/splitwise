@@ -14,8 +14,6 @@ $routes->post('/password/reset/(:any)', 'PasswordResetController::cambiarPasswor
 $routes->get('/perfil', 'Perfil::index', ['filter' => 'auth']);
 $routes->get('/perfil/editar', 'Perfil::editar', ['filter' => 'auth']);
 $routes->post('/perfil/editar', 'Perfil::actualizar', ['filter' => 'auth']);
-$routes->post('/perfil/editar-nombre', 'Perfil::editarNombre', ['filter' => 'auth']);
-$routes->post('/perfil/editar-email', 'Perfil::editarEmail', ['filter' => 'auth']);
 $routes->get('/perfil/cambiar-password', 'Perfil::password', ['filter' => 'auth']);
 $routes->post('/perfil/cambiar-password', 'Perfil::cambiarPassword', ['filter' => 'auth']);
 $routes->get('/dashboard', 'Dashboard::index', ['filter' => 'auth']);

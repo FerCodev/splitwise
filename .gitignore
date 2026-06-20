@@ -64,6 +64,7 @@ Vagrantfile
 !/writable/debugbar/index.html
 
 php_errors.log
+.codex-remote-attachments/
 
 #-------------------------
 # User Guide Temp Files
