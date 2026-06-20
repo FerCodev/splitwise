@@ -1,5 +1,5 @@
-<?= view('partials/_head', ['title' => 'Cambiar contrase&ntilde;a - SplitWise']) ?>
-    <?= view('partials/_navbar', ['pageTitle' => 'Cambiar contrase&ntilde;a']) ?>
+<?= view('partials/_head', ['title' => 'Cambiar contraseña - SplitWise']) ?>
+    <?= view('partials/_navbar', ['pageTitle' => 'Cambiar contraseña']) ?>
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Cambiar contrase&ntilde;a</h2>
 
