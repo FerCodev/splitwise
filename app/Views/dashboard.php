@@ -265,76 +265,73 @@
 
             <!-- Actividad reciente con filtros -->
             <div class="filter-section" data-section="actividad">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0">Actividad reciente</h5>
-                    <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
-                    </button>
-                </div>
-
-                <?php if (!empty($movimientos)): ?>
-                    <div id="feedContainer">
-                        <?php foreach ($movimientos as $m): ?>
-                            <?php
-                                $fechaTs = strtotime($m['fecha']);
-                                $fechaTag = date('Y-m-d', $fechaTs);
-                            ?>
-                            <?php if ($m['tipo'] === 'gasto'): ?>
-                                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid #2563eb;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
-                                                <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
-                                            </div>
-                                            <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
-                                        </div>
-                                        <div class="text-muted small">
-                                            <?= date('d/m/Y', $fechaTs) ?> &middot;
-                                            <?= esc($m['pagador_nombre']) ?> &middot;
-                                            <span class="badge bg-light text-dark"><?= esc($m['categoria_nombre'] ?? 'Otros') ?></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                </a>
-                            <?php else: ?>
-                                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
-                                <div class="card border-0 shadow-sm mb-2 feed-card" style="border-left: 3px solid #16a34a;">
-                                    <div class="card-body">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="fw-medium small">Pago</span>
-                                                <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
-                                            </div>
-                                            <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
-                                        </div>
-                                        <div class="text-muted small">
-                                            <?= date('d/m/Y', $fechaTs) ?> &middot;
-                                            <?= esc($m['pagador_nombre']) ?> pag&oacute; a <?= esc($m['receptor_nombre']) ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                </a>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Actividad reciente</h5>
+                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#feedFilterModal" aria-label="Filtros">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.708l4 4.646V14l2-.667V7.854l4-4.646V2z"/></svg>
+                        </button>
                     </div>
-                    <div id="feedEmpty" class="card border-0 shadow-sm d-none">
-                        <div class="card-body text-center py-5">
-                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                    <div class="card-body report-movement-list">
+                        <?php if (!empty($movimientos)): ?>
+                            <div id="feedContainer">
+                                <?php foreach ($movimientos as $m): ?>
+                                    <?php
+                                        $fechaTs = strtotime($m['fecha']);
+                                        $fechaTag = date('Y-m-d', $fechaTs);
+                                    ?>
+                                    <?php if ($m['tipo'] === 'gasto'): ?>
+                                        <a href="<?= base_url('gastos/' . $m['id']) ?>" class="report-movement-link feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                        <div class="report-movement-card report-movement-expense feed-card" style="border-left: 3px solid #2563eb;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
+                                                    <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
+                                                </div>
+                                                <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <?= date('d/m/Y', $fechaTs) ?> &middot;
+                                                <?= esc($m['pagador_nombre']) ?> &middot;
+                                                <span class="badge bg-light text-dark"><?= esc($m['categoria_nombre'] ?? 'Otros') ?></span>
+                                            </div>
+                                        </div>
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link feed-item" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>">
+                                        <div class="report-movement-card report-movement-payment feed-card" style="border-left: 3px solid #16a34a;">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <span class="fw-medium small">Pago</span>
+                                                    <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
+                                                </div>
+                                                <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <?= date('d/m/Y', $fechaTs) ?> &middot;
+                                                <?= esc($m['pagador_nombre']) ?> pag&oacute; a <?= esc($m['receptor_nombre']) ?>
+                                            </div>
+                                        </div>
+                                        </a>
+                                    <?php endif; ?>
+                                <?php endforeach; ?>
                             </div>
-                            <p class="text-muted mb-0">No hay movimientos para este filtro.</p>
-                        </div>
+                            <div id="feedEmpty" class="d-none">
+                                <div class="text-center py-5">
+                                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                                    </div>
+                                    <p class="text-muted mb-0">No hay movimientos para este filtro.</p>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="text-center py-4">
+                                <p class="text-muted mb-0">No hay actividad reciente.</p>
+                                <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm mt-2">Entrar a un grupo</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php else: ?>
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-body text-center py-4">
-                            <p class="text-muted mb-0">No hay actividad reciente.</p>
-                            <a href="<?= base_url('grupos') ?>" class="btn btn-primary btn-sm mt-2">Entrar a un grupo</a>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                </div>
             </div>
 
             <script>

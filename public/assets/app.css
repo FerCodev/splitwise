@@ -617,7 +617,11 @@ body {
     display: grid;
     gap: 12px;
     padding: 14px;
-    background: #f0f6ff;
+    background: var(--surface);
+}
+.report-movement-list #feedContainer {
+    display: grid;
+    gap: 12px;
 }
 .report-movement-card {
     min-height: 84px;
