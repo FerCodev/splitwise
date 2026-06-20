@@ -1,5 +1,5 @@
 <?php foreach ($gastos as $gasto): ?>
-    <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-link" style="border-left: 3px solid #2563eb;">
+    <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-expense mobile-transaction-link" style="border-left: 3px solid #2563eb;">
         <div class="card-body mobile-transaction-body">
             <div class="mobile-transaction-main">
                 <div class="mobile-transaction-info">

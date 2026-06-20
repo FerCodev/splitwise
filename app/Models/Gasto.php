@@ -33,6 +33,7 @@ class Gasto extends Model
             ->join('grupos', 'grupos.id = gastos.grupo_id')
             ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
             ->join('grupo_miembros', 'grupo_miembros.grupo_id = gastos.grupo_id AND grupo_miembros.user_id = ' . $userId)
+            ->where('gastos.pagador_id', $userId)
             ->groupBy('gastos.id');
 
         if (!empty($filters['grupo_id'])) {

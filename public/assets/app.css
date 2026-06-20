@@ -205,6 +205,12 @@ body {
 .mobile-transaction-card {
     min-height: 112px;
 }
+.mobile-transaction-expense {
+    background: #dcecff;
+}
+.mobile-transaction-payment {
+    background: #dff5ea;
+}
 .mobile-transaction-link {
     color: inherit;
     text-decoration: none;
@@ -926,6 +932,9 @@ body {
     body {
         background: var(--surface-muted);
         padding-bottom: 72px;
+    }
+    .infinite-scroll-pagination {
+        display: none !important;
     }
 }
 @media (max-width: 575.98px) {

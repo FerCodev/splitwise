@@ -41,6 +41,11 @@ class Pagos extends BaseController
         $pager = $pagoModel->pager;
 
         if ($this->request->getGet('partial')) {
+            $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
+            if ($requestedPage > $pager->getPageCount()) {
+                return '';
+            }
+
             return view('pagos/_items', [
                 'pagos' => $pagos,
                 'filters' => $filters,

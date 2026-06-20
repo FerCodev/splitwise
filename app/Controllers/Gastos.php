@@ -34,6 +34,9 @@ class Gastos extends BaseController
         if ($this->request->getGet('descripcion')) {
             $filters['descripcion'] = $this->request->getGet('descripcion');
         }
+        if ($this->request->getGet('categoria_id')) {
+            $filters['categoria_id'] = (int) $this->request->getGet('categoria_id');
+        }
         $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
         $filters['order'] = $this->request->getGet('order') ?: 'DESC';
 
@@ -41,6 +44,11 @@ class Gastos extends BaseController
         $pager = $gastoModel->pager;
 
         if ($this->request->getGet('partial')) {
+            $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
+            if ($requestedPage > $pager->getPageCount()) {
+                return '';
+            }
+
             return view('gastos/_items', [
                 'gastos' => $gastos,
                 'filters' => $filters,

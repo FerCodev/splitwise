@@ -77,7 +77,7 @@
                     </div>
                     <div class="card-body p-2" id="scroll-container">
                         <?php foreach ($pagos as $pago): ?>
-                            <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-link" style="border-left: 3px solid #16a34a;">
+                            <a href="<?= base_url('pagos/' . $pago['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-payment mobile-transaction-link" style="border-left: 3px solid #16a34a;">
                                 <div class="card-body mobile-transaction-body">
                                     <div class="mobile-transaction-main">
                                         <div class="mobile-transaction-info">
@@ -101,7 +101,7 @@
         <?php endif; ?>
 
         <?php if (isset($pager) && $pager->getPageCount() > 1): ?>
-            <div class="pagination-wrap mt-4">
+            <div class="pagination-wrap infinite-scroll-pagination mt-4">
                 <?= $pager->links() ?>
             </div>
         <?php endif; ?>

@@ -31,6 +31,10 @@ class Pago extends Model
             ->join('users as receptor', 'receptor.id = pagos.receptor_id')
             ->join('grupos', 'grupos.id = pagos.grupo_id')
             ->join('grupo_miembros', 'grupo_miembros.grupo_id = pagos.grupo_id AND grupo_miembros.user_id = ' . $userId)
+            ->groupStart()
+                ->where('pagos.pagador_id', $userId)
+                ->orWhere('pagos.receptor_id', $userId)
+            ->groupEnd()
             ->groupBy('pagos.id');
 
         if (!empty($filters['grupo_id'])) {
