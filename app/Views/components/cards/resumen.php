@@ -8,7 +8,7 @@ $secundarios = $secundarios ?? [];
 ?>
 
 <?php if ($variant === 'detail'): ?>
-    <div class="dash-card catalog-preview-card">
+    <div class="dash-card">
         <div class="dash-card-body catalog-metric-grid">
             <div><small><?= esc($titulo) ?></small><b class="<?= esc($color) ?>"><?= moneda($monto) ?></b></div>
             <?php foreach (array_slice($secundarios, 0, 3) as $item): ?>
@@ -22,7 +22,7 @@ $secundarios = $secundarios ?? [];
         </div>
     </div>
 <?php elseif ($variant === 'compare'): ?>
-    <div class="dash-card catalog-preview-card">
+    <div class="dash-card">
         <div class="dash-card-body">
             <div class="catalog-compare">
                 <div><span class="status-dot status-dot-danger"></span><small><?= esc($titulo) ?></small><b class="<?= esc($color) ?>"><?= moneda($monto) ?></b></div>
@@ -31,7 +31,7 @@ $secundarios = $secundarios ?? [];
         </div>
     </div>
 <?php else: ?>
-    <div class="dash-card catalog-preview-card">
+    <div class="dash-card">
         <div class="dash-card-body">
             <div class="balance-strip-label"><?= esc($titulo) ?></div>
             <div class="balance-strip-amount <?= esc($color) ?>"><?= moneda($monto) ?></div>

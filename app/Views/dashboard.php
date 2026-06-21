@@ -32,7 +32,8 @@
                             No ten&eacute;s grupos activos.
                         </div>
                     <?php else: ?>
-                        <div class="row g-3 mb-4">                            <?php foreach ($activos as $grupo): ?>
+                        <div class="row g-3 mb-4">
+                            <?php foreach ($activos as $grupo): ?>
                                 <?php $mv = $grupo['ultimo_movimiento']; ?>
                                 <div class="col-12 col-md-6 col-lg-4" data-estado="activo">
                                     <?= view('components/cards/grupo', [
@@ -212,34 +213,22 @@
                     <div class="section-header-title">Grupos activos</div>
                     <a href="<?= base_url('grupos/nuevo') ?>" class="section-header-action btn btn-primary btn-sm">+ Nuevo</a>
                 </div>
-                <div class="dash-card mb-3">
+                <div class="row g-3 mb-3">
                     <?php foreach ($activos as $grupo): ?>
-                        <?php
-                            $avaColor = $avatarColors[$colorIdx % 8];
-                            $colorIdx++;
-                            $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : 'text-muted');
-                            $mv = $grupo['ultimo_movimiento'];
-                        ?>
-                        <div class="dash-list-item">
-                            <div class="avatar <?= $avaColor ?>"><?= esc(mb_strtoupper(mb_substr($grupo['nombre'], 0, 1))) ?></div>
-                            <div class="dash-list-item-info">
-                                <div class="dash-list-item-title"><?= esc($grupo['nombre']) ?></div>
-                                <?php if ($mv): ?>
-                                    <div class="dash-list-item-subtitle">
-                                        <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
-                                        <?= esc(mb_substr($mv['descripcion'], 0, 30)) ?> &middot; <?= date('d/m', strtotime($mv['fecha'])) ?>
-                                    </div>
-                                <?php else: ?>
-                                    <div class="dash-list-item-subtitle">Creado el <?= date('d/m/Y', strtotime($grupo['created_at'])) ?></div>
-                                <?php endif; ?>
-                            </div>
-                            <div class="dash-list-item-amount <?= $saldoClase ?>">
-                                <?= moneda(abs($grupo['mi_saldo'])) ?>
-                            </div>
-                            <div class="dash-list-item-actions">
-                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm">Abrir</a>
-                                <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm">+ Gasto</a>
-                            </div>
+                        <?php $mv = $grupo['ultimo_movimiento']; ?>
+                        <div class="col-12 col-xl-6">
+                            <?= view('components/cards/grupo', [
+                                'variant' => $homeGroupVariant,
+                                'nombre' => $grupo['nombre'],
+                                'estado' => $grupo['estado'],
+                                'saldo' => $grupo['mi_saldo'],
+                                'ultimoTipo' => $mv['tipo'] ?? null,
+                                'ultimoDescripcion' => $mv['descripcion'] ?? null,
+                                'ultimoMonto' => $mv['monto'] ?? null,
+                                'ultimoFecha' => $mv['fecha'] ?? null,
+                                'entrarUrl' => base_url('grupos/' . $grupo['id']),
+                                'gastoUrl' => base_url('gastos/nuevo?grupo_id=' . $grupo['id']),
+                            ]) ?>
                         </div>
                     <?php endforeach; ?>
                 </div>

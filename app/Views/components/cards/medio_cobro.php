@@ -39,7 +39,7 @@ $statusClass = $activo ? 'bg-light text-dark' : 'bg-danger';
 <?php }; ?>
 
 <?php if ($variant === 'compact'): ?>
-    <div class="dash-card catalog-preview-card catalog-payment-method <?= $activo ? '' : 'payment-bank-card-inactive' ?>">
+    <div class="dash-card catalog-payment-method <?= $activo ? '' : 'payment-bank-card-inactive' ?>">
         <div class="dash-card-body">
             <div class="catalog-card-top">
                 <div class="catalog-row min-width-0">
@@ -51,7 +51,7 @@ $statusClass = $activo ? 'bg-light text-dark' : 'bg-danger';
         </div>
     </div>
 <?php elseif ($variant === 'favorite'): ?>
-    <div class="dash-card catalog-preview-card catalog-payment-favorite <?= $activo ? '' : 'payment-bank-card-inactive' ?>">
+    <div class="dash-card catalog-payment-favorite <?= $activo ? '' : 'payment-bank-card-inactive' ?>">
         <div class="dash-card-body">
             <div class="catalog-card-top"><span class="badge <?= esc($statusClass) ?>"><?= esc($statusBadge) ?></span><?php $favButton(); ?></div>
             <strong class="d-block mt-2"><?= esc($nombre) ?></strong>

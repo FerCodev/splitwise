@@ -21,7 +21,7 @@ $saldoTexto = moneda(abs($saldo));
 ?>
 
 <?php if ($variant === 'balance_first'): ?>
-    <div class="dash-card catalog-preview-card catalog-balance-first">
+    <div class="dash-card catalog-balance-first">
         <div class="dash-card-body text-center">
             <div class="small text-muted"><?= esc($nombre) ?> &middot; <?= esc(ucfirst($estado)) ?></div>
             <div class="catalog-balance-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></div>
@@ -35,7 +35,7 @@ $saldoTexto = moneda(abs($saldo));
         </div>
     </div>
 <?php elseif ($variant === 'compact'): ?>
-    <div class="dash-card catalog-preview-card">
+    <div class="dash-card">
         <a href="<?= esc($entrarUrl, 'attr') ?>" class="dash-list-item text-decoration-none">
             <div class="catalog-avatar catalog-avatar-primary catalog-avatar-sm"><?= esc($inicial) ?></div>
             <div class="dash-list-item-info">
@@ -51,7 +51,7 @@ $saldoTexto = moneda(abs($saldo));
         <?php endif; ?>
     </div>
 <?php else: ?>
-    <div class="dash-card catalog-preview-card">
+    <div class="dash-card">
         <div class="dash-card-body">
             <div class="catalog-row align-items-start">
                 <div class="catalog-avatar catalog-avatar-primary"><?= esc($inicial) ?></div>
