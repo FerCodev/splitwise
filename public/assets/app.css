@@ -2361,6 +2361,112 @@ body {
     background: #dcfce7;
     color: var(--accent);
 }
+.tabler-proposal-card {
+    display: grid;
+    gap: 12px;
+    min-height: 178px;
+    padding: 16px;
+    border: 1px solid #dce3ec;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(30, 41, 59, 0.05);
+}
+.tabler-proposal-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.tabler-proposal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-md);
+}
+.tabler-proposal-icon-blue {
+    background: #e8f1ff;
+    color: #206bc4;
+}
+.tabler-proposal-icon-green {
+    background: #eaf7ec;
+    color: #2fb344;
+}
+.tabler-proposal-label {
+    color: var(--muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+.tabler-proposal-title {
+    font-weight: 800;
+    color: var(--text);
+}
+.tabler-proposal-value,
+.tabler-proposal-balance {
+    font-size: 1.35rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+}
+.tabler-proposal-progress {
+    height: 8px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: #eef2f7;
+}
+.tabler-proposal-progress span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #206bc4;
+}
+.tabler-proposal-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+.tabler-proposal-list {
+    display: grid;
+    gap: 0;
+}
+.tabler-proposal-list > div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+.tabler-proposal-list > div:last-child {
+    border-bottom: 0;
+}
+.tabler-proposal-list small,
+.tabler-proposal-copy span {
+    display: block;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+.tabler-proposal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+.tabler-proposal-copy {
+    display: grid;
+    gap: 2px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #f8fafc;
+}
+.tabler-proposal-copy strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.92rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 .catalog-soft-danger {
     background: #fff7f8;
 }
