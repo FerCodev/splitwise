@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Gasto;
 use App\Models\Pago;
 use App\Models\Grupo;
+use App\Models\Categoria;
 use App\Models\GrupoMiembro;
 use App\Models\UserPaymentMethod;
 use App\Services\GroupPermission;
@@ -137,6 +138,9 @@ class Grupos extends BaseController
         $pagoModel = new Pago();
         $pagos = $pagoModel->getPagosByGrupo($id);
         $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
+        $movimientoFilters = $this->getMovimientoFilters();
+        $movimientos = $this->buildMovimientosGrupo($gastos, $pagos, $movimientoFilters);
+        $categorias = model(Categoria::class)->getActivas();
 
         $permisos = GroupPermission::getAll($acceso['rol'], $acceso['grupo']['estado'], $acceso['userId']);
 
@@ -154,9 +158,86 @@ class Grupos extends BaseController
             'deudas' => $deudas,
             'totalGastado' => $totalGastado,
             'pagos' => $pagos,
+            'movimientos' => $movimientos,
+            'movimientoFilters' => $movimientoFilters,
+            'categorias' => $categorias,
             'totalPagado' => $totalPagado,
             'usuariosDisponibles' => $usuariosDisponibles,
         ]);
+    }
+
+    private function getMovimientoFilters(): array
+    {
+        return [
+            'fecha_desde' => trim((string) $this->request->getGet('fecha_desde')),
+            'fecha_hasta' => trim((string) $this->request->getGet('fecha_hasta')),
+            'categoria_id' => trim((string) $this->request->getGet('categoria_id')),
+            'persona_id' => trim((string) $this->request->getGet('persona_id')),
+            'q' => trim((string) $this->request->getGet('q')),
+        ];
+    }
+
+    private function buildMovimientosGrupo(array $gastos, array $pagos, array $filters): array
+    {
+        $movimientos = [];
+
+        foreach ($gastos as $g) {
+            $movimientos[] = [
+                'tipo' => 'gasto',
+                'fecha' => $g['fecha'],
+                'descripcion' => $g['descripcion'],
+                'monto' => $g['monto'],
+                'persona' => $g['pagador_nombre'],
+                'persona_id' => (int) $g['pagador_id'],
+                'id' => $g['id'],
+                'categoria_id' => (int) ($g['categoria_id'] ?? 0),
+                'categoria_nombre' => $g['categoria_nombre'] ?? null,
+                'created_at' => $g['created_at'] ?? $g['fecha'],
+            ];
+        }
+
+        foreach ($pagos as $p) {
+            $movimientos[] = [
+                'tipo' => 'pago',
+                'fecha' => $p['fecha'],
+                'descripcion' => $p['descripcion'] ?: 'Pago',
+                'monto' => $p['monto'],
+                'persona' => $p['pagador_nombre'] . ' pagó a ' . $p['receptor_nombre'],
+                'persona_id' => (int) $p['pagador_id'],
+                'id' => $p['id'],
+                'categoria_id' => null,
+                'categoria_nombre' => null,
+                'created_at' => $p['created_at'] ?? $p['fecha'],
+            ];
+        }
+
+        $q = mb_strtolower($filters['q'] ?? '');
+        $movimientos = array_values(array_filter($movimientos, static function (array $m) use ($filters, $q): bool {
+            if (!empty($filters['fecha_desde']) && $m['fecha'] < $filters['fecha_desde']) {
+                return false;
+            }
+            if (!empty($filters['fecha_hasta']) && $m['fecha'] > $filters['fecha_hasta']) {
+                return false;
+            }
+            if (!empty($filters['categoria_id']) && (int) $m['categoria_id'] !== (int) $filters['categoria_id']) {
+                return false;
+            }
+            if (!empty($filters['persona_id']) && (int) $m['persona_id'] !== (int) $filters['persona_id']) {
+                return false;
+            }
+            if ($q !== '') {
+                $texto = mb_strtolower(($m['descripcion'] ?? '') . ' ' . ($m['persona'] ?? '') . ' ' . ($m['categoria_nombre'] ?? ''));
+                if (!str_contains($texto, $q)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }));
+
+        usort($movimientos, static fn($a, $b) => strcmp($b['fecha'] . ' ' . $b['created_at'], $a['fecha'] . ' ' . $a['created_at']));
+
+        return $movimientos;
     }
 
     public function balance(int $id)

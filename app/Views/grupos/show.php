@@ -72,82 +72,110 @@
             </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2 mb-3">
-            <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width:28px;height:28px;background:#dbeafe;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#2563eb" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
+        <?php
+            $hasMovimientoFilters = !empty($movimientoFilters['fecha_desde'])
+                || !empty($movimientoFilters['fecha_hasta'])
+                || !empty($movimientoFilters['categoria_id'])
+                || !empty($movimientoFilters['persona_id'])
+                || !empty($movimientoFilters['q']);
+        ?>
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Movimientos<?= $hasMovimientoFilters ? ' filtrados' : '' ?></h5>
+                <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#movimientoFilterModal" aria-label="Filtros">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+                </button>
             </div>
-            <h5 class="fw-bold mb-0">Movimientos</h5>
-        </div>
-
-        <?php if (empty($gastos) && empty($pagos)): ?>
-            <div class="card border-0 shadow-sm mb-4">
+            <?php if (empty($movimientos)): ?>
                 <div class="card-body text-center py-5">
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:56px;height:56px;background:#e2e8f0;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#64748b" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
                     </div>
-                    <p class="text-muted mb-0">No hay movimientos en este grupo todav&iacute;a.</p>
+                    <p class="text-muted mb-0"><?= $hasMovimientoFilters ? 'No hay movimientos para estos filtros.' : 'No hay movimientos en este grupo todav&iacute;a.' ?></p>
+                    <?php if ($hasMovimientoFilters): ?>
+                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm mt-3">Limpiar filtros</a>
+                    <?php endif; ?>
                 </div>
-            </div>
-        <?php else: ?>
-            <?php
-                $movimientos = [];
-                foreach ($gastos as $g) {
-                    $movimientos[] = [
-                        'tipo' => 'gasto',
-                        'fecha' => $g['fecha'],
-                        'descripcion' => $g['descripcion'],
-                        'monto' => $g['monto'],
-                        'persona' => $g['pagador_nombre'],
-                        'id' => $g['id'],
-                        'categoria_nombre' => $g['categoria_nombre'] ?? null,
-                        'created_at' => $g['created_at'] ?? $g['fecha'],
-                    ];
-                }
-                foreach ($pagos as $p) {
-                    $movimientos[] = [
-                        'tipo' => 'pago',
-                        'fecha' => $p['fecha'],
-                        'descripcion' => $p['descripcion'] ?: 'Pago',
-                        'monto' => $p['monto'],
-                        'persona' => $p['pagador_nombre'] . ' pagó a ' . $p['receptor_nombre'],
-                        'id' => $p['id'],
-                        'categoria_nombre' => null,
-                        'created_at' => $p['created_at'] ?? $p['fecha'],
-                    ];
-                }
-                usort($movimientos, fn($a, $b) => strcmp($b['fecha'] . ' ' . $b['created_at'], $a['fecha'] . ' ' . $a['created_at']));
-                $movimientos = array_slice($movimientos, 0, 10);
-            ?>
-            <?php foreach ($movimientos as $m): ?>
-                <?php if ($m['tipo'] === 'gasto'): ?>
-                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="report-movement-link">
-                <?php else: ?>
-                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link">
-                <?php endif; ?>
-                    <div class="report-movement-card <?= $m['tipo'] === 'gasto' ? 'report-movement-expense' : 'report-movement-payment' ?> mb-2" style="border-left: 3px solid <?= $m['tipo'] === 'gasto' ? '#2563eb' : '#16a34a' ?>;">
-                        <div class="d-flex justify-content-between align-items-start gap-2">
-                            <div class="min-width-0">
-                                <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?> me-1"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
-                                <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
-                                <?php if ($m['categoria_nombre']): ?>
-                                    <span class="badge bg-light text-dark ms-1"><?= esc($m['categoria_nombre']) ?></span>
-                                <?php endif; ?>
+            <?php else: ?>
+                <div class="card-body report-movement-list">
+                    <?php foreach ($movimientos as $m): ?>
+                        <?php if ($m['tipo'] === 'gasto'): ?>
+                        <a href="<?= base_url('gastos/' . $m['id']) ?>" class="report-movement-link">
+                        <?php else: ?>
+                        <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link">
+                        <?php endif; ?>
+                            <div class="report-movement-card <?= $m['tipo'] === 'gasto' ? 'report-movement-expense' : 'report-movement-payment' ?>" style="border-left: 3px solid <?= $m['tipo'] === 'gasto' ? '#2563eb' : '#16a34a' ?>;">
+                                <div class="d-flex justify-content-between align-items-start gap-2">
+                                    <div class="min-width-0">
+                                        <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?> me-1"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
+                                        <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
+                                        <?php if ($m['categoria_nombre']): ?>
+                                            <span class="badge bg-light text-dark ms-1"><?= esc($m['categoria_nombre']) ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?> text-nowrap"><?= moneda($m['monto']) ?></span>
+                                </div>
+                                <div class="text-muted small mt-1">
+                                    <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
+                                </div>
                             </div>
-                            <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?> text-nowrap"><?= moneda($m['monto']) ?></span>
-                        </div>
-                        <div class="text-muted small mt-1">
-                            <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
-                        </div>
-                    </div>
-                </a>
-            <?php endforeach; ?>
-            <?php if (count($gastos) + count($pagos) > 10): ?>
-                <div class="text-center mb-4">
-                    <a href="<?= base_url('gastos?grupo_id=' . $grupo['id']) ?>" class="text-decoration-none small">Ver todos los movimientos &rarr;</a>
+                        </a>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-        <?php endif; ?>
+        </div>
 
+    </div>
+
+    <div class="modal fade" id="movimientoFilterModal" tabindex="-1" aria-labelledby="movimientoFilterModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <form method="get" action="<?= base_url('grupos/' . $grupo['id']) ?>">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="movimientoFilterModalLabel">Filtrar movimientos</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label small fw-medium">Desde</label>
+                                <input type="date" name="fecha_desde" class="form-control" value="<?= esc($movimientoFilters['fecha_desde'] ?? '') ?>">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-medium">Hasta</label>
+                                <input type="date" name="fecha_hasta" class="form-control" value="<?= esc($movimientoFilters['fecha_hasta'] ?? '') ?>">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label small fw-medium">Categor&iacute;a</label>
+                            <select name="categoria_id" class="form-select">
+                                <option value="">Todas</option>
+                                <?php foreach ($categorias as $categoria): ?>
+                                    <option value="<?= $categoria['id'] ?>" <?= ($movimientoFilters['categoria_id'] ?? '') == $categoria['id'] ? 'selected' : '' ?>><?= esc($categoria['nombre']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label small fw-medium">Integrante</label>
+                            <select name="persona_id" class="form-select">
+                                <option value="">Todos</option>
+                                <?php foreach ($miembros as $miembro): ?>
+                                    <option value="<?= $miembro['user_id'] ?>" <?= ($movimientoFilters['persona_id'] ?? '') == $miembro['user_id'] ? 'selected' : '' ?>><?= esc($miembro['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="mt-3">
+                            <label class="form-label small fw-medium">Palabra clave</label>
+                            <input type="search" name="q" class="form-control" value="<?= esc($movimientoFilters['q'] ?? '') ?>" placeholder="Buscar por descripci&oacute;n o persona">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary flex-fill">Limpiar</a>
+                        <button type="submit" class="btn btn-primary flex-fill">Aplicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <?php if ($permisos['puede_crear_gasto']): ?>

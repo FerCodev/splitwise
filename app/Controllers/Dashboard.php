@@ -64,16 +64,6 @@ class Dashboard extends BaseController
 
         $resumen = Grupo::computeDashboardResumen($grupos);
 
-        $ultimosGastos = $gastoModel->getUltimosGastosByUser($userId, 10);
-        $ultimosPagos = $pagoModel->getUltimosPagosByUser($userId, 10);
-
-        $movimientos = array_merge(
-            array_map(fn($g) => array_merge($g, ['tipo' => 'gasto']), $ultimosGastos),
-            array_map(fn($p) => array_merge($p, ['tipo' => 'pago']), $ultimosPagos)
-        );
-        usort($movimientos, fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
-        $movimientos = array_slice($movimientos, 0, 20);
-
         $totalDeudasPendientes = count($deudasPendientes);
         usort($deudasPendientes, fn($a, $b) => $b['monto'] <=> $a['monto']);
         $deudasPendientes = array_slice($deudasPendientes, 0, 6);
@@ -82,7 +72,6 @@ class Dashboard extends BaseController
         return view('dashboard', array_merge(
             [
                 'grupos' => $grupos,
-                'movimientos' => $movimientos,
                 'deudasPendientes' => $deudasPendientes,
                 'hayMasDeudas' => $hayMasDeudas,
                 'totalDebe' => round($totalDebe, 2),

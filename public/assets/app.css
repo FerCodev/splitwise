@@ -348,15 +348,20 @@ body {
     padding: 12px;
 }
 .division-summary {
+    border: 1px solid #bfdbfe !important;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
     line-height: 1.4;
+    box-shadow: none !important;
 }
 .division-summary:hover,
 .division-summary:focus-visible {
-    border-color: var(--primary) !important;
-    background: #f0f5ff !important;
+    border-color: #93c5fd !important;
+    background: #dbeafe !important;
+    color: #1e40af !important;
 }
 .division-summary-title {
-    color: var(--text);
+    color: inherit;
     font-weight: 600;
     line-height: 1.3;
 }
@@ -1385,6 +1390,30 @@ body {
     font-size: 15px;
     white-space: nowrap;
     text-align: right;
+}
+
+.dash-list-item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.home-soft-alert {
+    padding: 10px 12px;
+    border: 1px solid #fecdd3;
+    border-radius: var(--radius-md);
+    background: #fff7f8;
+    color: #475569;
+    box-shadow: var(--shadow-sm);
+}
+
+.home-debts-empty-card {
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 @media (max-width: 991.98px) {
