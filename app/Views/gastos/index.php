@@ -4,6 +4,7 @@
     $pdfUrl = base_url('gastos/exportar-pdf?' . http_build_query($filters));
     $excelUrl = base_url('gastos/exportar-excel?' . http_build_query($filters));
     $totalFiltrado = $totalFiltrado ?? 0;
+    $summaryVariant = \App\Services\UiComponentResolver::variant('gastos_index', 'filtered_total_card');
 ?>
 
     <div class="container mt-3 mt-md-4">
@@ -19,15 +20,14 @@
         <?php if (session()->getFlashdata('error')): ?>
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
-
-        <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body py-3 d-flex justify-content-between align-items-center">
-                <div>
-                    <div class="text-muted small">Total filtrado</div>
-                    <div class="fw-bold fs-5 text-primary"><?= moneda($totalFiltrado) ?></div>
-                </div>
-                <div class="text-muted small text-end">Suma de gastos filtrados</div>
-            </div>
+        <div class="mb-3">
+            <?= view('components/cards/resumen', [
+                'variant' => $summaryVariant,
+                'titulo' => 'Total filtrado',
+                'monto' => $totalFiltrado,
+                'detalle' => 'Suma de gastos filtrados',
+                'color' => 'text-primary',
+            ]) ?>
         </div>
 
         <?php if (empty($gastos)): ?>
@@ -196,3 +196,5 @@
 
 <?= view('partials/_scroll_infinito') ?>
 <?= view('partials/_footer') ?>
+
+
