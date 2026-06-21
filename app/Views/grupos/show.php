@@ -16,6 +16,10 @@
             $misDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === (int) session()->get('userId')));
             $deudaPrincipal = $misDeudas[0] ?? null;
             $puedePagarBalance = $miSaldo < 0 && $permisos['puede_crear_pago'] && $deudaPrincipal !== null;
+            $miTotalPagado = (float) ($miBalance['total_pagado_gastos'] ?? 0);
+            $totalGrupoGauge = max((float) $totalGastado, 0);
+            $miPorcentajePagado = $totalGrupoGauge > 0 ? min(100, max(0, ($miTotalPagado / $totalGrupoGauge) * 100)) : 0;
+            $gaugeAngle = -90 + ($miPorcentajePagado * 1.8);
 
             $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
@@ -65,6 +69,26 @@
                     </div>
                 </a>
                 <?php endif; ?>
+
+                <div class="group-spend-gauge" style="--gauge-angle: <?= round($gaugeAngle, 2) ?>deg;">
+                    <div class="group-spend-gauge-copy">
+                        <span>Tu aporte al gasto</span>
+                        <strong><?= round($miPorcentajePagado) ?>%</strong>
+                    </div>
+                    <div class="group-spend-gauge-meter" aria-label="Vos pagaste <?= round($miPorcentajePagado) ?>% del total gastado del grupo">
+                        <div class="group-spend-gauge-arc"></div>
+                        <div class="group-spend-gauge-needle"></div>
+                        <div class="group-spend-gauge-hub"></div>
+                    </div>
+                    <div class="group-spend-gauge-scale">
+                        <span><?= moneda(0) ?></span>
+                        <span><?= moneda($totalGrupoGauge) ?></span>
+                    </div>
+                    <div class="group-spend-gauge-detail">
+                        <span>Vos pagaste <?= moneda($miTotalPagado) ?></span>
+                        <span>Total grupo <?= moneda($totalGrupoGauge) ?></span>
+                    </div>
+                </div>
 
                 <?php if ($grupo['descripcion']): ?>
                     <p class="mb-0 text-muted small"><?= esc($grupo['descripcion']) ?></p>

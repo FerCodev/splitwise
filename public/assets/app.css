@@ -730,6 +730,98 @@ body {
     font-weight: 800;
     line-height: 1;
 }
+.group-spend-gauge {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: var(--radius-md);
+    background: #f8fbff;
+}
+.group-spend-gauge-copy {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+.group-spend-gauge-copy span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+.group-spend-gauge-copy strong {
+    color: var(--primary);
+    font-size: 24px;
+    line-height: 1;
+}
+.group-spend-gauge-meter {
+    position: relative;
+    width: min(100%, 260px);
+    height: 128px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+.group-spend-gauge-arc {
+    position: absolute;
+    inset: 8px 8px auto;
+    height: 224px;
+    border-radius: 224px 224px 0 0;
+    background: conic-gradient(from 270deg at 50% 100%, #e5e7eb 0deg, #bfdbfe 54deg, #60a5fa 118deg, #2563eb 180deg, transparent 180deg);
+}
+.group-spend-gauge-arc::after {
+    content: "";
+    position: absolute;
+    left: 28px;
+    right: 28px;
+    bottom: 0;
+    height: 168px;
+    border-radius: 168px 168px 0 0;
+    background: #f8fbff;
+}
+.group-spend-gauge-needle {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 3px;
+    height: 92px;
+    border-radius: 999px;
+    background: #1e3a8a;
+    transform-origin: 50% 100%;
+    transform: translateX(-50%) rotate(var(--gauge-angle));
+    box-shadow: 0 2px 8px rgba(30, 58, 138, 0.28);
+}
+.group-spend-gauge-hub {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    border: 4px solid #bfdbfe;
+    border-radius: 50%;
+    background: var(--primary);
+    transform: translateX(-50%);
+}
+.group-spend-gauge-scale,
+.group-spend-gauge-detail {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+.group-spend-gauge-scale {
+    margin-top: -8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+.group-spend-gauge-detail {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+}
+.group-spend-gauge-detail span {
+    min-width: 0;
+}
 .user-card-list {
     display: grid;
     gap: 12px;
