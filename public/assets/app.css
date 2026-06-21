@@ -2600,6 +2600,124 @@ body {
     background: #fff7f8;
     color: #be123c;
 }
+.tabler-alert-card {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+    min-height: 88px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+.tabler-alert-card strong,
+.tabler-alert-card small {
+    display: block;
+}
+.tabler-alert-card small {
+    color: var(--muted);
+    line-height: 1.35;
+}
+.tabler-alert-card > .badge,
+.tabler-alert-card > .btn,
+.tabler-alert-card > b {
+    justify-self: end;
+}
+.tabler-alert-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-weight: 900;
+}
+.tabler-alert-success {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+.tabler-alert-success .tabler-alert-icon {
+    color: #15803d;
+    background: #dcfce7;
+}
+.tabler-alert-danger {
+    border-color: #fecdd3;
+    background: #fff7f8;
+}
+.tabler-alert-danger .tabler-alert-icon,
+.tabler-alert-delete .tabler-alert-icon {
+    color: #be123c;
+    background: #ffe4e6;
+}
+.tabler-alert-warning {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+.tabler-alert-warning .tabler-alert-icon {
+    color: #b45309;
+    background: #fef3c7;
+}
+.tabler-alert-info {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+.tabler-alert-info .tabler-alert-icon,
+.tabler-alert-update .tabler-alert-icon {
+    color: #206bc4;
+    background: #dbeafe;
+}
+.tabler-alert-settled {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #bbf7d0;
+    background: linear-gradient(135deg, #f0fdf4, #fff);
+}
+.tabler-alert-settled .tabler-alert-icon {
+    color: #15803d;
+    background: #dcfce7;
+}
+.tabler-alert-export {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #cfe2ff;
+    background: #f8fbff;
+}
+.tabler-alert-export .tabler-alert-icon {
+    color: #206bc4;
+    background: #dbeafe;
+}
+.tabler-alert-neutral {
+    border-color: #dce3ec;
+    background: #f8fafc;
+}
+.tabler-alert-neutral .tabler-alert-icon {
+    color: #64748b;
+    background: #eef2f7;
+}
+.tabler-alert-delete {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
+    border-color: #fecdd3;
+    background: #fff7f8;
+}
+.tabler-alert-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.tabler-alert-payment {
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-color: #ffd9df;
+    background: #fff7f8;
+}
+.tabler-alert-payment b {
+    color: #be123c;
+    font-size: 1.05rem;
+}
+.tabler-alert-update {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #cfe2ff;
+    background: linear-gradient(135deg, #eff6ff, #fff);
+}
 .tabler-proposal-table {
     display: grid;
     gap: 0;

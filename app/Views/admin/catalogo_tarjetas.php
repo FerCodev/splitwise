@@ -61,7 +61,7 @@ $screens = [
     'tabler' => [
         'title' => 'Tabler',
         'description' => 'Subcat&aacute;logo inspirado en Tabler para evaluar una librer&iacute;a visual externa.',
-        'badge' => '57 ejemplos',
+        'badge' => '67 ejemplos',
     ],
     'propuestas' => [
         'title' => 'Propuestas',
@@ -296,6 +296,22 @@ $tablerCatalog = [
             ['name' => 'Sin grupos', 'hint' => 'Empty state con acci&oacute;n primaria.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-empty"><span class="tabler-proposal-icon tabler-proposal-icon-blue">+</span><strong>No ten&eacute;s grupos activos</strong><div class="text-muted small">Cre&aacute; uno para empezar a cargar gastos.</div><button class="btn btn-primary btn-sm" type="button">Crear grupo</button></div>'],
             ['name' => 'Sin deudas', 'hint' => 'Estado positivo y liviano.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-empty tabler-proposal-success"><span class="tabler-proposal-icon tabler-proposal-icon-green">&check;</span><strong>Todo saldado</strong><div class="text-muted small">No ten&eacute;s deudas pendientes.</div></div>'],
             ['name' => 'Alerta guardado', 'hint' => 'Feedback de operaci&oacute;n exitosa.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-alert tabler-proposal-alert-success"><strong>Gasto creado</strong><span>El movimiento se agreg&oacute; correctamente.</span></div><div class="tabler-proposal-alert tabler-proposal-alert-danger"><strong>Revis&aacute; el monto</strong><span>El importe ingresado no es v&aacute;lido.</span></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Alertas',
+        'description' => 'Propuestas Tabler para mensajes de sistema, pagos, filtros y acciones sensibles.',
+        'items' => [
+            ['name' => 'Exito compacto', 'hint' => 'Confirmaci&oacute;n corta.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-success"><span class="tabler-alert-icon">&check;</span><div><strong>Gasto creado</strong><small>Se agreg&oacute; correctamente al grupo Junio.</small></div></div>'],
+            ['name' => 'Error con acci&oacute;n', 'hint' => 'Problema recuperable.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-danger"><span class="tabler-alert-icon">!</span><div><strong>No se pudo guardar</strong><small>Revis&aacute; el monto y volvelo a intentar.</small><button class="btn btn-outline-danger btn-sm mt-2" type="button">Reintentar</button></div></div>'],
+            ['name' => 'Warning deuda', 'hint' => 'Deuda pendiente sin sonar agresiva.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-warning"><span class="tabler-alert-icon">$</span><div><strong>Ten&eacute;s una deuda pendiente</strong><small>Le deb&eacute;s a Fernando ' . moneda(112697) . ' del grupo Junio.</small></div></div>'],
+            ['name' => 'Info filtro', 'hint' => 'Explica el contexto filtrado.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-info"><span class="tabler-alert-icon">i</span><div><strong>Mostrando abril 2026</strong><small>Los movimientos est&aacute;n filtrados por fecha del grupo.</small></div></div>'],
+            ['name' => 'Liquidado', 'hint' => 'Estado final positivo.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-settled"><span class="tabler-alert-icon">&check;</span><div><strong>Grupo liquidado</strong><small>No quedan pagos ni cobros pendientes.</small></div><span class="badge bg-success">OK</span></div>'],
+            ['name' => 'Exportacion lista', 'hint' => 'Feedback para PDF o Excel.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-export"><span class="tabler-alert-icon">&darr;</span><div><strong>Archivo preparado</strong><small>El reporte incluye total filtrado y 41 movimientos.</small></div><button class="btn btn-primary btn-sm" type="button">Descargar</button></div>'],
+            ['name' => 'Conexion', 'hint' => 'Aviso t&eacute;cnico suave.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-neutral"><span class="tabler-alert-icon">~</span><div><strong>Trabajando sin conexi&oacute;n</strong><small>Los cambios se sincronizar&aacute;n cuando vuelva la red.</small></div></div>'],
+            ['name' => 'Confirmacion borrar', 'hint' => 'Acci&oacute;n destructiva clara.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-delete"><div><strong>Eliminar medio de cobro</strong><small>Esta acci&oacute;n no se puede deshacer.</small></div><div class="tabler-alert-actions"><button class="btn btn-light btn-sm" type="button">Cancelar</button><button class="btn btn-danger btn-sm" type="button">Eliminar</button></div></div>'],
+            ['name' => 'Pago sugerido', 'hint' => 'Alerta con monto protagonista.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-payment"><div><small>Pago sugerido</small><strong>Antonella &rarr; Fernando</strong></div><b>' . moneda(116351) . '</b></div>'],
+            ['name' => 'Actualizacion disponible', 'hint' => 'Mensaje administrativo.', 'render' => static fn () => '<div class="tabler-alert-card tabler-alert-update"><span class="tabler-alert-icon">*</span><div><strong>Nuevo dise&ntilde;o disponible</strong><small>Hay una variante de tarjeta lista para probar.</small></div><span class="badge bg-primary">Cat&aacute;logo</span></div>'],
         ],
     ],
     [
