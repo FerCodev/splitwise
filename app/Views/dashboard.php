@@ -10,6 +10,7 @@
                 $activos = array_filter($grupos, fn($g) => $g['estado'] === 'activo');
                 $inactivos = array_filter($grupos, fn($g) => $g['estado'] !== 'activo');
                 $userId = (int) session()->get('userId');
+                $debtCardVariant = \App\Services\UiComponentResolver::variant('home', 'debt_card');
             ?>
 
             <!-- Filtros de grupos -->
@@ -148,18 +149,14 @@
                             <?php foreach ($deudasPendientes as $d): ?>
                                 <?php $esDeudor = (int) $d['deudor_id'] === $userId; ?>
                                 <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="report-movement-link">
-                                    <div class="report-movement-card home-debt-card <?= $esDeudor ? 'home-debt-card-owes' : 'home-debt-card-owed' ?>">
-                                        <div class="d-flex justify-content-between align-items-start gap-2">
-                                            <div class="min-width-0">
-                                                <span class="badge <?= $esDeudor ? 'bg-danger' : 'bg-success' ?> me-1"><?= $esDeudor ? 'Deb&eacute;s' : 'Te deben' ?></span>
-                                                <span class="fw-medium small"><?= $esDeudor ? esc($d['acreedor']) : esc($d['deudor']) ?></span>
-                                            </div>
-                                            <span class="fw-bold small <?= $esDeudor ? 'text-danger' : 'text-success' ?> text-nowrap"><?= moneda($d['monto']) ?></span>
-                                        </div>
-                                        <div class="text-muted small mt-1">
-                                            <?= esc($d['grupo_nombre']) ?> &middot; <?= $esDeudor ? 'Pago pendiente' : 'Cobro pendiente' ?>
-                                        </div>
-                                    </div>
+                                    <?= view('components/cards/deuda', [
+                                        'variant' => $debtCardVariant,
+                                        'wrap' => false,
+                                        'modo' => $esDeudor ? 'debes' : 'te_deben',
+                                        'persona' => $esDeudor ? $d['acreedor'] : $d['deudor'],
+                                        'grupo' => $d['grupo_nombre'],
+                                        'monto' => $d['monto'],
+                                    ]) ?>
                                 </a>
                             <?php endforeach; ?>
                         </div>
@@ -335,18 +332,14 @@
                             <?php foreach ($deudasPendientes as $d): ?>
                                 <?php $esDeudor = (int)$d['deudor_id'] === $userId; ?>
                                 <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="report-movement-link">
-                                    <div class="report-movement-card home-debt-card <?= $esDeudor ? 'home-debt-card-owes' : 'home-debt-card-owed' ?>">
-                                        <div class="d-flex justify-content-between align-items-start gap-2">
-                                            <div class="min-width-0">
-                                                <span class="badge <?= $esDeudor ? 'bg-danger' : 'bg-success' ?> me-1"><?= $esDeudor ? 'Deb&eacute;s' : 'Te deben' ?></span>
-                                                <span class="fw-medium small"><?= $esDeudor ? esc($d['acreedor']) : esc($d['deudor']) ?></span>
-                                            </div>
-                                            <span class="fw-bold small <?= $esDeudor ? 'text-danger' : 'text-success' ?> text-nowrap"><?= moneda($d['monto']) ?></span>
-                                        </div>
-                                        <div class="text-muted small mt-1">
-                                            <?= esc($d['grupo_nombre']) ?> &middot; <?= $esDeudor ? 'Pago pendiente' : 'Cobro pendiente' ?>
-                                        </div>
-                                    </div>
+                                    <?= view('components/cards/deuda', [
+                                        'variant' => $debtCardVariant,
+                                        'wrap' => false,
+                                        'modo' => $esDeudor ? 'debes' : 'te_deben',
+                                        'persona' => $esDeudor ? $d['acreedor'] : $d['deudor'],
+                                        'grupo' => $d['grupo_nombre'],
+                                        'monto' => $d['monto'],
+                                    ]) ?>
                                 </a>
                             <?php endforeach; ?>
                         </div>

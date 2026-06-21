@@ -4,7 +4,23 @@
 <?php
 $fechaDemo = '2026-04-15';
 $fechaCorta = date('d/m/Y', strtotime($fechaDemo));
+$selectedDebtVariant = $selectedDebtVariant ?? 'soft';
 $selectedGaugeVariant = $selectedGaugeVariant ?? 'semicircle';
+$debtVariantAction = static function (string $variant, string $selectedDebtVariant): string {
+    ob_start();
+    ?>
+    <form method="post" action="<?= base_url('admin/catalogo-tarjetas/componente') ?>" class="catalog-component-action">
+        <?= csrf_field() ?>
+        <input type="hidden" name="screen_key" value="home">
+        <input type="hidden" name="component_key" value="debt_card">
+        <input type="hidden" name="variant_key" value="<?= esc($variant) ?>">
+        <button type="submit" class="btn btn-sm <?= $selectedDebtVariant === $variant ? 'btn-success' : 'btn-outline-primary' ?>">
+            <?= $selectedDebtVariant === $variant ? 'Activo en Home' : 'Usar en Home' ?>
+        </button>
+    </form>
+    <?php
+    return ob_get_clean();
+};
 $gaugeVariantAction = static function (string $variant, string $selectedGaugeVariant): string {
     ob_start();
     ?>
@@ -240,9 +256,9 @@ $gaugeVariantAction = static function (string $variant, string $selectedGaugeVar
     <section class="catalog-section">
         <div class="catalog-section-head"><div><h5>Deuda pendiente</h5><p>Usado en Home. Debe separar r&aacute;pido deuda propia de cobro pendiente.</p></div><span class="badge bg-danger">Deuda</span></div>
         <div class="catalog-grid">
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Alerta actual</span><small>Rojo suave sin mezcla azul</small></div><div class="report-movement-list catalog-list-preview"><a href="#" class="report-movement-link"><div class="report-movement-card home-debt-card home-debt-card-owes"><div class="catalog-card-top"><div><span class="badge me-1">Deb&eacute;s</span><span class="fw-medium small">Antonella</span></div><span class="fw-bold small text-danger"><?= moneda(8500) ?></span></div><div class="text-muted small mt-1">Mayo &middot; Pago pendiente</div></div></a></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Acci&oacute;n directa</span><small>CTA visible</small></div><div class="dash-card catalog-preview-card catalog-soft-danger"><div class="dash-card-body"><div class="catalog-card-top"><div><span class="badge bg-danger">Deb&eacute;s</span><div class="fw-semibold mt-1">Antonella</div></div><span class="financial-amount text-danger"><?= moneda(8500) ?></span></div><button class="btn btn-danger btn-sm w-100 mt-3" type="button">Pagar</button></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Resumen persona</span><small>Agrupa movimientos</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body"><div class="catalog-row"><div class="catalog-avatar catalog-avatar-success catalog-avatar-sm">A</div><div class="flex-grow-1"><strong>Antonella</strong><div class="text-muted small">2 grupos &middot; 5 movimientos</div></div><span class="financial-amount text-success"><?= moneda(12300) ?></span></div><div class="text-muted small mt-2">Te deben en Mayo y Junio</div></div></div></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Alerta actual</span><small>Rojo suave sin mezcla azul</small></div><?= view('components/cards/deuda', ['variant' => 'soft', 'modo' => 'debes', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 8500]) ?><?= $debtVariantAction('soft', $selectedDebtVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Acci&oacute;n directa</span><small>CTA visible</small></div><?= view('components/cards/deuda', ['variant' => 'direct_action', 'modo' => 'debes', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 8500]) ?><?= $debtVariantAction('direct_action', $selectedDebtVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Resumen persona</span><small>Agrupa movimientos</small></div><?= view('components/cards/deuda', ['variant' => 'person_summary', 'modo' => 'te_deben', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 12300]) ?><?= $debtVariantAction('person_summary', $selectedDebtVariant) ?></article>
         </div>
     </section>
 

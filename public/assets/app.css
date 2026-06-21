@@ -1611,6 +1611,67 @@ body {
     color: #15803d !important;
 }
 
+.home-debt-action-card,
+.home-debt-person-card {
+    border: 1px solid transparent;
+    border-left: 3px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 14px;
+    box-shadow: var(--shadow-sm);
+}
+
+.home-debt-action-card.home-debt-card-owes,
+.home-debt-person-card.home-debt-card-owes {
+    border-color: #fecdd3;
+    border-left-color: var(--danger);
+    background: #fff7f8;
+    color: #7f1d1d;
+}
+
+.home-debt-action-card.home-debt-card-owed,
+.home-debt-person-card.home-debt-card-owed {
+    border-color: #bbf7d0;
+    border-left-color: #16a34a;
+    background: #f0fdf4;
+    color: #14532d;
+}
+
+.home-debt-action-card .badge,
+.home-debt-person-card .badge {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.home-debt-card-owed.home-debt-action-card .badge,
+.home-debt-card-owed.home-debt-person-card .badge {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.home-debt-person-card {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+}
+
+.home-debt-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 800;
+}
+
+.home-debt-card-owed .home-debt-avatar {
+    background: #dcfce7;
+    color: #15803d;
+}
+
 .home-debts-empty-card {
     min-height: 190px;
     display: flex;

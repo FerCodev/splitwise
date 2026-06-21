@@ -10,6 +10,10 @@ class Admin extends BaseController
     public function catalogoTarjetas()
     {
         return view('admin/catalogo_tarjetas', [
+            'selectedDebtVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_HOME,
+                UiComponentResolver::COMPONENT_DEBT_CARD
+            ),
             'selectedGaugeVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_GAUGE

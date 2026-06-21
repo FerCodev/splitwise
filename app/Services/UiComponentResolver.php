@@ -7,16 +7,28 @@ use Throwable;
 
 class UiComponentResolver
 {
+    public const SCREEN_HOME = 'home';
     public const SCREEN_GROUP_SHOW = 'grupo_show';
+    public const COMPONENT_DEBT_CARD = 'debt_card';
     public const COMPONENT_GROUP_GAUGE = 'group_gauge';
 
     private const DEFAULT_VARIANTS = [
+        self::SCREEN_HOME => [
+            self::COMPONENT_DEBT_CARD => 'soft',
+        ],
         self::SCREEN_GROUP_SHOW => [
             self::COMPONENT_GROUP_GAUGE => 'semicircle',
         ],
     ];
 
     private const ALLOWED_VARIANTS = [
+        self::SCREEN_HOME => [
+            self::COMPONENT_DEBT_CARD => [
+                'soft',
+                'direct_action',
+                'person_summary',
+            ],
+        ],
         self::SCREEN_GROUP_SHOW => [
             self::COMPONENT_GROUP_GAUGE => [
                 'semicircle',
