@@ -20,6 +20,7 @@
             $totalGrupoGauge = max((float) $totalGastado, 0);
             $miPorcentajePagado = $totalGrupoGauge > 0 ? min(100, max(0, ($miTotalPagado / $totalGrupoGauge) * 100)) : 0;
             $gaugeVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_gauge');
+            $movementCardVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_movement_card');
 
             $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
@@ -115,21 +116,16 @@
                         <?php else: ?>
                         <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link">
                         <?php endif; ?>
-                            <div class="report-movement-card <?= $m['tipo'] === 'gasto' ? 'report-movement-expense' : 'report-movement-payment' ?>" style="border-left: 3px solid <?= $m['tipo'] === 'gasto' ? '#2563eb' : '#16a34a' ?>;">
-                                <div class="d-flex justify-content-between align-items-start gap-2">
-                                    <div class="min-width-0">
-                                        <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?> me-1"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
-                                        <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
-                                        <?php if ($m['categoria_nombre']): ?>
-                                            <span class="badge bg-light text-dark ms-1"><?= esc($m['categoria_nombre']) ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                    <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?> text-nowrap"><?= moneda($m['monto']) ?></span>
-                                </div>
-                                <div class="text-muted small mt-1">
-                                    <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
-                                </div>
-                            </div>
+                            <?= view('components/cards/movimiento', [
+                                'variant' => $movementCardVariant,
+                                'wrap' => false,
+                                'tipo' => $m['tipo'],
+                                'descripcion' => $m['descripcion'],
+                                'monto' => $m['monto'],
+                                'fecha' => $m['fecha'],
+                                'persona' => $m['persona'],
+                                'categoria' => $m['categoria_nombre'],
+                            ]) ?>
                         </a>
                     <?php endforeach; ?>
                 </div>

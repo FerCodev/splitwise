@@ -943,6 +943,46 @@ body {
 .report-movement-payment {
     background: #dff5ea;
 }
+.movement-border-expense {
+    border-left: 3px solid #2563eb;
+}
+.movement-border-payment {
+    border-left: 3px solid #16a34a;
+}
+.group-movement-user-card {
+    border-left: 3px solid transparent;
+}
+.group-movement-user-card.group-movement-fer {
+    border-left-color: #2563eb;
+    background: #dcecff;
+}
+.group-movement-user-card.group-movement-anto {
+    border-left-color: #16a34a;
+    background: #dff5ea;
+}
+.group-movement-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.65);
+    color: #1e293b;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.group-movement-compact-card {
+    min-height: 64px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(16, 24, 40, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
 .report-movement-link:hover .report-movement-card,
 .report-movement-link:focus .report-movement-card {
     filter: brightness(0.985);

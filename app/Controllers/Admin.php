@@ -18,6 +18,10 @@ class Admin extends BaseController
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_GAUGE
             ),
+            'selectedMovementVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_GROUP_SHOW,
+                UiComponentResolver::COMPONENT_GROUP_MOVEMENT_CARD
+            ),
         ]);
     }
 

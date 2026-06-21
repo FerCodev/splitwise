@@ -6,6 +6,7 @@ $fechaDemo = '2026-04-15';
 $fechaCorta = date('d/m/Y', strtotime($fechaDemo));
 $selectedDebtVariant = $selectedDebtVariant ?? 'soft';
 $selectedGaugeVariant = $selectedGaugeVariant ?? 'semicircle';
+$selectedMovementVariant = $selectedMovementVariant ?? 'feed';
 $debtVariantAction = static function (string $variant, string $selectedDebtVariant): string {
     ob_start();
     ?>
@@ -16,6 +17,21 @@ $debtVariantAction = static function (string $variant, string $selectedDebtVaria
         <input type="hidden" name="variant_key" value="<?= esc($variant) ?>">
         <button type="submit" class="btn btn-sm <?= $selectedDebtVariant === $variant ? 'btn-success' : 'btn-outline-primary' ?>">
             <?= $selectedDebtVariant === $variant ? 'Activo en Home' : 'Usar en Home' ?>
+        </button>
+    </form>
+    <?php
+    return ob_get_clean();
+};
+$movementVariantAction = static function (string $variant, string $selectedMovementVariant): string {
+    ob_start();
+    ?>
+    <form method="post" action="<?= base_url('admin/catalogo-tarjetas/componente') ?>" class="catalog-component-action">
+        <?= csrf_field() ?>
+        <input type="hidden" name="screen_key" value="grupo_show">
+        <input type="hidden" name="component_key" value="group_movement_card">
+        <input type="hidden" name="variant_key" value="<?= esc($variant) ?>">
+        <button type="submit" class="btn btn-sm <?= $selectedMovementVariant === $variant ? 'btn-success' : 'btn-outline-primary' ?>">
+            <?= $selectedMovementVariant === $variant ? 'Activo en Grupo' : 'Usar en Grupo' ?>
         </button>
     </form>
     <?php
@@ -265,9 +281,9 @@ $gaugeVariantAction = static function (string $variant, string $selectedGaugeVar
     <section class="catalog-section">
         <div class="catalog-section-head"><div><h5>Movimiento de grupo</h5><p>Usado dentro del detalle del grupo. Tiene que filtrar, listar y diferenciar gasto/pago.</p></div><span class="badge bg-info text-dark">Movimiento</span></div>
         <div class="catalog-grid">
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Timeline</span><small>Fecha como gu&iacute;a</small></div><div class="dash-card catalog-preview-card catalog-timeline"><div class="dash-card-body"><div class="catalog-timeline-item"><span></span><div><strong>Alquiler</strong><div class="text-muted small">01/04 &middot; Fernando</div></div><b class="text-primary"><?= moneda(85000) ?></b></div><div class="catalog-timeline-item"><span></span><div><strong>Pago</strong><div class="text-muted small">05/04 &middot; Antonella</div></div><b class="text-success"><?= moneda(42500) ?></b></div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Feed</span><small>Como reportes</small></div><div class="card report-card catalog-preview-card"><div class="card-header d-flex justify-content-between align-items-center"><h6 class="fw-bold mb-0">Movimientos</h6><button type="button" class="btn btn-primary feed-filter-btn" aria-label="Filtros"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .39.812L10 7.3V13.5a.5.5 0 0 1-.724.447l-3-1.5A.5.5 0 0 1 6 12V7.3L1.61 1.812A.5.5 0 0 1 1.5 1.5z"/></svg></button></div><div class="card-body report-movement-list"><a href="#" class="report-movement-link"><div class="report-movement-card report-movement-expense catalog-border-primary"><div class="catalog-card-top"><span><span class="badge bg-primary">Gasto</span> Alquiler</span><b class="text-primary"><?= moneda(85000) ?></b></div><div class="text-muted small">01/04/2026 &middot; Fernando</div></div></a></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Por usuario</span><small>Color de pagador</small></div><div class="report-movement-list catalog-list-preview"><a href="#" class="report-movement-link"><div class="report-movement-card catalog-user-fer"><div class="catalog-card-top"><span><span class="catalog-user-dot catalog-user-dot-fer"></span>Fernando &middot; Gasto</span><b class="text-primary"><?= moneda(6000) ?></b></div><div class="text-muted small">Gasto chico</div></div></a><a href="#" class="report-movement-link"><div class="report-movement-card catalog-user-anto"><div class="catalog-card-top"><span><span class="catalog-user-dot catalog-user-dot-anto"></span>Antonella &middot; Pago</span><b class="text-success"><?= moneda(5000) ?></b></div><div class="text-muted small">Pago parcial</div></div></a></div></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Feed</span><small>Como reportes</small></div><?= view('components/cards/movimiento', ['variant' => 'feed', 'tipo' => 'gasto', 'descripcion' => 'Alquiler', 'monto' => 85000, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Vivienda']) ?><?= $movementVariantAction('feed', $selectedMovementVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Por usuario</span><small>Color de pagador</small></div><div class="report-movement-list catalog-list-preview"><?= view('components/cards/movimiento', ['variant' => 'user_color', 'wrap' => false, 'tipo' => 'gasto', 'descripcion' => 'Gasto chico', 'monto' => 6000, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Otros']) ?><?= view('components/cards/movimiento', ['variant' => 'user_color', 'wrap' => false, 'tipo' => 'pago', 'descripcion' => 'Pago parcial', 'monto' => 5000, 'fecha' => $fechaDemo, 'persona' => 'Antonella']) ?></div><?= $movementVariantAction('user_color', $selectedMovementVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Compacto</span><small>Listado denso</small></div><?= view('components/cards/movimiento', ['variant' => 'compact', 'tipo' => 'gasto', 'descripcion' => 'Supermercado mensual', 'monto' => 45200, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Supermercado']) ?><?= $movementVariantAction('compact', $selectedMovementVariant) ?></article>
         </div>
     </section>
 

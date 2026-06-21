@@ -11,6 +11,7 @@ class UiComponentResolver
     public const SCREEN_GROUP_SHOW = 'grupo_show';
     public const COMPONENT_DEBT_CARD = 'debt_card';
     public const COMPONENT_GROUP_GAUGE = 'group_gauge';
+    public const COMPONENT_GROUP_MOVEMENT_CARD = 'group_movement_card';
 
     private const DEFAULT_VARIANTS = [
         self::SCREEN_HOME => [
@@ -18,6 +19,7 @@ class UiComponentResolver
         ],
         self::SCREEN_GROUP_SHOW => [
             self::COMPONENT_GROUP_GAUGE => 'semicircle',
+            self::COMPONENT_GROUP_MOVEMENT_CARD => 'feed',
         ],
     ];
 
@@ -38,6 +40,11 @@ class UiComponentResolver
                 'segmented_donut',
                 'clean_arc',
                 'milestone_ring',
+            ],
+            self::COMPONENT_GROUP_MOVEMENT_CARD => [
+                'feed',
+                'user_color',
+                'compact',
             ],
         ],
     ];
