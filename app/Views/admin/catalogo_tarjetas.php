@@ -589,7 +589,17 @@ $tablerItemCount = static function (array $section): int {
             </section>
         <?php else: ?>
             <?php $section = $activeTablerSectionIndex !== null ? ($tablerCatalog[$activeTablerSectionIndex] ?? null) : null; ?>
-            <?php if ($section): ?>
+            <?php if (!$section): ?>
+                <section class="catalog-section">
+                    <div class="catalog-section-head">
+                        <div>
+                            <h5>Categor&iacute;a no encontrada</h5>
+                            <p>Volv&eacute; al &iacute;ndice Tabler para elegir una categor&iacute;a disponible.</p>
+                        </div>
+                        <a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/catalogo-tarjetas/tabler') ?>">Volver a Tabler</a>
+                    </div>
+                </section>
+            <?php else: ?>
                 <section class="catalog-section">
                     <div class="catalog-section-head">
                         <div>
