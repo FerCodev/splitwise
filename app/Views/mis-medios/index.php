@@ -26,62 +26,31 @@
                 </div>
             </div>
         <?php else: ?>
-            <div class="row g-3">
-                <?php foreach ($medios as $m): ?>
+            <div class="row g-3">                <?php foreach ($medios as $m): ?>
                     <div class="col-12">
                         <div class="payment-bank-card <?= $m['activo'] ? '' : 'payment-bank-card-inactive' ?>">
-                            <div class="payment-bank-card-top payment-bank-card-controls">
-                                <span class="badge <?= $m['activo'] ? 'bg-light text-dark' : 'bg-danger' ?> flex-shrink-0"><?= $m['activo'] ? 'Activo' : 'Inactivo' ?></span>
-                                <?php if (!$m['favorito']): ?>
-                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
-                                        <?= csrf_field() ?>
-                                        <button type="submit" class="payment-bank-fav" aria-label="Marcar como favorito" title="Marcar como favorito">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.806-3.536 1.816.67-3.808a.52.52 0 0 0-.15-.467L1.44 6.721l3.878-.55a.52.52 0 0 0 .393-.288L8 2.223l2.29 3.66a.52.52 0 0 0 .393.288l3.878.55-3.315 3.148a.52.52 0 0 0-.15.467l.67 3.808-3.536-1.816a.52.52 0 0 0-.458 0z"/></svg>
-                                        </button>
-                                    </form>
-                                <?php else: ?>
-                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
-                                        <?= csrf_field() ?>
-                                        <button type="submit" class="payment-bank-fav payment-bank-fav-active" aria-label="Quitar favorito" title="Quitar favorito">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
-                                        </button>
-                                    </form>
-                                <?php endif; ?>
-
-                                <div class="dropdown">
-                                    <button type="button" class="payment-bank-gear" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones del medio de cobro" title="Acciones">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8.932.727c-.243-.97-1.621-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.621 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.621.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.621 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434L8.932.727zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
-                                    </button>
-                                    <div class="dropdown-menu dropdown-menu-end payment-bank-menu">
-                                        <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="dropdown-item">Editar</a>
-                                        <?php if ($m['activo']): ?>
-                                            <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" id="toggle-medio-<?= $m['id'] ?>">
-                                                <?= csrf_field() ?>
-                                                <button type="button" class="dropdown-item text-warning"
-                                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                    data-confirm-title="Desactivar medio"
-                                                    data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n de pago."
-                                                    data-confirm-btn="Desactivar"
-                                                    data-confirm-form="toggle-medio-<?= $m['id'] ?>">Desactivar</button>
-                                            </form>
-                                        <?php else: ?>
-                                            <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post">
-                                                <?= csrf_field() ?>
-                                                <button type="submit" class="dropdown-item text-success">Activar</button>
-                                            </form>
-                                        <?php endif; ?>
-                                        <div class="dropdown-divider"></div>
-                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" id="delete-medio-<?= $m['id'] ?>">
+                            <div class="payment-bank-card-top">
+                                <div class="payment-bank-name text-truncate"><?= esc($m['nombre'] ?? $m['tipo']) ?></div>
+                                <div class="payment-bank-controls">
+                                    <span class="badge <?= $m['activo'] ? 'bg-light text-dark' : 'bg-danger' ?> flex-shrink-0"><?= $m['activo'] ? 'Activo' : 'Inactivo' ?></span>
+                                    <?php if (!$m['favorito']): ?>
+                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
                                             <?= csrf_field() ?>
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <button type="button" class="dropdown-item text-danger"
-                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                data-confirm-title="Eliminar medio"
-                                                data-confirm-msg="Se eliminar&aacute; este medio de cobro. Los pagos ya registrados no se modifican."
-                                                data-confirm-btn="Eliminar"
-                                                data-confirm-form="delete-medio-<?= $m['id'] ?>">Eliminar</button>
+                                            <button type="submit" class="payment-bank-fav" aria-label="Marcar como favorito" title="Marcar como favorito">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.806-3.536 1.816.67-3.808a.52.52 0 0 0-.15-.467L1.44 6.721l3.878-.55a.52.52 0 0 0 .393-.288L8 2.223l2.29 3.66a.52.52 0 0 0 .393.288l3.878.55-3.315 3.148a.52.52 0 0 0-.15.467l.67 3.808-3.536-1.816a.52.52 0 0 0-.458 0z"/></svg>
+                                            </button>
                                         </form>
-                                    </div>
+                                    <?php else: ?>
+                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
+                                            <?= csrf_field() ?>
+                                            <button type="submit" class="payment-bank-fav payment-bank-fav-active" aria-label="Quitar favorito" title="Quitar favorito">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="payment-bank-gear" aria-label="Configurar medio de cobro" title="Configurar">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.43 12.98c.04-.32.07-.65.07-.98s-.02-.66-.07-.98l2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.6-.22l-2.49 1a7.37 7.37 0 0 0-1.69-.98L14.5 2.42A.5.5 0 0 0 14 2h-4a.5.5 0 0 0-.5.42L9.12 5.07c-.61.24-1.18.57-1.69.98l-2.49-1a.5.5 0 0 0-.6.22l-2 3.46a.5.5 0 0 0 .12.64l2.11 1.65c-.04.32-.07.65-.07.98s.02.66.07.98l-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.13.22.39.31.6.22l2.49-1c.51.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.24 1.18-.57 1.69-.98l2.49 1c.22.09.48 0 .6-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z"/></svg>
+                                    </a>
                                 </div>
                             </div>
 

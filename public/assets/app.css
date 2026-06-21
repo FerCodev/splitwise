@@ -1617,6 +1617,7 @@ body {
 }
 .payment-bank-card-top,
 .payment-bank-status,
+.payment-bank-controls,
 .payment-bank-copy {
     display: flex;
     align-items: center;
@@ -1631,6 +1632,17 @@ body {
     justify-content: flex-end;
 }
 .payment-bank-card-controls {
+    justify-content: flex-end;
+}
+.payment-bank-name {
+    min-width: 0;
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+.payment-bank-controls {
+    flex-shrink: 0;
+    flex-wrap: wrap;
     justify-content: flex-end;
 }
 .payment-bank-label {
@@ -1727,21 +1739,9 @@ body {
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 .payment-bank-gear:hover,
-.payment-bank-gear:focus,
-.payment-bank-gear[aria-expanded="true"] {
+.payment-bank-gear:focus {
     color: #fff;
     background: rgba(255, 255, 255, 0.24);
-}
-.payment-bank-menu {
-    min-width: 180px;
-    border: 0;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md);
-    padding: 8px;
-}
-.payment-bank-menu .dropdown-item {
-    border-radius: var(--radius-sm);
-    font-weight: 700;
 }
 
 /* --- Admin card catalog --- */
