@@ -4,9 +4,32 @@
 <?php
 $fechaDemo = '2026-04-15';
 $fechaCorta = date('d/m/Y', strtotime($fechaDemo));
+$selectedGaugeVariant = $selectedGaugeVariant ?? 'semicircle';
+$gaugeVariantAction = static function (string $variant, string $selectedGaugeVariant): string {
+    ob_start();
+    ?>
+    <form method="post" action="<?= base_url('admin/catalogo-tarjetas/componente') ?>" class="catalog-component-action">
+        <?= csrf_field() ?>
+        <input type="hidden" name="screen_key" value="grupo_show">
+        <input type="hidden" name="component_key" value="group_gauge">
+        <input type="hidden" name="variant_key" value="<?= esc($variant) ?>">
+        <button type="submit" class="btn btn-sm <?= $selectedGaugeVariant === $variant ? 'btn-success' : 'btn-outline-primary' ?>">
+            <?= $selectedGaugeVariant === $variant ? 'Activo en Grupo' : 'Usar en Grupo' ?>
+        </button>
+    </form>
+    <?php
+    return ob_get_clean();
+};
 ?>
 
 <div class="container catalog-page mt-3 mt-md-4 pb-4">
+    <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+    <?php endif; ?>
+    <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+    <?php endif; ?>
+
     <div class="catalog-hero mb-4">
         <div>
             <p class="catalog-kicker mb-1">Administraci&oacute;n visual</p>
@@ -238,13 +261,13 @@ $fechaCorta = date('d/m/Y', strtotime($fechaDemo));
             <article class="catalog-variant"><div class="catalog-variant-meta"><span>KPI simple</span><small>Monto protagonista</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body"><div class="balance-strip-label">Total filtrado</div><div class="balance-strip-amount text-primary"><?= moneda(898212) ?></div><div class="text-muted small">Suma de gastos filtrados</div></div></div></article>
             <article class="catalog-variant"><div class="catalog-variant-meta"><span>Balance detallado</span><small>Cuatro datos</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body catalog-metric-grid"><div><small>Total</small><b><?= moneda(1563723) ?></b></div><div><small>Vos pagaste</small><b class="text-success"><?= moneda(898212) ?></b></div><div><small>Tu parte</small><b><?= moneda(781862) ?></b></div><div><small>Saldo</small><b class="text-success"><?= moneda(116351) ?></b></div></div></div></article>
             <article class="catalog-variant"><div class="catalog-variant-meta"><span>Comparativo</span><small>Gastos vs pagos</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body"><div class="catalog-compare"><div><span class="status-dot status-dot-danger"></span><small>Gastos</small><b><?= moneda(1630862) ?></b></div><div><span class="status-dot status-dot-active"></span><small>Pagos</small><b><?= moneda(830001) ?></b></div></div><div class="catalog-total-line mt-3"><span>Saldo</span><b class="text-success"><?= moneda(0) ?> saldado</b></div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Veloc&iacute;metro actual</span><small>Aguja semicircular</small></div><div class="group-spend-gauge" style="--gauge-angle: 9deg;"><div class="group-spend-gauge-copy"><span>Tu aporte al gasto</span><strong>55%</strong></div><div class="group-spend-gauge-meter" aria-label="Vos pagaste 55% del total gastado del grupo"><div class="group-spend-gauge-arc"></div><div class="group-spend-gauge-needle"></div><div class="group-spend-gauge-hub"></div></div><div class="group-spend-gauge-scale"><span><?= moneda(0) ?></span><span><?= moneda(1563723) ?></span></div><div class="group-spend-gauge-detail"><span>Vos pagaste <?= moneda(860000) ?></span><span>Total grupo <?= moneda(1563723) ?></span></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Dial compacto</span><small>Score central</small></div><div class="catalog-gauge-dial" style="--gauge-percent: 55%;"><div class="catalog-gauge-dial-ring"><div><strong>55%</strong><span>del total</span></div></div><div class="catalog-card-top mt-3"><span class="text-muted small">Vos pagaste</span><b class="text-primary"><?= moneda(860000) ?></b></div><div class="catalog-card-top"><span class="text-muted small">Total grupo</span><b><?= moneda(1563723) ?></b></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Barra de escala</span><small>Lectura horizontal</small></div><div class="catalog-gauge-bar"><div class="catalog-card-top"><div><span class="text-muted small d-block">Tu aporte al gasto</span><strong>55%</strong></div><b class="text-primary"><?= moneda(860000) ?></b></div><div class="catalog-gauge-bar-track"><span style="width: 55%;"></span><i style="left: 55%;"></i></div><div class="group-spend-gauge-scale"><span><?= moneda(0) ?></span><span><?= moneda(1563723) ?></span></div><div class="text-muted small mt-2">La escala completa representa el total gastado del grupo.</div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Arco por tramos</span><small>Escala 0/25/50/75/100</small></div><div class="catalog-gauge-segmented" style="--gauge-angle: 9deg;"><div class="catalog-card-top"><span class="text-muted small">Aporte sobre total</span><b>55%</b></div><div class="catalog-gauge-segmented-meter"><div class="catalog-gauge-segmented-arc"></div><div class="catalog-gauge-segmented-needle"></div><div class="catalog-gauge-segmented-hub"></div></div><div class="catalog-gauge-ticks"><span><?= moneda(0) ?></span><span><?= moneda(390931) ?></span><span><?= moneda(781862) ?></span><span><?= moneda(1172792) ?></span><span><?= moneda(1563723) ?></span></div><div class="catalog-gauge-zone-labels"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Dona segmentada</span><small>Dial con zonas de color</small></div><div class="catalog-gauge-donut"><div class="catalog-gauge-donut-ring"><div><strong>55%</strong><span><?= moneda(860000) ?></span></div></div><div class="catalog-gauge-donut-scale"><span><?= moneda(0) ?></span><span><?= moneda(781862) ?></span><span><?= moneda(1563723) ?></span></div><div class="catalog-gauge-zone-labels"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Medialuna limpia</span><small>Escala numerada amplia</small></div><div class="catalog-gauge-clean-arc" style="--gauge-angle: 9deg;"><div class="catalog-gauge-clean-scale"><span><?= moneda(0) ?></span><span><?= moneda(781862) ?></span><span><?= moneda(1563723) ?></span></div><div class="catalog-gauge-clean-meter"><div class="catalog-gauge-clean-band"></div><div class="catalog-gauge-clean-needle"></div></div><div class="text-center"><strong class="text-primary">55%</strong><div class="text-muted small">Vos pagaste <?= moneda(860000) ?></div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Aro con hitos</span><small>Importes clave visibles</small></div><div class="catalog-gauge-milestone"><div class="catalog-gauge-milestone-head"><div><span class="text-muted small d-block">Aporte actual</span><strong>55%</strong></div><b class="text-primary"><?= moneda(860000) ?></b></div><div class="catalog-gauge-milestone-ring"><div><span><?= moneda(0) ?></span><span><?= moneda(390931) ?></span><span><?= moneda(781862) ?></span><span><?= moneda(1172792) ?></span><span><?= moneda(1563723) ?></span></div></div></div></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Veloc&iacute;metro actual</span><small>Aguja semicircular</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'semicircle', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('semicircle', $selectedGaugeVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Dial compacto</span><small>Score central</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'compact_dial', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('compact_dial', $selectedGaugeVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Barra de escala</span><small>Lectura horizontal</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'scale_bar', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('scale_bar', $selectedGaugeVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Arco por tramos</span><small>Escala 0/25/50/75/100</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'segmented_arc', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('segmented_arc', $selectedGaugeVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Dona segmentada</span><small>Dial con zonas de color</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'segmented_donut', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('segmented_donut', $selectedGaugeVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Medialuna limpia</span><small>Escala numerada amplia</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'clean_arc', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('clean_arc', $selectedGaugeVariant) ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Aro con hitos</span><small>Importes clave visibles</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'milestone_ring', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('milestone_ring', $selectedGaugeVariant) ?></article>
         </div>
     </section>
 

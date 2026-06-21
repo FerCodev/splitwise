@@ -2025,6 +2025,12 @@ body {
     color: var(--muted);
     text-align: right;
 }
+.catalog-component-action {
+    margin-top: 12px;
+}
+.catalog-component-action .btn {
+    width: 100%;
+}
 .catalog-preview-card,
 .catalog-list-preview {
     min-height: 178px;
