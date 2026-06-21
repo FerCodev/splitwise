@@ -58,6 +58,11 @@ $screens = [
         'description' => 'Tarjeta del medio favorito, datos copiables y configuraci&oacute;n.',
         'badge' => '1 componente',
     ],
+    'tabler' => [
+        'title' => 'Tabler',
+        'description' => 'Ejemplos inspirados en Tabler para evaluar una librer&iacute;a visual externa.',
+        'badge' => '4 ejemplos',
+    ],
     'propuestas' => [
         'title' => 'Propuestas',
         'description' => 'Ideas visuales que todav&iacute;a no est&aacute;n conectadas a pantallas reales.',
@@ -229,18 +234,14 @@ $catalog = [
     ],
 ];
 
+$tablerExamples = [
+    ['name' => 'Stat card', 'hint' => 'M&eacute;trica compacta con tendencia.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg></span><span class="badge bg-success-subtle text-success">+12%</span></div><div class="tabler-proposal-label">Total del mes</div><div class="tabler-proposal-value">' . moneda(1563723) . '</div><div class="text-muted small">58 movimientos cargados</div></div>'],
+    ['name' => 'Grupo dashboard', 'hint' => 'Card limpia con acciones.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Grupo activo</div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-balance text-danger">' . moneda(112697) . ' debe</div><div class="tabler-proposal-progress"><span style="width: 62%;"></span></div><div class="tabler-proposal-actions"><button class="btn btn-outline-primary btn-sm" type="button">Entrar</button><button class="btn btn-primary btn-sm" type="button">+ Gasto</button></div></div>'],
+    ['name' => 'Lista operativa', 'hint' => 'Movimientos tipo timeline.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-dot bg-primary"></span><div><strong>Supermercado</strong><small>Fernando &middot; Gasto</small></div><b class="text-primary">' . moneda(45200) . '</b></div><div><span class="tabler-proposal-dot bg-success"></span><div><strong>Pago parcial</strong><small>Antonella &middot; Pago</small></div><b class="text-success">' . moneda(30000) . '</b></div><div><span class="tabler-proposal-dot bg-danger"></span><div><strong>Saldo pendiente</strong><small>Junio &middot; Deuda</small></div><b class="text-danger">' . moneda(12600) . '</b></div></div></div>'],
+    ['name' => 'Medio mini', 'hint' => 'Medio de cobro con datos copiables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Mercado Pago</div><div class="text-muted small">Favorito</div></div><span class="tabler-proposal-icon tabler-proposal-icon-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span></div><div class="tabler-proposal-copy"><span>Alias</span><strong>fernando.montesdeoca</strong></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div></div>'],
+];
+
 $proposals = [
-    [
-        'title' => 'Tabler',
-        'description' => 'Componentes inspirados en Tabler, pensado para evaluar un estilo dashboard m&aacute;s integral antes de instalar la librer&iacute;a completa.',
-        'label' => 'Ejemplo Tabler',
-        'items' => [
-            ['name' => 'Stat card', 'hint' => 'M&eacute;trica compacta con tendencia.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg></span><span class="badge bg-success-subtle text-success">+12%</span></div><div class="tabler-proposal-label">Total del mes</div><div class="tabler-proposal-value">' . moneda(1563723) . '</div><div class="text-muted small">58 movimientos cargados</div></div>'],
-            ['name' => 'Grupo dashboard', 'hint' => 'Card limpia con acciones.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Grupo activo</div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-balance text-danger">' . moneda(112697) . ' debe</div><div class="tabler-proposal-progress"><span style="width: 62%;"></span></div><div class="tabler-proposal-actions"><button class="btn btn-outline-primary btn-sm" type="button">Entrar</button><button class="btn btn-primary btn-sm" type="button">+ Gasto</button></div></div>'],
-            ['name' => 'Lista operativa', 'hint' => 'Movimientos tipo timeline.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-dot bg-primary"></span><div><strong>Supermercado</strong><small>Fernando · Gasto</small></div><b class="text-primary">' . moneda(45200) . '</b></div><div><span class="tabler-proposal-dot bg-success"></span><div><strong>Pago parcial</strong><small>Antonella · Pago</small></div><b class="text-success">' . moneda(30000) . '</b></div><div><span class="tabler-proposal-dot bg-danger"></span><div><strong>Saldo pendiente</strong><small>Junio · Deuda</small></div><b class="text-danger">' . moneda(12600) . '</b></div></div></div>'],
-            ['name' => 'Medio mini', 'hint' => 'Medio de cobro con datos copiables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Mercado Pago</div><div class="text-muted small">Favorito</div></div><span class="tabler-proposal-icon tabler-proposal-icon-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span></div><div class="tabler-proposal-copy"><span>Alias</span><strong>fernando.montesdeoca</strong></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div></div>'],
-        ],
-    ],
     [
         'title' => 'Grupo cerrado',
         'description' => 'Opciones visuales para historial de grupos. Todav&iacute;a no est&aacute;n conectadas al selector.',
@@ -317,6 +318,28 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
                         </div>
                         <small><?= $screen['badge'] ?></small>
                     </a>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php elseif ($activeScreen === 'tabler'): ?>
+        <section class="catalog-section">
+            <div class="catalog-section-head">
+                <div>
+                    <h5>Ejemplos Tabler</h5>
+                    <p>Patrones visuales inspirados en Tabler. Est&aacute;n separados de Propuestas para evaluar esa librer&iacute;a sin mezclarlos con dise&ntilde;os propios.</p>
+                </div>
+                <span class="badge bg-primary">Tabler</span>
+            </div>
+            <div class="catalog-grid">
+                <?php foreach ($tablerExamples as $item): ?>
+                    <article class="catalog-variant">
+                        <div class="catalog-variant-meta">
+                            <span><?= $item['name'] ?></span>
+                            <small><?= $item['hint'] ?></small>
+                        </div>
+                        <div class="catalog-source-badge">Ejemplo Tabler</div>
+                        <?= $item['render']() ?>
+                    </article>
                 <?php endforeach; ?>
             </div>
         </section>
