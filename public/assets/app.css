@@ -1898,6 +1898,23 @@ body {
     letter-spacing: 0;
     font-variant-numeric: tabular-nums;
 }
+.catalog-bank-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.36);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    color: #fbbf24;
+    padding: 0;
+}
+.catalog-bank-fav:hover,
+.catalog-bank-fav:focus {
+    color: #fcd34d;
+    background: rgba(255, 255, 255, 0.24);
+}
 
 @media (max-width: 991.98px) {
     .catalog-grid {
