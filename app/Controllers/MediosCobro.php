@@ -155,16 +155,23 @@ class MediosCobro extends BaseController
     {
         $model = new UserPaymentMethod();
         $medio = $model->find($id);
+        $userId = (int) session()->get('userId');
 
-        if (!$medio || (int) $medio['user_id'] !== (int) session()->get('userId')) {
+        if (!$medio || (int) $medio['user_id'] !== $userId) {
             return redirect()->to('/mis-medios-de-cobro')->with('error', 'Medio no encontrado.');
+        }
+
+        if ((int) $medio['favorito']) {
+            $model->quitarFavorito($id, $userId);
+
+            return redirect()->to('/mis-medios-de-cobro')->with('success', 'Favorito quitado correctamente.');
         }
 
         if (!(int) $medio['activo']) {
             return redirect()->to('/mis-medios-de-cobro')->with('error', 'Solo se puede marcar como favorito un medio activo.');
         }
 
-        $model->marcarFavorito($id, session()->get('userId'));
+        $model->marcarFavorito($id, $userId);
 
         return redirect()->to('/mis-medios-de-cobro')->with('success', 'Favorito actualizado correctamente.');
     }

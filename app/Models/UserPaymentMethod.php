@@ -33,4 +33,12 @@ class UserPaymentMethod extends Model
         $this->update($id, ['favorito' => 1]);
     }
 
+    public function quitarFavorito(int $id, int $userId): void
+    {
+        $this->where('id', $id)
+            ->where('user_id', $userId)
+            ->set(['favorito' => 0])
+            ->update();
+    }
+
 }
