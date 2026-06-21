@@ -63,6 +63,11 @@ $screens = [
         'description' => 'Propuestas para la pantalla de inicio de sesi&oacute;n.',
         'badge' => '6 propuestas',
     ],
+    'disenos' => [
+        'title' => 'Dise&ntilde;os app',
+        'description' => '100 propuestas visuales para pantallas, navegaci&oacute;n y componentes globales.',
+        'badge' => '100 propuestas',
+    ],
     'tabler' => [
         'title' => 'Tabler',
         'description' => 'Subcat&aacute;logo inspirado en Tabler para evaluar una librer&iacute;a visual externa.',
@@ -603,6 +608,8 @@ $tablerItemCount = static function (array $section): int {
                 <?php endforeach; ?>
             </div>
         </section>
+    <?php elseif ($activeScreen === 'disenos'): ?>
+        <?= view('admin/_catalogo_disenos') ?>
     <?php elseif ($activeScreen === 'login'): ?>
         <section class="catalog-section">
             <div class="catalog-section-head">
