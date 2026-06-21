@@ -58,6 +58,11 @@ $screens = [
         'description' => 'Tarjeta del medio favorito, datos copiables y configuraci&oacute;n.',
         'badge' => '1 componente',
     ],
+    'login' => [
+        'title' => 'Login',
+        'description' => 'Propuestas para la pantalla de inicio de sesi&oacute;n.',
+        'badge' => '6 propuestas',
+    ],
     'tabler' => [
         'title' => 'Tabler',
         'description' => 'Subcat&aacute;logo inspirado en Tabler para evaluar una librer&iacute;a visual externa.',
@@ -231,6 +236,39 @@ $catalog = [
                 ['key' => 'favorite', 'name' => 'Favorita destacada', 'hint' => 'Medio principal.', 'render' => static fn () => view('components/cards/medio_cobro', ['variant' => 'favorite', 'nombre' => 'Mercado Pago', 'activo' => true, 'favorito' => true, 'titular' => 'Fernando', 'alias' => 'fer.mp'])],
             ],
         ],
+    ],
+];
+
+$loginProposals = [
+    [
+        'name' => 'Centrada limpia',
+        'hint' => 'Formulario directo con marca y foco en ingresar.',
+        'render' => static fn () => '<div class="login-preview login-preview-centered"><div class="login-preview-card"><div class="login-preview-brand"><span>S</span><strong>SplitWise</strong></div><label>Email</label><div class="login-preview-input">fernando@email.com</div><label>Contrase&ntilde;a</label><div class="login-preview-input login-preview-password">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div><button class="btn btn-primary w-100" type="button">Ingresar</button><a href="#">Olvid&eacute; mi contrase&ntilde;a</a></div></div>',
+    ],
+    [
+        'name' => 'Panel dividido',
+        'hint' => 'Ideal para desktop, con contexto de la app.',
+        'render' => static fn () => '<div class="login-preview login-preview-split"><div class="login-preview-side"><span>Control&aacute; gastos compartidos</span><strong>Grupos, pagos y saldos en un solo lugar.</strong><small>Entr&aacute; y carg&aacute; tu pr&oacute;ximo gasto en pocos toques.</small></div><div class="login-preview-card"><strong>Iniciar sesi&oacute;n</strong><div class="login-preview-input">Email</div><div class="login-preview-input">Contrase&ntilde;a</div><button class="btn btn-primary w-100" type="button">Ingresar</button></div></div>',
+    ],
+    [
+        'name' => 'Mobile primero',
+        'hint' => 'Tarjeta amplia y controles c&oacute;modos.',
+        'render' => static fn () => '<div class="login-preview login-preview-mobile"><div class="login-preview-phone"><div class="login-preview-brand"><span>S</span><strong>SplitWise</strong></div><p>Ingres&aacute; para ver tus grupos activos.</p><div class="login-preview-input">Email</div><div class="login-preview-input">Contrase&ntilde;a</div><button class="btn btn-primary w-100" type="button">Ingresar</button><button class="btn btn-light w-100" type="button">Recuperar acceso</button></div></div>',
+    ],
+    [
+        'name' => 'Segura compacta',
+        'hint' => 'Mensaje de seguridad visible sin ocupar demasiado.',
+        'render' => static fn () => '<div class="login-preview login-preview-secure"><div class="login-preview-card"><div class="login-preview-alert"><strong>Acceso seguro</strong><small>Tus datos se validan antes de entrar.</small></div><div class="login-preview-input">Email</div><div class="login-preview-input login-preview-password">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div><button class="btn btn-primary w-100" type="button">Ingresar</button></div></div>',
+    ],
+    [
+        'name' => 'Resumen operativo',
+        'hint' => 'Muestra qu&eacute; podr&aacute; hacer el usuario al entrar.',
+        'render' => static fn () => '<div class="login-preview login-preview-summary"><div class="login-preview-card"><strong>Bienvenido</strong><div class="login-preview-mini-list"><span>Grupos activos</span><span>Pagos pendientes</span><span>Medios de cobro</span></div><div class="login-preview-input">Email</div><div class="login-preview-input">Contrase&ntilde;a</div><button class="btn btn-primary w-100" type="button">Ingresar</button></div></div>',
+    ],
+    [
+        'name' => 'Sobria admin',
+        'hint' => 'Más neutra, con estética de panel interno.',
+        'render' => static fn () => '<div class="login-preview login-preview-admin"><div class="login-preview-card"><div class="login-preview-kicker">SplitWise</div><strong>Acceso a la cuenta</strong><div class="login-preview-input">usuario@dominio.com</div><div class="login-preview-input">Contrase&ntilde;a</div><div class="login-preview-actions"><button class="btn btn-primary" type="button">Ingresar</button><button class="btn btn-outline-secondary" type="button">Ayuda</button></div></div></div>',
     ],
 ];
 
@@ -562,6 +600,28 @@ $tablerItemCount = static function (array $section): int {
                         </div>
                         <small><?= $screen['badge'] ?></small>
                     </a>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php elseif ($activeScreen === 'login'): ?>
+        <section class="catalog-section">
+            <div class="catalog-section-head">
+                <div>
+                    <h5>Pantallas de login</h5>
+                    <p>Propuestas visuales para evaluar antes de aplicar cambios al inicio de sesi&oacute;n real.</p>
+                </div>
+                <span class="badge bg-secondary">Propuesta</span>
+            </div>
+            <div class="catalog-grid catalog-login-grid">
+                <?php foreach ($loginProposals as $proposal): ?>
+                    <article class="catalog-variant">
+                        <div class="catalog-variant-meta">
+                            <span><?= $proposal['name'] ?></span>
+                            <small><?= $proposal['hint'] ?></small>
+                        </div>
+                        <div class="catalog-source-badge">Login</div>
+                        <?= $proposal['render']() ?>
+                    </article>
                 <?php endforeach; ?>
             </div>
         </section>
