@@ -120,14 +120,16 @@
                         }
                     ?>
                     <div class="mb-3 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="text-muted small">Pagado por</span>
-                            <span class="fw-medium" id="pagadorLabel"><?= esc($pagadorNombre) ?></span>
+                        <div class="expense-payer-card">
+                            <div class="expense-payer-main">
+                                <span class="expense-payer-label">Pagado por</span>
+                                <span class="expense-payer-name" id="pagadorLabel"><?= esc($pagadorNombre) ?></span>
+                            </div>
                             <?php if (!$pagadorBloqueado && isset($miembros) && count($miembros) > 0): ?>
-                                <button type="button" class="btn btn-sm btn-secondary py-0 px-2" id="cambiarPagadorBtn" onclick="document.getElementById('pagadorSelect').classList.toggle('d-none');this.classList.toggle('d-none')">Cambiar</button>
+                                <button type="button" class="expense-payer-change" id="cambiarPagadorBtn" onclick="mostrarSelectorPagador()">Cambiar</button>
                             <?php endif; ?>
                         </div>
-                        <select class="form-select form-select-sm mt-1 d-none" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?> onchange="pagadorSeleccionado(this)">
+                        <select class="form-select form-select-sm mt-2 d-none expense-payer-select" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?> onchange="pagadorSeleccionado(this)">
                             <option value="">Seleccionar</option>
                             <?php foreach ($miembros as $m): ?>
                                 <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
@@ -221,6 +223,15 @@
         var usuarioActualId = '<?= (int) session()->get('userId') ?>';
         var otroMiembroId = '<?= $otroMiembro['user_id'] ?? '' ?>';
         var pagadorBloqueado = <?= (isset($gasto) && $rol !== 'admin') ? 'true' : 'false' ?>;
+
+        function mostrarSelectorPagador() {
+            var pagador = document.getElementById('pagadorSelect');
+            var btn = document.getElementById('cambiarPagadorBtn');
+            if (!pagador || !btn) return;
+            pagador.classList.remove('d-none');
+            btn.classList.add('d-none');
+            pagador.focus();
+        }
 
         function setPagador(uid) {
             var pagador = document.getElementById('pagadorSelect');

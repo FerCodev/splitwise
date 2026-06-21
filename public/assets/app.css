@@ -365,6 +365,72 @@ body {
     font-weight: 600;
     line-height: 1.3;
 }
+.expense-payer-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 58px;
+    padding: 10px 12px;
+    border: 1px solid #dbeafe;
+    border-radius: var(--radius-md);
+    background: #f8fbff;
+}
+.expense-payer-main {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 10px;
+    min-width: 0;
+}
+.expense-payer-main::before {
+    content: "$";
+    grid-row: 1 / span 2;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e7f0ff;
+    color: var(--primary);
+    font-weight: 900;
+}
+.expense-payer-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+.expense-payer-name {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.expense-payer-change {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 6px 12px;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-pill);
+    background: #fff;
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 800;
+}
+.expense-payer-change:hover,
+.expense-payer-change:focus-visible {
+    background: #eaf2ff;
+    color: var(--primary-dark);
+}
+.expense-payer-select {
+    border-color: #bfdbfe;
+    background-color: #f8fbff;
+}
 .more-actions-panel {
     border: 2px solid var(--border-strong);
     border-radius: var(--radius-md);
