@@ -2275,6 +2275,200 @@ body {
     box-shadow: var(--shadow-sm);
     transform: translate(-50%, -50%);
 }
+.catalog-gauge-segmented,
+.catalog-gauge-zones,
+.catalog-gauge-vertical,
+.catalog-gauge-ruler {
+    padding: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: var(--radius-md);
+    background: #f8fbff;
+}
+.catalog-gauge-segmented-meter {
+    position: relative;
+    width: min(100%, 250px);
+    height: 124px;
+    margin: 4px auto 0;
+    overflow: hidden;
+}
+.catalog-gauge-segmented-arc {
+    position: absolute;
+    inset: 8px 8px auto;
+    height: 216px;
+    border-radius: 216px 216px 0 0;
+    background: conic-gradient(from 270deg at 50% 100%, #22c55e 0deg 45deg, #84cc16 45deg 90deg, #f59e0b 90deg 135deg, #dc2626 135deg 180deg, transparent 180deg);
+}
+.catalog-gauge-segmented-arc::after {
+    content: "";
+    position: absolute;
+    left: 30px;
+    right: 30px;
+    bottom: 0;
+    height: 160px;
+    border-radius: 160px 160px 0 0;
+    background: #f8fbff;
+}
+.catalog-gauge-segmented-needle {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 3px;
+    height: 88px;
+    border-radius: var(--radius-pill);
+    background: #111827;
+    transform: translateX(-50%) rotate(var(--gauge-angle));
+    transform-origin: 50% 100%;
+}
+.catalog-gauge-segmented-hub {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 18px;
+    height: 18px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: #111827;
+    transform: translateX(-50%);
+}
+.catalog-gauge-ticks {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 4px;
+    margin-top: -8px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-align: center;
+}
+.catalog-gauge-zone-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+.catalog-gauge-zone-track,
+.catalog-gauge-ruler-track {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 18px;
+    margin: 18px 8px 10px;
+    border-radius: var(--radius-pill);
+    background: #e5e7eb;
+}
+.catalog-gauge-zone-track > span {
+    min-width: 0;
+}
+.catalog-zone-low {
+    border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+    background: #22c55e;
+}
+.catalog-zone-mid {
+    background: #f59e0b;
+}
+.catalog-zone-high {
+    border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+    background: #dc2626;
+}
+.catalog-gauge-zone-track i,
+.catalog-gauge-ruler-track i {
+    position: absolute;
+    top: 50%;
+    width: 22px;
+    height: 22px;
+    border: 4px solid #fff;
+    border-radius: 50%;
+    background: #111827;
+    box-shadow: var(--shadow-sm);
+    transform: translate(-50%, -50%);
+}
+.catalog-gauge-zone-scale,
+.catalog-gauge-ruler-marks {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+.catalog-gauge-zone-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    color: var(--muted);
+}
+.catalog-gauge-vertical {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40px auto;
+    align-items: center;
+    gap: 14px;
+}
+.catalog-gauge-vertical strong,
+.catalog-gauge-vertical b {
+    display: block;
+}
+.catalog-gauge-vertical strong {
+    color: var(--primary);
+    font-size: 28px;
+    line-height: 1.1;
+}
+.catalog-gauge-vertical-meter {
+    position: relative;
+    width: 24px;
+    height: 152px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(180deg, #dc2626 0 25%, #f59e0b 25% 55%, #22c55e 55% 100%);
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+}
+.catalog-gauge-vertical-meter span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.34);
+}
+.catalog-gauge-vertical-meter i {
+    position: absolute;
+    left: 50%;
+    width: 32px;
+    height: 3px;
+    border-radius: var(--radius-pill);
+    background: #111827;
+    transform: translate(-50%, 50%);
+}
+.catalog-gauge-vertical-scale {
+    height: 152px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+}
+.catalog-gauge-ruler-track {
+    display: block;
+    height: 14px;
+    background: linear-gradient(90deg, #22c55e 0 35%, #f59e0b 35% 70%, #dc2626 70% 100%);
+}
+.catalog-gauge-ruler-track span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: rgba(255, 255, 255, 0.42);
+}
+.catalog-gauge-ruler-marks {
+    font-size: 9px;
+}
+.catalog-gauge-ruler-value {
+    margin-top: 10px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 800;
+}
 .catalog-payment-method {
     border-left: 3px solid #16a34a;
 }
