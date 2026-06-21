@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . $grupo['nombre']]) ?>
+﻿<?= view('partials/_head', ['title' => 'SplitWise - ' . $grupo['nombre']]) ?>
 <?= view('partials/_navbar', ['pageTitle' => $grupo['nombre']]) ?>
 
     <div class="container mt-3 mt-md-4">
@@ -16,7 +16,7 @@
             $misDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === (int) session()->get('userId')));
             $deudaPrincipal = $misDeudas[0] ?? null;
             $puedePagarBalance = $miSaldo < 0 && $permisos['puede_crear_pago'] && $deudaPrincipal !== null;
-            $money = static fn($value) => number_format((float) $value, 2, ',', '.');
+
             $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
         ?>
@@ -47,7 +47,7 @@
                     <div class="card-body py-3 text-center">
                         <div class="small text-muted mb-1">Tu balance</div>
                         <div class="fw-bold fs-4 text-danger">
-                            $<?= $money(abs($miSaldo)) ?>
+                            <?= moneda(abs($miSaldo)) ?>
                             <small class="fw-normal fs-6">debe</small>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
                     <div class="card-body py-3 text-center">
                         <div class="small text-muted mb-1">Tu balance</div>
                         <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                            $<?= $money(abs($miSaldo)) ?>
+                            <?= moneda(abs($miSaldo)) ?>
                             <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
                         </div>
                     </div>
@@ -120,25 +120,23 @@
             ?>
             <?php foreach ($movimientos as $m): ?>
                 <?php if ($m['tipo'] === 'gasto'): ?>
-                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="text-decoration-none">
+                <a href="<?= base_url('gastos/' . $m['id']) ?>" class="report-movement-link">
                 <?php else: ?>
-                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="text-decoration-none">
+                <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link">
                 <?php endif; ?>
-                    <div class="card border-0 shadow-sm mb-2 grupo-movimiento-card" style="border-left: 3px solid <?= $m['tipo'] === 'gasto' ? '#2563eb' : '#16a34a' ?>;">
-                        <div class="card-body py-3 px-3">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?> me-1"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
-                                    <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
-                                    <?php if ($m['categoria_nombre']): ?>
-                                        <span class="badge bg-light text-dark ms-1"><?= esc($m['categoria_nombre']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">$<?= $money($m['monto']) ?></span>
+                    <div class="report-movement-card <?= $m['tipo'] === 'gasto' ? 'report-movement-expense' : 'report-movement-payment' ?> mb-2" style="border-left: 3px solid <?= $m['tipo'] === 'gasto' ? '#2563eb' : '#16a34a' ?>;">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div class="min-width-0">
+                                <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?> me-1"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
+                                <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
+                                <?php if ($m['categoria_nombre']): ?>
+                                    <span class="badge bg-light text-dark ms-1"><?= esc($m['categoria_nombre']) ?></span>
+                                <?php endif; ?>
                             </div>
-                            <div class="text-muted small mt-1">
-                                <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
-                            </div>
+                            <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?> text-nowrap"><?= moneda($m['monto']) ?></span>
+                        </div>
+                        <div class="text-muted small mt-1">
+                            <?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?>
                         </div>
                     </div>
                 </a>
@@ -188,13 +186,13 @@
                                                 name="deuda_option"
                                                 value="<?= (int) $deuda['acreedor_id'] ?>"
                                                 data-monto="<?= esc(number_format((float) $deuda['monto'], 2, '.', '')) ?>"
-                                                data-monto-visual="<?= esc($money($deuda['monto'])) ?>"
+                                                data-monto-visual="<?= esc(moneda($deuda['monto'], false)) ?>"
                                                 <?= $idx === 0 ? 'checked' : '' ?>>
                                             <span>
                                                 <strong><?= esc($deuda['acreedor']) ?></strong>
                                                 <small>Le deb&eacute;s</small>
                                             </span>
-                                            <strong>$<?= $money($deuda['monto']) ?></strong>
+                                            <strong><?= moneda($deuda['monto']) ?></strong>
                                         </label>
                                     <?php endforeach; ?>
                                 </div>
@@ -213,7 +211,7 @@
                                 class="form-control form-control-lg"
                                 id="balancePagoMontoVisual"
                                 name="monto_visual"
-                                value="<?= esc($money($deudaPrincipal['monto'])) ?>"
+                                value="<?= esc(moneda($deudaPrincipal['monto'], false)) ?>"
                                 required>
                             <input type="hidden"
                                 id="balancePagoMonto"

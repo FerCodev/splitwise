@@ -31,6 +31,8 @@ $routes->post('/grupos/(:num)/miembros/(:num)/rol', 'Grupos::cambiarRol/$1/$2', 
 $routes->delete('/grupos/(:num)/miembros/(:num)', 'Grupos::quitarMiembro/$1/$2', ['filter' => 'auth']);
 $routes->get('/gastos', 'Gastos::index', ['filter' => 'auth']);
 $routes->get('/gastos/nuevo', 'Gastos::new', ['filter' => 'auth']);
+$routes->get('/gastos/exportar-pdf', 'Gastos::exportarPdf', ['filter' => 'auth']);
+$routes->get('/gastos/exportar-excel', 'Gastos::exportarExcel', ['filter' => 'auth']);
 $routes->post('/gastos', 'Gastos::create', ['filter' => 'auth']);
 $routes->get('/gastos/(:num)', 'Gastos::show/$1', ['filter' => 'auth']);
 $routes->get('/gastos/(:num)/editar', 'Gastos::edit/$1', ['filter' => 'auth']);
@@ -38,6 +40,8 @@ $routes->put('/gastos/(:num)', 'Gastos::update/$1', ['filter' => 'auth']);
 $routes->delete('/gastos/(:num)', 'Gastos::delete/$1', ['filter' => 'auth']);
 $routes->get('/pagos', 'Pagos::index', ['filter' => 'auth']);
 $routes->get('/pagos/nuevo', 'Pagos::new', ['filter' => 'auth']);
+$routes->get('/pagos/exportar-pdf', 'Pagos::exportarPdf', ['filter' => 'auth']);
+$routes->get('/pagos/exportar-excel', 'Pagos::exportarExcel', ['filter' => 'auth']);
 $routes->post('/pagos', 'Pagos::create', ['filter' => 'auth']);
 $routes->get('/pagos/(:num)', 'Pagos::show/$1', ['filter' => 'auth']);
 $routes->get('/pagos/(:num)/editar', 'Pagos::edit/$1', ['filter' => 'auth']);

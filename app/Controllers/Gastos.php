@@ -17,6 +17,76 @@ class Gastos extends BaseController
         $grupos = $grupoModel->getGruposByUser(session()->get('userId'));
 
         $gastoModel = new Gasto();
+        $filters = $this->getFilters();
+
+        $gastos = $gastoModel->getGastosWithFilters($filters, 10);
+        $totalFiltrado = $this->getTotalFiltrado($filters);
+        $pager = $gastoModel->pager;
+
+        if ($this->request->getGet('partial')) {
+            $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
+            if ($requestedPage > $pager->getPageCount()) {
+                return '';
+            }
+
+            return view('gastos/_items', [
+                'gastos' => $gastos,
+                'filters' => $filters,
+            ]);
+        }
+
+        return view('gastos/index', [
+            'gastos' => $gastos,
+            'grupos' => $grupos,
+            'filters' => $filters,
+            'totalFiltrado' => $totalFiltrado,
+            'categorias' => model(Categoria::class)->getActivas(),
+            'pager' => $pager,
+        ]);
+    }
+
+    public function exportarPdf()
+    {
+        $filters = $this->getFilters();
+        $gastos = $this->getGastosParaExportar($filters);
+
+        $total = array_sum(array_map(static fn($gasto) => (float) $gasto['monto'], $gastos));
+        $html = view('gastos/pdf', [
+            'gastos' => $gastos,
+            'filters' => $filters,
+            'total' => $total,
+            'fecha' => date('d/m/Y H:i'),
+        ]);
+
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('gastos_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);
+        exit;
+    }
+
+    public function exportarExcel()
+    {
+        $filters = $this->getFilters();
+        $gastos = $this->getGastosParaExportar($filters);
+        $total = array_sum(array_map(static fn($gasto) => (float) $gasto['monto'], $gastos));
+        $filename = 'gastos_' . date('Y-m-d') . '.xls';
+
+        $this->response->setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $this->response->setHeader('Cache-Control', 'max-age=0');
+
+        echo view('gastos/excel', [
+            'gastos' => $gastos,
+            'total' => $total,
+            'fecha' => date('d/m/Y H:i'),
+        ]);
+        exit;
+    }
+
+    private function getFilters(): array
+    {
         $filters = [];
 
         if ($this->request->getGet('grupo_id')) {
@@ -40,28 +110,58 @@ class Gastos extends BaseController
         $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
         $filters['order'] = $this->request->getGet('order') ?: 'DESC';
 
-        $gastos = $gastoModel->getGastosWithFilters($filters, 10);
-        $pager = $gastoModel->pager;
+        return $filters;
+    }
 
-        if ($this->request->getGet('partial')) {
-            $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
-            if ($requestedPage > $pager->getPageCount()) {
-                return '';
-            }
+    private function getTotalFiltrado(array $filters): float
+    {
+        return array_sum(array_map(static fn($gasto) => (float) $gasto['monto'], $this->getGastosParaExportar($filters)));
+    }
 
-            return view('gastos/_items', [
-                'gastos' => $gastos,
-                'filters' => $filters,
-            ]);
+    private function getGastosParaExportar(array $filters): array
+    {
+        $userId = session()->get('userId');
+        $db = db_connect();
+        $builder = $db->table('gastos')
+            ->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre, (SELECT COUNT(*) FROM gasto_participantes WHERE gasto_id = gastos.id) as total_participantes')
+            ->join('users', 'users.id = gastos.pagador_id')
+            ->join('grupos', 'grupos.id = gastos.grupo_id')
+            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
+            ->join('grupo_miembros', 'grupo_miembros.grupo_id = gastos.grupo_id AND grupo_miembros.user_id = ' . (int) $userId)
+            ->where('gastos.pagador_id', $userId)
+            ->groupBy('gastos.id');
+
+        if (!empty($filters['grupo_id'])) {
+            $builder->where('gastos.grupo_id', $filters['grupo_id']);
+        }
+        if (!empty($filters['pagador_id'])) {
+            $builder->where('gastos.pagador_id', $filters['pagador_id']);
+        }
+        if (!empty($filters['fecha_desde'])) {
+            $builder->where('gastos.fecha >=', $filters['fecha_desde']);
+        }
+        if (!empty($filters['fecha_hasta'])) {
+            $builder->where('gastos.fecha <=', $filters['fecha_hasta']);
+        }
+        if (!empty($filters['descripcion'])) {
+            $builder->like('gastos.descripcion', $filters['descripcion']);
+        }
+        if (!empty($filters['categoria_id'])) {
+            $builder->where('gastos.categoria_id', $filters['categoria_id']);
         }
 
-        return view('gastos/index', [
-            'gastos' => $gastos,
-            'grupos' => $grupos,
-            'filters' => $filters,
-            'categorias' => model(Categoria::class)->getActivas(),
-            'pager' => $pager,
-        ]);
+        $sort = $filters['sort'] ?? 'fecha';
+        $order = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+        if (!in_array($sort, ['fecha', 'monto', 'grupo_nombre'], true)) {
+            $sort = 'fecha';
+        }
+        if ($sort === 'grupo_nombre') {
+            $builder->orderBy('grupos.nombre', $order);
+        } else {
+            $builder->orderBy('gastos.' . $sort, $order);
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     public function new()

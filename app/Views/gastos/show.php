@@ -12,7 +12,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h2 class="fw-bold text-primary mb-0">$<?= number_format($gasto['monto'], 2) ?></h2>
+                        <h2 class="fw-bold text-primary mb-0"><?= moneda($gasto['monto']) ?></h2>
                         <p class="text-muted small mb-0">Pag&oacute; <?= esc($gasto['pagador_nombre']) ?></p>
                     </div>
                     <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
@@ -119,14 +119,14 @@
                                         <?php endif; ?>
                                     </td>
                                     <td><?= esc($p['email']) ?></td>
-                                    <td class="text-end fw-medium">$<?= number_format($p['monto_asignado'], 2) ?></td>
+                                    <td class="text-end fw-medium"><?= moneda($p['monto_asignado']) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot class="table-light">
                             <tr>
                                 <th colspan="2">Total</th>
-                                <th class="text-end">$<?= number_format(array_sum(array_column($participantes, 'monto_asignado')), 2) ?></th>
+                                <th class="text-end"><?= moneda(array_sum(array_column($participantes, 'monto_asignado'))) ?></th>
                             </tr>
                         </tfoot>
                     </table>
@@ -140,12 +140,12 @@
                             <?php if ($p['user_id'] == $gasto['pagador_id']): ?>
                                 <span class="badge bg-info">Pag&oacute;</span>
                             <?php endif; ?>
-                            <span class="fw-bold">$<?= number_format($p['monto_asignado'], 2) ?></span>
+                            <span class="fw-bold"><?= moneda($p['monto_asignado']) ?></span>
                         </span>
                     <?php endforeach; ?>
                 </div>
                 <div class="px-3 pb-3 text-end fw-bold">
-                    Total: $<?= number_format(array_sum(array_column($participantes, 'monto_asignado')), 2) ?>
+                    Total: <?= moneda(array_sum(array_column($participantes, 'monto_asignado'))) ?>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
             </div>
             <div class="card-body">
                 <p class="text-muted">
-                    <strong><?= esc($gasto['pagador_nombre']) ?></strong> pag&oacute; <strong>$<?= number_format($gasto['monto'], 2) ?></strong>
+                    <strong><?= esc($gasto['pagador_nombre']) ?></strong> pag&oacute; <strong><?= moneda($gasto['monto']) ?></strong>
                     y debe recibir de los dem&aacute;s participantes.
                 </p>
                 <div class="d-none d-md-block">
@@ -175,7 +175,7 @@
                                     <tr>
                                         <td><?= esc($p['name']) ?></td>
                                         <td><?= esc($gasto['pagador_nombre']) ?></td>
-                                        <td class="text-end fw-medium">$<?= number_format($p['monto_asignado'], 2) ?></td>
+                                        <td class="text-end fw-medium"><?= moneda($p['monto_asignado']) ?></td>
                                     </tr>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -187,7 +187,7 @@
                         <?php if ($p['user_id'] != $gasto['pagador_id']): ?>
                             <div class="d-flex justify-content-between py-2 border-bottom">
                                 <span><?= esc($p['name']) ?> debe a <?= esc($gasto['pagador_nombre']) ?></span>
-                                <span class="fw-bold">$<?= number_format($p['monto_asignado'], 2) ?></span>
+                                <span class="fw-bold"><?= moneda($p['monto_asignado']) ?></span>
                             </div>
                         <?php endif; ?>
                     <?php endforeach; ?>

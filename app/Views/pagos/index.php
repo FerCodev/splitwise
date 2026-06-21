@@ -1,5 +1,10 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Pagos']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Pagos']) ?>
+<?php
+    $pdfUrl = base_url('pagos/exportar-pdf?' . http_build_query($filters));
+    $excelUrl = base_url('pagos/exportar-excel?' . http_build_query($filters));
+    $totalFiltrado = $totalFiltrado ?? 0;
+?>
 
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -15,6 +20,16 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small">Total filtrado</div>
+                    <div class="fw-bold fs-5 text-success"><?= moneda($totalFiltrado) ?></div>
+                </div>
+                <div class="text-muted small text-end">Suma de pagos filtrados</div>
+            </div>
+        </div>
+
         <?php if (empty($pagos)): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
@@ -27,9 +42,12 @@
         <?php else: ?>
             <div class="d-none d-md-block">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0">Pagos</h5>
-                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex gap-1">
+                            <a href="<?= $pdfUrl ?>" class="btn btn-danger btn-sm">PDF</a>
+                            <a href="<?= $excelUrl ?>" class="btn btn-success btn-sm">Excel</a>
+                        </div>
+                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
                         </button>
                     </div>
@@ -52,7 +70,7 @@
                                         <tr>
                                             <td><?= date('d/m/Y', strtotime($pago['fecha'])) ?></td>
                                             <td><?= esc($pago['descripcion'] ?: '-') ?></td>
-                                            <td class="fw-medium">$<?= number_format($pago['monto'], 2) ?></td>
+                                            <td class="fw-medium"><?= moneda($pago['monto']) ?></td>
                                             <td><?= esc($pago['pagador_nombre']) ?></td>
                                             <td><?= esc($pago['receptor_nombre']) ?></td>
                                             <td><?= esc($pago['grupo_nombre']) ?></td>
@@ -69,9 +87,12 @@
             </div>
             <div class="d-md-none">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0">Pagos</h5>
-                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex gap-1">
+                            <a href="<?= $pdfUrl ?>" class="btn btn-danger btn-sm">PDF</a>
+                            <a href="<?= $excelUrl ?>" class="btn btn-success btn-sm">Excel</a>
+                        </div>
+                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
                         </button>
                     </div>
@@ -89,7 +110,7 @@
                                             <div class="text-muted small mobile-transaction-meta">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
                                         </div>
                                         <div class="mobile-transaction-side">
-                                            <div class="fw-bold fs-5 text-success mobile-transaction-amount">$<?= number_format($pago['monto'], 2) ?></div>
+                                            <div class="fw-bold fs-5 text-success mobile-transaction-amount"><?= moneda($pago['monto']) ?></div>
                                         </div>
                                     </div>
                                 </div>

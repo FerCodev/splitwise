@@ -18,8 +18,8 @@
                 <span class="badge <?= $claseEstado ?> mb-2"><?= ucfirst($grupo['estado']) ?></span>
                 <p class="text-muted small mb-0">
                     <?= count($miembros) ?> miembro(s) &middot;
-                    Total gastado: <strong>$<?= number_format($totalGastado, 2) ?></strong> &middot;
-                    Total pagos: <strong>$<?= number_format($totalPagado, 2) ?></strong>
+                    Total gastado: <strong><?= moneda($totalGastado) ?></strong> &middot;
+                    Total pagos: <strong><?= moneda($totalPagado) ?></strong>
                 </p>
             </div>
         </div>
@@ -56,12 +56,12 @@
                                     ?>
                                     <tr>
                                         <td class="fw-medium"><?= esc($b['name']) ?></td>
-                                        <td class="text-end">$<?= number_format($b['total_pagado_gastos'], 2) ?></td>
-                                        <td class="text-end">$<?= number_format($b['total_consumido'], 2) ?></td>
-                                        <td class="text-end">$<?= number_format($b['pagos_enviados'], 2) ?></td>
-                                        <td class="text-end">$<?= number_format($b['pagos_recibidos'], 2) ?></td>
+                                        <td class="text-end"><?= moneda($b['total_pagado_gastos']) ?></td>
+                                        <td class="text-end"><?= moneda($b['total_consumido']) ?></td>
+                                        <td class="text-end"><?= moneda($b['pagos_enviados']) ?></td>
+                                        <td class="text-end"><?= moneda($b['pagos_recibidos']) ?></td>
                                         <td class="text-end fw-bold <?= $b['saldo'] >= 0 ? 'text-success' : 'text-danger' ?>">
-                                            $<?= number_format($b['saldo'], 2) ?>
+                                            <?= moneda($b['saldo']) ?>
                                         </td>
                                         <td><span class="badge <?= $badgeClass ?>"><?= $badgeText ?></span></td>
                                     </tr>
@@ -93,14 +93,14 @@
                                 <div class="flex-grow-1">
                                     <div class="fw-medium"><?= esc($b['name']) ?></div>
                                     <div class="fw-bold fs-5 <?= $saldoClase ?>">
-                                        $<?= number_format(abs($b['saldo']), 2) ?>
+                                        <?= moneda(abs($b['saldo'])) ?>
                                         <small class="fw-normal text-muted fs-6"><?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?></small>
                                     </div>
                                 </div>
                             </div>
                             <div class="small text-muted mb-1 d-flex justify-content-between">
-                                <span>Pag&oacute;: $<?= number_format($b['total_pagado_gastos'], 2) ?></span>
-                                <span>Consumi&oacute;: $<?= number_format($b['total_consumido'], 2) ?></span>
+                                <span>Pag&oacute;: <?= moneda($b['total_pagado_gastos']) ?></span>
+                                <span>Consumi&oacute;: <?= moneda($b['total_consumido']) ?></span>
                             </div>
                             <div class="progress mb-2" style="height:8px">
                                 <div class="progress-bar bg-primary" style="width:<?= $pagadoPct ?>%" title="Pag&oacute;"></div>
@@ -113,24 +113,24 @@
                                 <div class="card card-body py-2 px-3">
                                     <div class="d-flex justify-content-between small">
                                         <span class="text-muted">Pag&oacute; en gastos:</span>
-                                        <span>$<?= number_format($b['total_pagado_gastos'], 2) ?></span>
+                                        <span><?= moneda($b['total_pagado_gastos']) ?></span>
                                     </div>
                                     <div class="d-flex justify-content-between small">
                                         <span class="text-muted">Consumi&oacute;:</span>
-                                        <span>$<?= number_format($b['total_consumido'], 2) ?></span>
+                                        <span><?= moneda($b['total_consumido']) ?></span>
                                     </div>
                                     <div class="d-flex justify-content-between small">
                                         <span class="text-muted">Pagos enviados:</span>
-                                        <span>$<?= number_format($b['pagos_enviados'], 2) ?></span>
+                                        <span><?= moneda($b['pagos_enviados']) ?></span>
                                     </div>
                                     <div class="d-flex justify-content-between small">
                                         <span class="text-muted">Pagos recibidos:</span>
-                                        <span>$<?= number_format($b['pagos_recibidos'], 2) ?></span>
+                                        <span><?= moneda($b['pagos_recibidos']) ?></span>
                                     </div>
                                     <hr class="my-1">
                                     <div class="d-flex justify-content-between small fw-bold <?= $saldoClase ?>">
                                         <span>Saldo neto:</span>
-                                        <span>$<?= number_format(abs($b['saldo']), 2) ?> (<?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?>)</span>
+                                        <span><?= moneda(abs($b['saldo'])) ?> (<?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?>)</span>
                                     </div>
                                 </div>
                             </div>
@@ -164,7 +164,7 @@
                                     <tr>
                                         <td><span class="badge bg-light text-dark"><?= esc($cat['categoria_nombre']) ?></span></td>
                                         <td class="text-end"><?= $cat['cantidad'] ?></td>
-                                        <td class="text-end fw-medium">$<?= number_format($cat['total'], 2) ?></td>
+                                        <td class="text-end fw-medium"><?= moneda($cat['total']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -176,7 +176,7 @@
                         <div class="mobile-card-item">
                             <div class="d-flex justify-content-between align-items-center">
                                 <span class="badge bg-light text-dark"><?= esc($cat['categoria_nombre']) ?></span>
-                                <span class="fw-medium">$<?= number_format($cat['total'], 2) ?></span>
+                                <span class="fw-medium"><?= moneda($cat['total']) ?></span>
                             </div>
                             <div class="text-muted small"><?= $cat['cantidad'] ?> gasto(s)</div>
                         </div>
@@ -208,7 +208,7 @@
                                     <strong><?= esc($d['acreedor']) ?></strong>
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="fw-bold text-danger fs-5">$<?= number_format($d['monto'], 2) ?></div>
+                                    <div class="fw-bold text-danger fs-5"><?= moneda($d['monto']) ?></div>
                                     <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                                     <button type="button" class="btn btn-success pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" style="min-height:44px">
                                         Pagar
@@ -251,7 +251,7 @@
                                             <button type="button" class="btn btn-sm btn-primary pago-manual-btn" data-target="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
                                                 Registrar pago manual
                                             </button>
-                                            <p class="small text-muted mt-1 mb-0">Se registrar&aacute; un pago de <?= esc($d['deudor']) ?> a <?= esc($d['acreedor']) ?> por $<?= number_format($d['monto'], 2) ?>.</p>
+                                            <p class="small text-muted mt-1 mb-0">Se registrar&aacute; un pago de <?= esc($d['deudor']) ?> a <?= esc($d['acreedor']) ?> por <?= moneda($d['monto']) ?>.</p>
                                             <form action="<?= base_url('pagos') ?>" method="post" id="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
                                                 <?= csrf_field() ?>
                                                 <input type="hidden" name="grupo_id" value="<?= (int) $grupo['id'] ?>">

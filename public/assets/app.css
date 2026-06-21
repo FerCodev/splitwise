@@ -48,6 +48,9 @@ body {
 .text-muted {
     color: var(--muted) !important;
 }
+.min-width-0 {
+    min-width: 0 !important;
+}
 
 /* ========================================
    Buttons
@@ -1266,7 +1269,7 @@ body {
 
 /* --- Dashboard Cards --- */
 .dash-card {
-    background: var(--bg);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
@@ -1288,6 +1291,7 @@ body {
     gap: 12px;
     padding: 14px 16px;
     border-bottom: 1px solid var(--border);
+    background: var(--surface);
     text-decoration: none;
     color: var(--text);
     transition: background-color 0.1s ease;
@@ -1298,7 +1302,7 @@ body {
 }
 
 .dash-list-item:hover {
-    background: var(--surface);
+    background: #f8fbff;
 }
 
 .dash-list-item-bordered {

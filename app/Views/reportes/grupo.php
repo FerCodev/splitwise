@@ -12,13 +12,13 @@
             <div class="col-4 col-md-3">
                 <div class="card border-0 shadow-sm text-center py-3 h-100">
                     <div class="small text-muted">Total gastado</div>
-                    <div class="fw-bold fs-5 text-primary">$<?= number_format($resumen['total_gastado'], 0) ?></div>
+                    <div class="fw-bold fs-5 text-primary"><?= moneda($resumen['total_gastado']) ?></div>
                 </div>
             </div>
             <div class="col-4 col-md-3">
                 <div class="card border-0 shadow-sm text-center py-3 h-100">
                     <div class="small text-muted">Total pagado</div>
-                    <div class="fw-bold fs-5 text-success">$<?= number_format($resumen['total_pagado'], 0) ?></div>
+                    <div class="fw-bold fs-5 text-success"><?= moneda($resumen['total_pagado']) ?></div>
                 </div>
             </div>
             <div class="col-4 col-md-3">
@@ -51,13 +51,13 @@
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="fw-medium"><?= esc($b['name']) ?></span>
                                         <span class="fw-bold <?= $b['saldo'] > 0 ? 'text-success' : ($b['saldo'] < 0 ? 'text-danger' : 'text-secondary') ?>">
-                                            $<?= number_format(abs($b['saldo']), 2) ?>
+                                            <?= moneda(abs($b['saldo'])) ?>
                                             <small class="fw-normal"><?= $b['saldo'] > 0 ? 'a favor' : ($b['saldo'] < 0 ? 'debe' : 'saldado') ?></small>
                                         </span>
                                     </div>
                                     <div class="d-flex justify-content-between small text-muted mt-1">
-                                        <span>Pag&oacute;: $<?= number_format($b['total_pagado_gastos'], 0) ?></span>
-                                        <span>Consumi&oacute;: $<?= number_format($b['total_consumido'], 0) ?></span>
+                                        <span>Pag&oacute;: <?= moneda($b['total_pagado_gastos']) ?></span>
+                                        <span>Consumi&oacute;: <?= moneda($b['total_consumido']) ?></span>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -80,7 +80,7 @@
                                 <div class="mobile-card-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <span class="badge bg-light text-dark"><?= esc($c['categoria']) ?></span>
-                                        <span class="fw-medium">$<?= number_format($c['total'], 0) ?></span>
+                                        <span class="fw-medium"><?= moneda($c['total']) ?></span>
                                     </div>
                                     <div class="progress mt-1" style="height:4px">
                                         <div class="progress-bar bg-warning" style="width:<?= ($porCategoria[0]['total'] > 0) ? ($c['total'] / $porCategoria[0]['total'] * 100) : 0 ?>%"></div>
@@ -107,7 +107,7 @@
                         <div class="col-4 col-md-2">
                             <div class="text-center">
                                 <div class="small text-muted"><?= date('M', strtotime($e['mes'] . '-01')) ?></div>
-                                <div class="fw-bold small">$<?= number_format($e['total'], 0) ?></div>
+                                <div class="fw-bold small"><?= moneda($e['total']) ?></div>
                                 <div class="progress mt-1" style="height:4px">
                                     <div class="progress-bar bg-primary" style="width:<?= max(5, ($maxEvol > 0 ? $e['total'] / $maxEvol * 100 : 5)) ?>%"></div>
                                 </div>
@@ -135,7 +135,7 @@
                                     <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
                                     <span class="fw-medium small ms-1"><?= esc($m['descripcion']) ?></span>
                                 </div>
-                                <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>">$<?= number_format($m['monto'], 0) ?></span>
+                                <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>"><?= moneda($m['monto']) ?></span>
                             </div>
                             <div class="text-muted small"><?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?></div>
                         </div>
@@ -159,7 +159,7 @@
                                 <span class="text-muted"> le debe a </span>
                                 <strong><?= esc($d['acreedor']) ?></strong>
                             </div>
-                            <div class="fw-bold text-danger">$<?= number_format($d['monto'], 2) ?></div>
+                            <div class="fw-bold text-danger"><?= moneda($d['monto']) ?></div>
                         </div>
                     </div>
                 <?php endforeach; ?>

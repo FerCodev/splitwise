@@ -12,7 +12,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <h2 class="fw-bold text-primary mb-0">$<?= number_format($pago['monto'], 2) ?></h2>
+                        <h2 class="fw-bold text-primary mb-0"><?= moneda($pago['monto']) ?></h2>
                         <p class="text-muted small mb-0">
                             <?= esc($pago['pagador_nombre']) ?> &rarr; <?= esc($pago['receptor_nombre']) ?>
                         </p>
@@ -86,7 +86,7 @@
                     </div>
                     <div class="col-4">
                         <p class="text-muted small mb-1">Monto</p>
-                        <h4 class="text-primary fw-bold mb-0">$<?= number_format($pago['monto'], 2) ?></h4>
+                        <h4 class="text-primary fw-bold mb-0"><?= moneda($pago['monto']) ?></h4>
                     </div>
                     <div class="col-4">
                         <p class="text-muted small mb-1">Recibi&oacute;</p>

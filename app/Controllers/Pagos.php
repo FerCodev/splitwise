@@ -14,6 +14,73 @@ class Pagos extends BaseController
         $grupos = $grupoModel->getGruposByUser(session()->get('userId'));
 
         $pagoModel = new Pago();
+        $filters = $this->getFilters();
+
+        $pagos = $pagoModel->getPagosWithFilters($filters, 10);
+        $totalFiltrado = $this->getTotalFiltrado($filters);
+        $pager = $pagoModel->pager;
+
+        if ($this->request->getGet('partial')) {
+            $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
+            if ($requestedPage > $pager->getPageCount()) {
+                return '';
+            }
+
+            return view('pagos/_items', [
+                'pagos' => $pagos,
+                'filters' => $filters,
+            ]);
+        }
+
+        return view('pagos/index', [
+            'pagos' => $pagos,
+            'grupos' => $grupos,
+            'filters' => $filters,
+            'totalFiltrado' => $totalFiltrado,
+            'pager' => $pager,
+        ]);
+    }
+
+    public function exportarPdf()
+    {
+        $filters = $this->getFilters();
+        $pagos = $this->getPagosParaExportar($filters);
+        $total = array_sum(array_map(static fn($pago) => (float) $pago['monto'], $pagos));
+        $html = view('pagos/pdf', [
+            'pagos' => $pagos,
+            'total' => $total,
+            'fecha' => date('d/m/Y H:i'),
+        ]);
+
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $dompdf->stream('pagos_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);
+        exit;
+    }
+
+    public function exportarExcel()
+    {
+        $filters = $this->getFilters();
+        $pagos = $this->getPagosParaExportar($filters);
+        $total = array_sum(array_map(static fn($pago) => (float) $pago['monto'], $pagos));
+        $filename = 'pagos_' . date('Y-m-d') . '.xls';
+
+        $this->response->setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
+        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
+        $this->response->setHeader('Cache-Control', 'max-age=0');
+
+        echo view('pagos/excel', [
+            'pagos' => $pagos,
+            'total' => $total,
+            'fecha' => date('d/m/Y H:i'),
+        ]);
+        exit;
+    }
+
+    private function getFilters(): array
+    {
         $filters = [];
 
         if ($this->request->getGet('grupo_id')) {
@@ -37,27 +104,61 @@ class Pagos extends BaseController
         $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
         $filters['order'] = $this->request->getGet('order') ?: 'DESC';
 
-        $pagos = $pagoModel->getPagosWithFilters($filters, 10);
-        $pager = $pagoModel->pager;
+        return $filters;
+    }
 
-        if ($this->request->getGet('partial')) {
-            $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
-            if ($requestedPage > $pager->getPageCount()) {
-                return '';
-            }
+    private function getTotalFiltrado(array $filters): float
+    {
+        return array_sum(array_map(static fn($pago) => (float) $pago['monto'], $this->getPagosParaExportar($filters)));
+    }
 
-            return view('pagos/_items', [
-                'pagos' => $pagos,
-                'filters' => $filters,
-            ]);
+    private function getPagosParaExportar(array $filters): array
+    {
+        $userId = session()->get('userId');
+        $db = db_connect();
+        $builder = $db->table('pagos')
+            ->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, grupos.nombre as grupo_nombre')
+            ->join('users as pagador', 'pagador.id = pagos.pagador_id')
+            ->join('users as receptor', 'receptor.id = pagos.receptor_id')
+            ->join('grupos', 'grupos.id = pagos.grupo_id')
+            ->join('grupo_miembros', 'grupo_miembros.grupo_id = pagos.grupo_id AND grupo_miembros.user_id = ' . (int) $userId)
+            ->groupStart()
+                ->where('pagos.pagador_id', $userId)
+                ->orWhere('pagos.receptor_id', $userId)
+            ->groupEnd()
+            ->groupBy('pagos.id');
+
+        if (!empty($filters['grupo_id'])) {
+            $builder->where('pagos.grupo_id', $filters['grupo_id']);
+        }
+        if (!empty($filters['pagador_id'])) {
+            $builder->where('pagos.pagador_id', $filters['pagador_id']);
+        }
+        if (!empty($filters['receptor_id'])) {
+            $builder->where('pagos.receptor_id', $filters['receptor_id']);
+        }
+        if (!empty($filters['fecha_desde'])) {
+            $builder->where('pagos.fecha >=', $filters['fecha_desde']);
+        }
+        if (!empty($filters['fecha_hasta'])) {
+            $builder->where('pagos.fecha <=', $filters['fecha_hasta']);
+        }
+        if (!empty($filters['descripcion'])) {
+            $builder->like('pagos.descripcion', $filters['descripcion']);
         }
 
-        return view('pagos/index', [
-            'pagos' => $pagos,
-            'grupos' => $grupos,
-            'filters' => $filters,
-            'pager' => $pager,
-        ]);
+        $sort = $filters['sort'] ?? 'fecha';
+        $order = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+        if (!in_array($sort, ['fecha', 'monto', 'grupo_nombre'], true)) {
+            $sort = 'fecha';
+        }
+        if ($sort === 'grupo_nombre') {
+            $builder->orderBy('grupos.nombre', $order);
+        } else {
+            $builder->orderBy('pagos.' . $sort, $order);
+        }
+
+        return $builder->get()->getResultArray();
     }
 
     public function new()

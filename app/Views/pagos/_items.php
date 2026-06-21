@@ -11,7 +11,7 @@
                     <div class="text-muted small mobile-transaction-meta">Grupo: <?= esc($pago['grupo_nombre']) ?></div>
                 </div>
                 <div class="mobile-transaction-side">
-                    <div class="fw-bold fs-5 text-success mobile-transaction-amount">$<?= number_format($pago['monto'], 2) ?></div>
+                    <div class="fw-bold fs-5 text-success mobile-transaction-amount"><?= moneda($pago['monto']) ?></div>
                 </div>
             </div>
         </div>

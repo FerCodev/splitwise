@@ -34,6 +34,62 @@ class Reportes
         return self::calcularResumen($totalGastado, $totalPagadoGastos, $totalRecibido, $totalConsumido, $totalPagosEnviados);
     }
 
+    public static function resumenFiltrado(int $userId, array $filters = []): array
+    {
+        $db = \Config\Database::connect();
+        $where = self::buildWhere($userId, $filters, 'g');
+        $totalGastado = self::scalarTotal($db->query(
+            "SELECT COALESCE(SUM(g.monto), 0) AS total
+               FROM gastos g
+               JOIN grupo_miembros gm ON gm.grupo_id = g.grupo_id AND gm.user_id = ?
+              WHERE {$where['sql']}",
+            $where['binds']
+        )->getRow());
+        $totalPagadoGastos = self::scalarTotal($db->query(
+            "SELECT COALESCE(SUM(g.monto), 0) AS total
+               FROM gastos g
+               JOIN grupo_miembros gm ON gm.grupo_id = g.grupo_id AND gm.user_id = ?
+              WHERE {$where['sql']} AND g.pagador_id = ?",
+            array_merge($where['binds'], [$userId])
+        )->getRow());
+        $totalConsumido = self::scalarTotal($db->query(
+            "SELECT COALESCE(SUM(gp.monto_asignado), 0) AS total
+               FROM gasto_participantes gp
+               JOIN gastos g ON g.id = gp.gasto_id
+               JOIN grupo_miembros gm ON gm.grupo_id = g.grupo_id AND gm.user_id = ?
+              WHERE {$where['sql']} AND gp.user_id = ?",
+            array_merge($where['binds'], [$userId])
+        )->getRow());
+        $wherePagos = self::buildWherePagos($userId, $filters, 'p');
+        $totalPagosEnviados = self::scalarTotal($db->query(
+            "SELECT COALESCE(SUM(p.monto), 0) AS total
+               FROM pagos p
+               JOIN grupo_miembros gm ON gm.grupo_id = p.grupo_id AND gm.user_id = ?
+              WHERE {$wherePagos['sql']} AND p.pagador_id = ?",
+            array_merge($wherePagos['binds'], [$userId])
+        )->getRow());
+        $totalRecibido = self::scalarTotal($db->query(
+            "SELECT COALESCE(SUM(p.monto), 0) AS total
+               FROM pagos p
+               JOIN grupo_miembros gm ON gm.grupo_id = p.grupo_id AND gm.user_id = ?
+              WHERE {$wherePagos['sql']} AND p.receptor_id = ?",
+            array_merge($wherePagos['binds'], [$userId])
+        )->getRow());
+        $gruposActivos = (int) $db->query(
+            "SELECT COUNT(DISTINCT g.grupo_id) AS total
+               FROM gastos g
+               JOIN grupo_miembros gm ON gm.grupo_id = g.grupo_id AND gm.user_id = ?
+              WHERE {$where['sql']}",
+            $where['binds']
+        )->getRow()->total;
+
+        return self::calcularResumen($totalGastado, $totalPagadoGastos, $totalRecibido, $totalConsumido, $totalPagosEnviados) + [
+            'mes' => $filters['year_month'] ?? '',
+            'total_pagos' => round($totalPagosEnviados + $totalRecibido, 2),
+            'grupos_activos' => $gruposActivos,
+        ];
+    }
+
     public static function resumenMensual(int $userId, string $yearMonth = ''): array
     {
         $db = \Config\Database::connect();
@@ -96,6 +152,7 @@ class Reportes
                LEFT JOIN gastos g ON g.grupo_id = gr.id AND DATE_FORMAT(g.fecha, '%Y-%m') = ?
                WHERE gr.id IN ({$ids})
                GROUP BY gr.id, gr.nombre
+               HAVING total > 0
                ORDER BY total DESC LIMIT ?",
             [$yearMonth, $limit]
         )->getResultArray();
@@ -143,6 +200,43 @@ class Reportes
                  WHERE {$where['sql']}
                  GROUP BY g.grupo_id, gr.nombre ORDER BY total DESC";
         return $db->query($sql, $where['binds'])->getResultArray();
+    }
+
+
+    public static function movimientosFiltrados(int $userId, array $filters = [], int $limit = 12): array
+    {
+        $db = \Config\Database::connect();
+        $whereGastos = self::buildWhere($userId, $filters, 'g');
+        $gastos = $db->query(
+            "SELECT g.id, 'gasto' AS tipo, g.descripcion, g.monto, g.fecha, u.name AS persona, gr.nombre AS grupo
+               FROM gastos g
+               JOIN users u ON u.id = g.pagador_id
+               JOIN grupos gr ON gr.id = g.grupo_id
+               JOIN grupo_miembros gm ON gm.grupo_id = g.grupo_id AND gm.user_id = ?
+              WHERE {$whereGastos['sql']}
+              ORDER BY g.fecha DESC, g.created_at DESC
+              LIMIT ?",
+            array_merge($whereGastos['binds'], [$limit])
+        )->getResultArray();
+
+        $wherePagos = self::buildWherePagos($userId, $filters, 'p');
+        $pagos = $db->query(
+            "SELECT p.id, 'pago' AS tipo, COALESCE(p.descripcion, 'Pago') AS descripcion, p.monto, p.fecha,
+                    CONCAT(pag.name, ' pago a ', rec.name) AS persona, gr.nombre AS grupo
+               FROM pagos p
+               JOIN users pag ON pag.id = p.pagador_id
+               JOIN users rec ON rec.id = p.receptor_id
+               JOIN grupos gr ON gr.id = p.grupo_id
+               JOIN grupo_miembros gm ON gm.grupo_id = p.grupo_id AND gm.user_id = ?
+              WHERE {$wherePagos['sql']}
+              ORDER BY p.fecha DESC, p.created_at DESC
+              LIMIT ?",
+            array_merge($wherePagos['binds'], [$limit])
+        )->getResultArray();
+
+        $movimientos = array_merge($gastos, $pagos);
+        usort($movimientos, static fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
+        return array_slice($movimientos, 0, $limit);
     }
 
     public static function ultimosMovimientos(int $userId, int $limit = 10): array
@@ -283,6 +377,19 @@ class Reportes
         if (!empty($filters['categoria_id'])) { $clauses[] = "{$alias}.categoria_id = ?"; $binds[] = (int) $filters['categoria_id']; }
         if (!empty($filters['fecha_desde'])) { $clauses[] = "{$alias}.fecha >= ?"; $binds[] = $filters['fecha_desde']; }
         if (!empty($filters['fecha_hasta'])) { $clauses[] = "{$alias}.fecha <= ?"; $binds[] = $filters['fecha_hasta']; }
+        if (!empty($filters['year_month'])) { $clauses[] = "DATE_FORMAT({$alias}.fecha, '%Y-%m') = ?"; $binds[] = $filters['year_month']; }
+        return ['sql' => $clauses ? implode(' AND ', $clauses) : '1=1', 'binds' => $binds];
+    }
+
+
+    private static function buildWherePagos(int $userId, array $filters, string $alias): array
+    {
+        $binds = [$userId];
+        $clauses = [];
+        if (!empty($filters['grupo_id'])) { $clauses[] = "{$alias}.grupo_id = ?"; $binds[] = (int) $filters['grupo_id']; }
+        if (!empty($filters['fecha_desde'])) { $clauses[] = "{$alias}.fecha >= ?"; $binds[] = $filters['fecha_desde']; }
+        if (!empty($filters['fecha_hasta'])) { $clauses[] = "{$alias}.fecha <= ?"; $binds[] = $filters['fecha_hasta']; }
+        if (!empty($filters['year_month'])) { $clauses[] = "DATE_FORMAT({$alias}.fecha, '%Y-%m') = ?"; $binds[] = $filters['year_month']; }
         return ['sql' => $clauses ? implode(' AND ', $clauses) : '1=1', 'binds' => $binds];
     }
 
@@ -318,16 +425,30 @@ class Reportes
         return ['mes' => date('Y-m'), 'total_gastado' => 0, 'total_pagado' => 0, 'total_consumido' => 0, 'total_pagos' => 0, 'saldo' => 0, 'grupos_activos' => 0];
     }
 
-    public static function deudasPendientes(int $userId, int $limit = 5): array
+    public static function deudasPendientes(int $userId, int $limit = 5, array $filters = []): array
     {
         $gruposIds = self::gruposIds($userId);
+        if (!empty($filters['grupo_id'])) {
+            $grupoId = (int) $filters['grupo_id'];
+            $gruposIds = in_array($grupoId, $gruposIds, true) ? [$grupoId] : [];
+        }
         if (empty($gruposIds)) return [];
         $gastoModel = new \App\Models\Gasto();
+        $ids = implode(',', array_map('intval', $gruposIds));
+        $gruposRows = \Config\Database::connect()
+            ->query("SELECT id, nombre FROM grupos WHERE id IN ({$ids})")
+            ->getResultArray();
+        $gruposNombre = array_column($gruposRows, 'nombre', 'id');
         $todas = [];
         foreach ($gruposIds as $gid) {
             $balance = $gastoModel->getBalanceByGrupo($gid);
             $deudas = \App\Models\Gasto::computeDeudasFromBalance($balance);
             $deudasUsuario = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === $userId || (int) $d['acreedor_id'] === $userId));
+            foreach ($deudasUsuario as &$deuda) {
+                $deuda['grupo_id'] = $gid;
+                $deuda['grupo'] = $gruposNombre[$gid] ?? 'Grupo';
+            }
+            unset($deuda);
             $todas = array_merge($todas, $deudasUsuario);
         }
         usort($todas, fn($a, $b) => $b['monto'] <=> $a['monto']);

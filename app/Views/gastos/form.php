@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' Gasto']) ?>
+﻿<?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' Gasto']) ?>
 <?= view('partials/_navbar', ['pageTitle' => isset($gasto) ? 'Editar gasto' : 'Nuevo gasto']) ?>
 
     <div class="container mt-3 mt-md-4">
@@ -25,7 +25,7 @@
                     <div class="mb-3">
                         <label for="monto" class="form-label fw-medium">Monto total</label>
                         <input type="text" class="form-control" id="monto" name="monto_visual"
-                               value="<?= esc(old('monto_visual', isset($gasto) ? number_format($gasto['monto'], 2, ',', '.') : '')) ?>" required
+                               value="<?= esc(old('monto_visual', isset($gasto) ? numero_arg($gasto['monto']) : '')) ?>" required
                                inputmode="numeric"
                                oninput="formatearMonto(this); recalcularDivision();">
                         <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">

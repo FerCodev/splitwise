@@ -62,7 +62,7 @@
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Saldo total</div>
                                             <div class="fw-bold fs-5 <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                                                $<?= number_format(abs($globalSaldo), 0) ?>
+                                                <?= moneda(abs($globalSaldo)) ?>
                                                 <small class="fw-normal text-muted fs-6"><?= $globalSaldo >= 0 ? 'a favor' : 'deb&eacute;s' ?></small>
                                             </div>
                                         </div>
@@ -81,7 +81,7 @@
                                         </div>
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Deb&#233;s</div>
-                                            <div class="fw-bold fs-5 text-danger">$<?= number_format($totalDebe, 0) ?></div>
+                                            <div class="fw-bold fs-5 text-danger"><?= moneda($totalDebe) ?></div>
                                         </div>
                                     </div>
                                 </div>
@@ -98,7 +98,7 @@
                                         </div>
                                         <div class="min-width-0">
                                             <div class="small text-muted lh-1">Te deben</div>
-                                            <div class="fw-bold fs-5 text-success">$<?= number_format($totalLeDeben, 0) ?></div>
+                                            <div class="fw-bold fs-5 text-success"><?= moneda($totalLeDeben) ?></div>
                                         </div>
                                     </div>
                                 </div>
@@ -145,7 +145,7 @@
                                                     </div>
                                                     <div class="d-flex justify-content-between small mt-1">
                                                         <span class="text-muted">Saldo:</span>
-                                                        <span class="fw-semibold <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
+                                                        <span class="fw-semibold <?= $saldoClase ?>"><?= moneda($grupo['mi_saldo']) ?></span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -153,7 +153,7 @@
                                                 <div class="small mt-2">
                                                     <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
                                                     <span class="text-muted ms-1"><?= esc(mb_substr($mv['descripcion'], 0, 40)) ?></span>
-                                                    <span class="fw-medium float-end">$<?= number_format($mv['monto'], 2) ?></span>
+                                                    <span class="fw-medium float-end"><?= moneda($mv['monto']) ?></span>
                                                 </div>
                                                 <div class="text-muted small mt-1">
                                                     <?= date('d/m/Y', strtotime($mv['fecha'])) ?>
@@ -202,7 +202,7 @@
                                                         </div>
                                                         <div class="d-flex justify-content-between small mt-1">
                                                             <span class="text-muted">Saldo:</span>
-                                                            <span class="fw-semibold <?= $saldoClase ?>">$<?= number_format($grupo['mi_saldo'], 2) ?></span>
+                                                            <span class="fw-semibold <?= $saldoClase ?>"><?= moneda($grupo['mi_saldo']) ?></span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -252,7 +252,7 @@
                                         </span>
                                         <span class="text-muted small ms-1"><?= esc($d['grupo_nombre']) ?></span>
                                     </div>
-                                    <span class="fw-bold small <?= $esDeudor ? 'text-danger' : 'text-success' ?>">$<?= number_format($d['monto'], 2) ?></span>
+                                    <span class="fw-bold small <?= $esDeudor ? 'text-danger' : 'text-success' ?>"><?= moneda($d['monto']) ?></span>
                                 </div>
                             </div>
                         </div>
@@ -291,7 +291,7 @@
                                                     <span class="fw-medium small"><?= esc($m['descripcion']) ?></span>
                                                     <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
                                                 </div>
-                                                <span class="fw-bold text-primary small">$<?= number_format($m['monto'], 2) ?></span>
+                                                <span class="fw-bold text-primary small"><?= moneda($m['monto']) ?></span>
                                             </div>
                                             <div class="text-muted small">
                                                 <?= date('d/m/Y', $fechaTs) ?> &middot;
@@ -308,7 +308,7 @@
                                                     <span class="fw-medium small">Pago</span>
                                                     <span class="text-muted small ms-2"><?= esc($m['grupo_nombre']) ?></span>
                                                 </div>
-                                                <span class="fw-bold text-success small">$<?= number_format($m['monto'], 2) ?></span>
+                                                <span class="fw-bold text-success small"><?= moneda($m['monto']) ?></span>
                                             </div>
                                             <div class="text-muted small">
                                                 <?= date('d/m/Y', $fechaTs) ?> &middot;
@@ -397,19 +397,19 @@
                 <div class="dash-card-body">
                     <div class="balance-strip-label">Tu saldo total</div>
                     <div class="balance-strip-amount <?= $globalSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                        $<?= number_format(abs($globalSaldo), 2) ?>
+                        <?= moneda(abs($globalSaldo)) ?>
                         <span class="text-muted" style="font-size:14px;"><?= $globalSaldo >= 0 ? 'a favor' : 'deb&eacute;s' ?></span>
                     </div>
                     <div class="balance-strip-detail">
                         <div class="balance-strip-detail-item">
                             <span class="status-dot status-dot-danger"></span>
                             <span class="text-muted">Deb&eacute;s:</span>
-                            <span class="financial-amount text-danger">$<?= number_format($totalDebe, 2) ?></span>
+                            <span class="financial-amount text-danger"><?= moneda($totalDebe) ?></span>
                         </div>
                         <div class="balance-strip-detail-item">
                             <span class="status-dot status-dot-active"></span>
                             <span class="text-muted">Te deben:</span>
-                            <span class="financial-amount text-success">$<?= number_format($totalLeDeben, 2) ?></span>
+                            <span class="financial-amount text-success"><?= moneda($totalLeDeben) ?></span>
                         </div>
                     </div>
                 </div>
@@ -464,7 +464,7 @@
                                 <?php endif; ?>
                             </div>
                             <div class="dash-list-item-amount <?= $saldoClase ?>">
-                                $<?= number_format(abs($grupo['mi_saldo']), 2) ?>
+                                <?= moneda(abs($grupo['mi_saldo'])) ?>
                             </div>
                         </a>
                     <?php endforeach; ?>
@@ -502,7 +502,7 @@
                                     </div>
                                 </div>
                                 <div class="dash-list-item-amount <?= $saldoClase ?>">
-                                    $<?= number_format(abs($grupo['mi_saldo']), 2) ?>
+                                    <?= moneda(abs($grupo['mi_saldo'])) ?>
                                 </div>
                             </a>
                         <?php endforeach; ?>
@@ -537,7 +537,7 @@
                                     <div class="dash-list-item-subtitle"><?= esc($d['grupo_nombre']) ?></div>
                                 </div>
                                 <div class="dash-list-item-amount <?= $esDeudor ? 'text-danger' : 'text-success' ?>">
-                                    $<?= number_format($d['monto'], 2) ?>
+                                    <?= moneda($d['monto']) ?>
                                 </div>
                             </a>
                         <?php endforeach; ?>
@@ -572,7 +572,7 @@
                                         <?= date('d/m/Y', $fechaTs) ?> &middot; <?= esc($m['pagador_nombre']) ?> &middot; <?= esc($m['grupo_nombre']) ?>
                                     </div>
                                 </div>
-                                <div class="dash-list-item-amount text-primary">-$<?= number_format($m['monto'], 2) ?></div>
+                                <div class="dash-list-item-amount text-primary">-<?= moneda($m['monto']) ?></div>
                             </a>
                         <?php else: ?>
                             <a href="<?= base_url('pagos/' . $m['id']) ?>" class="dash-list-item dash-list-item-bordered text-decoration-none feed-item-desk" data-grupo-id="<?= $m['grupo_id'] ?? '' ?>" data-fecha="<?= $fechaTag ?>" style="border-left:3px solid var(--accent);">
@@ -582,7 +582,7 @@
                                         <?= date('d/m/Y', $fechaTs) ?> &middot; <?= esc($m['pagador_nombre']) ?> &rarr; <?= esc($m['receptor_nombre']) ?>
                                     </div>
                                 </div>
-                                <div class="dash-list-item-amount text-success">$<?= number_format($m['monto'], 2) ?></div>
+                                <div class="dash-list-item-amount text-success"><?= moneda($m['monto']) ?></div>
                             </a>
                         <?php endif; ?>
                     <?php endforeach; ?>

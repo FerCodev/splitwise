@@ -16,13 +16,17 @@ class Reportes extends BaseController
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
 
         $resumen = ReportesService::resumenGlobal($userId);
-        $resumenMensual = ReportesService::resumenMensual($userId, $filters['year_month'] ?? '');
-        $topGrupos = ReportesService::topGrupos($userId, $resumenMensual['mes']);
-        $topCategorias = ReportesService::topCategorias($userId, $resumenMensual['mes']);
+        $mesBase = ReportesService::resumenMensual($userId, $filters['year_month'] ?? '');
+        if (empty($filters['year_month'])) {
+            $filters['year_month'] = $mesBase['mes'];
+        }
+        $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
+        $topGrupos = ReportesService::topGrupos($userId, $filters['year_month']);
+        $topCategorias = ReportesService::topCategorias($userId, $filters['year_month']);
         $porCategoria = ReportesService::gastosPorCategoria($userId, $filters);
         $porGrupo = ReportesService::gastosPorGrupo($userId, $filters);
-        $movimientos = ReportesService::ultimosMovimientos($userId, 10);
-        $deudas = ReportesService::deudasPendientes($userId, 5);
+        $movimientos = ReportesService::movimientosFiltrados($userId, $filters, 12);
+        $deudas = ReportesService::deudasPendientes($userId, 5, $filters);
         $grupos = model(Grupo::class)->getGruposByUser($userId);
         $categorias = model(Categoria::class)->getActivas();
 
@@ -96,11 +100,17 @@ class Reportes extends BaseController
     public function exportarPdf()
     {
         $userId = session()->get('userId');
-        $resumenMensual = ReportesService::resumenMensual($userId);
-        $topGrupos = ReportesService::topGrupos($userId, $resumenMensual['mes']);
-        $topCategorias = ReportesService::topCategorias($userId, $resumenMensual['mes']);
-        $movimientos = ReportesService::ultimosMovimientos($userId, 10);
-        $deudas = ReportesService::deudasPendientes($userId, 5);
+        $filters = $this->request->getGet(array_keys($this->filtrosEsperados()));
+        $filters = array_intersect_key($filters, $this->filtrosEsperados());
+        $mesBase = ReportesService::resumenMensual($userId, $filters['year_month'] ?? '');
+        if (empty($filters['year_month'])) {
+            $filters['year_month'] = $mesBase['mes'];
+        }
+        $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
+        $topGrupos = ReportesService::topGrupos($userId, $filters['year_month']);
+        $topCategorias = ReportesService::topCategorias($userId, $filters['year_month']);
+        $movimientos = ReportesService::movimientosFiltrados($userId, $filters, 10);
+        $deudas = ReportesService::deudasPendientes($userId, 5, $filters);
 
         $html = view('reportes/pdf', [
             'resumenMensual' => $resumenMensual,

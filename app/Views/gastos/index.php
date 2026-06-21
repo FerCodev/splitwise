@@ -1,5 +1,10 @@
 <?= view('partials/_head', ['title' => 'SplitWise - Gastos']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Gastos']) ?>
+<?php
+    $pdfUrl = base_url('gastos/exportar-pdf?' . http_build_query($filters));
+    $excelUrl = base_url('gastos/exportar-excel?' . http_build_query($filters));
+    $totalFiltrado = $totalFiltrado ?? 0;
+?>
 
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -15,6 +20,16 @@
             <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
         <?php endif; ?>
 
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="text-muted small">Total filtrado</div>
+                    <div class="fw-bold fs-5 text-primary"><?= moneda($totalFiltrado) ?></div>
+                </div>
+                <div class="text-muted small text-end">Suma de gastos filtrados</div>
+            </div>
+        </div>
+
         <?php if (empty($gastos)): ?>
             <div class="card border-0 shadow-sm">
                 <div class="card-body text-center py-5">
@@ -28,9 +43,12 @@
             <!-- Desktop table -->
             <div class="d-none d-md-block">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0">Gastos</h5>
-                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#gastoFilterModal" aria-label="Filtros">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex gap-1">
+                            <a href="<?= $pdfUrl ?>" class="btn btn-danger btn-sm">PDF</a>
+                            <a href="<?= $excelUrl ?>" class="btn btn-success btn-sm">Excel</a>
+                        </div>
+                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="modal" data-bs-target="#gastoFilterModal" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
                         </button>
                     </div>
@@ -54,7 +72,7 @@
                                         <tr>
                                             <td><?= date('d/m/Y', strtotime($gasto['fecha'])) ?></td>
                                             <td><?= esc($gasto['descripcion']) ?></td>
-                                            <td class="fw-medium">$<?= number_format($gasto['monto'], 2) ?></td>
+                                            <td class="fw-medium"><?= moneda($gasto['monto']) ?></td>
                                             <td><?= esc($gasto['pagador_nombre']) ?></td>
                                             <td><?= esc($gasto['grupo_nombre']) ?></td>
                                             <td><span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span></td>
@@ -74,31 +92,33 @@
             <!-- Mobile cards -->
             <div class="d-md-none">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0">Gastos</h5>
-                        <button type="button" class="btn btn-primary feed-filter-btn" data-bs-toggle="modal" data-bs-target="#gastoFilterModal" aria-label="Filtros">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center gap-2">
+                        <div class="d-flex gap-1">
+                            <a href="<?= $pdfUrl ?>" class="btn btn-danger btn-sm">PDF</a>
+                            <a href="<?= $excelUrl ?>" class="btn btn-success btn-sm">Excel</a>
+                        </div>
+                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="modal" data-bs-target="#gastoFilterModal" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
                         </button>
                     </div>
-                    <div class="card-body p-2" id="scroll-container">
+                    <div class="report-movement-list" id="scroll-container">
                         <?php foreach ($gastos as $gasto): ?>
-                            <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="card border-0 shadow-sm mb-2 mobile-transaction-card mobile-transaction-expense mobile-transaction-link" style="border-left: 3px solid #2563eb;">
-                                <div class="card-body mobile-transaction-body">
-                                    <div class="mobile-transaction-main">
-                                        <div class="mobile-transaction-info">
-                                            <div class="fw-medium mobile-transaction-title"><?= esc($gasto['descripcion']) ?></div>
-                                            <div class="text-muted small mt-1">
-                                                <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot;
-                                                <?= esc($gasto['pagador_nombre']) ?>
-                                            </div>
-                                            <div class="text-muted small mobile-transaction-meta">
-                                                <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
-                                                Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
-                                            </div>
+                            <a href="<?= base_url('gastos/' . $gasto['id']) ?>" class="report-movement-link">
+                                <div class="report-movement-card report-movement-expense" style="border-left: 3px solid #2563eb;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2">
+                                        <div class="min-width-0">
+                                            <span class="badge bg-primary me-1">Gasto</span>
+                                            <span class="fw-medium small"><?= esc($gasto['descripcion']) ?></span>
                                         </div>
-                                        <div class="mobile-transaction-side">
-                                            <div class="fw-bold fs-5 text-primary mobile-transaction-amount">$<?= number_format($gasto['monto'], 2) ?></div>
-                                        </div>
+                                        <span class="fw-bold small text-primary text-nowrap"><?= moneda($gasto['monto']) ?></span>
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        <?= date('d/m/Y', strtotime($gasto['fecha'])) ?> &middot;
+                                        <?= esc($gasto['pagador_nombre']) ?>
+                                    </div>
+                                    <div class="text-muted small mt-1">
+                                        <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
+                                        Grupo: <?= esc($gasto['grupo_nombre']) ?> &middot; <?= $gasto['total_participantes'] ?> part.
                                     </div>
                                 </div>
                             </a>
