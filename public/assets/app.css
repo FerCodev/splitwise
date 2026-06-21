@@ -1607,14 +1607,13 @@ body {
     gap: 18px;
     padding: 18px;
     border-radius: var(--radius-lg);
-    color: #7f1d1d;
-    background: linear-gradient(135deg, #fff1f2 0%, #fecdd3 52%, #fda4af 100%);
+    color: #fff;
+    background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
     box-shadow: var(--shadow-md);
     overflow: visible;
 }
 .payment-bank-card-inactive {
-    color: #475569;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: linear-gradient(135deg, #334155 0%, #64748b 100%);
 }
 .payment-bank-card-top,
 .payment-bank-status,
@@ -1637,7 +1636,7 @@ body {
 }
 .payment-bank-name {
     min-width: 0;
-    color: #7f1d1d;
+    color: #fff;
     font-size: 1.05rem;
     font-weight: 900;
 }
@@ -1647,7 +1646,7 @@ body {
     justify-content: flex-end;
 }
 .payment-bank-label {
-    color: rgba(127, 29, 29, 0.62);
+    color: rgba(255, 255, 255, 0.68);
     font-size: 0.76rem;
     font-weight: 800;
     text-transform: uppercase;
@@ -1660,7 +1659,7 @@ body {
 .payment-bank-meta {
     display: grid;
     gap: 12px;
-    color: #7f1d1d;
+    color: rgba(255, 255, 255, 0.86);
     font-size: 0.9rem;
 }
 .payment-bank-meta-primary {
@@ -1671,20 +1670,20 @@ body {
 }
 .payment-bank-meta span {
     display: block;
-    color: rgba(127, 29, 29, 0.58);
+    color: rgba(255, 255, 255, 0.62);
     font-size: 0.74rem;
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0;
 }
 .payment-bank-meta strong {
-    color: #7f1d1d;
+    color: #fff;
     display: block;
     font-weight: 800;
     overflow-wrap: anywhere;
 }
 .payment-bank-meta a {
-    color: #7f1d1d;
+    color: #fff;
     font-weight: 800;
 }
 .payment-bank-copy {
@@ -1694,14 +1693,14 @@ body {
     min-width: 0;
 }
 .payment-bank-card .copiar-icon-btn {
-    color: #9f1239;
-    border-color: rgba(159, 18, 57, 0.24);
-    background: rgba(255, 255, 255, 0.48);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.14);
 }
 .payment-bank-card .copiar-icon-btn:hover {
-    color: #7f1d1d;
-    border-color: rgba(159, 18, 57, 0.54);
-    background: rgba(255, 255, 255, 0.72);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 255, 255, 0.22);
 }
 .payment-bank-fav {
     display: inline-flex;
@@ -1709,22 +1708,22 @@ body {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid rgba(159, 18, 57, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.36);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.46);
-    color: #be123c;
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.76);
     padding: 0;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 .payment-bank-fav:hover,
 .payment-bank-fav:focus,
 .payment-bank-fav-active {
-    color: #f59e0b;
-    background: rgba(255, 255, 255, 0.72);
+    color: #fbbf24;
+    background: rgba(255, 255, 255, 0.22);
 }
 .payment-bank-fav-active:hover,
 .payment-bank-fav-active:focus {
-    color: #d97706;
+    color: #fcd34d;
 }
 .payment-bank-gear {
     display: inline-flex;
@@ -1732,17 +1731,17 @@ body {
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid rgba(159, 18, 57, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.36);
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.46);
-    color: #9f1239;
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.86);
     padding: 0;
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 .payment-bank-gear:hover,
 .payment-bank-gear:focus {
-    color: #7f1d1d;
-    background: rgba(255, 255, 255, 0.72);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.24);
 }
 
 /* --- Admin card catalog --- */
