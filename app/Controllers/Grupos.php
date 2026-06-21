@@ -138,7 +138,7 @@ class Grupos extends BaseController
         $pagoModel = new Pago();
         $pagos = $pagoModel->getPagosByGrupo($id);
         $totalPagado = $pagoModel->getTotalPagadoByGrupo($id);
-        $movimientoFilters = $this->getMovimientoFilters();
+        $movimientoFilters = $this->getMovimientoFilters($acceso['grupo'], $gastos, $pagos);
         $movimientos = $this->buildMovimientosGrupo($gastos, $pagos, $movimientoFilters);
         $categorias = model(Categoria::class)->getActivas();
 
@@ -166,14 +166,52 @@ class Grupos extends BaseController
         ]);
     }
 
-    private function getMovimientoFilters(): array
+    private function getMovimientoFilters(array $grupo, array $gastos = [], array $pagos = []): array
     {
+        $fechaDesde = trim((string) $this->request->getGet('fecha_desde'));
+        $fechaHasta = trim((string) $this->request->getGet('fecha_hasta'));
+
+        if (!$this->request->getGet('fecha_desde') && !$this->request->getGet('fecha_hasta')) {
+            [$fechaDesde, $fechaHasta] = $this->getDefaultMovimientoDateRange($grupo, $gastos, $pagos);
+        }
+
         return [
-            'fecha_desde' => trim((string) $this->request->getGet('fecha_desde')),
-            'fecha_hasta' => trim((string) $this->request->getGet('fecha_hasta')),
+            'fecha_desde' => $fechaDesde,
+            'fecha_hasta' => $fechaHasta,
             'categoria_id' => trim((string) $this->request->getGet('categoria_id')),
             'persona_id' => trim((string) $this->request->getGet('persona_id')),
             'q' => trim((string) $this->request->getGet('q')),
+        ];
+    }
+
+    private function getDefaultMovimientoDateRange(array $grupo, array $gastos, array $pagos): array
+    {
+        $fechas = [];
+
+        foreach ($gastos as $gasto) {
+            if (!empty($gasto['fecha'])) {
+                $fechas[] = $gasto['fecha'];
+            }
+        }
+
+        foreach ($pagos as $pago) {
+            if (!empty($pago['fecha'])) {
+                $fechas[] = $pago['fecha'];
+            }
+        }
+
+        sort($fechas);
+        $fechaBase = $fechas[0] ?? ($grupo['created_at'] ?? date('Y-m-d'));
+
+        try {
+            $mes = new \DateTimeImmutable($fechaBase);
+        } catch (\Exception $e) {
+            $mes = new \DateTimeImmutable();
+        }
+
+        return [
+            $mes->modify('first day of this month')->format('Y-m-d'),
+            $mes->modify('last day of this month')->format('Y-m-d'),
         ];
     }
 
