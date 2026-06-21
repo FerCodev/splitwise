@@ -2718,6 +2718,144 @@ body {
     border-color: #cfe2ff;
     background: linear-gradient(135deg, #eff6ff, #fff);
 }
+.tabler-alert-inline-error {
+    border-color: #fecdd3;
+    background: #fff7f8;
+}
+.tabler-alert-inline-error .tabler-alert-icon {
+    color: #be123c;
+    background: #ffe4e6;
+}
+.tabler-alert-calendar {
+    border-color: #fed7aa;
+    background: #fff7ed;
+}
+.tabler-alert-calendar .tabler-alert-icon {
+    width: 40px;
+    border-radius: var(--radius-md);
+    color: #c2410c;
+    background: #ffedd5;
+    font-size: 0.8rem;
+}
+.tabler-alert-lock {
+    border-color: #dbe4f0;
+    background: #f8fafc;
+}
+.tabler-alert-lock .tabler-alert-icon {
+    color: #475569;
+    background: #e2e8f0;
+}
+.tabler-alert-favorite {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+.tabler-alert-favorite .tabler-alert-icon {
+    color: #d97706;
+    background: #fef3c7;
+}
+.tabler-alert-import,
+.tabler-alert-sync {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+.tabler-alert-import .tabler-alert-icon,
+.tabler-alert-sync .tabler-alert-icon {
+    color: #15803d;
+    background: #dcfce7;
+}
+.tabler-alert-partial {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+.tabler-alert-partial .tabler-alert-icon {
+    color: #b45309;
+    background: #fef3c7;
+}
+.tabler-alert-recommend {
+    border-color: #cfe2ff;
+    background: #f8fbff;
+}
+.tabler-alert-recommend .tabler-alert-icon {
+    color: #206bc4;
+    background: #dbeafe;
+}
+.tabler-alert-empty {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #dce3ec;
+    background: #fff;
+}
+.tabler-alert-empty .tabler-alert-icon {
+    color: #206bc4;
+    background: #eff6ff;
+}
+.tabler-alert-duplicate,
+.tabler-alert-unsaved,
+.tabler-alert-session {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+.tabler-alert-duplicate .tabler-alert-icon,
+.tabler-alert-unsaved .tabler-alert-icon,
+.tabler-alert-session .tabler-alert-icon {
+    color: #b45309;
+    background: #fef3c7;
+}
+.tabler-alert-progress {
+    grid-template-columns: minmax(0, 1fr) auto;
+    border-color: #cfe2ff;
+    background: #f8fbff;
+}
+.tabler-alert-progress b {
+    color: #206bc4;
+}
+.tabler-alert-progressbar {
+    height: 8px;
+    margin-top: 10px;
+    overflow: hidden;
+    border-radius: var(--radius-pill);
+    background: #dbeafe;
+}
+.tabler-alert-progressbar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: #206bc4;
+}
+.tabler-alert-member {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+.tabler-alert-member .tabler-alert-icon {
+    color: #15803d;
+    background: #dcfce7;
+}
+.tabler-alert-member-out {
+    border-color: #fecdd3;
+    background: #fff7f8;
+}
+.tabler-alert-member-out .tabler-alert-icon {
+    color: #be123c;
+    background: #ffe4e6;
+}
+.tabler-alert-recalc {
+    border-color: #cfe2ff;
+    background: linear-gradient(135deg, #eff6ff, #fff);
+}
+.tabler-alert-recalc .tabler-alert-icon {
+    color: #206bc4;
+    background: #dbeafe;
+}
+.tabler-alert-maintenance {
+    border-color: #e2e8f0;
+    background: linear-gradient(135deg, #f8fafc, #fff);
+}
+.tabler-alert-maintenance .tabler-alert-icon {
+    color: #475569;
+    background: #e2e8f0;
+}
 .tabler-proposal-table {
     display: grid;
     gap: 0;
