@@ -5,6 +5,7 @@ $persona = $persona ?? 'Persona';
 $grupo = $grupo ?? 'Grupo';
 $monto = (float) ($monto ?? 0);
 $wrap = $wrap ?? true;
+$preview = $preview ?? false;
 $esDeudaPropia = $modo === 'debes';
 $cardClase = $esDeudaPropia ? 'home-debt-card-owes' : 'home-debt-card-owed';
 $montoClase = $esDeudaPropia ? 'text-danger' : 'text-success';
@@ -14,7 +15,7 @@ $avatar = mb_strtoupper(mb_substr($persona, 0, 1));
 ?>
 
 <?php if ($wrap): ?>
-<div class="report-movement-list catalog-list-preview">
+<div class="report-movement-list <?= $preview ? 'catalog-list-preview' : '' ?>">
     <a href="#" class="report-movement-link">
 <?php endif; ?>
 

@@ -8,6 +8,7 @@ $persona = $persona ?? 'Usuario';
 $categoria = $categoria ?? null;
 $contexto = $contexto ?? null;
 $wrap = $wrap ?? true;
+$preview = $preview ?? false;
 $esGasto = $tipo === 'gasto';
 $cardClase = $esGasto ? 'report-movement-expense movement-border-expense' : 'report-movement-payment movement-border-payment';
 $badgeClase = $esGasto ? 'bg-primary' : 'bg-success';
@@ -18,7 +19,7 @@ $personaClase = str_contains($personaLower, 'anto') ? 'group-movement-anto' : 'g
 ?>
 
 <?php if ($wrap): ?>
-<div class="report-movement-list catalog-list-preview">
+<div class="report-movement-list <?= $preview ? 'catalog-list-preview' : '' ?>">
     <a href="#" class="report-movement-link">
 <?php endif; ?>
 
