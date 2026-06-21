@@ -46,6 +46,10 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1A.26.26 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.27.27 0 0 1-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.5 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/></svg>
                 Usuarios
             </a>
+            <a href="<?= base_url('admin/catalogo-tarjetas') ?>" class="desktop-sidebar-link <?= tabActive('admin/catalogo-tarjetas', $current) ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3zm1 0v10h12V3H2zm3 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+                Cat&aacute;logo
+            </a>
         <?php endif; ?>
     </nav>
     <div class="desktop-sidebar-footer">
@@ -105,6 +109,7 @@
                 <div class="mobile-menu-section-title">Administraci&oacute;n</div>
                 <a href="<?= base_url('categorias') ?>" class="mobile-menu-link">Categor&iacute;as</a>
                 <a href="<?= base_url('usuarios') ?>" class="mobile-menu-link">Usuarios</a>
+                <a href="<?= base_url('admin/catalogo-tarjetas') ?>" class="mobile-menu-link">Cat&aacute;logo</a>
             </div>
         <?php endif; ?>
 
