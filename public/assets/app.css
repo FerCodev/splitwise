@@ -4170,3 +4170,271 @@ body {
         flex: 1 1 140px;
     }
 }
+
+.design-real-card {
+    min-height: 340px;
+    align-content: start;
+}
+.design-real-title strong {
+    display: block;
+    color: var(--text);
+    font-size: 1rem;
+    line-height: 1.2;
+}
+.design-real-title p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+.design-real-row,
+.design-real-actions,
+.design-real-kpis,
+.design-real-bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.design-real-row small,
+.design-real-user small,
+.design-real-phone-menu small,
+.design-real-bank-card small,
+.design-real-login small,
+.design-real-admin small,
+.design-real-list small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.74rem;
+    line-height: 1.25;
+}
+.design-real-sidebar,
+.design-real-phone-menu,
+.design-real-home-card,
+.design-real-group-detail,
+.design-real-ledger,
+.design-real-form,
+.design-real-report,
+.design-real-login,
+.design-real-admin {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid color-mix(in srgb, var(--proposal-accent), white 72%);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.03);
+}
+.design-real-user,
+.design-real-picker {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+}
+.design-real-user span,
+.design-real-picker span,
+.design-real-phone-menu div:first-child span {
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--proposal-surface);
+    color: var(--proposal-accent);
+    font-weight: 900;
+}
+.design-real-sidebar nav {
+    display: grid;
+    gap: 6px;
+}
+.design-real-sidebar nav b {
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    font-size: 0.82rem;
+}
+.design-real-sidebar nav b.active,
+.design-real-phone-menu button,
+.design-real-login button {
+    background: var(--proposal-accent);
+    color: #fff;
+}
+.design-real-mini,
+.design-real-total,
+.design-real-input,
+.design-real-picker,
+.design-real-rank,
+.design-real-movement,
+.design-real-list > div {
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background: var(--proposal-surface);
+}
+.design-real-mini,
+.design-real-total,
+.design-real-rank,
+.design-real-list > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+.design-real-phone-menu div:first-child {
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+}
+.design-real-phone-menu div:first-child small {
+    grid-column: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.design-real-phone-menu button,
+.design-real-login button,
+.design-real-actions button {
+    min-height: 36px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+    font-weight: 900;
+}
+.design-real-actions button {
+    flex: 1 1 0;
+    background: #fff;
+    color: var(--proposal-accent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--proposal-accent), white 40%);
+}
+.design-real-actions button:last-child {
+    background: var(--proposal-accent);
+    color: #fff;
+    box-shadow: none;
+}
+.design-real-bottom-nav b {
+    display: grid;
+    min-height: 34px;
+    place-items: center;
+    flex: 1;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+.design-real-home-card,
+.design-real-group-detail {
+    background: linear-gradient(180deg, #fff, var(--proposal-surface));
+}
+.design-real-movement {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 6px 8px;
+    align-items: center;
+    border-left: 3px solid var(--proposal-accent);
+}
+.design-real-movement small {
+    grid-column: 1 / -1;
+    color: var(--muted);
+}
+.design-real-gauge {
+    display: grid;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+.design-real-gauge::before {
+    content: "0";
+    float: left;
+}
+.design-real-gauge i {
+    display: block;
+    height: 12px;
+    max-width: 100%;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(90deg, #22c55e, #f59e0b, #dc2626);
+}
+.design-real-form label {
+    margin-bottom: -5px;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-weight: 900;
+}
+.design-real-input {
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    color: var(--text);
+    font-weight: 800;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--proposal-accent), white 70%);
+}
+.design-real-input.muted {
+    color: var(--proposal-accent);
+}
+.design-real-kpis > div {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    background: var(--proposal-surface);
+}
+.design-real-kpis b {
+    display: block;
+    color: var(--proposal-accent);
+    font-size: 1rem;
+}
+.design-real-rank {
+    position: relative;
+    overflow: hidden;
+}
+.design-real-rank i {
+    position: absolute;
+    left: 0;
+    right: auto;
+    bottom: 0;
+    height: 3px;
+    background: var(--proposal-accent);
+}
+.design-real-bank-card {
+    min-height: 214px;
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    border-radius: 18px;
+    color: #fff;
+    background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.22), transparent 34%),
+        linear-gradient(135deg, #0f172a, #2563eb);
+    box-shadow: 0 16px 32px rgba(32, 107, 196, 0.24);
+}
+.design-real-bank-card small {
+    color: rgba(255, 255, 255, 0.68);
+    font-weight: 900;
+    letter-spacing: 0.03em;
+}
+.design-real-bank-card .design-real-row span {
+    display: inline-grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fbbf24;
+}
+.design-real-login {
+    max-width: 280px;
+    margin: 0 auto;
+    text-align: center;
+}
+.design-real-login b {
+    font-size: 1.35rem;
+    color: var(--proposal-accent);
+}
+.design-real-admin .design-real-list {
+    display: grid;
+    gap: 8px;
+}
+@media (max-width: 991.98px) {
+    .design-real-card {
+        min-height: auto;
+    }
+}

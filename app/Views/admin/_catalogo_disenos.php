@@ -13,19 +13,94 @@ $designProposalBlueprints = [
 ];
 
 $renderDesignProposal = static function (array $group, string $name, int $index): string {
-    $layout = $index % 5;
     $accent = $group['accent'];
     $surface = $group['surface'];
     $number = str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT);
+    $variant = $index % 10;
+    $money = static fn (int|float $value): string => moneda($value);
+    $groupTitle = $group['title'];
+    $saldo = [5000, -112697, 130920, 0, -14570, 25000, -63800, 898212, 665511, 116351][$variant];
+    $saldoClass = $saldo < 0 ? 'text-danger' : ($saldo > 0 ? 'text-success' : 'text-muted');
+    $saldoText = $saldo < 0 ? $money(abs($saldo)) . ' debe' : ($saldo > 0 ? $money($saldo) . ' a favor' : $money(0) . ' saldado');
+    $movements = [
+        ['label' => 'Gasto', 'name' => 'Supermercado', 'person' => 'Antonella', 'date' => '20/06/2026', 'amount' => 59300, 'class' => 'primary'],
+        ['label' => 'Gasto', 'name' => 'Garrafa', 'person' => 'Fernando', 'date' => '21/06/2026', 'amount' => 57000, 'class' => 'primary'],
+        ['label' => 'Pago', 'name' => 'Transferencia', 'person' => 'Fernando -> Antonella', 'date' => '22/06/2026', 'amount' => 30000, 'class' => 'success'],
+    ];
+    $movement = $movements[$variant % count($movements)];
+
     ob_start();
     ?>
-    <div class="design-proposal-card design-proposal-layout-<?= $layout ?>" style="--proposal-accent: <?= esc($accent, 'attr') ?>; --proposal-surface: <?= esc($surface, 'attr') ?>;">
-        <div class="design-proposal-topline"><span><?= $number ?></span><small><?= esc($group['title']) ?></small></div>
-        <div class="design-proposal-body">
-            <div><strong><?= esc($name) ?></strong><p>Explora estructura, jerarquia visual y estados para esta zona de la app.</p></div>
-            <div class="design-proposal-preview" aria-hidden="true"><span></span><span></span><span></span></div>
-        </div>
-        <div class="design-proposal-footer"><span>Propuesta visual</span><b>UI</b></div>
+    <div class="design-proposal-card design-real-card" style="--proposal-accent: <?= esc($accent, 'attr') ?>; --proposal-surface: <?= esc($surface, 'attr') ?>;">
+        <div class="design-proposal-topline"><span><?= $number ?></span><small><?= esc($groupTitle) ?></small></div>
+        <div class="design-real-title"><strong><?= esc($name) ?></strong><p>Ejemplo con datos reales de SplitWise para validar lectura, jerarquia y acciones.</p></div>
+        <?php if ($groupTitle === 'Menu lateral desktop'): ?>
+            <div class="design-real-sidebar">
+                <div class="design-real-user"><span>F</span><div><b>Fernando</b><small>Admin</small></div></div>
+                <nav><b class="active">Home</b><b>Grupos</b><b>Gastos</b><b>Pagos</b><b>Reportes</b><b>Catalogo</b></nav>
+                <div class="design-real-mini"><span>Mayo</span><strong class="text-success"><?= $money(130920) ?></strong></div>
+            </div>
+        <?php elseif ($groupTitle === 'Menu mobile'): ?>
+            <div class="design-real-phone-menu">
+                <div><span>F</span><strong>Fernando</strong><small>codigomontesdeoca@gmail.com</small></div>
+                <button type="button">+ Nuevo gasto</button>
+                <div class="design-real-bottom-nav"><b>Home</b><b>Reportes</b><b>Perfil</b><b>Menu</b></div>
+            </div>
+        <?php elseif ($groupTitle === 'Home'): ?>
+            <div class="design-real-home-card">
+                <div class="design-real-row"><div><b>Junio</b><small>Activo &middot; 2 integrantes</small></div><span class="badge bg-success">Activo</span></div>
+                <div class="design-real-row"><span>Saldo</span><strong class="<?= $saldoClass ?>"><?= $saldoText ?></strong></div>
+                <div class="design-real-movement"><span class="badge bg-primary">Gasto</span><b>Ines</b><strong><?= $money(25000) ?></strong><small>01/06/2026 &middot; Fernando</small></div>
+                <div class="design-real-actions"><button type="button">Entrar</button><button type="button">+ Gasto</button></div>
+            </div>
+        <?php elseif ($groupTitle === 'Grupos'): ?>
+            <div class="design-real-group-detail">
+                <div class="design-real-row"><div><b>Junio</b><small>Movimientos filtrados: 01/06 al 30/06</small></div><strong class="<?= $saldoClass ?>"><?= $saldoText ?></strong></div>
+                <div class="design-real-gauge"><i style="width: <?= 30 + ($variant * 6) ?>%"></i><span>Vos pagaste <?= $money(898212) ?> de <?= $money(1563723) ?></span></div>
+                <div class="design-real-list"><div><b>Supermercado</b><span><?= $money(59300) ?></span></div><div><b>Pago parcial</b><span><?= $money(30000) ?></span></div></div>
+            </div>
+        <?php elseif ($groupTitle === 'Gastos y pagos'): ?>
+            <div class="design-real-ledger">
+                <div class="design-real-total"><small>Total filtrado</small><strong><?= $money($variant % 2 === 0 ? 898212 : 665511) ?></strong></div>
+                <div class="design-real-movement"><span class="badge bg-<?= esc($movement['class']) ?>"><?= esc($movement['label']) ?></span><b><?= esc($movement['name']) ?></b><strong><?= $money($movement['amount']) ?></strong><small><?= esc($movement['date']) ?> &middot; <?= esc($movement['person']) ?> &middot; Junio</small></div>
+                <div class="design-real-actions"><button type="button">PDF</button><button type="button">Excel</button><button type="button">Filtros</button></div>
+            </div>
+        <?php elseif ($groupTitle === 'Formularios'): ?>
+            <div class="design-real-form">
+                <label>Monto total</label><div class="design-real-input"><?= $money([10000, 25000, 59300, 9200, 57000][$variant % 5]) ?></div>
+                <label>Pagado por</label><div class="design-real-picker"><span>F</span><b>Fernando</b><small>Seleccionar</small></div>
+                <label>Division</label><div class="design-real-input muted">Por defecto, dividido en partes iguales.</div>
+                <div class="design-real-actions"><button type="button">Cancelar</button><button type="button">Crear gasto</button></div>
+            </div>
+        <?php elseif ($groupTitle === 'Reportes'): ?>
+            <div class="design-real-report">
+                <div class="design-real-kpis"><div><small>Total gastado</small><b><?= $money(1563723) ?></b></div><div><small>Vos pagaste</small><b><?= $money(898212) ?></b></div></div>
+                <div class="design-real-rank"><span>Mayo &middot; 58 gastos</span><strong><?= $money(1630862) ?></strong><i style="width: 92%"></i></div>
+                <div class="design-real-movement"><span class="badge bg-primary">Gasto</span><b>Vacio</b><strong><?= $money(59300) ?></strong><small>01/05/2026 &middot; Antonella &middot; Mayo</small></div>
+            </div>
+        <?php elseif ($groupTitle === 'Medios de cobro'): ?>
+            <div class="design-real-bank-card">
+                <div class="design-real-row"><b>Cuenta Galicia</b><span>*</span></div>
+                <small>TITULAR</small><strong>Montes de oca Fernando</strong>
+                <small>ALIAS</small><strong>fernando.montesdeoca</strong>
+                <div class="design-real-row"><small>CBU</small><b>0000003100098765432101</b></div>
+            </div>
+        <?php elseif ($groupTitle === 'Login y seguridad'): ?>
+            <div class="design-real-login">
+                <b>SplitWise</b><small>Entrar a tu cuenta</small>
+                <div class="design-real-input">codigomontesdeoca@gmail.com</div>
+                <div class="design-real-input">**********</div>
+                <button type="button">Iniciar sesion</button>
+                <small>Recuperar contrasena &middot; Crear cuenta</small>
+            </div>
+        <?php else: ?>
+            <div class="design-real-admin">
+                <div class="design-real-row"><div><b>Catalogo Admin</b><small>Componentes elegibles</small></div><span class="badge bg-primary">Admin</span></div>
+                <div class="design-real-list"><div><b>Home</b><span>2 componentes</span></div><div><b>Grupos</b><span>3 componentes</span></div><div><b>Disenos app</b><span>100 propuestas</span></div></div>
+                <div class="design-real-actions"><button type="button">Abrir</button><button type="button">Usar en app</button></div>
+            </div>
+        <?php endif; ?>
+        <div class="design-proposal-footer"><span><?= esc($name) ?></span><b>Demo</b></div>
     </div>
     <?php
     return ob_get_clean();
@@ -62,7 +137,7 @@ $renderDesignProposal = static function (array $group, string $name, int $index)
                         <?php $proposalId = 'design-' . str_pad((string) ($globalIndex + 1), 3, '0', STR_PAD_LEFT); ?>
                         <article class="catalog-variant design-curation-item" data-design-proposal-id="<?= esc($proposalId, 'attr') ?>" data-design-proposal-name="<?= esc($item, 'attr') ?>" data-design-proposal-group="<?= esc($group['title'], 'attr') ?>">
                             <div class="catalog-variant-meta"><span><?= esc($item) ?></span><small><?= esc($group['title']) ?></small></div>
-                            <div class="catalog-source-badge">Dise&ntilde;o app</div>
+                            <div class="catalog-source-badge">Diseno app</div>
                             <?= $renderDesignProposal($group, $item, $globalIndex) ?>
                             <div class="design-curation-controls" aria-label="Curar propuesta <?= esc($item, 'attr') ?>">
                                 <button class="design-curation-btn design-curation-btn-keep" type="button" data-design-action="selected">Implementar</button>
