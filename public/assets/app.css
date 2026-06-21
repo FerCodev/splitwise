@@ -366,6 +366,7 @@ body {
     line-height: 1.3;
 }
 .expense-payer-card {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -375,6 +376,15 @@ body {
     border: 1px solid #dbeafe;
     border-radius: var(--radius-md);
     background: #f8fbff;
+}
+.expense-payer-card-selectable {
+    cursor: pointer;
+}
+.expense-payer-card-selectable:hover,
+.expense-payer-card-selectable:focus-within {
+    border-color: #bfdbfe;
+    background: #eef5ff;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.08);
 }
 .expense-payer-main {
     display: grid;
@@ -427,9 +437,13 @@ body {
     background: #eaf2ff;
     color: var(--primary-dark);
 }
-.expense-payer-select {
-    border-color: #bfdbfe;
-    background-color: #f8fbff;
+.expense-payer-native-select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
 }
 .more-actions-panel {
     border: 2px solid var(--border-strong);

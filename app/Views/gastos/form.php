@@ -120,21 +120,21 @@
                         }
                     ?>
                     <div class="mb-3 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
-                        <div class="expense-payer-card">
+                        <div class="expense-payer-card <?= !$pagadorBloqueado && isset($miembros) && count($miembros) > 0 ? 'expense-payer-card-selectable' : '' ?>">
                             <div class="expense-payer-main">
                                 <span class="expense-payer-label">Pagado por</span>
                                 <span class="expense-payer-name" id="pagadorLabel"><?= esc($pagadorNombre) ?></span>
                             </div>
                             <?php if (!$pagadorBloqueado && isset($miembros) && count($miembros) > 0): ?>
-                                <button type="button" class="expense-payer-change" id="cambiarPagadorBtn" onclick="mostrarSelectorPagador()">Cambiar</button>
+                                <span class="expense-payer-change" aria-hidden="true">Cambiar</span>
+                                <select class="expense-payer-native-select" id="pagadorSelect" name="pagador_id" required aria-label="Pagado por" onchange="pagadorSeleccionado(this)">
+                                    <option value="">Seleccionar</option>
+                                    <?php foreach ($miembros as $m): ?>
+                                        <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             <?php endif; ?>
                         </div>
-                        <select class="form-select form-select-sm mt-2 d-none expense-payer-select" id="pagadorSelect" name="pagador_id" required <?= $pagadorBloqueado ? 'disabled' : '' ?> onchange="pagadorSeleccionado(this)">
-                            <option value="">Seleccionar</option>
-                            <?php foreach ($miembros as $m): ?>
-                                <option value="<?= $m['user_id'] ?>" <?= $pagadorDefault == $m['user_id'] ? 'selected' : '' ?>><?= esc($m['name']) ?></option>
-                            <?php endforeach; ?>
-                        </select>
                         <?php if ($pagadorBloqueado): ?>
                             <input type="hidden" name="pagador_id" value="<?= $pagadorDefault ?>">
                         <?php endif; ?>
@@ -224,15 +224,6 @@
         var otroMiembroId = '<?= $otroMiembro['user_id'] ?? '' ?>';
         var pagadorBloqueado = <?= (isset($gasto) && $rol !== 'admin') ? 'true' : 'false' ?>;
 
-        function mostrarSelectorPagador() {
-            var pagador = document.getElementById('pagadorSelect');
-            var btn = document.getElementById('cambiarPagadorBtn');
-            if (!pagador || !btn) return;
-            pagador.classList.remove('d-none');
-            btn.classList.add('d-none');
-            pagador.focus();
-        }
-
         function setPagador(uid) {
             var pagador = document.getElementById('pagadorSelect');
             if (!pagador || !uid) return;
@@ -256,9 +247,6 @@
         function pagadorSeleccionado(select) {
             if (!select.value) return;
             actualizarLabelPagador();
-            select.classList.add('d-none');
-            var btn = document.getElementById('cambiarPagadorBtn');
-            if (btn) btn.classList.remove('d-none');
             recalcularDivision();
         }
 
