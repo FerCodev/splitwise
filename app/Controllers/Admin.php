@@ -14,6 +14,22 @@ class Admin extends BaseController
                 UiComponentResolver::SCREEN_HOME,
                 UiComponentResolver::COMPONENT_DEBT_CARD
             ),
+            'selectedHomeGroupVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_HOME,
+                UiComponentResolver::COMPONENT_HOME_GROUP_CARD
+            ),
+            'selectedExpensesTotalVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_EXPENSES_INDEX,
+                UiComponentResolver::COMPONENT_FILTERED_TOTAL_CARD
+            ),
+            'selectedPaymentsTotalVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_PAYMENTS_INDEX,
+                UiComponentResolver::COMPONENT_FILTERED_TOTAL_CARD
+            ),
+            'selectedPaymentMethodVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_PAYMENT_METHODS,
+                UiComponentResolver::COMPONENT_PAYMENT_METHOD_CARD
+            ),
             'selectedGaugeVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_GAUGE
@@ -44,3 +60,4 @@ class Admin extends BaseController
         return redirect()->back()->with('success', 'Componente actualizado correctamente.');
     }
 }
+

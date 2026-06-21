@@ -7,6 +7,25 @@ $fechaCorta = date('d/m/Y', strtotime($fechaDemo));
 $selectedDebtVariant = $selectedDebtVariant ?? 'soft';
 $selectedGaugeVariant = $selectedGaugeVariant ?? 'semicircle';
 $selectedMovementVariant = $selectedMovementVariant ?? 'feed';
+$selectedHomeGroupVariant = $selectedHomeGroupVariant ?? 'operational';
+$selectedExpensesTotalVariant = $selectedExpensesTotalVariant ?? 'simple';
+$selectedPaymentsTotalVariant = $selectedPaymentsTotalVariant ?? 'simple';
+$selectedPaymentMethodVariant = $selectedPaymentMethodVariant ?? 'bank_card';
+$componentVariantAction = static function (string $screenKey, string $componentKey, string $variant, string $selectedVariant, string $activeLabel, string $useLabel): string {
+    ob_start();
+    ?>
+    <form method="post" action="<?= base_url('admin/catalogo-tarjetas/componente') ?>" class="catalog-component-action">
+        <?= csrf_field() ?>
+        <input type="hidden" name="screen_key" value="<?= esc($screenKey) ?>">
+        <input type="hidden" name="component_key" value="<?= esc($componentKey) ?>">
+        <input type="hidden" name="variant_key" value="<?= esc($variant) ?>">
+        <button type="submit" class="btn btn-sm <?= $selectedVariant === $variant ? 'btn-success' : 'btn-outline-primary' ?>">
+            <?= $selectedVariant === $variant ? esc($activeLabel) : esc($useLabel) ?>
+        </button>
+    </form>
+    <?php
+    return ob_get_clean();
+};
 $debtVariantAction = static function (string $variant, string $selectedDebtVariant): string {
     ob_start();
     ?>
@@ -116,61 +135,9 @@ $gaugeVariantAction = static function (string $variant, string $selectedGaugeVar
             <span class="badge bg-success">Grupo</span>
         </div>
         <div class="catalog-grid">
-            <article class="catalog-variant">
-                <div class="catalog-variant-meta">
-                    <span>Operativa</span>
-                    <small>Acciones directas</small>
-                </div>
-                <div class="dash-card catalog-preview-card">
-                    <div class="dash-card-body">
-                        <div class="catalog-row align-items-start">
-                            <div class="catalog-avatar catalog-avatar-primary">M</div>
-                            <div class="min-width-0 flex-grow-1">
-                                <div class="catalog-title-row"><strong>Mayo</strong><span class="badge bg-success">Activo</span></div>
-                                <div class="text-muted small">Saldo: <span class="financial-amount text-success"><?= moneda(12500) ?></span></div>
-                                <div class="text-muted small mt-1"><span class="badge bg-primary">Gasto</span> Supermercado</div>
-                            </div>
-                        </div>
-                        <div class="catalog-actions mt-3">
-                            <button class="btn btn-outline-primary btn-sm" type="button">Entrar</button>
-                            <button class="btn btn-primary btn-sm" type="button">+ Gasto</button>
-                        </div>
-                    </div>
-                </div>
-            </article>
-            <article class="catalog-variant">
-                <div class="catalog-variant-meta">
-                    <span>Balance primero</span>
-                    <small>Saldo protagonista</small>
-                </div>
-                <div class="dash-card catalog-preview-card catalog-balance-first">
-                    <div class="dash-card-body text-center">
-                        <div class="small text-muted">Mayo &middot; Activo</div>
-                        <div class="catalog-balance-amount text-success"><?= moneda(12500) ?></div>
-                        <div class="small text-muted">a favor</div>
-                        <div class="catalog-actions justify-content-center mt-3">
-                            <button class="btn btn-outline-primary btn-sm" type="button">Entrar</button>
-                            <button class="btn btn-primary btn-sm" type="button">+ Gasto</button>
-                        </div>
-                    </div>
-                </div>
-            </article>
-            <article class="catalog-variant">
-                <div class="catalog-variant-meta">
-                    <span>Resumen compacto</span>
-                    <small>Listado denso</small>
-                </div>
-                <div class="dash-card catalog-preview-card">
-                    <a href="#" class="dash-list-item text-decoration-none">
-                        <div class="catalog-avatar catalog-avatar-primary catalog-avatar-sm">M</div>
-                        <div class="dash-list-item-info">
-                            <div class="dash-list-item-title">Mayo <span class="badge bg-success ms-1">Activo</span></div>
-                            <div class="dash-list-item-subtitle">Ultimo: supermercado mensual</div>
-                        </div>
-                        <div class="dash-list-item-amount text-success"><?= moneda(12500) ?></div>
-                    </a>
-                </div>
-            </article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Operativa</span><small>Acciones directas</small></div><?= view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo]) ?><?= $componentVariantAction('home', 'home_group_card', 'operational', $selectedHomeGroupVariant, 'Activo en Home', 'Usar en Home') ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Balance primero</span><small>Saldo protagonista</small></div><?= view('components/cards/grupo', ['variant' => 'balance_first', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500]) ?><?= $componentVariantAction('home', 'home_group_card', 'balance_first', $selectedHomeGroupVariant, 'Activo en Home', 'Usar en Home') ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Resumen compacto</span><small>Listado denso</small></div><?= view('components/cards/grupo', ['variant' => 'compact', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoDescripcion' => 'supermercado mensual']) ?><?= $componentVariantAction('home', 'home_group_card', 'compact', $selectedHomeGroupVariant, 'Activo en Home', 'Usar en Home') ?></article>
         </div>
     </section>
 
@@ -290,9 +257,9 @@ $gaugeVariantAction = static function (string $variant, string $selectedGaugeVar
     <section class="catalog-section">
         <div class="catalog-section-head"><div><h5>Total / Resumen</h5><p>Usado en Home, Reportes y tarjetas de totales filtrados.</p></div><span class="badge bg-secondary">Resumen</span></div>
         <div class="catalog-grid">
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>KPI simple</span><small>Monto protagonista</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body"><div class="balance-strip-label">Total filtrado</div><div class="balance-strip-amount text-primary"><?= moneda(898212) ?></div><div class="text-muted small">Suma de gastos filtrados</div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Balance detallado</span><small>Cuatro datos</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body catalog-metric-grid"><div><small>Total</small><b><?= moneda(1563723) ?></b></div><div><small>Vos pagaste</small><b class="text-success"><?= moneda(898212) ?></b></div><div><small>Tu parte</small><b><?= moneda(781862) ?></b></div><div><small>Saldo</small><b class="text-success"><?= moneda(116351) ?></b></div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Comparativo</span><small>Gastos vs pagos</small></div><div class="dash-card catalog-preview-card"><div class="dash-card-body"><div class="catalog-compare"><div><span class="status-dot status-dot-danger"></span><small>Gastos</small><b><?= moneda(1630862) ?></b></div><div><span class="status-dot status-dot-active"></span><small>Pagos</small><b><?= moneda(830001) ?></b></div></div><div class="catalog-total-line mt-3"><span>Saldo</span><b class="text-success"><?= moneda(0) ?> saldado</b></div></div></div></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>KPI simple</span><small>Monto protagonista</small></div><?= view('components/cards/resumen', ['variant' => 'simple', 'titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Suma de gastos filtrados', 'color' => 'text-primary']) ?><?= $componentVariantAction('gastos_index', 'filtered_total_card', 'simple', $selectedExpensesTotalVariant, 'Activo en Gastos', 'Usar en Gastos') ?><?= $componentVariantAction('pagos_index', 'filtered_total_card', 'simple', $selectedPaymentsTotalVariant, 'Activo en Pagos', 'Usar en Pagos') ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Balance detallado</span><small>Cuatro datos</small></div><?= view('components/cards/resumen', ['variant' => 'detail', 'titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Suma de gastos filtrados', 'color' => 'text-primary', 'secundarios' => [['label' => 'Registros', 'value' => '18'], ['label' => 'Periodo', 'value' => 'Abril'], ['label' => 'Filtro', 'value' => 'Activo']]]) ?><?= $componentVariantAction('gastos_index', 'filtered_total_card', 'detail', $selectedExpensesTotalVariant, 'Activo en Gastos', 'Usar en Gastos') ?><?= $componentVariantAction('pagos_index', 'filtered_total_card', 'detail', $selectedPaymentsTotalVariant, 'Activo en Pagos', 'Usar en Pagos') ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Comparativo</span><small>Gastos vs pagos</small></div><?= view('components/cards/resumen', ['variant' => 'compare', 'titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Filtro aplicado', 'color' => 'text-primary']) ?><?= $componentVariantAction('gastos_index', 'filtered_total_card', 'compare', $selectedExpensesTotalVariant, 'Activo en Gastos', 'Usar en Gastos') ?><?= $componentVariantAction('pagos_index', 'filtered_total_card', 'compare', $selectedPaymentsTotalVariant, 'Activo en Pagos', 'Usar en Pagos') ?></article>
             <article class="catalog-variant"><div class="catalog-variant-meta"><span>Veloc&iacute;metro actual</span><small>Aguja semicircular</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'semicircle', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('semicircle', $selectedGaugeVariant) ?></article>
             <article class="catalog-variant"><div class="catalog-variant-meta"><span>Dial compacto</span><small>Score central</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'compact_dial', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('compact_dial', $selectedGaugeVariant) ?></article>
             <article class="catalog-variant"><div class="catalog-variant-meta"><span>Barra de escala</span><small>Lectura horizontal</small></div><?= view('components/widgets/velocimetro_aporte', ['variant' => 'scale_bar', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?><?= $gaugeVariantAction('scale_bar', $selectedGaugeVariant) ?></article>
@@ -306,11 +273,13 @@ $gaugeVariantAction = static function (string $variant, string $selectedGaugeVar
     <section class="catalog-section">
         <div class="catalog-section-head"><div><h5>Medio de cobro</h5><p>Usado en Mis medios de cobro. Debe facilitar copiar datos y entender el favorito.</p></div><span class="badge bg-info text-dark">Cobro</span></div>
         <div class="catalog-grid">
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Compacta operativa</span><small>Listado eficiente</small></div><div class="dash-card catalog-preview-card catalog-payment-method"><div class="dash-card-body"><div class="catalog-card-top"><div class="catalog-row"><div class="catalog-payment-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm1 2.5V12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6.5H1Z"/></svg></div><div><strong>CBU Santander</strong><div class="text-muted small">Alias: fer.santander <button type="button" class="copiar-icon-btn" aria-label="Copiar alias"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg></button></div></div></div><button type="button" class="medio-fav-btn" aria-label="Marcar favorito"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73z"/></svg></button></div><div class="catalog-actions mt-3"><button class="btn btn-primary btn-sm" type="button">Editar</button><button class="btn btn-outline-secondary btn-sm" type="button">M&aacute;s</button></div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Favorita destacada</span><small>Medio principal</small></div><div class="dash-card catalog-preview-card catalog-payment-favorite"><div class="dash-card-body"><div class="catalog-card-top"><span class="badge bg-success">Favorito</span><button type="button" class="medio-fav-btn medio-fav-active" aria-label="Quitar favorito"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg></button></div><strong class="d-block mt-2">Mercado Pago</strong><div class="catalog-copy-line mt-2"><span>Alias</span><b>fer.mp</b><button type="button" class="copiar-icon-btn" aria-label="Copiar alias"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg></button></div><div class="text-muted small mt-2">Titular: Fernando</div></div></div></article>
-            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Credencial actual</span><small>Azul, favorita y configuraci&oacute;n</small></div><div class="payment-bank-card"><div class="payment-bank-card-top"><div class="payment-bank-name">Banco Galicia</div><div class="payment-bank-controls"><span class="badge bg-light text-dark">Activo</span><button type="button" class="payment-bank-fav payment-bank-fav-active" aria-label="Quitar favorito"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg></button><a href="#" class="payment-bank-gear" aria-label="Configurar medio de cobro"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="currentColor" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/><path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.902 3.433 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.892 3.433-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.892-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319z"/></svg></a></div></div><div class="payment-bank-body"><div class="payment-bank-meta payment-bank-meta-primary"><div><span>Titular</span><strong>Fernando Montes de Oca</strong></div><div class="payment-bank-copy"><div><span>Alias</span><strong>fernando.montesdeoca</strong></div><button type="button" class="copiar-icon-btn" aria-label="Copiar alias"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg></button></div></div></div></div></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Compacta operativa</span><small>Listado eficiente</small></div><?= view('components/cards/medio_cobro', ['variant' => 'compact', 'nombre' => 'CBU Santander', 'activo' => true, 'favorito' => false, 'titular' => 'Fernando Montes de Oca', 'alias' => 'fer.santander']) ?><?= $componentVariantAction('mis_medios_cobro', 'payment_method_card', 'compact', $selectedPaymentMethodVariant, 'Activo en Medios', 'Usar en Medios') ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Favorita destacada</span><small>Medio principal</small></div><?= view('components/cards/medio_cobro', ['variant' => 'favorite', 'nombre' => 'Mercado Pago', 'activo' => true, 'favorito' => true, 'titular' => 'Fernando', 'alias' => 'fer.mp']) ?><?= $componentVariantAction('mis_medios_cobro', 'payment_method_card', 'favorite', $selectedPaymentMethodVariant, 'Activo en Medios', 'Usar en Medios') ?></article>
+            <article class="catalog-variant"><div class="catalog-variant-meta"><span>Credencial actual</span><small>Azul, favorita y configuraci&oacute;n</small></div><?= view('components/cards/medio_cobro', ['variant' => 'bank_card', 'nombre' => 'Banco Galicia', 'activo' => true, 'favorito' => true, 'titular' => 'Fernando Montes de Oca', 'alias' => 'fernando.montesdeoca']) ?><?= $componentVariantAction('mis_medios_cobro', 'payment_method_card', 'bank_card', $selectedPaymentMethodVariant, 'Activo en Medios', 'Usar en Medios') ?></article>
         </div>
     </section>
 </div>
 
 <?= view('partials/_footer') ?>
+
+

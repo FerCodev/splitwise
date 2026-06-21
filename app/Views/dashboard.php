@@ -11,6 +11,7 @@
                 $inactivos = array_filter($grupos, fn($g) => $g['estado'] !== 'activo');
                 $userId = (int) session()->get('userId');
                 $debtCardVariant = \App\Services\UiComponentResolver::variant('home', 'debt_card');
+                $homeGroupVariant = \App\Services\UiComponentResolver::variant('home', 'home_group_card');
             ?>
 
             <!-- Filtros de grupos -->
@@ -31,52 +32,21 @@
                             No ten&eacute;s grupos activos.
                         </div>
                     <?php else: ?>
-                        <div class="row g-3 mb-4">
-                            <?php foreach ($activos as $grupo): ?>
-                                <?php
-                                    $saldoClase = $grupo['mi_saldo'] > 0 ? 'text-success' : ($grupo['mi_saldo'] < 0 ? 'text-danger' : 'text-secondary');
-                                    $mv = $grupo['ultimo_movimiento'];
-                                ?>
+                        <div class="row g-3 mb-4">                            <?php foreach ($activos as $grupo): ?>
+                                <?php $mv = $grupo['ultimo_movimiento']; ?>
                                 <div class="col-12 col-md-6 col-lg-4" data-estado="activo">
-                                    <div class="card border-0 shadow-sm h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-start gap-3 mb-2">
-                                                <div class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width:42px;height:42px;background:#dbeafe;font-weight:700;color:#2563eb;font-size:1.1rem;">
-                                                    <?= esc(mb_substr($grupo['nombre'], 0, 1)) ?>
-                                                </div>
-                                                <div class="flex-grow-1 min-width-0">
-                                                    <div class="d-flex justify-content-between align-items-start">
-                                                        <h6 class="fw-bold mb-0"><?= esc($grupo['nombre']) ?></h6>
-                                                        <span class="badge bg-success flex-shrink-0">Activo</span>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between small mt-1">
-                                                        <span class="text-muted">Saldo:</span>
-                                                        <span class="fw-semibold <?= $saldoClase ?>"><?= moneda($grupo['mi_saldo']) ?></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <?php if ($mv): ?>
-                                                <div class="small mt-2">
-                                                    <span class="badge <?= $mv['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $mv['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
-                                                    <span class="text-muted ms-1"><?= esc(mb_substr($mv['descripcion'], 0, 40)) ?></span>
-                                                    <span class="fw-medium float-end"><?= moneda($mv['monto']) ?></span>
-                                                </div>
-                                                <div class="text-muted small mt-1">
-                                                    <?= date('d/m/Y', strtotime($mv['fecha'])) ?>
-                                                </div>
-                                            <?php else: ?>
-                                                <div class="text-muted small mt-1">
-                                                    Creado el <?= date('d/m/Y', strtotime($grupo['created_at'])) ?>
-                                                </div>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="card-footer bg-transparent border-0 pt-0">
-                                            <div class="d-flex gap-2">
-                                                <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-outline-primary btn-sm flex-fill">Entrar</a>
-                                                <a href="<?= base_url('gastos/nuevo?grupo_id=' . $grupo['id']) ?>" class="btn btn-primary btn-sm flex-fill">+ Gasto</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <?= view('components/cards/grupo', [
+                                        'variant' => $homeGroupVariant,
+                                        'nombre' => $grupo['nombre'],
+                                        'estado' => $grupo['estado'],
+                                        'saldo' => $grupo['mi_saldo'],
+                                        'ultimoTipo' => $mv['tipo'] ?? null,
+                                        'ultimoDescripcion' => $mv['descripcion'] ?? null,
+                                        'ultimoMonto' => $mv['monto'] ?? null,
+                                        'ultimoFecha' => $mv['fecha'] ?? null,
+                                        'entrarUrl' => base_url('grupos/' . $grupo['id']),
+                                        'gastoUrl' => base_url('gastos/nuevo?grupo_id=' . $grupo['id']),
+                                    ]) ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -356,3 +326,4 @@
     </div><!-- /container -->
 
 <?= view('partials/_footer') ?>
+
