@@ -13,8 +13,44 @@ $fechaCorta = date('d/m/Y', strtotime($fechaDemo));
             <h2 class="fw-bold mb-1">Cat&aacute;logo de tarjetas</h2>
             <p class="text-muted mb-0">Patrones visuales vigentes y variantes de referencia para comparar estilos sin modificar pantallas reales.</p>
         </div>
-        <span class="badge bg-primary-subtle text-primary catalog-count">27 variantes</span>
+        <span class="badge bg-primary-subtle text-primary catalog-count">33 variantes</span>
     </div>
+
+    <section class="catalog-section">
+        <div class="catalog-section-head">
+            <div>
+                <h5>Componentes base</h5>
+                <p>Partials reutilizables creados para centralizar los patrones actuales. Por ahora solo los consume este cat&aacute;logo.</p>
+            </div>
+            <span class="badge bg-primary">Componentes</span>
+        </div>
+        <div class="catalog-grid">
+            <article class="catalog-variant">
+                <div class="catalog-variant-meta"><span>components/cards/grupo</span><small>Grupo activo</small></div>
+                <?= view('components/cards/grupo', ['nombre' => 'Junio', 'estado' => 'activo', 'saldo' => -112697, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Ines']) ?>
+            </article>
+            <article class="catalog-variant">
+                <div class="catalog-variant-meta"><span>components/cards/movimiento</span><small>Gasto o pago</small></div>
+                <?= view('components/cards/movimiento', ['tipo' => 'gasto', 'descripcion' => 'Supermercado mensual', 'monto' => 45200, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Supermercado', 'contexto' => 'Grupo: Mayo - 2 part.']) ?>
+            </article>
+            <article class="catalog-variant">
+                <div class="catalog-variant-meta"><span>components/cards/deuda</span><small>Deuda pendiente</small></div>
+                <?= view('components/cards/deuda', ['modo' => 'debes', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 8500]) ?>
+            </article>
+            <article class="catalog-variant">
+                <div class="catalog-variant-meta"><span>components/cards/medio_cobro</span><small>Credencial de cobro</small></div>
+                <?= view('components/cards/medio_cobro', ['nombre' => 'Banco Galicia', 'activo' => true, 'favorito' => true, 'titular' => 'Fernando Montes de Oca', 'alias' => 'fernando.montesdeoca']) ?>
+            </article>
+            <article class="catalog-variant">
+                <div class="catalog-variant-meta"><span>components/cards/resumen</span><small>Totalizador</small></div>
+                <?= view('components/cards/resumen', ['titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Suma de gastos filtrados']) ?>
+            </article>
+            <article class="catalog-variant">
+                <div class="catalog-variant-meta"><span>components/widgets/velocimetro_aporte</span><small>Aporte dentro del grupo</small></div>
+                <?= view('components/widgets/velocimetro_aporte', ['porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723]) ?>
+            </article>
+        </div>
+    </section>
 
     <section class="catalog-section">
         <div class="catalog-section-head">
