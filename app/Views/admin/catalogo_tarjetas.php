@@ -233,6 +233,7 @@ $proposals = [
     [
         'title' => 'Tabler',
         'description' => 'Componentes inspirados en Tabler, pensado para evaluar un estilo dashboard m&aacute;s integral antes de instalar la librer&iacute;a completa.',
+        'label' => 'Ejemplo Tabler',
         'items' => [
             ['name' => 'Stat card', 'hint' => 'M&eacute;trica compacta con tendencia.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg></span><span class="badge bg-success-subtle text-success">+12%</span></div><div class="tabler-proposal-label">Total del mes</div><div class="tabler-proposal-value">' . moneda(1563723) . '</div><div class="text-muted small">58 movimientos cargados</div></div>'],
             ['name' => 'Grupo dashboard', 'hint' => 'Card limpia con acciones.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Grupo activo</div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-balance text-danger">' . moneda(112697) . ' debe</div><div class="tabler-proposal-progress"><span style="width: 62%;"></span></div><div class="tabler-proposal-actions"><button class="btn btn-outline-primary btn-sm" type="button">Entrar</button><button class="btn btn-primary btn-sm" type="button">+ Gasto</button></div></div>'],
@@ -336,6 +337,9 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
                                 <span><?= $item['name'] ?></span>
                                 <small><?= $item['hint'] ?></small>
                             </div>
+                            <?php if (!empty($proposal['label'])): ?>
+                                <div class="catalog-source-badge"><?= $proposal['label'] ?></div>
+                            <?php endif; ?>
                             <?= $item['render']() ?>
                         </article>
                     <?php endforeach; ?>

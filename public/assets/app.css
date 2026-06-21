@@ -2209,6 +2209,18 @@ body {
 .catalog-component-action .btn {
     width: 100%;
 }
+.catalog-source-badge {
+    justify-self: start;
+    padding: 4px 8px;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--radius-pill);
+    background: #eff6ff;
+    color: #206bc4;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0;
+}
 .catalog-preview-card,
 .catalog-list-preview {
     min-height: 178px;
