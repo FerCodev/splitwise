@@ -502,6 +502,20 @@ $proposals = [
 ];
 
 $activeScreenMeta = $screens[$activeScreen] ?? null;
+$activeTablerSection = (string) (service('request')->getGet('seccion') ?? '');
+$activeTablerSectionIndex = ctype_digit($activeTablerSection) ? (int) $activeTablerSection : null;
+$tablerItemCount = static function (array $section): int {
+    if (!isset($section['groups'])) {
+        return count($section['items'] ?? []);
+    }
+
+    $total = 0;
+    foreach ($section['groups'] as $group) {
+        $total += count($group['items'] ?? []);
+    }
+
+    return $total;
+};
 ?>
 
 <div class="container catalog-page mt-3 mt-md-4 pb-4">
@@ -552,57 +566,81 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
             </div>
         </section>
     <?php elseif ($activeScreen === 'tabler'): ?>
-        <?php foreach ($tablerCatalog as $section): ?>
+        <?php if ($activeTablerSection === ''): ?>
             <section class="catalog-section">
                 <div class="catalog-section-head">
                     <div>
-                        <h5><?= $section['title'] ?></h5>
-                        <p><?= $section['description'] ?></p>
+                        <h5>Categor&iacute;as Tabler</h5>
+                        <p>Entr&aacute; a una categor&iacute;a para ver sus ejemplos disponibles.</p>
                     </div>
                     <span class="badge bg-primary">Tabler</span>
                 </div>
-                <?php if (isset($section['groups'])): ?>
-                    <div class="catalog-nested-groups">
-                        <?php foreach ($section['groups'] as $group): ?>
-                            <div class="catalog-nested-section">
-                                <div class="catalog-nested-head">
-                                    <div>
-                                        <h6><?= $group['title'] ?></h6>
-                                        <p><?= $group['description'] ?></p>
-                                    </div>
-                                    <span><?= count($group['items']) ?> ejemplo(s)</span>
-                                </div>
-                                <div class="catalog-grid">
-                                    <?php foreach ($group['items'] as $item): ?>
-                                        <article class="catalog-variant">
-                                            <div class="catalog-variant-meta">
-                                                <span><?= $item['name'] ?></span>
-                                                <small><?= $item['hint'] ?></small>
-                                            </div>
-                                            <div class="catalog-source-badge">Ejemplo Tabler</div>
-                                            <?= $item['render']() ?>
-                                        </article>
-                                    <?php endforeach; ?>
-                                </div>
+                <div class="catalog-screen-grid">
+                    <?php foreach ($tablerCatalog as $index => $section): ?>
+                        <a class="catalog-screen-card" href="<?= base_url('admin/catalogo-tarjetas/tabler') . '?seccion=' . rawurlencode((string) $index) ?>">
+                            <div>
+                                <strong><?= $section['title'] ?></strong>
+                                <span><?= $section['description'] ?></span>
                             </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="catalog-grid">
-                        <?php foreach ($section['items'] as $item): ?>
-                            <article class="catalog-variant">
-                                <div class="catalog-variant-meta">
-                                    <span><?= $item['name'] ?></span>
-                                    <small><?= $item['hint'] ?></small>
-                                </div>
-                                <div class="catalog-source-badge">Ejemplo Tabler</div>
-                                <?= $item['render']() ?>
-                            </article>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
+                            <small><?= $tablerItemCount($section) ?> ejemplo(s)</small>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
             </section>
-        <?php endforeach; ?>
+        <?php else: ?>
+            <?php $section = $activeTablerSectionIndex !== null ? ($tablerCatalog[$activeTablerSectionIndex] ?? null) : null; ?>
+            <?php if ($section): ?>
+                <section class="catalog-section">
+                    <div class="catalog-section-head">
+                        <div>
+                            <h5><?= $section['title'] ?></h5>
+                            <p><?= $section['description'] ?></p>
+                        </div>
+                        <a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/catalogo-tarjetas/tabler') ?>">Volver a Tabler</a>
+                    </div>
+                    <?php if (isset($section['groups'])): ?>
+                        <div class="catalog-nested-groups">
+                            <?php foreach ($section['groups'] as $group): ?>
+                                <div class="catalog-nested-section">
+                                    <div class="catalog-nested-head">
+                                        <div>
+                                            <h6><?= $group['title'] ?></h6>
+                                            <p><?= $group['description'] ?></p>
+                                        </div>
+                                        <span><?= count($group['items']) ?> ejemplo(s)</span>
+                                    </div>
+                                    <div class="catalog-grid">
+                                        <?php foreach ($group['items'] as $item): ?>
+                                            <article class="catalog-variant">
+                                                <div class="catalog-variant-meta">
+                                                    <span><?= $item['name'] ?></span>
+                                                    <small><?= $item['hint'] ?></small>
+                                                </div>
+                                                <div class="catalog-source-badge">Ejemplo Tabler</div>
+                                                <?= $item['render']() ?>
+                                            </article>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="catalog-grid">
+                            <?php foreach ($section['items'] as $item): ?>
+                                <article class="catalog-variant">
+                                    <div class="catalog-variant-meta">
+                                        <span><?= $item['name'] ?></span>
+                                        <small><?= $item['hint'] ?></small>
+                                    </div>
+                                    <div class="catalog-source-badge">Ejemplo Tabler</div>
+                                    <?= $item['render']() ?>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+        <?php endif; ?>
     <?php elseif ($activeScreen === 'propuestas'): ?>
         <?php foreach ($proposals as $proposal): ?>
             <section class="catalog-section">
