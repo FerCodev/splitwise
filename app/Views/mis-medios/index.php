@@ -30,92 +30,87 @@
                 <?php foreach ($medios as $m): ?>
                     <div class="col-12">
                         <div class="payment-bank-card <?= $m['activo'] ? '' : 'payment-bank-card-inactive' ?>">
-                            <div class="payment-bank-card-top">
-                                <div class="min-width-0">
-                                    <div class="payment-bank-label"><?= esc($m['tipo']) ?></div>
-                                    <div class="payment-bank-title text-truncate"><?= esc($m['banco'] ?: ($m['nombre'] ?? $m['tipo'])) ?></div>
-                                </div>
-                                <div class="payment-bank-status">
-                                    <span class="badge <?= $m['activo'] ? 'bg-light text-dark' : 'bg-danger' ?> flex-shrink-0"><?= $m['activo'] ? 'Activo' : 'Inactivo' ?></span>
-                                            <?php if (!$m['favorito']): ?>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" class="payment-bank-fav" aria-label="Marcar como favorito" title="Marcar como favorito">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.806-3.536 1.816.67-3.808a.52.52 0 0 0-.15-.467L1.44 6.721l3.878-.55a.52.52 0 0 0 .393-.288L8 2.223l2.29 3.66a.52.52 0 0 0 .393.288l3.878.55-3.315 3.148a.52.52 0 0 0-.15.467l.67 3.808-3.536-1.816a.52.52 0 0 0-.458 0z"/></svg>
-                                                    </button>
-                                                </form>
-                                            <?php else: ?>
-                                                <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
-                                                    <?= csrf_field() ?>
-                                                    <button type="submit" class="payment-bank-fav payment-bank-fav-active" aria-label="Quitar favorito" title="Quitar favorito">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
-                                                    </button>
-                                                </form>
-                                            <?php endif; ?>
+                            <div class="payment-bank-card-top payment-bank-card-controls">
+                                <span class="badge <?= $m['activo'] ? 'bg-light text-dark' : 'bg-danger' ?> flex-shrink-0"><?= $m['activo'] ? 'Activo' : 'Inactivo' ?></span>
+                                <?php if (!$m['favorito']): ?>
+                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="payment-bank-fav" aria-label="Marcar como favorito" title="Marcar como favorito">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.806-3.536 1.816.67-3.808a.52.52 0 0 0-.15-.467L1.44 6.721l3.878-.55a.52.52 0 0 0 .393-.288L8 2.223l2.29 3.66a.52.52 0 0 0 .393.288l3.878.55-3.315 3.148a.52.52 0 0 0-.15.467l.67 3.808-3.536-1.816a.52.52 0 0 0-.458 0z"/></svg>
+                                        </button>
+                                    </form>
+                                <?php else: ?>
+                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/favorito') ?>" method="post" class="d-inline flex-shrink-0">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="payment-bank-fav payment-bank-fav-active" aria-label="Quitar favorito" title="Quitar favorito">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+
+                                <div class="dropdown">
+                                    <button type="button" class="payment-bank-gear" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones del medio de cobro" title="Acciones">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8.932.727c-.243-.97-1.621-.97-1.864 0l-.071.286a.96.96 0 0 1-1.622.434l-.205-.211c-.695-.719-1.888-.03-1.613.931l.08.284a.96.96 0 0 1-1.186 1.187l-.284-.081c-.96-.275-1.65.918-.931 1.613l.211.205a.96.96 0 0 1-.434 1.622l-.286.071c-.97.243-.97 1.621 0 1.864l.286.071a.96.96 0 0 1 .434 1.622l-.211.205c-.719.695-.03 1.888.931 1.613l.284-.08a.96.96 0 0 1 1.187 1.187l-.081.283c-.275.96.918 1.65 1.613.931l.205-.211a.96.96 0 0 1 1.622.434l.071.286c.243.97 1.621.97 1.864 0l.071-.286a.96.96 0 0 1 1.622-.434l.205.211c.695.719 1.888.03 1.613-.931l-.08-.284a.96.96 0 0 1 1.187-1.187l.283.081c.96.275 1.65-.918.931-1.613l-.211-.205a.96.96 0 0 1 .434-1.622l.286-.071c.97-.243.97-1.621 0-1.864l-.286-.071a.96.96 0 0 1-.434-1.622l.211-.205c.719-.695.03-1.888-.931-1.613l-.284.08a.96.96 0 0 1-1.187-1.186l.081-.284c.275-.96-.918-1.65-1.613-.931l-.205.211a.96.96 0 0 1-1.622-.434L8.932.727zM8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/></svg>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end payment-bank-menu">
+                                        <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="dropdown-item">Editar</a>
+                                        <?php if ($m['activo']): ?>
+                                            <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" id="toggle-medio-<?= $m['id'] ?>">
+                                                <?= csrf_field() ?>
+                                                <button type="button" class="dropdown-item text-warning"
+                                                    data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                    data-confirm-title="Desactivar medio"
+                                                    data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n de pago."
+                                                    data-confirm-btn="Desactivar"
+                                                    data-confirm-form="toggle-medio-<?= $m['id'] ?>">Desactivar</button>
+                                            </form>
+                                        <?php else: ?>
+                                            <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post">
+                                                <?= csrf_field() ?>
+                                                <button type="submit" class="dropdown-item text-success">Activar</button>
+                                            </form>
+                                        <?php endif; ?>
+                                        <div class="dropdown-divider"></div>
+                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" id="delete-medio-<?= $m['id'] ?>">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button type="button" class="dropdown-item text-danger"
+                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                                data-confirm-title="Eliminar medio"
+                                                data-confirm-msg="Se eliminar&aacute; este medio de cobro. Los pagos ya registrados no se modifican."
+                                                data-confirm-btn="Eliminar"
+                                                data-confirm-form="delete-medio-<?= $m['id'] ?>">Eliminar</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="payment-bank-body">
-                                <div class="payment-bank-number">
-                                    <?= esc($m['cbu_cvu'] ?: ($m['alias'] ?: ($m['payment_link'] ?: 'Sin dato cargado'))) ?>
-                                </div>
-                                <div class="payment-bank-meta">
-                                            <?php if ($m['titular']): ?>
-                                                <div><span>Titular</span><strong><?= esc($m['titular']) ?></strong></div>
-                                            <?php endif; ?>
-                                            <?php if ($m['alias']): ?>
-                                                <div class="payment-bank-copy">
-                                                    <span>Alias</span><strong class="text-truncate"><?= esc($m['alias']) ?></strong>
-                                                    <button type="button" class="copiar-icon-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" aria-label="Copiar alias" title="Copiar alias">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
-                                                    </button>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if ($m['cbu_cvu']): ?>
-                                                <div class="payment-bank-copy">
-                                                    <span>CBU/CVU</span><strong class="text-truncate"><?= esc($m['cbu_cvu']) ?></strong>
-                                                    <button type="button" class="copiar-icon-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" aria-label="Copiar CBU/CVU" title="Copiar CBU/CVU">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
-                                                    </button>
-                                                </div>
-                                            <?php endif; ?>
-                                            <?php if ($m['payment_link']): ?>
-                                                <div><span>Link</span>
-                                                    <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer">Abrir</a>
-                                                </div>
-                                            <?php endif; ?>
+                                <div class="payment-bank-meta payment-bank-meta-primary">
+                                    <?php if ($m['titular']): ?>
+                                        <div><span>Titular</span><strong><?= esc($m['titular']) ?></strong></div>
+                                    <?php endif; ?>
+                                    <?php if ($m['alias']): ?>
+                                        <div class="payment-bank-copy">
+                                            <span>Alias</span><strong class="text-truncate"><?= esc($m['alias']) ?></strong>
+                                            <button type="button" class="copiar-icon-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" aria-label="Copiar alias" title="Copiar alias">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if ($m['cbu_cvu']): ?>
+                                        <div class="payment-bank-copy">
+                                            <span>CBU/CVU</span><strong class="text-truncate"><?= esc($m['cbu_cvu']) ?></strong>
+                                            <button type="button" class="copiar-icon-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" aria-label="Copiar CBU/CVU" title="Copiar CBU/CVU">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg>
+                                            </button>
+                                        </div>
+                                    <?php endif; ?>
+                                    <?php if (!$m['titular'] && !$m['alias'] && !$m['cbu_cvu']): ?>
+                                        <div><span>Datos</span><strong>Sin datos cargados</strong></div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
-
-                                <div class="payment-bank-actions">
-                                    <a href="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
-                                    <?php if ($m['activo']): ?>
-                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline" id="toggle-medio-<?= $m['id'] ?>">
-                                            <?= csrf_field() ?>
-                                            <button type="button" class="btn btn-warning btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                data-confirm-title="Desactivar medio"
-                                                data-confirm-msg="Este medio dejar&aacute; de mostrarse como opci&oacute;n de pago."
-                                                data-confirm-btn="Desactivar"
-                                                data-confirm-form="toggle-medio-<?= $m['id'] ?>">Desactivar</button>
-                                        </form>
-                                    <?php else: ?>
-                                        <form action="<?= base_url('mis-medios-de-cobro/' . $m['id'] . '/toggle') ?>" method="post" class="d-inline">
-                                            <?= csrf_field() ?>
-                                            <button type="submit" class="btn btn-success btn-sm">Activar</button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form action="<?= base_url('mis-medios-de-cobro/' . $m['id']) ?>" method="post" class="d-inline" id="delete-medio-<?= $m['id'] ?>">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="btn btn-danger btn-sm"
-                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                            data-confirm-title="Eliminar medio"
-                                            data-confirm-msg="Se eliminar&aacute; este medio de cobro. Los pagos ya registrados no se modifican."
-                                            data-confirm-btn="Eliminar"
-                                            data-confirm-form="delete-medio-<?= $m['id'] ?>">Eliminar</button>
-                                    </form>
-                                </div>
                         </div>
                     </div>
                 <?php endforeach; ?>

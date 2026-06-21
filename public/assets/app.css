@@ -1601,7 +1601,7 @@ body {
 }
 
 .payment-bank-card {
-    min-height: 220px;
+    min-height: 178px;
     display: grid;
     align-content: space-between;
     gap: 18px;
@@ -1610,14 +1610,13 @@ body {
     color: #fff;
     background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
     box-shadow: var(--shadow-md);
-    overflow: hidden;
+    overflow: visible;
 }
 .payment-bank-card-inactive {
     background: linear-gradient(135deg, #334155 0%, #64748b 100%);
 }
 .payment-bank-card-top,
 .payment-bank-status,
-.payment-bank-actions,
 .payment-bank-copy {
     display: flex;
     align-items: center;
@@ -1626,10 +1625,12 @@ body {
 .payment-bank-card-top {
     justify-content: space-between;
 }
-.payment-bank-status,
-.payment-bank-actions {
+.payment-bank-status {
     flex-shrink: 0;
     flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.payment-bank-card-controls {
     justify-content: flex-end;
 }
 .payment-bank-label {
@@ -1639,26 +1640,18 @@ body {
     text-transform: uppercase;
     letter-spacing: 0;
 }
-.payment-bank-title {
-    max-width: 220px;
-    font-size: 1.1rem;
-    font-weight: 900;
-}
 .payment-bank-body {
     display: grid;
     gap: 14px;
 }
-.payment-bank-number {
-    font-size: 1.12rem;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-    overflow-wrap: anywhere;
-}
 .payment-bank-meta {
     display: grid;
-    gap: 8px;
+    gap: 12px;
     color: rgba(255, 255, 255, 0.86);
     font-size: 0.9rem;
+}
+.payment-bank-meta-primary {
+    gap: 14px;
 }
 .payment-bank-meta > div {
     min-width: 0;
@@ -1673,7 +1666,9 @@ body {
 }
 .payment-bank-meta strong {
     color: #fff;
+    display: block;
     font-weight: 800;
+    overflow-wrap: anywhere;
 }
 .payment-bank-meta a {
     color: #fff;
@@ -1718,12 +1713,35 @@ body {
 .payment-bank-fav-active:focus {
     color: #fcd34d;
 }
-.payment-bank-actions {
-    padding-top: 2px;
+.payment-bank-gear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.36);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.86);
+    padding: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
-.payment-bank-actions .btn {
-    border-color: rgba(255, 255, 255, 0.22);
-    box-shadow: none;
+.payment-bank-gear:hover,
+.payment-bank-gear:focus,
+.payment-bank-gear[aria-expanded="true"] {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.24);
+}
+.payment-bank-menu {
+    min-width: 180px;
+    border: 0;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 8px;
+}
+.payment-bank-menu .dropdown-item {
+    border-radius: var(--radius-sm);
+    font-weight: 700;
 }
 
 /* --- Admin card catalog --- */
