@@ -71,3 +71,4 @@ $routes->put('/mis-medios-de-cobro/(:num)', 'MediosCobro::update/$1', ['filter' 
 $routes->post('/mis-medios-de-cobro/(:num)/toggle', 'MediosCobro::toggle/$1', ['filter' => 'auth']);
 $routes->post('/mis-medios-de-cobro/(:num)/favorito', 'MediosCobro::favorito/$1', ['filter' => 'auth']);
 $routes->delete('/mis-medios-de-cobro/(:num)', 'MediosCobro::delete/$1', ['filter' => 'auth']);
+$routes->get('/admin/catalogo-tarjetas', 'Admin::catalogoTarjetas', ['filter' => ['auth', 'admin']]);
