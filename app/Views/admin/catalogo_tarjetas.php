@@ -61,7 +61,7 @@ $screens = [
     'tabler' => [
         'title' => 'Tabler',
         'description' => 'Subcat&aacute;logo inspirado en Tabler para evaluar una librer&iacute;a visual externa.',
-        'badge' => '27 ejemplos',
+        'badge' => '57 ejemplos',
     ],
     'propuestas' => [
         'title' => 'Propuestas',
@@ -314,6 +314,105 @@ $tablerCatalog = [
             ['name' => 'Barras mensuales', 'hint' => 'Comparaci&oacute;n r&aacute;pida por mes.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-title">Gasto mensual</div><div class="tabler-proposal-bars"><span style="height: 46%;"></span><span style="height: 72%;"></span><span style="height: 58%;"></span><span style="height: 88%;"></span><span style="height: 62%;"></span></div><div class="tabler-proposal-row"><small class="text-muted">Abr</small><small class="text-muted">Ago</small></div></div>'],
             ['name' => 'Progreso de grupo', 'hint' => 'Pagado vs total.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Tu aporte</div><div class="text-muted small">' . moneda(860000) . ' de ' . moneda(1563723) . '</div></div><strong>55%</strong></div><div class="tabler-proposal-meter"><span style="width: 55%;"></span></div><div class="tabler-proposal-filter-row"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>'],
             ['name' => 'Dona simple', 'hint' => 'Distribuci&oacute;n de categor&iacute;as.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-donut-wrap"><div class="tabler-proposal-donut"><strong>72%</strong></div><div><div class="tabler-proposal-title">Otros</div><div class="text-muted small">Categor&iacute;a principal</div><div class="tabler-proposal-filter-row mt-2"><span>Otros</span><span>Pagos</span></div></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Home operativo',
+        'description' => 'Variantes para abrir la app y cargar gastos con pocos toques.',
+        'items' => [
+            ['name' => 'Grupo acceso directo', 'hint' => 'Card con CTA dominante.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-home-card"><div class="tabler-proposal-row align-items-start"><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Activo &middot; 2 integrantes</div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-home-total">' . moneda(25000) . '</div><div class="tabler-proposal-actions tabler-proposal-actions-large"><button class="btn btn-outline-primary" type="button">Entrar</button><button class="btn btn-primary" type="button">+ Gasto</button></div></div>'],
+            ['name' => 'Grupo con deuda visible', 'hint' => 'Prioriza saldo antes de acciones.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-danger-soft"><div class="tabler-proposal-row align-items-start"><span class="tabler-proposal-avatar">J</span><div class="flex-grow-1"><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Saldo actual</div><strong class="text-danger">' . moneda(112697) . ' deb&eacute;s</strong></div></div><button class="btn btn-danger btn-sm w-100" type="button">Resolver deuda</button></div>'],
+            ['name' => 'Grupo minimalista', 'hint' => 'Una tarjeta limpia para listas largas.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-quiet"><div class="tabler-proposal-row"><div><strong>Junio</strong><div class="text-muted small">Ultimo movimiento: hoy</div></div><b class="text-success">' . moneda(5000) . '</b></div><div class="tabler-proposal-row"><button class="btn btn-light btn-sm" type="button">Ver</button><button class="btn btn-primary btn-sm" type="button">Agregar</button></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Detalle de grupo',
+        'description' => 'Bloques para cabecera, resumen y estado del grupo.',
+        'items' => [
+            ['name' => 'Cabecera balance', 'hint' => 'Resumen visual compacto.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><span class="tabler-proposal-avatar">M</span><div><div class="tabler-proposal-title">Mayo</div><span class="badge bg-success">Activo</span></div><button class="btn btn-light btn-sm ms-auto" type="button">Config.</button></div><div class="tabler-proposal-copy tabler-proposal-copy-center"><span>Tu balance</span><strong class="text-success">' . moneda(130920) . ' a favor</strong></div></div>'],
+            ['name' => 'Resumen doble', 'hint' => 'Total y tu parte juntos.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-grid-2"><div><span>Total grupo</span><strong>' . moneda(1630862) . '</strong></div><div><span>Tu parte</span><strong>' . moneda(815431) . '</strong></div></div><div class="tabler-proposal-meter mt-2"><span style="width: 51%;"></span></div><div class="text-muted small">Participaci&oacute;n equilibrada</div></div>'],
+            ['name' => 'Estado liquidado', 'hint' => 'Grupo cerrado o sin saldo.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-success"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-green">&check;</span><div><div class="tabler-proposal-title">Grupo liquidado</div><div class="text-muted small">No quedan pagos pendientes</div></div></div><button class="btn btn-outline-success btn-sm w-100" type="button">Ver movimientos</button></div>'],
+        ],
+    ],
+    [
+        'title' => 'Movimientos avanzados',
+        'description' => 'Patrones m&aacute;s visuales para gastos y pagos.',
+        'items' => [
+            ['name' => 'Movimiento por color', 'hint' => 'Diferencia pagador visualmente.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-movement tabler-proposal-user-a"><div><span class="badge bg-primary">Gasto</span><strong>Supermercado</strong><small>Antonella &middot; 20/06</small></div><b>' . moneda(59300) . '</b></div><div class="tabler-proposal-movement tabler-proposal-user-f"><div><span class="badge bg-primary">Gasto</span><strong>Garrafa</strong><small>Fernando &middot; 21/06</small></div><b>' . moneda(57000) . '</b></div></div>'],
+            ['name' => 'Timeline vertical', 'hint' => 'Secuencia por fecha.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-timeline"><div><span></span><strong>Gasto creado</strong><small>10:20 &middot; Fernando</small></div><div><span></span><strong>Pago cargado</strong><small>14:05 &middot; Antonella</small></div><div><span></span><strong>Grupo liquidado</strong><small>18:30 &middot; Sistema</small></div></div></div>'],
+            ['name' => 'Movimiento con acciones', 'hint' => 'Fila con ABM r&aacute;pido.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><span class="badge bg-primary me-1">Gasto</span><strong>Farmacia</strong><div class="text-muted small">Otros &middot; 2 participantes</div></div><strong>' . moneda(9200) . '</strong></div><div class="tabler-proposal-actions"><button class="btn btn-light btn-sm" type="button">Ver</button><button class="btn btn-light btn-sm" type="button">Editar</button><button class="btn btn-outline-danger btn-sm" type="button">Borrar</button></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Pagos',
+        'description' => 'Opciones para pagos pendientes, confirmados y sugeridos.',
+        'items' => [
+            ['name' => 'Pago pendiente', 'hint' => 'Rojo suave con acci&oacute;n.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-danger-soft"><div class="tabler-proposal-row"><div><span class="badge bg-danger">Pendiente</span><strong class="d-block mt-2">Pagar a Fernando</strong><small class="text-muted">Junio &middot; Transferencia</small></div><b class="text-danger">' . moneda(112697) . '</b></div><button class="btn btn-danger btn-sm w-100" type="button">Registrar pago</button></div>'],
+            ['name' => 'Pago recibido', 'hint' => 'Confirmaci&oacute;n verde.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-success"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-green">$</span><div><strong>Pago recibido</strong><div class="text-muted small">Antonella pag&oacute; su parte</div></div><b class="text-success">' . moneda(14570) . '</b></div></div>'],
+            ['name' => 'Sugerencia de pago', 'hint' => 'Indica la transferencia ideal.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-route"><span>Antonella</span><b>&rarr;</b><span>Fernando</span></div><div class="tabler-proposal-copy"><span>Importe sugerido</span><strong class="text-primary">' . moneda(116351) . '</strong></div><button class="btn btn-primary btn-sm w-100" type="button">Usar este pago</button></div>'],
+        ],
+    ],
+    [
+        'title' => 'Reportes',
+        'description' => 'Cards para lectura de datos y exportaci&oacute;n.',
+        'items' => [
+            ['name' => 'Resumen mensual', 'hint' => 'Cuatro KPIs en bloque.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-grid-2"><div><span>Total</span><strong>' . moneda(1563723) . '</strong></div><div><span>Pagaste</span><strong class="text-success">' . moneda(898212) . '</strong></div><div><span>Tu parte</span><strong>' . moneda(781862) . '</strong></div><div><span>Saldo</span><strong class="text-success">' . moneda(0) . '</strong></div></div></div>'],
+            ['name' => 'Export panel', 'hint' => 'Reportes con PDF y Excel.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Abril 2026</div><div class="text-muted small">41 movimientos filtrados</div></div><strong>' . moneda(1563723) . '</strong></div><div class="tabler-proposal-actions"><button class="btn btn-danger btn-sm" type="button">PDF</button><button class="btn btn-success btn-sm" type="button">Excel</button></div></div>'],
+            ['name' => 'Categoria destacada', 'hint' => 'Ranking con barra.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><strong>Otros</strong><span>58 gastos</span></div><div class="tabler-proposal-meter tabler-proposal-meter-gold"><span style="width: 86%;"></span></div><div class="tabler-proposal-row"><small class="text-muted">Categoria principal</small><b>' . moneda(1630862) . '</b></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Formularios de gasto',
+        'description' => 'Campos y controles para crear o editar gastos.',
+        'items' => [
+            ['name' => 'Monto destacado', 'hint' => 'Importe grande y claro.', 'render' => static fn () => '<div class="tabler-proposal-card"><label class="tabler-proposal-label">Monto total</label><div class="tabler-proposal-money-input"><span>$</span><strong>10.000,00</strong><small>ARS</small></div><label class="tabler-proposal-label">Descripci&oacute;n</label><div class="tabler-proposal-input"><span>Gasto</span></div></div>'],
+            ['name' => 'Pagador selector', 'hint' => 'Control clickeable completo.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-payer"><span class="tabler-proposal-icon tabler-proposal-icon-blue">$</span><div><small>Pagado por</small><strong>Fernando</strong></div><span class="text-primary fw-bold">Cambiar</span></div>'],
+            ['name' => 'Division simple', 'hint' => 'Regla de reparto visible.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-choice"><div><strong>Dividido en partes iguales</strong><small>Fernando y Antonella pagan 50/50</small></div><span>&rsaquo;</span></div><div class="tabler-proposal-split mt-2"><span>Fernando <b>' . moneda(5000) . '</b></span><span>Antonella <b>' . moneda(5000) . '</b></span></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Medios de cobro premium',
+        'description' => 'Variantes de credencial, datos copiables y estado favorito.',
+        'items' => [
+            ['name' => 'Credencial compacta', 'hint' => 'Tarjeta azul tipo bancaria.', 'render' => static fn () => '<div class="tabler-proposal-bank-card"><div class="tabler-proposal-row"><strong>Mercado Pago</strong><span>&starf;</span></div><small>TITULAR</small><b>Fernando Montes de Oca</b><small>ALIAS</small><b>fernando.montesdeoca</b></div>'],
+            ['name' => 'Medio con engranaje', 'hint' => 'Acceso directo a edici&oacute;n.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Banco Galicia</div><span class="badge bg-success">Activo</span></div><button class="btn btn-light btn-sm" type="button">&#9881;</button></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div></div>'],
+            ['name' => 'Datos copiables', 'hint' => 'Alias y CBU en filas.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-copy"><span>Alias</span><strong>fer.mercadopago</strong></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div><button class="btn btn-outline-primary btn-sm w-100" type="button">Copiar datos</button></div>'],
+        ],
+    ],
+    [
+        'title' => 'Administraci&oacute;n',
+        'description' => 'Componentes para pantallas internas y cat&aacute;logo.',
+        'items' => [
+            ['name' => 'Selector de pantalla', 'hint' => 'Entrada al cat&aacute;logo por pantalla.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><strong>Home</strong><div class="text-muted small">Grupos activos y deudas</div></div><span class="badge bg-primary-subtle text-primary">2 componentes</span></div><button class="btn btn-primary btn-sm w-100" type="button">Abrir pantalla</button></div>'],
+            ['name' => 'Componente elegible', 'hint' => 'Selecci&oacute;n &uacute;nica.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-selected"><div class="tabler-proposal-row"><div><strong>Card principal</strong><div class="text-muted small">Usada en Home</div></div><span class="badge bg-success">Activo</span></div><button class="btn btn-outline-primary btn-sm w-100" type="button">Usar dise&ntilde;o</button></div>'],
+            ['name' => 'Propuesta aislada', 'hint' => 'No conectada a pantallas.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-muted"><div class="tabler-proposal-title">Dial experimental</div><div class="text-muted small">Solo para exploraci&oacute;n visual.</div><div class="tabler-proposal-meter mt-2"><span style="width: 38%;"></span></div><span class="badge bg-secondary mt-2">Propuesta</span></div>'],
+        ],
+    ],
+    [
+        'title' => 'Navegaci&oacute;n mobile',
+        'description' => 'Patrones para men&uacute;, bottom nav y acciones flotantes.',
+        'items' => [
+            ['name' => 'Bottom nav', 'hint' => 'Navegaci&oacute;n inferior compacta.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-bottom-nav"><span>Home</span><span>Reportes</span><span>Perfil</span><span>Men&uacute;</span></div></div>'],
+            ['name' => 'FAB gasto', 'hint' => 'Acci&oacute;n principal flotante.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-fab-stage"><button class="btn btn-success tabler-proposal-fab" type="button">+ Nuevo gasto</button></div>'],
+            ['name' => 'Menu item', 'hint' => 'Fila de navegaci&oacute;n con icono.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-menu-item"><span class="tabler-proposal-icon tabler-proposal-icon-blue">R</span><div><strong>Reportes</strong><small>Resumen mensual</small></div><b>&rsaquo;</b></div><div class="tabler-proposal-menu-item tabler-proposal-danger-soft"><span class="tabler-proposal-icon">S</span><div><strong>Cerrar sesi&oacute;n</strong><small>Salir de la cuenta</small></div><b>&rsaquo;</b></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Veloc&iacute;metros',
+        'description' => 'Variantes extra para medir gasto propio sobre total del grupo.',
+        'items' => [
+            ['name' => 'Dial Tabler compacto', 'hint' => 'Aguja y escala simple.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-gauge"><span style="--rotation: 42deg;"></span><strong>55%</strong></div><div class="tabler-proposal-row"><small>' . moneda(0) . '</small><small>' . moneda(1563723) . '</small></div></div>'],
+            ['name' => 'Gauge por zonas', 'hint' => 'Verde, amarillo y rojo.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-zone-gauge"><span style="--rotation: 68deg;"></span></div><div class="tabler-proposal-row"><strong>' . moneda(898212) . '</strong><small class="text-muted">de ' . moneda(1563723) . '</small></div></div>'],
+            ['name' => 'Escala con ticks', 'hint' => 'Valores visibles en la escala.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-tick-scale"><span></span><span></span><span></span><span></span><b style="left: 58%;"></b></div><div class="tabler-proposal-row"><small>0</small><small>50%</small><small>100%</small></div><strong class="text-primary">' . moneda(898212) . '</strong></div>'],
+        ],
+    ],
+    [
+        'title' => 'Microinteracciones',
+        'description' => 'Estados visuales para hover, loading y confirmaci&oacute;n.',
+        'items' => [
+            ['name' => 'Skeleton card', 'hint' => 'Carga inicial.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-skeleton w-75"></div><div class="tabler-proposal-skeleton w-100"></div><div class="tabler-proposal-skeleton w-50"></div></div>'],
+            ['name' => 'Confirmaci&oacute;n inline', 'hint' => 'Estado guardado sin modal.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-alert tabler-proposal-alert-success"><strong>Listo</strong><span>El cambio qued&oacute; guardado.</span></div><button class="btn btn-outline-success btn-sm w-100" type="button">Continuar</button></div>'],
+            ['name' => 'Acci&oacute;n destructiva', 'hint' => 'Rojo suave y seguro.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-danger-soft"><strong>Eliminar registro</strong><div class="text-muted small">Esta acci&oacute;n requiere confirmaci&oacute;n.</div><button class="btn btn-outline-danger btn-sm w-100" type="button">Eliminar</button></div>'],
         ],
     ],
 ];
