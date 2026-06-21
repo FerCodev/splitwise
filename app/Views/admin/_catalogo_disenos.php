@@ -37,6 +37,21 @@ $renderDesignProposal = static function (array $group, string $name, int $index)
         <div><h5>100 propuestas globales</h5><p>Exploraciones visuales para toda la app. Incluye menu lateral, mobile, pantallas principales, formularios, login y admin.</p></div>
         <span class="badge bg-secondary">100 propuestas</span>
     </div>
+    <div class="design-curation-panel" data-design-curation-summary>
+        <div>
+            <span class="design-curation-kicker">Curaduria visual</span>
+            <strong>Marca que ideas queres implementar o descartar</strong>
+            <p>Las marcas quedan guardadas en este navegador para revisarlas despues.</p>
+        </div>
+        <div class="design-curation-counters">
+            <span><b data-design-count="selected">0</b> para implementar</span>
+            <span><b data-design-count="discarded">0</b> descartadas</span>
+        </div>
+        <div class="design-curation-actions">
+            <button class="btn btn-outline-primary btn-sm" type="button" data-design-copy>Copiar seleccion</button>
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-design-clear>Limpiar marcas</button>
+        </div>
+    </div>
     <div class="catalog-nested-groups design-proposal-groups">
         <?php foreach ($designProposalBlueprints as $groupIndex => $group): ?>
             <div class="catalog-nested-section">
@@ -44,10 +59,15 @@ $renderDesignProposal = static function (array $group, string $name, int $index)
                 <div class="catalog-grid design-proposal-grid">
                     <?php foreach ($group['items'] as $itemIndex => $item): ?>
                         <?php $globalIndex = ($groupIndex * 10) + $itemIndex; ?>
-                        <article class="catalog-variant">
+                        <?php $proposalId = 'design-' . str_pad((string) ($globalIndex + 1), 3, '0', STR_PAD_LEFT); ?>
+                        <article class="catalog-variant design-curation-item" data-design-proposal-id="<?= esc($proposalId, 'attr') ?>" data-design-proposal-name="<?= esc($item, 'attr') ?>" data-design-proposal-group="<?= esc($group['title'], 'attr') ?>">
                             <div class="catalog-variant-meta"><span><?= esc($item) ?></span><small><?= esc($group['title']) ?></small></div>
                             <div class="catalog-source-badge">Dise&ntilde;o app</div>
                             <?= $renderDesignProposal($group, $item, $globalIndex) ?>
+                            <div class="design-curation-controls" aria-label="Curar propuesta <?= esc($item, 'attr') ?>">
+                                <button class="design-curation-btn design-curation-btn-keep" type="button" data-design-action="selected">Implementar</button>
+                                <button class="design-curation-btn design-curation-btn-discard" type="button" data-design-action="discarded">Descartar</button>
+                            </div>
                         </article>
                     <?php endforeach; ?>
                 </div>
@@ -55,3 +75,99 @@ $renderDesignProposal = static function (array $group, string $name, int $index)
         <?php endforeach; ?>
     </div>
 </section>
+<script>
+(function() {
+    var storageKey = 'splitwise.designCatalogCuration.v1';
+    var items = Array.prototype.slice.call(document.querySelectorAll('[data-design-proposal-id]'));
+    var selectedCount = document.querySelector('[data-design-count="selected"]');
+    var discardedCount = document.querySelector('[data-design-count="discarded"]');
+    var copyButton = document.querySelector('[data-design-copy]');
+    var clearButton = document.querySelector('[data-design-clear]');
+    var state = {};
+
+    try {
+        state = JSON.parse(window.localStorage.getItem(storageKey) || '{}') || {};
+    } catch (error) {
+        state = {};
+    }
+
+    function save() {
+        window.localStorage.setItem(storageKey, JSON.stringify(state));
+    }
+
+    function applyItemState(item) {
+        var id = item.dataset.designProposalId;
+        var value = state[id] || '';
+        item.dataset.designState = value;
+        item.querySelectorAll('[data-design-action]').forEach(function(button) {
+            button.classList.toggle('is-active', button.dataset.designAction === value);
+            button.setAttribute('aria-pressed', button.dataset.designAction === value ? 'true' : 'false');
+        });
+    }
+
+    function updateCounts() {
+        var selected = 0;
+        var discarded = 0;
+        Object.keys(state).forEach(function(id) {
+            if (state[id] === 'selected') selected += 1;
+            if (state[id] === 'discarded') discarded += 1;
+        });
+        if (selectedCount) selectedCount.textContent = String(selected);
+        if (discardedCount) discardedCount.textContent = String(discarded);
+    }
+
+    function refresh() {
+        items.forEach(applyItemState);
+        updateCounts();
+    }
+
+    items.forEach(function(item) {
+        item.querySelectorAll('[data-design-action]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var id = item.dataset.designProposalId;
+                var action = button.dataset.designAction;
+                state[id] = state[id] === action ? '' : action;
+                if (!state[id]) delete state[id];
+                save();
+                refresh();
+            });
+        });
+    });
+
+    if (copyButton) {
+        copyButton.addEventListener('click', function() {
+            var lines = ['Catalogo de disenos - seleccion'];
+            ['selected', 'discarded'].forEach(function(status) {
+                var label = status === 'selected' ? 'Para implementar' : 'Descartadas';
+                lines.push('', label + ':');
+                var matches = items.filter(function(item) {
+                    return state[item.dataset.designProposalId] === status;
+                });
+                if (!matches.length) {
+                    lines.push('- Sin marcas');
+                    return;
+                }
+                matches.forEach(function(item) {
+                    lines.push('- ' + item.dataset.designProposalGroup + ' / ' + item.dataset.designProposalName + ' (' + item.dataset.designProposalId + ')');
+                });
+            });
+            navigator.clipboard.writeText(lines.join('\n')).then(function() {
+                copyButton.textContent = 'Copiado';
+                window.setTimeout(function() { copyButton.textContent = 'Copiar seleccion'; }, 1500);
+            }).catch(function() {
+                window.prompt('Copia la seleccion', lines.join('\n'));
+            });
+        });
+    }
+
+    if (clearButton) {
+        clearButton.addEventListener('click', function() {
+            state = {};
+            save();
+            refresh();
+        });
+    }
+
+    refresh();
+})();
+</script>
