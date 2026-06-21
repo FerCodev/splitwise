@@ -2383,6 +2383,21 @@ body {
     background: #fff;
     box-shadow: 0 1px 2px rgba(30, 41, 59, 0.05);
 }
+.tabler-proposal-card-flat {
+    background: #f8fafc;
+}
+.tabler-proposal-muted {
+    background: #f8fafc;
+    opacity: 0.92;
+}
+.tabler-proposal-danger {
+    border-color: #fecdd3;
+    background: #fff7f8;
+}
+.tabler-proposal-success {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
 .tabler-proposal-row {
     display: flex;
     align-items: center;
@@ -2414,6 +2429,23 @@ body {
     font-weight: 800;
     color: var(--text);
 }
+.tabler-proposal-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #e8f1ff;
+    color: #206bc4;
+    font-weight: 900;
+}
+.tabler-proposal-avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.86rem;
+}
 .tabler-proposal-value,
 .tabler-proposal-balance {
     font-size: 1.35rem;
@@ -2436,6 +2468,26 @@ body {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
+}
+.tabler-proposal-split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+.tabler-proposal-split span {
+    display: grid;
+    gap: 2px;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    color: var(--muted);
+    font-size: 0.78rem;
+}
+.tabler-proposal-split b {
+    color: var(--text);
+    font-size: 0.9rem;
+    font-variant-numeric: tabular-nums;
 }
 .tabler-proposal-list {
     display: grid;
@@ -2478,6 +2530,22 @@ body {
     font-size: 0.92rem;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.tabler-proposal-input {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid #dce3ec;
+    border-radius: var(--radius-md);
+    background: #fff;
+}
+.tabler-proposal-input > span:last-child {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 800;
 }
 .catalog-soft-danger {
     background: #fff7f8;

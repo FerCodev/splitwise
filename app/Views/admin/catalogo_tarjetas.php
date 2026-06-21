@@ -60,8 +60,8 @@ $screens = [
     ],
     'tabler' => [
         'title' => 'Tabler',
-        'description' => 'Ejemplos inspirados en Tabler para evaluar una librer&iacute;a visual externa.',
-        'badge' => '4 ejemplos',
+        'description' => 'Subcat&aacute;logo inspirado en Tabler para evaluar una librer&iacute;a visual externa.',
+        'badge' => '18 ejemplos',
     ],
     'propuestas' => [
         'title' => 'Propuestas',
@@ -234,11 +234,52 @@ $catalog = [
     ],
 ];
 
-$tablerExamples = [
-    ['name' => 'Stat card', 'hint' => 'M&eacute;trica compacta con tendencia.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg></span><span class="badge bg-success-subtle text-success">+12%</span></div><div class="tabler-proposal-label">Total del mes</div><div class="tabler-proposal-value">' . moneda(1563723) . '</div><div class="text-muted small">58 movimientos cargados</div></div>'],
-    ['name' => 'Grupo dashboard', 'hint' => 'Card limpia con acciones.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Grupo activo</div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-balance text-danger">' . moneda(112697) . ' debe</div><div class="tabler-proposal-progress"><span style="width: 62%;"></span></div><div class="tabler-proposal-actions"><button class="btn btn-outline-primary btn-sm" type="button">Entrar</button><button class="btn btn-primary btn-sm" type="button">+ Gasto</button></div></div>'],
-    ['name' => 'Lista operativa', 'hint' => 'Movimientos tipo timeline.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-dot bg-primary"></span><div><strong>Supermercado</strong><small>Fernando &middot; Gasto</small></div><b class="text-primary">' . moneda(45200) . '</b></div><div><span class="tabler-proposal-dot bg-success"></span><div><strong>Pago parcial</strong><small>Antonella &middot; Pago</small></div><b class="text-success">' . moneda(30000) . '</b></div><div><span class="tabler-proposal-dot bg-danger"></span><div><strong>Saldo pendiente</strong><small>Junio &middot; Deuda</small></div><b class="text-danger">' . moneda(12600) . '</b></div></div></div>'],
-    ['name' => 'Medio mini', 'hint' => 'Medio de cobro con datos copiables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Mercado Pago</div><div class="text-muted small">Favorito</div></div><span class="tabler-proposal-icon tabler-proposal-icon-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span></div><div class="tabler-proposal-copy"><span>Alias</span><strong>fernando.montesdeoca</strong></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div></div>'],
+$tablerCatalog = [
+    [
+        'title' => 'M&eacute;tricas',
+        'description' => 'Cards de resumen tipo dashboard para Home y Reportes.',
+        'items' => [
+            ['name' => 'Stat card', 'hint' => 'M&eacute;trica compacta con tendencia.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg></span><span class="badge bg-success-subtle text-success">+12%</span></div><div class="tabler-proposal-label">Total del mes</div><div class="tabler-proposal-value">' . moneda(1563723) . '</div><div class="text-muted small">58 movimientos cargados</div></div>'],
+            ['name' => 'KPI horizontal', 'hint' => 'Resumen con icono y subtotales.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-card-flat"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-green">$</span><div class="text-end"><div class="tabler-proposal-value text-success">' . moneda(898212) . '</div><div class="text-muted small">Vos pagaste</div></div></div><div class="tabler-proposal-split"><span>Tu parte <b>' . moneda(449106) . '</b></span><span>Registros <b>18</b></span></div></div>'],
+            ['name' => 'Balance compacto', 'hint' => 'Saldo y estado del periodo.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-label">Saldo del periodo</div><div class="tabler-proposal-value text-success">' . moneda(0) . '</div><div class="tabler-proposal-progress"><span style="width: 100%;"></span></div><div class="tabler-proposal-row"><small class="text-muted">Liquidado</small><span class="badge bg-success">OK</span></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Grupos',
+        'description' => 'Cards para listado de grupos activos, cerrados o con deuda.',
+        'items' => [
+            ['name' => 'Grupo dashboard', 'hint' => 'Card limpia con acciones.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">Grupo activo</div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-balance text-danger">' . moneda(112697) . ' debe</div><div class="tabler-proposal-progress"><span style="width: 62%;"></span></div><div class="tabler-proposal-actions"><button class="btn btn-outline-primary btn-sm" type="button">Entrar</button><button class="btn btn-primary btn-sm" type="button">+ Gasto</button></div></div>'],
+            ['name' => 'Grupo con avatar', 'hint' => 'Avatar, saldo y CTA principal.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row align-items-start"><div class="catalog-row"><span class="tabler-proposal-avatar">J</span><div><div class="tabler-proposal-title">Junio</div><div class="text-muted small">2 integrantes</div></div></div><span class="badge bg-success">Activo</span></div><div class="tabler-proposal-copy"><span>Tu balance</span><strong class="text-success">' . moneda(5000) . ' a favor</strong></div><button class="btn btn-primary btn-sm w-100" type="button">Cargar gasto</button></div>'],
+            ['name' => 'Grupo cerrado', 'hint' => 'Historial sobrio y consultable.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-muted"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Abril</div><div class="text-muted small">41 movimientos</div></div><span class="badge bg-secondary">Cerrado</span></div><div class="tabler-proposal-split"><span>Total <b>' . moneda(1563723) . '</b></span><span>Saldo <b>' . moneda(0) . '</b></span></div><button class="btn btn-outline-secondary btn-sm w-100" type="button">Ver historial</button></div>'],
+        ],
+    ],
+    [
+        'title' => 'Movimientos',
+        'description' => 'Listas y feeds para gastos, pagos y actividad del grupo.',
+        'items' => [
+            ['name' => 'Lista operativa', 'hint' => 'Movimientos tipo timeline.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-dot bg-primary"></span><div><strong>Supermercado</strong><small>Fernando &middot; Gasto</small></div><b class="text-primary">' . moneda(45200) . '</b></div><div><span class="tabler-proposal-dot bg-success"></span><div><strong>Pago parcial</strong><small>Antonella &middot; Pago</small></div><b class="text-success">' . moneda(30000) . '</b></div><div><span class="tabler-proposal-dot bg-danger"></span><div><strong>Saldo pendiente</strong><small>Junio &middot; Deuda</small></div><b class="text-danger">' . moneda(12600) . '</b></div></div></div>'],
+            ['name' => 'Movimiento compacto', 'hint' => 'Una fila densa por movimiento.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><span class="badge bg-primary me-1">Gasto</span><strong>Farmacia</strong><div class="text-muted small">20/06/2026 &middot; Antonella</div></div><b class="text-primary">' . moneda(9200) . '</b></div><div class="tabler-proposal-row"><div><span class="badge bg-success me-1">Pago</span><strong>Transferencia</strong><div class="text-muted small">21/06/2026 &middot; Fernando</div></div><b class="text-success">' . moneda(5000) . '</b></div></div>'],
+            ['name' => 'Feed con filtros', 'hint' => 'Header operativo con bot&oacute;n de filtro.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Movimientos</div><div class="text-muted small">Junio &middot; 12 registros</div></div><button class="btn btn-outline-primary btn-sm" type="button">Filtrar</button></div><div class="tabler-proposal-progress"><span style="width: 72%;"></span></div><div class="text-muted small">Mostrando gastos y pagos del grupo.</div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Deudas y pagos',
+        'description' => 'Tarjetas para pendientes, cobros y comprobantes.',
+        'items' => [
+            ['name' => 'Deuda suave', 'hint' => 'Rojo sobrio estilo Tabler.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-danger"><div class="tabler-proposal-row"><div><span class="badge bg-danger">Deb&eacute;s</span><strong class="d-block mt-2">Fernando</strong><div class="text-muted small">Junio &middot; Pago pendiente</div></div><b class="text-danger">' . moneda(112697) . '</b></div></div>'],
+            ['name' => 'Cobro pendiente', 'hint' => 'Verde para dinero a favor.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-success"><div class="tabler-proposal-row"><div><span class="badge bg-success">Te deben</span><strong class="d-block mt-2">Antonella</strong><div class="text-muted small">Mayo &middot; Cobro pendiente</div></div><b class="text-success">' . moneda(14570) . '</b></div></div>'],
+            ['name' => 'Comprobante', 'hint' => 'Formato de pago confirmado.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Pago confirmado</div><div class="text-muted small">Fernando &rarr; Antonella</div></div><span class="badge bg-success">OK</span></div><div class="tabler-proposal-copy"><span>Importe</span><strong class="text-success">' . moneda(30000) . '</strong></div><div class="text-muted small">21/06/2026 &middot; Mercado Pago</div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Medios y formularios',
+        'description' => 'Credenciales, controles y formularios compactos.',
+        'items' => [
+            ['name' => 'Medio mini', 'hint' => 'Medio de cobro con datos copiables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Mercado Pago</div><div class="text-muted small">Favorito</div></div><span class="tabler-proposal-icon tabler-proposal-icon-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span></div><div class="tabler-proposal-copy"><span>Alias</span><strong>fernando.montesdeoca</strong></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div></div>'],
+            ['name' => 'Campo pagador', 'hint' => 'Selector de persona estilo control.', 'render' => static fn () => '<div class="tabler-proposal-card"><label class="tabler-proposal-label">Pagado por</label><div class="tabler-proposal-input"><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">F</span><strong>Fernando</strong><span>Seleccionar</span></div><label class="tabler-proposal-label">Monto</label><div class="tabler-proposal-input"><strong>' . moneda(10000) . '</strong><span>ARS</span></div></div>'],
+            ['name' => 'Botonera', 'hint' => 'Acciones claras para ABM.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-title">Acciones</div><div class="tabler-proposal-actions"><button class="btn btn-primary" type="button">Guardar</button><button class="btn btn-outline-secondary" type="button">Cancelar</button></div><button class="btn btn-outline-danger btn-sm w-100" type="button">Eliminar registro</button><div class="text-muted small">Botones sobrios y previsibles.</div></div>'],
+        ],
+    ],
 ];
 
 $proposals = [
@@ -322,27 +363,29 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
             </div>
         </section>
     <?php elseif ($activeScreen === 'tabler'): ?>
-        <section class="catalog-section">
-            <div class="catalog-section-head">
-                <div>
-                    <h5>Ejemplos Tabler</h5>
-                    <p>Patrones visuales inspirados en Tabler. Est&aacute;n separados de Propuestas para evaluar esa librer&iacute;a sin mezclarlos con dise&ntilde;os propios.</p>
+        <?php foreach ($tablerCatalog as $section): ?>
+            <section class="catalog-section">
+                <div class="catalog-section-head">
+                    <div>
+                        <h5><?= $section['title'] ?></h5>
+                        <p><?= $section['description'] ?></p>
+                    </div>
+                    <span class="badge bg-primary">Tabler</span>
                 </div>
-                <span class="badge bg-primary">Tabler</span>
-            </div>
-            <div class="catalog-grid">
-                <?php foreach ($tablerExamples as $item): ?>
-                    <article class="catalog-variant">
-                        <div class="catalog-variant-meta">
-                            <span><?= $item['name'] ?></span>
-                            <small><?= $item['hint'] ?></small>
-                        </div>
-                        <div class="catalog-source-badge">Ejemplo Tabler</div>
-                        <?= $item['render']() ?>
-                    </article>
-                <?php endforeach; ?>
-            </div>
-        </section>
+                <div class="catalog-grid">
+                    <?php foreach ($section['items'] as $item): ?>
+                        <article class="catalog-variant">
+                            <div class="catalog-variant-meta">
+                                <span><?= $item['name'] ?></span>
+                                <small><?= $item['hint'] ?></small>
+                            </div>
+                            <div class="catalog-source-badge">Ejemplo Tabler</div>
+                            <?= $item['render']() ?>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endforeach; ?>
     <?php elseif ($activeScreen === 'propuestas'): ?>
         <?php foreach ($proposals as $proposal): ?>
             <section class="catalog-section">
