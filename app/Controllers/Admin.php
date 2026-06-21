@@ -63,4 +63,3 @@ class Admin extends BaseController
         return redirect()->to($returnUrl)->with('success', 'Componente actualizado correctamente.');
     }
 }
-

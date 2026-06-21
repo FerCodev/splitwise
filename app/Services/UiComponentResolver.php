@@ -136,5 +136,3 @@ class UiComponentResolver
         return in_array($variantKey, self::ALLOWED_VARIANTS[$screenKey][$componentKey] ?? [], true);
     }
 }
-
-

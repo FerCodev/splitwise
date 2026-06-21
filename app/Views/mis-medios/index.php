@@ -92,4 +92,3 @@
 
 <?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>
-

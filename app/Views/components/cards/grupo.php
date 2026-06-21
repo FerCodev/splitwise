@@ -160,5 +160,3 @@ $saldoTexto = moneda(abs($saldo));
         </div>
     </div>
 <?php endif; ?>
-
-
