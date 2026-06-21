@@ -1408,6 +1408,37 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
+.home-debt-card {
+    border: 1px solid transparent;
+    border-left-width: 3px;
+}
+.home-debt-card-owes {
+    border-color: #fecdd3;
+    border-left-color: var(--danger);
+    background: #fff7f8;
+    color: #7f1d1d;
+}
+.home-debt-card-owes .text-muted {
+    color: #9f1239 !important;
+}
+.home-debt-card-owes .badge {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+.home-debt-card-owed {
+    border-color: #bbf7d0;
+    border-left-color: #16a34a;
+    background: #f0fdf4;
+    color: #14532d;
+}
+.home-debt-card-owed .text-muted {
+    color: #166534 !important;
+}
+.home-debt-card-owed .badge {
+    background: #dcfce7 !important;
+    color: #15803d !important;
+}
+
 .home-debts-empty-card {
     min-height: 190px;
     display: flex;

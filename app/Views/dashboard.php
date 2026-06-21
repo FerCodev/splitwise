@@ -148,7 +148,7 @@
                             <?php foreach ($deudasPendientes as $d): ?>
                                 <?php $esDeudor = (int) $d['deudor_id'] === $userId; ?>
                                 <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="report-movement-link">
-                                    <div class="report-movement-card <?= $esDeudor ? 'report-movement-expense' : 'report-movement-payment' ?>" style="border-left: 3px solid <?= $esDeudor ? '#dc2626' : '#16a34a' ?>;">
+                                    <div class="report-movement-card home-debt-card <?= $esDeudor ? 'home-debt-card-owes' : 'home-debt-card-owed' ?>">
                                         <div class="d-flex justify-content-between align-items-start gap-2">
                                             <div class="min-width-0">
                                                 <span class="badge <?= $esDeudor ? 'bg-danger' : 'bg-success' ?> me-1"><?= $esDeudor ? 'Deb&eacute;s' : 'Te deben' ?></span>
@@ -335,7 +335,7 @@
                             <?php foreach ($deudasPendientes as $d): ?>
                                 <?php $esDeudor = (int)$d['deudor_id'] === $userId; ?>
                                 <a href="<?= base_url('grupos/' . $d['grupo_id'] . '/balance') ?>" class="report-movement-link">
-                                    <div class="report-movement-card <?= $esDeudor ? 'report-movement-expense' : 'report-movement-payment' ?>" style="border-left: 3px solid <?= $esDeudor ? '#dc2626' : '#16a34a' ?>;">
+                                    <div class="report-movement-card home-debt-card <?= $esDeudor ? 'home-debt-card-owes' : 'home-debt-card-owed' ?>">
                                         <div class="d-flex justify-content-between align-items-start gap-2">
                                             <div class="min-width-0">
                                                 <span class="badge <?= $esDeudor ? 'bg-danger' : 'bg-success' ?> me-1"><?= $esDeudor ? 'Deb&eacute;s' : 'Te deben' ?></span>
