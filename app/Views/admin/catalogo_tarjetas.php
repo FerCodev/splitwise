@@ -337,10 +337,28 @@ $tablerCatalog = [
     [
         'title' => 'Tablas y listas',
         'description' => 'Vistas densas para escritorio o panel admin.',
-        'items' => [
-            ['name' => 'Tabla compacta', 'hint' => 'Movimientos escaneables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-table"><div><b>Fecha</b><b>Tipo</b><b>Monto</b></div><div><span>20/06</span><span>Gasto</span><strong>' . moneda(9200) . '</strong></div><div><span>21/06</span><span>Pago</span><strong class="text-success">' . moneda(5000) . '</strong></div><div><span>22/06</span><span>Gasto</span><strong>' . moneda(12600) . '</strong></div></div></div>'],
-            ['name' => 'Ranking', 'hint' => 'Top grupos o categor&iacute;as.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-ranking"><div><span>1</span><b>Mayo</b><strong>' . moneda(1630862) . '</strong></div><div><span>2</span><b>Abril</b><strong>' . moneda(1563723) . '</strong></div><div><span>3</span><b>Junio</b><strong>' . moneda(112697) . '</strong></div></div></div>'],
-            ['name' => 'Lista de usuarios', 'hint' => 'Integrantes y roles.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">F</span><div><strong>Fernando</strong><small>Administrador</small></div><span class="badge bg-primary">Admin</span></div><div><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">A</span><div><strong>Antonella</strong><small>Miembro</small></div><span class="badge bg-secondary">Member</span></div></div></div>'],
+        'groups' => [
+            [
+                'title' => 'Tablas',
+                'description' => 'Estructuras para movimientos y datos tabulares.',
+                'items' => [
+                    ['name' => 'Tabla compacta', 'hint' => 'Movimientos escaneables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-table"><div><b>Fecha</b><b>Tipo</b><b>Monto</b></div><div><span>20/06</span><span>Gasto</span><strong>' . moneda(9200) . '</strong></div><div><span>21/06</span><span>Pago</span><strong class="text-success">' . moneda(5000) . '</strong></div><div><span>22/06</span><span>Gasto</span><strong>' . moneda(12600) . '</strong></div></div></div>'],
+                ],
+            ],
+            [
+                'title' => 'Rankings',
+                'description' => 'Listas ordenadas para grupos, categor&iacute;as o usuarios.',
+                'items' => [
+                    ['name' => 'Ranking', 'hint' => 'Top grupos o categor&iacute;as.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-ranking"><div><span>1</span><b>Mayo</b><strong>' . moneda(1630862) . '</strong></div><div><span>2</span><b>Abril</b><strong>' . moneda(1563723) . '</strong></div><div><span>3</span><b>Junio</b><strong>' . moneda(112697) . '</strong></div></div></div>'],
+                ],
+            ],
+            [
+                'title' => 'Integrantes',
+                'description' => 'Filas para personas, roles y estados.',
+                'items' => [
+                    ['name' => 'Lista de usuarios', 'hint' => 'Integrantes y roles.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">F</span><div><strong>Fernando</strong><small>Administrador</small></div><span class="badge bg-primary">Admin</span></div><div><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">A</span><div><strong>Antonella</strong><small>Miembro</small></div><span class="badge bg-secondary">Member</span></div></div></div>'],
+                ],
+            ],
         ],
     ],
     [
@@ -543,18 +561,46 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
                     </div>
                     <span class="badge bg-primary">Tabler</span>
                 </div>
-                <div class="catalog-grid">
-                    <?php foreach ($section['items'] as $item): ?>
-                        <article class="catalog-variant">
-                            <div class="catalog-variant-meta">
-                                <span><?= $item['name'] ?></span>
-                                <small><?= $item['hint'] ?></small>
+                <?php if (isset($section['groups'])): ?>
+                    <div class="catalog-nested-groups">
+                        <?php foreach ($section['groups'] as $group): ?>
+                            <div class="catalog-nested-section">
+                                <div class="catalog-nested-head">
+                                    <div>
+                                        <h6><?= $group['title'] ?></h6>
+                                        <p><?= $group['description'] ?></p>
+                                    </div>
+                                    <span><?= count($group['items']) ?> ejemplo(s)</span>
+                                </div>
+                                <div class="catalog-grid">
+                                    <?php foreach ($group['items'] as $item): ?>
+                                        <article class="catalog-variant">
+                                            <div class="catalog-variant-meta">
+                                                <span><?= $item['name'] ?></span>
+                                                <small><?= $item['hint'] ?></small>
+                                            </div>
+                                            <div class="catalog-source-badge">Ejemplo Tabler</div>
+                                            <?= $item['render']() ?>
+                                        </article>
+                                    <?php endforeach; ?>
+                                </div>
                             </div>
-                            <div class="catalog-source-badge">Ejemplo Tabler</div>
-                            <?= $item['render']() ?>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="catalog-grid">
+                        <?php foreach ($section['items'] as $item): ?>
+                            <article class="catalog-variant">
+                                <div class="catalog-variant-meta">
+                                    <span><?= $item['name'] ?></span>
+                                    <small><?= $item['hint'] ?></small>
+                                </div>
+                                <div class="catalog-source-badge">Ejemplo Tabler</div>
+                                <?= $item['render']() ?>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </section>
         <?php endforeach; ?>
     <?php elseif ($activeScreen === 'propuestas'): ?>
