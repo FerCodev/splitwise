@@ -50,6 +50,9 @@ class UiComponentResolver
                 'operational',
                 'balance_first',
                 'compact',
+                'action_large',
+                'activity_split',
+                'minimal_panel',
             ],
         ],
         self::SCREEN_EXPENSES_INDEX => [

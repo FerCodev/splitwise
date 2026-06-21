@@ -34,6 +34,86 @@ $saldoTexto = moneda(abs($saldo));
             </div>
         </div>
     </div>
+<?php elseif ($variant === 'action_large'): ?>
+    <div class="dash-card group-card-action-large">
+        <div class="dash-card-body">
+            <div class="catalog-title-row align-items-start">
+                <div class="catalog-row min-width-0">
+                    <div class="catalog-avatar catalog-avatar-primary"><?= esc($inicial) ?></div>
+                    <div class="min-width-0">
+                        <strong class="d-block text-truncate"><?= esc($nombre) ?></strong>
+                        <span class="badge <?= esc($badgeClase) ?> mt-1"><?= esc(ucfirst($estado)) ?></span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="text-muted small d-block">Saldo</span>
+                    <strong class="financial-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></strong>
+                </div>
+            </div>
+            <?php if ($ultimoDescripcion): ?>
+                <div class="group-card-soft-row mt-3">
+                    <span class="badge <?= $ultimoTipo === 'pago' ? 'bg-success' : 'bg-primary' ?>"><?= $ultimoTipo === 'pago' ? 'Pago' : 'Gasto' ?></span>
+                    <span class="text-truncate"><?= esc($ultimoDescripcion) ?></span>
+                    <?php if ($ultimoMonto !== null): ?><b class="financial-amount"><?= moneda($ultimoMonto) ?></b><?php endif; ?>
+                </div>
+            <?php endif; ?>
+            <div class="group-card-big-actions mt-3">
+                <a class="btn btn-outline-primary" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
+                <?php if ($estado === 'activo' && $gastoUrl): ?>
+                    <a class="btn btn-primary" href="<?= esc($gastoUrl, 'attr') ?>">+ Gasto</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+<?php elseif ($variant === 'activity_split'): ?>
+    <div class="dash-card group-card-activity-split">
+        <div class="dash-card-body">
+            <div class="catalog-card-top">
+                <div>
+                    <strong><?= esc($nombre) ?></strong>
+                    <div class="text-muted small"><?= esc(ucfirst($estado)) ?></div>
+                </div>
+                <div class="group-card-balance-pill <?= esc($saldoClase) ?>"><?= $saldoTexto ?></div>
+            </div>
+            <div class="group-card-activity-box mt-3">
+                <span class="text-muted small">Ultimo movimiento</span>
+                <?php if ($ultimoDescripcion): ?>
+                    <div class="catalog-card-top mt-1">
+                        <div class="min-width-0">
+                            <span class="badge <?= $ultimoTipo === 'pago' ? 'bg-success' : 'bg-primary' ?> me-1"><?= $ultimoTipo === 'pago' ? 'Pago' : 'Gasto' ?></span>
+                            <strong class="small"><?= esc($ultimoDescripcion) ?></strong>
+                        </div>
+                        <?php if ($ultimoMonto !== null): ?><b class="financial-amount small"><?= moneda($ultimoMonto) ?></b><?php endif; ?>
+                    </div>
+                    <?php if ($ultimoFecha): ?><div class="text-muted small mt-1"><?= date('d/m/Y', strtotime($ultimoFecha)) ?></div><?php endif; ?>
+                <?php else: ?>
+                    <strong class="small d-block mt-1">Sin movimientos recientes</strong>
+                <?php endif; ?>
+            </div>
+            <div class="catalog-actions mt-3">
+                <a class="btn btn-outline-primary btn-sm" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
+                <?php if ($estado === 'activo' && $gastoUrl): ?>
+                    <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gasto</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+<?php elseif ($variant === 'minimal_panel'): ?>
+    <div class="dash-card group-card-minimal-panel">
+        <a href="<?= esc($entrarUrl, 'attr') ?>" class="group-card-minimal-link">
+            <div class="catalog-avatar catalog-avatar-primary catalog-avatar-sm"><?= esc($inicial) ?></div>
+            <div class="min-width-0">
+                <strong class="d-block text-truncate"><?= esc($nombre) ?></strong>
+                <span class="text-muted small"><?= $ultimoDescripcion ? esc($ultimoDescripcion) : 'Sin movimientos recientes' ?></span>
+            </div>
+            <strong class="financial-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></strong>
+        </a>
+        <?php if ($estado === 'activo' && $gastoUrl): ?>
+            <div class="group-card-minimal-footer">
+                <a class="btn btn-primary btn-sm w-100" href="<?= esc($gastoUrl, 'attr') ?>">+ Gasto</a>
+            </div>
+        <?php endif; ?>
+    </div>
 <?php elseif ($variant === 'compact'): ?>
     <div class="dash-card">
         <a href="<?= esc($entrarUrl, 'attr') ?>" class="dash-list-item text-decoration-none">
