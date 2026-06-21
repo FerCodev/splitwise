@@ -61,7 +61,7 @@ $screens = [
     'tabler' => [
         'title' => 'Tabler',
         'description' => 'Subcat&aacute;logo inspirado en Tabler para evaluar una librer&iacute;a visual externa.',
-        'badge' => '18 ejemplos',
+        'badge' => '27 ejemplos',
     ],
     'propuestas' => [
         'title' => 'Propuestas',
@@ -278,6 +278,42 @@ $tablerCatalog = [
             ['name' => 'Medio mini', 'hint' => 'Medio de cobro con datos copiables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Mercado Pago</div><div class="text-muted small">Favorito</div></div><span class="tabler-proposal-icon tabler-proposal-icon-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span></div><div class="tabler-proposal-copy"><span>Alias</span><strong>fernando.montesdeoca</strong></div><div class="tabler-proposal-copy"><span>CBU/CVU</span><strong>0000003100012345678901</strong></div></div>'],
             ['name' => 'Campo pagador', 'hint' => 'Selector de persona estilo control.', 'render' => static fn () => '<div class="tabler-proposal-card"><label class="tabler-proposal-label">Pagado por</label><div class="tabler-proposal-input"><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">F</span><strong>Fernando</strong><span>Seleccionar</span></div><label class="tabler-proposal-label">Monto</label><div class="tabler-proposal-input"><strong>' . moneda(10000) . '</strong><span>ARS</span></div></div>'],
             ['name' => 'Botonera', 'hint' => 'Acciones claras para ABM.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-title">Acciones</div><div class="tabler-proposal-actions"><button class="btn btn-primary" type="button">Guardar</button><button class="btn btn-outline-secondary" type="button">Cancelar</button></div><button class="btn btn-outline-danger btn-sm w-100" type="button">Eliminar registro</button><div class="text-muted small">Botones sobrios y previsibles.</div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Navegaci&oacute;n y filtros',
+        'description' => 'Patrones para tabs, filtros y acciones r&aacute;pidas.',
+        'items' => [
+            ['name' => 'Tabs segmentados', 'hint' => 'Selector de estado para Home.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-tabs"><span>Todos</span><span class="active">Activos</span><span>Cerrados</span></div><div class="text-muted small">Ideal para alternar listados sin perder contexto.</div></div>'],
+            ['name' => 'Barra de filtros', 'hint' => 'Filtros compactos con contador.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Filtros</div><div class="text-muted small">Fecha, categor&iacute;a e integrante</div></div><span class="badge bg-primary">3 activos</span></div><div class="tabler-proposal-filter-row"><span>Junio</span><span>Otros</span><span>Fernando</span></div><button class="btn btn-primary btn-sm w-100" type="button">Aplicar filtros</button></div>'],
+            ['name' => 'Acciones r&aacute;pidas', 'hint' => 'Botones densos para exportar.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-title">Exportar movimientos</div><div class="tabler-proposal-actions"><button class="btn btn-danger btn-sm" type="button">PDF</button><button class="btn btn-success btn-sm" type="button">Excel</button></div><button class="btn btn-outline-primary btn-sm w-100" type="button">Filtrar</button><div class="text-muted small">Controles separados y claros.</div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Estados',
+        'description' => 'Empty states, alertas y confirmaciones con est&eacute;tica Tabler.',
+        'items' => [
+            ['name' => 'Sin grupos', 'hint' => 'Empty state con acci&oacute;n primaria.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-empty"><span class="tabler-proposal-icon tabler-proposal-icon-blue">+</span><strong>No ten&eacute;s grupos activos</strong><div class="text-muted small">Cre&aacute; uno para empezar a cargar gastos.</div><button class="btn btn-primary btn-sm" type="button">Crear grupo</button></div>'],
+            ['name' => 'Sin deudas', 'hint' => 'Estado positivo y liviano.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-empty tabler-proposal-success"><span class="tabler-proposal-icon tabler-proposal-icon-green">&check;</span><strong>Todo saldado</strong><div class="text-muted small">No ten&eacute;s deudas pendientes.</div></div>'],
+            ['name' => 'Alerta guardado', 'hint' => 'Feedback de operaci&oacute;n exitosa.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-alert tabler-proposal-alert-success"><strong>Gasto creado</strong><span>El movimiento se agreg&oacute; correctamente.</span></div><div class="tabler-proposal-alert tabler-proposal-alert-danger"><strong>Revis&aacute; el monto</strong><span>El importe ingresado no es v&aacute;lido.</span></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Tablas y listas',
+        'description' => 'Vistas densas para escritorio o panel admin.',
+        'items' => [
+            ['name' => 'Tabla compacta', 'hint' => 'Movimientos escaneables.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-table"><div><b>Fecha</b><b>Tipo</b><b>Monto</b></div><div><span>20/06</span><span>Gasto</span><strong>' . moneda(9200) . '</strong></div><div><span>21/06</span><span>Pago</span><strong class="text-success">' . moneda(5000) . '</strong></div><div><span>22/06</span><span>Gasto</span><strong>' . moneda(12600) . '</strong></div></div></div>'],
+            ['name' => 'Ranking', 'hint' => 'Top grupos o categor&iacute;as.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-ranking"><div><span>1</span><b>Mayo</b><strong>' . moneda(1630862) . '</strong></div><div><span>2</span><b>Abril</b><strong>' . moneda(1563723) . '</strong></div><div><span>3</span><b>Junio</b><strong>' . moneda(112697) . '</strong></div></div></div>'],
+            ['name' => 'Lista de usuarios', 'hint' => 'Integrantes y roles.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-list"><div><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">F</span><div><strong>Fernando</strong><small>Administrador</small></div><span class="badge bg-primary">Admin</span></div><div><span class="tabler-proposal-avatar tabler-proposal-avatar-sm">A</span><div><strong>Antonella</strong><small>Miembro</small></div><span class="badge bg-secondary">Member</span></div></div></div>'],
+        ],
+    ],
+    [
+        'title' => 'Visualizaci&oacute;n',
+        'description' => 'Mini gr&aacute;ficos y barras para reportes.',
+        'items' => [
+            ['name' => 'Barras mensuales', 'hint' => 'Comparaci&oacute;n r&aacute;pida por mes.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-title">Gasto mensual</div><div class="tabler-proposal-bars"><span style="height: 46%;"></span><span style="height: 72%;"></span><span style="height: 58%;"></span><span style="height: 88%;"></span><span style="height: 62%;"></span></div><div class="tabler-proposal-row"><small class="text-muted">Abr</small><small class="text-muted">Ago</small></div></div>'],
+            ['name' => 'Progreso de grupo', 'hint' => 'Pagado vs total.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Tu aporte</div><div class="text-muted small">' . moneda(860000) . ' de ' . moneda(1563723) . '</div></div><strong>55%</strong></div><div class="tabler-proposal-meter"><span style="width: 55%;"></span></div><div class="tabler-proposal-filter-row"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>'],
+            ['name' => 'Dona simple', 'hint' => 'Distribuci&oacute;n de categor&iacute;as.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-donut-wrap"><div class="tabler-proposal-donut"><strong>72%</strong></div><div><div class="tabler-proposal-title">Otros</div><div class="text-muted small">Categor&iacute;a principal</div><div class="tabler-proposal-filter-row mt-2"><span>Otros</span><span>Pagos</span></div></div></div>'],
         ],
     ],
 ];
