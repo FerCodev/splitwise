@@ -14,6 +14,19 @@ function togglePassword(btn) {
 }
 </script>
 <script>
+document.addEventListener('click', function(event) {
+    var closeButton = event.target.closest('[data-app-alert-close]');
+    if (!closeButton) {
+        return;
+    }
+
+    var alert = closeButton.closest('.app-alert');
+    if (alert) {
+        alert.remove();
+    }
+});
+</script>
+<script>
 (function() {
     function normalizeMoneyInput(value) {
         return String(value || '').replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');

@@ -148,3 +148,4 @@
 </nav>
 
 <div class="desktop-main">
+<?= view('partials/_alerts') ?>

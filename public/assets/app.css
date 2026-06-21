@@ -2135,6 +2135,104 @@ body {
     background: var(--primary);
     color: #fff;
 }
+.app-alert-stack {
+    display: grid;
+    gap: 10px;
+    width: min(100% - 32px, 980px);
+    margin: 16px auto 0;
+}
+.app-alert {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+}
+.app-alert-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-weight: 900;
+}
+.app-alert-copy {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+.app-alert-copy strong {
+    color: var(--text);
+    font-size: 0.95rem;
+}
+.app-alert-copy small {
+    color: var(--muted);
+    line-height: 1.35;
+}
+.app-alert-action {
+    justify-self: end;
+}
+.app-alert-close {
+    display: inline-grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.25rem;
+    line-height: 1;
+}
+.app-alert-close:hover,
+.app-alert-close:focus {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--text);
+}
+.app-alert-success {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+.app-alert-success .app-alert-icon {
+    color: #15803d;
+    background: #dcfce7;
+}
+.app-alert-danger {
+    border-color: #fecdd3;
+    background: #fff7f8;
+}
+.app-alert-danger .app-alert-icon {
+    color: #be123c;
+    background: #ffe4e6;
+}
+.app-alert-warning {
+    border-color: #fde68a;
+    background: #fffbeb;
+}
+.app-alert-warning .app-alert-icon {
+    color: #b45309;
+    background: #fef3c7;
+}
+.app-alert-info {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+.app-alert-info .app-alert-icon {
+    color: #206bc4;
+    background: #dbeafe;
+}
+.app-alert-neutral {
+    border-color: #dce3ec;
+    background: #f8fafc;
+}
+.app-alert-neutral .app-alert-icon {
+    color: #64748b;
+    background: #eef2f7;
+}
 .catalog-empty-state {
     display: grid;
     gap: 6px;
@@ -3902,6 +4000,13 @@ body {
     }
     .catalog-variant-meta small {
         text-align: left;
+    }
+    .app-alert {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+    .app-alert-action {
+        grid-column: 2 / -1;
+        justify-self: stretch;
     }
     .catalog-preview-card,
     .catalog-list-preview,
