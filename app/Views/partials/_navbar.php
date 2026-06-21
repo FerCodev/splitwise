@@ -108,8 +108,16 @@
             </div>
         <?php endif; ?>
 
-        <div class="mobile-menu-section mobile-menu-session">
-            <a href="<?= base_url('logout') ?>" class="mobile-menu-link mobile-menu-link-danger">Cerrar sesi&oacute;n</a>
+        <div class="mobile-menu-session">
+            <a href="<?= base_url('logout') ?>" class="mobile-menu-logout">
+                <span class="mobile-menu-logout-icon" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-6A1.5 1.5 0 0 1 2 11.5v-7A1.5 1.5 0 0 1 3.5 3h6a.5.5 0 0 1 0 1h-6A.5.5 0 0 0 3 4.5v7a.5.5 0 0 0 .5.5h6a.5.5 0 0 1 .5.5z"/><path fill-rule="evenodd" d="M11.854 5.146a.5.5 0 0 0-.708.708L12.293 7H6.5a.5.5 0 0 0 0 1h5.793l-1.147 1.146a.5.5 0 0 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2z"/></svg>
+                </span>
+                <span>
+                    <span class="mobile-menu-logout-title">Cerrar sesi&oacute;n</span>
+                    <span class="mobile-menu-logout-subtitle">Salir de esta cuenta</span>
+                </span>
+            </a>
         </div>
     </div>
 </div>

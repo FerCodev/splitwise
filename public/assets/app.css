@@ -571,7 +571,55 @@ body {
     color: var(--danger);
 }
 .mobile-menu-session {
+    margin-top: 0;
+    padding: 0 2px 2px;
+}
+.mobile-menu-logout {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    min-height: 54px;
+    padding: 10px 12px;
+    border: 1px solid #fecdd3;
+    border-radius: var(--radius-md);
+    background: #fff7f8;
+    color: var(--danger);
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+}
+.mobile-menu-logout:hover,
+.mobile-menu-logout:focus {
+    background: #fff0f1;
+    color: var(--danger);
+}
+.mobile-menu-logout-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: var(--danger);
+}
+.mobile-menu-logout-icon svg {
+    width: 18px;
+    height: 18px;
+}
+.mobile-menu-logout-title,
+.mobile-menu-logout-subtitle {
+    display: block;
+}
+.mobile-menu-logout-title {
+    font-weight: 800;
+    line-height: 1.15;
+}
+.mobile-menu-logout-subtitle {
     margin-top: 2px;
+    color: #9f1239;
+    font-size: 12px;
+    line-height: 1.2;
 }
 .grupo-list-card-header {
     display: flex;
