@@ -1,5 +1,5 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Cat&aacute;logo de tarjetas']) ?>
-<?= view('partials/_navbar', ['pageTitle' => 'Cat&aacute;logo Admin']) ?>
+<?= view('partials/_head', ['title' => 'SplitWise - Catálogo de tarjetas']) ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Catálogo Admin']) ?>
 
 <?php
 $fechaDemo = '2026-04-15';
@@ -330,7 +330,7 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
                 <h2 class="fw-bold mb-1"><?= $activeScreenMeta['title'] ?></h2>
                 <p class="text-muted mb-0"><?= $activeScreenMeta['description'] ?></p>
             <?php else: ?>
-                <h2 class="fw-bold mb-1">Cat&aacute;logo por pantalla</h2>
+                <h2 class="fw-bold mb-1">Catálogo por pantalla</h2>
                 <p class="text-muted mb-0">Eleg&iacute; una pantalla para abrir sus componentes disponibles. Cada componente permite activar un solo dise&ntilde;o a la vez.</p>
             <?php endif; ?>
         </div>
@@ -348,7 +348,7 @@ $activeScreenMeta = $screens[$activeScreen] ?? null;
                     <h5>Pantallas</h5>
                     <p>Entr&aacute; a una pantalla para elegir qu&eacute; dise&ntilde;o usa cada componente configurable.</p>
                 </div>
-                <span class="badge bg-primary">Cat&aacute;logo</span>
+                <span class="badge bg-primary">Catálogo</span>
             </div>
             <div class="catalog-screen-grid">
                 <?php foreach ($screens as $key => $screen): ?>
