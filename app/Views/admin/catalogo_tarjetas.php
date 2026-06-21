@@ -38,22 +38,22 @@ $screens = [
         'description' => 'Grupos activos y deudas pendientes.',
         'badge' => '2 componentes',
     ],
-    'grupo_show' => [
+    'grupos' => [
         'title' => 'Grupos',
         'description' => 'Detalle del grupo, movimientos y veloc&iacute;metro.',
         'badge' => '2 componentes',
     ],
-    'gastos_index' => [
+    'gastos' => [
         'title' => 'Gastos',
         'description' => 'Totalizador superior de gastos filtrados.',
         'badge' => '1 componente',
     ],
-    'pagos_index' => [
+    'pagos' => [
         'title' => 'Pagos',
         'description' => 'Totalizador superior de pagos filtrados.',
         'badge' => '1 componente',
     ],
-    'mis_medios_cobro' => [
+    'medios' => [
         'title' => 'Medios de cobro',
         'description' => 'Tarjeta del medio favorito, datos copiables y configuraci&oacute;n.',
         'badge' => '1 componente',
@@ -122,7 +122,7 @@ $catalog = [
             ],
         ],
     ],
-    'grupo_show' => [
+    'grupos' => [
         [
             'title' => 'Movimientos del grupo',
             'description' => 'Define las tarjetas del listado de movimientos dentro de un grupo.',
@@ -167,7 +167,7 @@ $catalog = [
             ],
         ],
     ],
-    'gastos_index' => [
+    'gastos' => [
         [
             'title' => 'Total filtrado de gastos',
             'description' => 'Define la card superior que totaliza lo filtrado en Gastos.',
@@ -181,7 +181,7 @@ $catalog = [
             ],
         ],
     ],
-    'pagos_index' => [
+    'pagos' => [
         [
             'title' => 'Total filtrado de pagos',
             'description' => 'Define la card superior que totaliza lo filtrado en Pagos.',
@@ -195,7 +195,7 @@ $catalog = [
             ],
         ],
     ],
-    'mis_medios_cobro' => [
+    'medios' => [
         [
             'title' => 'Tarjeta de medio de cobro',
             'description' => 'Define c&oacute;mo se muestra cada medio de cobro guardado.',
@@ -240,6 +240,8 @@ $proposals = [
         ],
     ],
 ];
+
+$activeScreenMeta = $screens[$activeScreen] ?? null;
 ?>
 
 <div class="container catalog-page mt-3 mt-md-4 pb-4">
@@ -253,39 +255,40 @@ $proposals = [
     <div class="catalog-hero mb-2">
         <div>
             <p class="catalog-kicker mb-1">Administraci&oacute;n visual</p>
-            <h2 class="fw-bold mb-1">Cat&aacute;logo por pantalla</h2>
-            <p class="text-muted mb-0">Eleg&iacute; una pantalla para ver sus componentes disponibles. Cada componente permite activar un solo dise&ntilde;o a la vez.</p>
+            <?php if ($activeScreenMeta): ?>
+                <h2 class="fw-bold mb-1"><?= $activeScreenMeta['title'] ?></h2>
+                <p class="text-muted mb-0"><?= $activeScreenMeta['description'] ?></p>
+            <?php else: ?>
+                <h2 class="fw-bold mb-1">Cat&aacute;logo por pantalla</h2>
+                <p class="text-muted mb-0">Eleg&iacute; una pantalla para abrir sus componentes disponibles. Cada componente permite activar un solo dise&ntilde;o a la vez.</p>
+            <?php endif; ?>
         </div>
-        <span class="badge bg-primary-subtle text-primary catalog-count"><?= count($screens) ?> pantallas</span>
+        <?php if ($activeScreenMeta): ?>
+            <a class="btn btn-outline-primary btn-sm" href="<?= base_url('admin/catalogo-tarjetas') ?>">Volver al cat&aacute;logo</a>
+        <?php else: ?>
+            <span class="badge bg-primary-subtle text-primary catalog-count"><?= count($screens) ?> pantallas</span>
+        <?php endif; ?>
     </div>
-
-    <section class="catalog-section">
-        <div class="catalog-section-head">
-            <div>
-                <h5>Pantallas</h5>
-                <p>Entr&aacute; a una pantalla para elegir qu&eacute; dise&ntilde;o usa cada componente configurable.</p>
-            </div>
-            <span class="badge bg-primary">Selector</span>
-        </div>
-        <div class="catalog-screen-grid">
-            <?php foreach ($screens as $key => $screen): ?>
-                <?php $isActive = $activeScreen === $key; ?>
-                <a class="catalog-screen-card <?= $isActive ? 'catalog-screen-card-active' : '' ?>" href="<?= base_url('admin/catalogo-tarjetas') . '?pantalla=' . rawurlencode($key) ?>">
-                    <div>
-                        <strong><?= $screen['title'] ?></strong>
-                        <span><?= $screen['description'] ?></span>
-                    </div>
-                    <small><?= $screen['badge'] ?></small>
-                </a>
-            <?php endforeach; ?>
-        </div>
-    </section>
 
     <?php if ($activeScreen === ''): ?>
         <section class="catalog-section">
-            <div class="catalog-empty-state">
-                <strong>Seleccion&aacute; una pantalla para empezar.</strong>
-                <span>Las tarjetas elegibles aparecen separadas por componente; las ideas no conectadas viven en Propuestas.</span>
+            <div class="catalog-section-head">
+                <div>
+                    <h5>Pantallas</h5>
+                    <p>Entr&aacute; a una pantalla para elegir qu&eacute; dise&ntilde;o usa cada componente configurable.</p>
+                </div>
+                <span class="badge bg-primary">Cat&aacute;logo</span>
+            </div>
+            <div class="catalog-screen-grid">
+                <?php foreach ($screens as $key => $screen): ?>
+                    <a class="catalog-screen-card" href="<?= base_url('admin/catalogo-tarjetas/' . rawurlencode($key)) ?>">
+                        <div>
+                            <strong><?= $screen['title'] ?></strong>
+                            <span><?= $screen['description'] ?></span>
+                        </div>
+                        <small><?= $screen['badge'] ?></small>
+                    </a>
+                <?php endforeach; ?>
             </div>
         </section>
     <?php elseif ($activeScreen === 'propuestas'): ?>

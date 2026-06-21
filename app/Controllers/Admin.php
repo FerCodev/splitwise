@@ -7,12 +7,10 @@ use Throwable;
 
 class Admin extends BaseController
 {
-    public function catalogoTarjetas()
+    public function catalogoTarjetas(?string $pantalla = null)
     {
-        $pantalla = (string) $this->request->getGet('pantalla');
-
         return view('admin/catalogo_tarjetas', [
-            'activeScreen' => $pantalla,
+            'activeScreen' => (string) $pantalla,
             'selectedDebtVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_HOME,
                 UiComponentResolver::COMPONENT_DEBT_CARD
@@ -50,18 +48,19 @@ class Admin extends BaseController
         $componentKey = (string) $this->request->getPost('component_key');
         $variantKey = (string) $this->request->getPost('variant_key');
         $returnScreen = (string) $this->request->getPost('return_screen');
+        $returnUrl = base_url('admin/catalogo-tarjetas' . ($returnScreen ? '/' . rawurlencode($returnScreen) : ''));
 
         try {
             $saved = UiComponentResolver::setVariant($screenKey, $componentKey, $variantKey);
         } catch (Throwable) {
-            return redirect()->to(base_url('admin/catalogo-tarjetas') . ($returnScreen ? '?pantalla=' . rawurlencode($returnScreen) : ''))->with('error', 'No se pudo guardar la preferencia. Ejecut&aacute; las migraciones pendientes.');
+            return redirect()->to($returnUrl)->with('error', 'No se pudo guardar la preferencia. Ejecut&aacute; las migraciones pendientes.');
         }
 
         if (!$saved) {
-            return redirect()->to(base_url('admin/catalogo-tarjetas') . ($returnScreen ? '?pantalla=' . rawurlencode($returnScreen) : ''))->with('error', 'La variante seleccionada no es v&aacute;lida.');
+            return redirect()->to($returnUrl)->with('error', 'La variante seleccionada no es v&aacute;lida.');
         }
 
-        return redirect()->to(base_url('admin/catalogo-tarjetas') . ($returnScreen ? '?pantalla=' . rawurlencode($returnScreen) : ''))->with('success', 'Componente actualizado correctamente.');
+        return redirect()->to($returnUrl)->with('success', 'Componente actualizado correctamente.');
     }
 }
 
