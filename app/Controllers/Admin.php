@@ -10,11 +10,17 @@ class Admin extends BaseController
 {
     public function catalogoTarjetas(?string $pantalla = null)
     {
-        $decisionModel = model(UiComponentCatalogDecision::class);
+        $componentDecisions = [];
+
+        try {
+            $componentDecisions = model(UiComponentCatalogDecision::class)->decisionMap();
+        } catch (Throwable) {
+            $componentDecisions = [];
+        }
 
         return view('admin/catalogo_tarjetas', [
             'activeScreen' => (string) $pantalla,
-            'componentDecisions' => $decisionModel->decisionMap(),
+            'componentDecisions' => $componentDecisions,
             'selectedDebtVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_HOME,
                 UiComponentResolver::COMPONENT_DEBT_CARD

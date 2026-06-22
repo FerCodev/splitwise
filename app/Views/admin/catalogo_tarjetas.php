@@ -477,8 +477,6 @@ $tablerCatalog = [
         'title' => 'Visualizaci&oacute;n',
         'description' => 'Mini gr&aacute;ficos y barras para reportes.',
         'items' => [
-            ['name' => 'Barras mensuales', 'hint' => 'Comparaci&oacute;n r&aacute;pida por mes.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-title">Gasto mensual</div><div class="tabler-proposal-bars"><span style="height: 46%;"></span><span style="height: 72%;"></span><span style="height: 58%;"></span><span style="height: 88%;"></span><span style="height: 62%;"></span></div><div class="tabler-proposal-row"><small class="text-muted">Abr</small><small class="text-muted">Ago</small></div></div>'],
-            ['name' => 'Progreso de grupo', 'hint' => 'Pagado vs total.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><div><div class="tabler-proposal-title">Tu aporte</div><div class="text-muted small">' . moneda(860000) . ' de ' . moneda(1563723) . '</div></div><strong>55%</strong></div><div class="tabler-proposal-meter"><span style="width: 55%;"></span></div><div class="tabler-proposal-filter-row"><span>Bajo</span><span>Medio</span><span>Alto</span></div></div>'],
             ['name' => 'Dona simple', 'hint' => 'Distribuci&oacute;n de categor&iacute;as.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-donut-wrap"><div class="tabler-proposal-donut"><strong>72%</strong></div><div><div class="tabler-proposal-title">Otros</div><div class="text-muted small">Categor&iacute;a principal</div><div class="tabler-proposal-filter-row mt-2"><span>Otros</span><span>Pagos</span></div></div></div>'],
         ],
     ],
@@ -862,14 +860,23 @@ $tablerItemCount = static function (array $section): int {
                 </div>
                 <div class="catalog-grid">
                     <?php foreach ($component['variants'] as $variant): ?>
-                        <?php $isSelected = $component['selected'] === $variant['key']; ?>
+                        <?php
+                            $itemKey = $catalogItemKey('catalog', $component['screen'], $component['component'], $variant['key']);
+                            $decision = $catalogDecision('catalog', $component['screen'], $component['component'], $itemKey);
+                            if (($decision['decision'] ?? '') === 'discard') {
+                                continue;
+                            }
+                            $isSelected = $component['selected'] === $variant['key'];
+                        ?>
                         <article class="catalog-variant <?= $isSelected ? 'catalog-variant-selected' : '' ?>">
                             <div class="catalog-variant-meta">
                                 <span><?= $variant['name'] ?></span>
                                 <small><?= $variant['hint'] ?></small>
                             </div>
+                            <div class="catalog-source-badge">Componente elegible</div>
                             <?= $variant['render']() ?>
                             <?= $variantAction($component['screen'], $component['component'], $variant['key'], $component['selected'], $activeScreen) ?>
+                            <?= $candidateActions('catalog', $component['screen'], $component['component'], $itemKey, $variant['name'], $variant['hint'], 'Componente elegible', $decision) ?>
                         </article>
                     <?php endforeach; ?>
                 </div>
