@@ -13,6 +13,7 @@ $selectedHomeGroupVariant = $selectedHomeGroupVariant ?? 'operational';
 $selectedExpensesTotalVariant = $selectedExpensesTotalVariant ?? 'simple';
 $selectedPaymentsTotalVariant = $selectedPaymentsTotalVariant ?? 'simple';
 $selectedPaymentMethodVariant = $selectedPaymentMethodVariant ?? 'bank_card';
+$catalogCurationState = $catalogCurationState ?? [];
 
 $variantAction = static function (string $screenKey, string $componentKey, string $variant, string $selectedVariant, string $returnScreen): string {
     $selected = $selectedVariant === $variant;
@@ -613,7 +614,7 @@ $tablerItemCount = static function (array $section): int {
             <div>
                 <span class="design-curation-kicker">Curaduria visual</span>
                 <strong>Marca dise&ntilde;os para implementar, descartar o redise&ntilde;ar</strong>
-                <p>Los dise&ntilde;os activos no se pueden descartar. Las marcas quedan guardadas en este navegador.</p>
+                <p>Los dise&ntilde;os activos no se pueden descartar. Las marcas quedan guardadas en la base de datos.</p>
             </div>
             <div class="design-curation-counters">
                 <span><b data-catalog-count="selected">0</b> para implementar</span>
@@ -828,19 +829,12 @@ $tablerItemCount = static function (array $section): int {
 
 <script>
 (function() {
-    var storageKey = 'splitwise.catalogDesignCuration.v1';
+    var saveUrl = '<?= base_url('admin/catalogo-tarjetas/curaduria') ?>';
+    var clearUrl = '<?= base_url('admin/catalogo-tarjetas/curaduria/limpiar') ?>';
+    var csrfName = '<?= csrf_token() ?>';
+    var csrfHash = '<?= csrf_hash() ?>';
     var items = Array.prototype.slice.call(document.querySelectorAll('[data-catalog-design-id]'));
-    var state = {};
-
-    try {
-        state = JSON.parse(window.localStorage.getItem(storageKey) || '{}') || {};
-    } catch (error) {
-        state = {};
-    }
-
-    function save() {
-        window.localStorage.setItem(storageKey, JSON.stringify(state));
-    }
+    var state = <?= json_encode($catalogCurationState, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?: '{}' ?>;
 
     function getItemState(id) {
         if (!state[id]) state[id] = {};
@@ -850,6 +844,47 @@ $tablerItemCount = static function (array $section): int {
     function cleanEmpty(id) {
         if (!state[id]) return;
         if (!state[id].status && !state[id].redesignNote) delete state[id];
+    }
+
+    function request(url, payload) {
+        payload = payload || {};
+        payload[csrfName] = csrfHash;
+
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(payload).toString()
+        }).then(function(response) {
+            return response.json().catch(function() {
+                return { ok: false, message: 'Respuesta invalida del servidor.' };
+            }).then(function(data) {
+                if (data.csrf) csrfHash = data.csrf;
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.message || 'No se pudo guardar la marca.');
+                }
+                return data;
+            });
+        });
+    }
+
+    function persistItem(item) {
+        var id = item.dataset.catalogDesignId;
+        var itemState = state[id] || {};
+        return request(saveUrl, {
+            design_id: id,
+            design_name: item.dataset.catalogDesignName || '',
+            design_group: item.dataset.catalogDesignGroup || '',
+            status: itemState.status || '',
+            redesign_note: itemState.redesignNote || '',
+            in_use: item.dataset.catalogInUse === '1' ? '1' : '0'
+        });
+    }
+
+    function showSaveError(message) {
+        window.alert(message || 'No se pudo guardar la marca.');
     }
 
     function updateCounts() {
@@ -875,7 +910,6 @@ $tablerItemCount = static function (array $section): int {
             delete itemState.status;
             status = '';
             cleanEmpty(id);
-            save();
         }
         item.dataset.catalogState = status;
         item.dataset.catalogRedesign = itemState.redesignNote ? '1' : '0';
@@ -899,11 +933,20 @@ $tablerItemCount = static function (array $section): int {
                 if (button.disabled) return;
                 var id = item.dataset.catalogDesignId;
                 var action = button.dataset.catalogAction;
+                var previous = Object.assign({}, state[id] || {});
                 var itemState = getItemState(id);
                 itemState.status = itemState.status === action ? '' : action;
                 cleanEmpty(id);
-                save();
                 refresh();
+                persistItem(item).catch(function(error) {
+                    if (previous.status || previous.redesignNote) {
+                        state[id] = previous;
+                    } else {
+                        delete state[id];
+                    }
+                    refresh();
+                    showSaveError(error.message);
+                });
             });
         });
 
@@ -920,13 +963,23 @@ $tablerItemCount = static function (array $section): int {
         if (redesignSave && redesignNote) {
             redesignSave.addEventListener('click', function() {
                 var id = item.dataset.catalogDesignId;
+                var previous = Object.assign({}, state[id] || {});
                 var itemState = getItemState(id);
                 itemState.redesignNote = redesignNote.value.trim();
                 cleanEmpty(id);
-                save();
                 refresh();
-                redesignSave.textContent = 'Guardado';
-                window.setTimeout(function() { redesignSave.textContent = 'Guardar comentario'; }, 1400);
+                persistItem(item).then(function() {
+                    redesignSave.textContent = 'Guardado';
+                    window.setTimeout(function() { redesignSave.textContent = 'Guardar comentario'; }, 1400);
+                }).catch(function(error) {
+                    if (previous.status || previous.redesignNote) {
+                        state[id] = previous;
+                    } else {
+                        delete state[id];
+                    }
+                    refresh();
+                    showSaveError(error.message);
+                });
             });
         }
     });
@@ -965,9 +1018,14 @@ $tablerItemCount = static function (array $section): int {
 
     document.querySelectorAll('[data-catalog-clear]').forEach(function(clearButton) {
         clearButton.addEventListener('click', function() {
+            var previous = state;
             state = {};
-            save();
             refresh();
+            request(clearUrl).catch(function(error) {
+                state = previous;
+                refresh();
+                showSaveError(error.message);
+            });
         });
     });
 
