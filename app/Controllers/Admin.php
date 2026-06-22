@@ -78,7 +78,6 @@ class Admin extends BaseController
         $designGroup = trim((string) $this->request->getPost('design_group'));
         $status = trim((string) $this->request->getPost('status'));
         $redesignNote = trim((string) $this->request->getPost('redesign_note'));
-        $inUse = (string) $this->request->getPost('in_use') === '1';
 
         if ($designId === '' || $designName === '' || $designGroup === '') {
             return $this->response->setStatusCode(422)->setJSON([
@@ -88,7 +87,7 @@ class Admin extends BaseController
             ]);
         }
 
-        if ($inUse && $status === CatalogDesignCuration::STATUS_DISCARDED) {
+        if ($status === CatalogDesignCuration::STATUS_DISCARDED && in_array($designId, UiComponentResolver::activeDesignIds(), true)) {
             return $this->response->setStatusCode(422)->setJSON([
                 'ok' => false,
                 'message' => 'Los dise&ntilde;os activos no se pueden descartar.',

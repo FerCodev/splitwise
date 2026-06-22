@@ -34,9 +34,7 @@ $variantAction = static function (string $screenKey, string $componentKey, strin
 };
 
 $catalogDesignId = static function (string $scope, string $group, string $name, ?string $variant = null): string {
-    $raw = strtolower($scope . '-' . $group . '-' . $name . '-' . (string) $variant);
-    $raw = preg_replace('/[^a-z0-9]+/', '-', $raw) ?? $raw;
-    return trim($raw, '-');
+    return \App\Services\UiComponentResolver::designId($scope, $group, $name, $variant);
 };
 
 $catalogCurationControls = static function (bool $inUse = false): string {
@@ -870,6 +868,21 @@ $tablerItemCount = static function (array $section): int {
         });
     }
 
+    function setSaving(item, saving) {
+        if (saving) {
+            item.dataset.catalogSaving = '1';
+        } else {
+            delete item.dataset.catalogSaving;
+        }
+        item.querySelectorAll('[data-catalog-action], [data-catalog-redesign]').forEach(function(el) {
+            el.disabled = saving;
+        });
+    }
+
+    function isSaving(item) {
+        return item.dataset.catalogSaving === '1';
+    }
+
     function persistItem(item) {
         var id = item.dataset.catalogDesignId;
         var itemState = state[id] || {};
@@ -878,8 +891,7 @@ $tablerItemCount = static function (array $section): int {
             design_name: item.dataset.catalogDesignName || '',
             design_group: item.dataset.catalogDesignGroup || '',
             status: itemState.status || '',
-            redesign_note: itemState.redesignNote || '',
-            in_use: item.dataset.catalogInUse === '1' ? '1' : '0'
+            redesign_note: itemState.redesignNote || ''
         });
     }
 
@@ -930,7 +942,7 @@ $tablerItemCount = static function (array $section): int {
     items.forEach(function(item) {
         item.querySelectorAll('[data-catalog-action]').forEach(function(button) {
             button.addEventListener('click', function() {
-                if (button.disabled) return;
+                if (button.disabled || isSaving(item)) return;
                 var id = item.dataset.catalogDesignId;
                 var action = button.dataset.catalogAction;
                 var previous = Object.assign({}, state[id] || {});
@@ -938,7 +950,11 @@ $tablerItemCount = static function (array $section): int {
                 itemState.status = itemState.status === action ? '' : action;
                 cleanEmpty(id);
                 refresh();
-                persistItem(item).catch(function(error) {
+                setSaving(item, true);
+                persistItem(item).then(function() {
+                    setSaving(item, false);
+                }).catch(function(error) {
+                    setSaving(item, false);
                     if (previous.status || previous.redesignNote) {
                         state[id] = previous;
                     } else {
@@ -956,22 +972,27 @@ $tablerItemCount = static function (array $section): int {
         var redesignSave = item.querySelector('[data-catalog-redesign-save]');
         if (redesignButton && redesignPanel && redesignNote) {
             redesignButton.addEventListener('click', function() {
+                if (isSaving(item)) return;
                 redesignPanel.hidden = !redesignPanel.hidden;
                 if (!redesignPanel.hidden) redesignNote.focus();
             });
         }
         if (redesignSave && redesignNote) {
             redesignSave.addEventListener('click', function() {
+                if (isSaving(item)) return;
                 var id = item.dataset.catalogDesignId;
                 var previous = Object.assign({}, state[id] || {});
                 var itemState = getItemState(id);
                 itemState.redesignNote = redesignNote.value.trim();
                 cleanEmpty(id);
                 refresh();
+                setSaving(item, true);
                 persistItem(item).then(function() {
+                    setSaving(item, false);
                     redesignSave.textContent = 'Guardado';
                     window.setTimeout(function() { redesignSave.textContent = 'Guardar comentario'; }, 1400);
                 }).catch(function(error) {
+                    setSaving(item, false);
                     if (previous.status || previous.redesignNote) {
                         state[id] = previous;
                     } else {
@@ -1018,10 +1039,15 @@ $tablerItemCount = static function (array $section): int {
 
     document.querySelectorAll('[data-catalog-clear]').forEach(function(clearButton) {
         clearButton.addEventListener('click', function() {
+            if (clearButton.disabled) return;
+            clearButton.disabled = true;
             var previous = state;
             state = {};
             refresh();
-            request(clearUrl).catch(function(error) {
+            request(clearUrl).then(function() {
+                clearButton.disabled = false;
+            }).catch(function(error) {
+                clearButton.disabled = false;
                 state = previous;
                 refresh();
                 showSaveError(error.message);
