@@ -13,6 +13,7 @@ $selectedHomeGroupVariant = $selectedHomeGroupVariant ?? 'operational';
 $selectedExpensesTotalVariant = $selectedExpensesTotalVariant ?? 'simple';
 $selectedPaymentsTotalVariant = $selectedPaymentsTotalVariant ?? 'simple';
 $selectedPaymentMethodVariant = $selectedPaymentMethodVariant ?? 'bank_card';
+$componentDecisions = $componentDecisions ?? [];
 
 $variantAction = static function (string $screenKey, string $componentKey, string $variant, string $selectedVariant, string $returnScreen): string {
     $selected = $selectedVariant === $variant;
@@ -27,6 +28,79 @@ $variantAction = static function (string $screenKey, string $componentKey, strin
         <button type="submit" class="btn btn-sm <?= $selected ? 'btn-success' : 'btn-outline-primary' ?>" <?= $selected ? 'disabled' : '' ?>>
             <?= $selected ? 'Seleccionado' : 'Usar este dise&ntilde;o' ?>
         </button>
+    </form>
+    <?php
+    return ob_get_clean();
+};
+
+$catalogItemKey = static function (string $catalogKey, string $sectionKey, ?string $groupKey, string $itemName): string {
+    return substr(sha1($catalogKey . '|' . $sectionKey . '|' . ($groupKey ?? '') . '|' . $itemName), 0, 16);
+};
+
+$catalogDecisionKey = static function (string $catalogKey, string $sectionKey, ?string $groupKey, string $itemKey): string {
+    return implode('|', [$catalogKey, $sectionKey, $groupKey ?? '', $itemKey]);
+};
+
+$catalogDecision = static function (string $catalogKey, string $sectionKey, ?string $groupKey, string $itemKey) use ($componentDecisions, $catalogDecisionKey): ?array {
+    return $componentDecisions[$catalogDecisionKey($catalogKey, $sectionKey, $groupKey, $itemKey)] ?? null;
+};
+
+$requestUri = service('request')->getUri();
+$currentCatalogUrl = current_url() . ($requestUri->getQuery() ? '?' . $requestUri->getQuery() : '');
+
+$decisionMeta = [
+    'implement' => ['label' => 'Para implementar', 'class' => 'bg-success'],
+    'discard' => ['label' => 'Descartado', 'class' => 'bg-secondary'],
+    'redesign' => ['label' => 'Rediseñar', 'class' => 'bg-warning text-dark'],
+];
+
+$candidateActions = static function (
+    string $catalogKey,
+    string $sectionKey,
+    ?string $groupKey,
+    string $itemKey,
+    string $itemName,
+    string $itemHint,
+    string $sourceLabel,
+    ?array $decision
+) use ($decisionMeta, $currentCatalogUrl): string {
+    $currentDecision = $decision['decision'] ?? '';
+    $currentNotes = $decision['redesign_notes'] ?? '';
+    ob_start();
+    ?>
+    <form method="post" action="<?= base_url('admin/catalogo-tarjetas/decision') ?>" class="catalog-decision-panel">
+        <?= csrf_field() ?>
+        <input type="hidden" name="catalog_key" value="<?= esc($catalogKey) ?>">
+        <input type="hidden" name="section_key" value="<?= esc($sectionKey) ?>">
+        <input type="hidden" name="group_key" value="<?= esc($groupKey ?? '') ?>">
+        <input type="hidden" name="item_key" value="<?= esc($itemKey) ?>">
+        <input type="hidden" name="item_name" value="<?= esc($itemName) ?>">
+        <input type="hidden" name="item_hint" value="<?= esc($itemHint) ?>">
+        <input type="hidden" name="source_label" value="<?= esc($sourceLabel) ?>">
+        <input type="hidden" name="return_url" value="<?= esc($currentCatalogUrl, 'attr') ?>">
+
+        <div class="catalog-decision-head">
+            <span>Decisi&oacute;n</span>
+            <?php if ($currentDecision && isset($decisionMeta[$currentDecision])): ?>
+                <span class="badge <?= esc($decisionMeta[$currentDecision]['class']) ?>"><?= $decisionMeta[$currentDecision]['label'] ?></span>
+            <?php else: ?>
+                <span class="badge bg-light text-dark">Sin marcar</span>
+            <?php endif; ?>
+        </div>
+
+        <div class="catalog-decision-actions">
+            <button type="submit" name="decision" value="implement" class="btn btn-sm <?= $currentDecision === 'implement' ? 'btn-success' : 'btn-outline-success' ?>">
+                Implementar
+            </button>
+            <button type="submit" name="decision" value="discard" class="btn btn-sm <?= $currentDecision === 'discard' ? 'btn-secondary' : 'btn-outline-secondary' ?>">
+                Descartar
+            </button>
+            <button type="submit" name="decision" value="redesign" class="btn btn-sm <?= $currentDecision === 'redesign' ? 'btn-warning' : 'btn-outline-warning' ?>">
+                Redise&ntilde;ar
+            </button>
+        </div>
+
+        <textarea name="redesign_notes" class="form-control form-control-sm" rows="2" placeholder="Indicaciones para mejorar este componente"><?= esc($currentNotes) ?></textarea>
     </form>
     <?php
     return ob_get_clean();
@@ -613,7 +687,14 @@ $tablerItemCount = static function (array $section): int {
                 <span class="badge bg-secondary">Propuesta</span>
             </div>
             <div class="catalog-grid catalog-login-grid">
-                <?php foreach ($loginProposals as $proposal): ?>
+                <?php foreach ($loginProposals as $proposalIndex => $proposal): ?>
+                    <?php
+                        $itemKey = $catalogItemKey('login', 'login', null, $proposal['name']);
+                        $decision = $catalogDecision('login', 'login', null, $itemKey);
+                        if (($decision['decision'] ?? '') === 'discard') {
+                            continue;
+                        }
+                    ?>
                     <article class="catalog-variant">
                         <div class="catalog-variant-meta">
                             <span><?= $proposal['name'] ?></span>
@@ -621,6 +702,7 @@ $tablerItemCount = static function (array $section): int {
                         </div>
                         <div class="catalog-source-badge">Login</div>
                         <?= $proposal['render']() ?>
+                        <?= $candidateActions('login', 'login', null, $itemKey, $proposal['name'], $proposal['hint'], 'Login', $decision) ?>
                     </article>
                 <?php endforeach; ?>
             </div>
@@ -681,6 +763,15 @@ $tablerItemCount = static function (array $section): int {
                                     </div>
                                     <div class="catalog-grid">
                                         <?php foreach ($group['items'] as $item): ?>
+                                            <?php
+                                                $sectionKey = (string) $activeTablerSectionIndex;
+                                                $groupKey = $group['title'];
+                                                $itemKey = $catalogItemKey('tabler', $sectionKey, $groupKey, $item['name']);
+                                                $decision = $catalogDecision('tabler', $sectionKey, $groupKey, $itemKey);
+                                                if (($decision['decision'] ?? '') === 'discard') {
+                                                    continue;
+                                                }
+                                            ?>
                                             <article class="catalog-variant">
                                                 <div class="catalog-variant-meta">
                                                     <span><?= $item['name'] ?></span>
@@ -688,6 +779,7 @@ $tablerItemCount = static function (array $section): int {
                                                 </div>
                                                 <div class="catalog-source-badge">Ejemplo Tabler</div>
                                                 <?= $item['render']() ?>
+                                                <?= $candidateActions('tabler', $sectionKey, $groupKey, $itemKey, $item['name'], $item['hint'], 'Ejemplo Tabler', $decision) ?>
                                             </article>
                                         <?php endforeach; ?>
                                     </div>
@@ -697,6 +789,14 @@ $tablerItemCount = static function (array $section): int {
                     <?php else: ?>
                         <div class="catalog-grid">
                             <?php foreach ($section['items'] as $item): ?>
+                                <?php
+                                    $sectionKey = (string) $activeTablerSectionIndex;
+                                    $itemKey = $catalogItemKey('tabler', $sectionKey, null, $item['name']);
+                                    $decision = $catalogDecision('tabler', $sectionKey, null, $itemKey);
+                                    if (($decision['decision'] ?? '') === 'discard') {
+                                        continue;
+                                    }
+                                ?>
                                 <article class="catalog-variant">
                                     <div class="catalog-variant-meta">
                                         <span><?= $item['name'] ?></span>
@@ -704,6 +804,7 @@ $tablerItemCount = static function (array $section): int {
                                     </div>
                                     <div class="catalog-source-badge">Ejemplo Tabler</div>
                                     <?= $item['render']() ?>
+                                    <?= $candidateActions('tabler', $sectionKey, null, $itemKey, $item['name'], $item['hint'], 'Ejemplo Tabler', $decision) ?>
                                 </article>
                             <?php endforeach; ?>
                         </div>
@@ -723,6 +824,15 @@ $tablerItemCount = static function (array $section): int {
                 </div>
                 <div class="catalog-grid">
                     <?php foreach ($proposal['items'] as $item): ?>
+                        <?php
+                            $sectionKey = $proposal['title'];
+                            $sourceLabel = $proposal['label'] ?? 'Propuesta';
+                            $itemKey = $catalogItemKey('propuestas', $sectionKey, null, $item['name']);
+                            $decision = $catalogDecision('propuestas', $sectionKey, null, $itemKey);
+                            if (($decision['decision'] ?? '') === 'discard') {
+                                continue;
+                            }
+                        ?>
                         <article class="catalog-variant">
                             <div class="catalog-variant-meta">
                                 <span><?= $item['name'] ?></span>
@@ -730,8 +840,11 @@ $tablerItemCount = static function (array $section): int {
                             </div>
                             <?php if (!empty($proposal['label'])): ?>
                                 <div class="catalog-source-badge"><?= $proposal['label'] ?></div>
+                            <?php else: ?>
+                                <div class="catalog-source-badge">Propuesta</div>
                             <?php endif; ?>
                             <?= $item['render']() ?>
+                            <?= $candidateActions('propuestas', $sectionKey, null, $itemKey, $item['name'], $item['hint'], $sourceLabel, $decision) ?>
                         </article>
                     <?php endforeach; ?>
                 </div>

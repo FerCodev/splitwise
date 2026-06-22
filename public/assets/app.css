@@ -2255,6 +2255,37 @@ body {
 .catalog-component-action .btn {
     width: 100%;
 }
+.catalog-decision-panel {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+}
+.catalog-decision-head,
+.catalog-decision-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.catalog-decision-head > span:first-child {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.catalog-decision-actions {
+    flex-wrap: wrap;
+}
+.catalog-decision-actions .btn {
+    flex: 1 1 96px;
+}
+.catalog-decision-panel textarea {
+    resize: vertical;
+}
 .catalog-source-badge {
     justify-self: start;
     padding: 4px 8px;
