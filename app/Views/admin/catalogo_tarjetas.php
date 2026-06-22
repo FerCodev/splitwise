@@ -1,5 +1,5 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Catálogo de tarjetas']) ?>
-<?= view('partials/_navbar', ['pageTitle' => 'Catálogo Admin']) ?>
+<?= view('partials/_head', ['title' => 'SplitWise - Cat&aacute;logo de tarjetas']) ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Cat&aacute;logo Admin']) ?>
 
 <?php
 $fechaDemo = '2026-04-15';
@@ -13,6 +13,7 @@ $selectedHomeGroupVariant = $selectedHomeGroupVariant ?? 'operational';
 $selectedExpensesTotalVariant = $selectedExpensesTotalVariant ?? 'simple';
 $selectedPaymentsTotalVariant = $selectedPaymentsTotalVariant ?? 'simple';
 $selectedPaymentMethodVariant = $selectedPaymentMethodVariant ?? 'bank_card';
+$catalogCurationState = $catalogCurationState ?? [];
 
 $variantAction = static function (string $screenKey, string $componentKey, string $variant, string $selectedVariant, string $returnScreen): string {
     $selected = $selectedVariant === $variant;
@@ -32,6 +33,29 @@ $variantAction = static function (string $screenKey, string $componentKey, strin
     return ob_get_clean();
 };
 
+$catalogDesignId = static function (string $scope, string $group, string $name, ?string $variant = null): string {
+    return \App\Services\UiComponentResolver::designId($scope, $group, $name, $variant);
+};
+
+$catalogCurationControls = static function (bool $inUse = false): string {
+    ob_start();
+    ?>
+    <div class="catalog-curation-controls">
+        <button class="catalog-curation-btn catalog-curation-btn-discard" type="button" data-catalog-action="discarded" <?= $inUse ? 'disabled' : '' ?>>Descartar</button>
+        <button class="catalog-curation-btn catalog-curation-btn-implement" type="button" data-catalog-action="selected">Implementar</button>
+        <button class="catalog-curation-btn catalog-curation-btn-redesign" type="button" data-catalog-redesign>Redise&ntilde;ar</button>
+    </div>
+    <?php if ($inUse): ?>
+        <div class="catalog-curation-lock">En uso: no se puede descartar.</div>
+    <?php endif; ?>
+    <div class="catalog-redesign-note" data-catalog-redesign-panel hidden>
+        <label>Comentarios para redise&ntilde;o</label>
+        <textarea data-catalog-redesign-note rows="3" placeholder="Que habria que cambiar para que este dise&ntilde;o sirva?"></textarea>
+        <button class="btn btn-outline-primary btn-sm" type="button" data-catalog-redesign-save>Guardar comentario</button>
+    </div>
+    <?php
+    return ob_get_clean();
+};
 $screens = [
     'home' => [
         'title' => 'Home',
@@ -267,7 +291,7 @@ $loginProposals = [
     ],
     [
         'name' => 'Sobria admin',
-        'hint' => 'Más neutra, con estética de panel interno.',
+        'hint' => 'Mas neutra, con estetica de panel interno.',
         'render' => static fn () => '<div class="login-preview login-preview-admin"><div class="login-preview-card"><div class="login-preview-kicker">SplitWise</div><strong>Acceso a la cuenta</strong><div class="login-preview-input">usuario@dominio.com</div><div class="login-preview-input">Contrase&ntilde;a</div><div class="login-preview-actions"><button class="btn btn-primary" type="button">Ingresar</button><button class="btn btn-outline-secondary" type="button">Ayuda</button></div></div></div>',
     ],
 ];
@@ -571,7 +595,7 @@ $tablerItemCount = static function (array $section): int {
                 <h2 class="fw-bold mb-1"><?= $activeScreenMeta['title'] ?></h2>
                 <p class="text-muted mb-0"><?= $activeScreenMeta['description'] ?></p>
             <?php else: ?>
-                <h2 class="fw-bold mb-1">Catálogo por pantalla</h2>
+                <h2 class="fw-bold mb-1">Cat&aacute;logo por pantalla</h2>
                 <p class="text-muted mb-0">Eleg&iacute; una pantalla para abrir sus componentes disponibles. Cada componente permite activar un solo dise&ntilde;o a la vez.</p>
             <?php endif; ?>
         </div>
@@ -582,14 +606,33 @@ $tablerItemCount = static function (array $section): int {
         <?php endif; ?>
     </div>
 
-    <?php if ($activeScreen === ''): ?>
+
+    <?php if ($activeScreenMeta): ?>
+        <div class="design-curation-panel catalog-curation-global-panel" data-catalog-curation-summary>
+            <div>
+                <span class="design-curation-kicker">Curaduria visual</span>
+                <strong>Marca dise&ntilde;os para implementar, descartar o redise&ntilde;ar</strong>
+                <p>Los dise&ntilde;os activos no se pueden descartar. Las marcas quedan guardadas en la base de datos.</p>
+            </div>
+            <div class="design-curation-counters">
+                <span><b data-catalog-count="selected">0</b> para implementar</span>
+                <span><b data-catalog-count="redesign">0</b> para redise&ntilde;ar</span>
+                <span><b data-catalog-count="discarded">0</b> descartadas</span>
+            </div>
+            <div class="design-curation-actions">
+                <button class="btn btn-outline-primary btn-sm" type="button" data-catalog-copy>Copiar seleccion</button>
+                <button class="btn btn-outline-secondary btn-sm" type="button" data-catalog-clear>Limpiar marcas</button>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php if ($activeScreen === ''): ?>
         <section class="catalog-section">
             <div class="catalog-section-head">
                 <div>
                     <h5>Pantallas</h5>
                     <p>Entr&aacute; a una pantalla para elegir qu&eacute; dise&ntilde;o usa cada componente configurable.</p>
                 </div>
-                <span class="badge bg-primary">Catálogo</span>
+                <span class="badge bg-primary">Cat&aacute;logo</span>
             </div>
             <div class="catalog-screen-grid">
                 <?php foreach ($screens as $key => $screen): ?>
@@ -614,13 +657,15 @@ $tablerItemCount = static function (array $section): int {
             </div>
             <div class="catalog-grid catalog-login-grid">
                 <?php foreach ($loginProposals as $proposal): ?>
-                    <article class="catalog-variant">
+                    <?php $designId = $catalogDesignId('login', 'Pantallas de login', $proposal['name']); ?>
+                    <article class="catalog-variant catalog-curation-item" data-catalog-design-id="<?= esc($designId, 'attr') ?>" data-catalog-design-name="<?= esc($proposal['name'], 'attr') ?>" data-catalog-design-group="Pantallas de login" data-catalog-in-use="0">
                         <div class="catalog-variant-meta">
                             <span><?= $proposal['name'] ?></span>
                             <small><?= $proposal['hint'] ?></small>
                         </div>
                         <div class="catalog-source-badge">Login</div>
                         <?= $proposal['render']() ?>
+                        <?= $catalogCurationControls(false) ?>
                     </article>
                 <?php endforeach; ?>
             </div>
@@ -681,13 +726,15 @@ $tablerItemCount = static function (array $section): int {
                                     </div>
                                     <div class="catalog-grid">
                                         <?php foreach ($group['items'] as $item): ?>
-                                            <article class="catalog-variant">
+                                            <?php $designId = $catalogDesignId('tabler', $group['title'], $item['name']); ?>
+                                            <article class="catalog-variant catalog-curation-item" data-catalog-design-id="<?= esc($designId, 'attr') ?>" data-catalog-design-name="<?= esc($item['name'], 'attr') ?>" data-catalog-design-group="<?= esc($group['title'], 'attr') ?>" data-catalog-in-use="0">
                                                 <div class="catalog-variant-meta">
                                                     <span><?= $item['name'] ?></span>
                                                     <small><?= $item['hint'] ?></small>
                                                 </div>
                                                 <div class="catalog-source-badge">Ejemplo Tabler</div>
                                                 <?= $item['render']() ?>
+                                                <?= $catalogCurationControls(false) ?>
                                             </article>
                                         <?php endforeach; ?>
                                     </div>
@@ -697,13 +744,15 @@ $tablerItemCount = static function (array $section): int {
                     <?php else: ?>
                         <div class="catalog-grid">
                             <?php foreach ($section['items'] as $item): ?>
-                                <article class="catalog-variant">
+                                <?php $designId = $catalogDesignId('tabler', $section['title'], $item['name']); ?>
+                                <article class="catalog-variant catalog-curation-item" data-catalog-design-id="<?= esc($designId, 'attr') ?>" data-catalog-design-name="<?= esc($item['name'], 'attr') ?>" data-catalog-design-group="<?= esc($section['title'], 'attr') ?>" data-catalog-in-use="0">
                                     <div class="catalog-variant-meta">
                                         <span><?= $item['name'] ?></span>
                                         <small><?= $item['hint'] ?></small>
                                     </div>
                                     <div class="catalog-source-badge">Ejemplo Tabler</div>
                                     <?= $item['render']() ?>
+                                                <?= $catalogCurationControls(false) ?>
                                 </article>
                             <?php endforeach; ?>
                         </div>
@@ -723,7 +772,8 @@ $tablerItemCount = static function (array $section): int {
                 </div>
                 <div class="catalog-grid">
                     <?php foreach ($proposal['items'] as $item): ?>
-                        <article class="catalog-variant">
+                        <?php $designId = $catalogDesignId('propuestas', $proposal['title'], $item['name']); ?>
+                        <article class="catalog-variant catalog-curation-item" data-catalog-design-id="<?= esc($designId, 'attr') ?>" data-catalog-design-name="<?= esc($item['name'], 'attr') ?>" data-catalog-design-group="<?= esc($proposal['title'], 'attr') ?>" data-catalog-in-use="0">
                             <div class="catalog-variant-meta">
                                 <span><?= $item['name'] ?></span>
                                 <small><?= $item['hint'] ?></small>
@@ -732,6 +782,7 @@ $tablerItemCount = static function (array $section): int {
                                 <div class="catalog-source-badge"><?= $proposal['label'] ?></div>
                             <?php endif; ?>
                             <?= $item['render']() ?>
+                            <?= $catalogCurationControls(false) ?>
                         </article>
                     <?php endforeach; ?>
                 </div>
@@ -750,13 +801,15 @@ $tablerItemCount = static function (array $section): int {
                 <div class="catalog-grid">
                     <?php foreach ($component['variants'] as $variant): ?>
                         <?php $isSelected = $component['selected'] === $variant['key']; ?>
-                        <article class="catalog-variant <?= $isSelected ? 'catalog-variant-selected' : '' ?>">
+                        <?php $designId = $catalogDesignId('componente', $component['component'], $variant['name'], $variant['key']); ?>
+                        <article class="catalog-variant catalog-curation-item <?= $isSelected ? 'catalog-variant-selected' : '' ?>" data-catalog-design-id="<?= esc($designId, 'attr') ?>" data-catalog-design-name="<?= esc($variant['name'], 'attr') ?>" data-catalog-design-group="<?= esc($component['title'], 'attr') ?>" data-catalog-in-use="<?= $isSelected ? '1' : '0' ?>">
                             <div class="catalog-variant-meta">
                                 <span><?= $variant['name'] ?></span>
                                 <small><?= $variant['hint'] ?></small>
                             </div>
                             <?= $variant['render']() ?>
                             <?= $variantAction($component['screen'], $component['component'], $variant['key'], $component['selected'], $activeScreen) ?>
+                            <?= $catalogCurationControls($isSelected) ?>
                         </article>
                     <?php endforeach; ?>
                 </div>
@@ -772,4 +825,237 @@ $tablerItemCount = static function (array $section): int {
     <?php endif; ?>
 </div>
 
+<script>
+(function() {
+    var saveUrl = '<?= base_url('admin/catalogo-tarjetas/curaduria') ?>';
+    var clearUrl = '<?= base_url('admin/catalogo-tarjetas/curaduria/limpiar') ?>';
+    var csrfName = '<?= csrf_token() ?>';
+    var csrfHash = '<?= csrf_hash() ?>';
+    var items = Array.prototype.slice.call(document.querySelectorAll('[data-catalog-design-id]'));
+    var state = <?= json_encode($catalogCurationState, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?: '{}' ?>;
+
+    function getItemState(id) {
+        if (!state[id]) state[id] = {};
+        return state[id];
+    }
+
+    function cleanEmpty(id) {
+        if (!state[id]) return;
+        if (!state[id].status && !state[id].redesignNote) delete state[id];
+    }
+
+    function request(url, payload) {
+        payload = payload || {};
+        payload[csrfName] = csrfHash;
+
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(payload).toString()
+        }).then(function(response) {
+            return response.json().catch(function() {
+                return { ok: false, message: 'Respuesta invalida del servidor.' };
+            }).then(function(data) {
+                if (data.csrf) csrfHash = data.csrf;
+                if (!response.ok || !data.ok) {
+                    throw new Error(data.message || 'No se pudo guardar la marca.');
+                }
+                return data;
+            });
+        });
+    }
+
+    function setSaving(item, saving) {
+        if (saving) {
+            item.dataset.catalogSaving = '1';
+        } else {
+            delete item.dataset.catalogSaving;
+        }
+        item.querySelectorAll('[data-catalog-action], [data-catalog-redesign]').forEach(function(el) {
+            el.disabled = saving;
+        });
+    }
+
+    function isSaving(item) {
+        return item.dataset.catalogSaving === '1';
+    }
+
+    function persistItem(item) {
+        var id = item.dataset.catalogDesignId;
+        var itemState = state[id] || {};
+        return request(saveUrl, {
+            design_id: id,
+            design_name: item.dataset.catalogDesignName || '',
+            design_group: item.dataset.catalogDesignGroup || '',
+            status: itemState.status || '',
+            redesign_note: itemState.redesignNote || ''
+        });
+    }
+
+    function showSaveError(message) {
+        window.alert(message || 'No se pudo guardar la marca.');
+    }
+
+    function updateCounts() {
+        var selected = 0;
+        var discarded = 0;
+        var redesign = 0;
+        Object.keys(state).forEach(function(id) {
+            if (state[id].status === 'selected') selected += 1;
+            if (state[id].status === 'discarded') discarded += 1;
+            if (state[id].redesignNote) redesign += 1;
+        });
+        document.querySelectorAll('[data-catalog-count="selected"]').forEach(function(node) { node.textContent = String(selected); });
+        document.querySelectorAll('[data-catalog-count="discarded"]').forEach(function(node) { node.textContent = String(discarded); });
+        document.querySelectorAll('[data-catalog-count="redesign"]').forEach(function(node) { node.textContent = String(redesign); });
+    }
+
+    function applyItemState(item) {
+        var id = item.dataset.catalogDesignId;
+        var itemState = state[id] || {};
+        var status = itemState.status || '';
+        var inUse = item.dataset.catalogInUse === '1';
+        if (inUse && status === 'discarded') {
+            delete itemState.status;
+            status = '';
+            cleanEmpty(id);
+        }
+        item.dataset.catalogState = status;
+        item.dataset.catalogRedesign = itemState.redesignNote ? '1' : '0';
+        item.querySelectorAll('[data-catalog-action]').forEach(function(button) {
+            var isActive = button.dataset.catalogAction === status;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
+        var note = item.querySelector('[data-catalog-redesign-note]');
+        if (note) note.value = itemState.redesignNote || '';
+    }
+
+    function refresh() {
+        items.forEach(applyItemState);
+        updateCounts();
+    }
+
+    items.forEach(function(item) {
+        item.querySelectorAll('[data-catalog-action]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                if (button.disabled || isSaving(item)) return;
+                var id = item.dataset.catalogDesignId;
+                var action = button.dataset.catalogAction;
+                var previous = Object.assign({}, state[id] || {});
+                var itemState = getItemState(id);
+                itemState.status = itemState.status === action ? '' : action;
+                cleanEmpty(id);
+                refresh();
+                setSaving(item, true);
+                persistItem(item).then(function() {
+                    setSaving(item, false);
+                }).catch(function(error) {
+                    setSaving(item, false);
+                    if (previous.status || previous.redesignNote) {
+                        state[id] = previous;
+                    } else {
+                        delete state[id];
+                    }
+                    refresh();
+                    showSaveError(error.message);
+                });
+            });
+        });
+
+        var redesignButton = item.querySelector('[data-catalog-redesign]');
+        var redesignPanel = item.querySelector('[data-catalog-redesign-panel]');
+        var redesignNote = item.querySelector('[data-catalog-redesign-note]');
+        var redesignSave = item.querySelector('[data-catalog-redesign-save]');
+        if (redesignButton && redesignPanel && redesignNote) {
+            redesignButton.addEventListener('click', function() {
+                if (isSaving(item)) return;
+                redesignPanel.hidden = !redesignPanel.hidden;
+                if (!redesignPanel.hidden) redesignNote.focus();
+            });
+        }
+        if (redesignSave && redesignNote) {
+            redesignSave.addEventListener('click', function() {
+                if (isSaving(item)) return;
+                var id = item.dataset.catalogDesignId;
+                var previous = Object.assign({}, state[id] || {});
+                var itemState = getItemState(id);
+                itemState.redesignNote = redesignNote.value.trim();
+                cleanEmpty(id);
+                refresh();
+                setSaving(item, true);
+                persistItem(item).then(function() {
+                    setSaving(item, false);
+                    redesignSave.textContent = 'Guardado';
+                    window.setTimeout(function() { redesignSave.textContent = 'Guardar comentario'; }, 1400);
+                }).catch(function(error) {
+                    setSaving(item, false);
+                    if (previous.status || previous.redesignNote) {
+                        state[id] = previous;
+                    } else {
+                        delete state[id];
+                    }
+                    refresh();
+                    showSaveError(error.message);
+                });
+            });
+        }
+    });
+
+    document.querySelectorAll('[data-catalog-copy]').forEach(function(copyButton) {
+        copyButton.addEventListener('click', function() {
+            var lines = ['Catalogo visual - curaduria'];
+            [
+                ['selected', 'Para implementar'],
+                ['discarded', 'Descartadas'],
+                ['redesign', 'Para redisenar']
+            ].forEach(function(section) {
+                lines.push('', section[1] + ':');
+                var matches = items.filter(function(item) {
+                    var itemState = state[item.dataset.catalogDesignId] || {};
+                    return section[0] === 'redesign' ? !!itemState.redesignNote : itemState.status === section[0];
+                });
+                if (!matches.length) {
+                    lines.push('- Sin marcas');
+                    return;
+                }
+                matches.forEach(function(item) {
+                    var itemState = state[item.dataset.catalogDesignId] || {};
+                    var note = itemState.redesignNote ? ' -> ' + itemState.redesignNote : '';
+                    lines.push('- ' + item.dataset.catalogDesignGroup + ' / ' + item.dataset.catalogDesignName + ' (' + item.dataset.catalogDesignId + ')' + note);
+                });
+            });
+            navigator.clipboard.writeText(lines.join('\n')).then(function() {
+                copyButton.textContent = 'Copiado';
+                window.setTimeout(function() { copyButton.textContent = 'Copiar seleccion'; }, 1500);
+            }).catch(function() {
+                window.prompt('Copia la seleccion', lines.join('\n'));
+            });
+        });
+    });
+
+    document.querySelectorAll('[data-catalog-clear]').forEach(function(clearButton) {
+        clearButton.addEventListener('click', function() {
+            if (clearButton.disabled) return;
+            clearButton.disabled = true;
+            var previous = state;
+            state = {};
+            refresh();
+            request(clearUrl).then(function() {
+                clearButton.disabled = false;
+            }).catch(function(error) {
+                clearButton.disabled = false;
+                state = previous;
+                refresh();
+                showSaveError(error.message);
+            });
+        });
+    });
+
+    refresh();
+})();
+</script>
 <?= view('partials/_footer') ?>
