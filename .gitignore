@@ -143,3 +143,9 @@ SplitWiseReviewerCommands.html
 !.opencode/skills/impeccable/
 !.opencode/skills/impeccable/**
 storage/backups/
+
+#-------------------------
+# Apache / XAMPP
+#-------------------------
+.htaccess
+htaccess
