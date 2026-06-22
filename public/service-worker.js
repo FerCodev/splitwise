@@ -1,9 +1,11 @@
-const CACHE_NAME = 'splitwise-pwa-v2';
+const CACHE_NAME = 'splitwise-pwa-v3';
+const SCOPE_URL = new URL(self.registration.scope);
+const assetUrl = (path) => new URL(path, SCOPE_URL).toString();
 const CORE_ASSETS = [
-  '/SplitWise/assets/app.css',
-  '/SplitWise/manifest.webmanifest',
-  '/SplitWise/assets/pwa/icon-192.png',
-  '/SplitWise/assets/pwa/icon-512.png'
+  assetUrl('assets/app.css'),
+  assetUrl('manifest.webmanifest'),
+  assetUrl('assets/pwa/icon-192.png'),
+  assetUrl('assets/pwa/icon-512.png')
 ];
 
 self.addEventListener('install', (event) => {
@@ -28,7 +30,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        if (response && response.status === 200 && event.request.url.includes('/SplitWise/assets/')) {
+        if (response && response.status === 200 && event.request.url.startsWith(assetUrl('assets/'))) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
