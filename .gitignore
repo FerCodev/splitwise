@@ -46,6 +46,11 @@ $RECYCLE.BIN/
 Vagrantfile
 
 #-------------------------
+# Server-specific webserver config
+#-------------------------
+**/.htaccess
+
+#-------------------------
 # Temporary Files
 #-------------------------
 /writable/cache/*
