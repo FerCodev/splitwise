@@ -88,6 +88,11 @@ php_errors.log
 vendor/
 
 #-------------------------
+# Artefactos de despliegue (dump SQL con datos, zip, .env de prod)
+#-------------------------
+/deploy/
+
+#-------------------------
 # IDE / Development Files
 #-------------------------
 
