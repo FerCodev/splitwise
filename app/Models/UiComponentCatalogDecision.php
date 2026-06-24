@@ -66,4 +66,13 @@ class UiComponentCatalogDecision extends Model
 
         $this->insert($data);
     }
+
+    public function clearDecision(string $catalogKey, string $sectionKey, string $groupKey, string $itemKey): void
+    {
+        $this->where('catalog_key', $catalogKey)
+            ->where('section_key', $sectionKey)
+            ->where('group_key', $groupKey)
+            ->where('item_key', $itemKey)
+            ->delete();
+    }
 }

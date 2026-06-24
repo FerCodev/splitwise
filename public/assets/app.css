@@ -2233,6 +2233,30 @@ body {
     border-color: rgba(22, 163, 74, 0.35);
     background: rgba(240, 253, 244, 0.72);
 }
+.catalog-variant-discarded {
+    opacity: 0.55;
+    filter: grayscale(0.3);
+    border-color: #e5e7eb;
+}
+.catalog-variant-discarded:hover {
+    opacity: 0.85;
+    filter: none;
+}
+.catalog-discarded-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: #6b7280;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.catalog-variant {
+    position: relative;
+}
 .catalog-variant-meta {
     display: flex;
     align-items: baseline;

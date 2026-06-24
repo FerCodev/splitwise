@@ -82,6 +82,23 @@ class Admin extends BaseController
             return redirect()->to($this->catalogReturnUrl($returnUrl))->with('error', 'La acci&oacute;n seleccionada no es v&aacute;lida.');
         }
 
+        $catalogKey = (string) $this->request->getPost('catalog_key');
+        $sectionKey = (string) $this->request->getPost('section_key');
+        $groupKey = (string) $this->request->getPost('group_key');
+        $itemKey = trim((string) $this->request->getPost('item_key'));
+
+        if ($itemKey === '' || strlen($itemKey) !== 16 || !ctype_xdigit($itemKey)) {
+            return redirect()->to($this->catalogReturnUrl($returnUrl))->with('error', 'Identificador de componente inv&aacute;lido.');
+        }
+
+        if ($decision === UiComponentCatalogDecision::DECISION_DISCARD && $catalogKey === 'catalog') {
+            $variantKey = (string) $this->request->getPost('variant_key');
+
+            if ($variantKey !== '' && UiComponentResolver::isSelected($sectionKey, $groupKey, $variantKey)) {
+                return redirect()->to($this->catalogReturnUrl($returnUrl))->with('error', 'No se puede descartar una variante activa. Seleccion&aacute; otra variante antes de descartarla.');
+            }
+        }
+
         $notes = trim((string) $this->request->getPost('redesign_notes'));
         if ($decision === UiComponentCatalogDecision::DECISION_REDESIGN && $notes === '') {
             return redirect()->to($this->catalogReturnUrl($returnUrl))->with('error', 'Agreg&aacute; indicaciones para redise&ntilde;ar el componente.');
@@ -89,10 +106,10 @@ class Admin extends BaseController
 
         try {
             model(UiComponentCatalogDecision::class)->setDecision([
-                'catalog_key' => (string) $this->request->getPost('catalog_key'),
-                'section_key' => (string) $this->request->getPost('section_key'),
-                'group_key' => (string) $this->request->getPost('group_key'),
-                'item_key' => (string) $this->request->getPost('item_key'),
+                'catalog_key' => $catalogKey,
+                'section_key' => $sectionKey,
+                'group_key' => $groupKey,
+                'item_key' => $itemKey,
                 'item_name' => (string) $this->request->getPost('item_name'),
                 'item_hint' => (string) $this->request->getPost('item_hint') ?: null,
                 'source_label' => (string) $this->request->getPost('source_label') ?: null,
@@ -111,6 +128,28 @@ class Admin extends BaseController
         };
 
         return redirect()->to($this->catalogReturnUrl($returnUrl))->with('success', $message);
+    }
+
+    public function limpiarDecisionCatalogo()
+    {
+        $returnUrl = (string) $this->request->getPost('return_url');
+
+        $catalogKey = (string) $this->request->getPost('catalog_key');
+        $sectionKey = (string) $this->request->getPost('section_key');
+        $groupKey = (string) $this->request->getPost('group_key');
+        $itemKey = trim((string) $this->request->getPost('item_key'));
+
+        if ($itemKey === '' || strlen($itemKey) !== 16 || !ctype_xdigit($itemKey)) {
+            return redirect()->to($this->catalogReturnUrl($returnUrl))->with('error', 'Identificador de componente inv&aacute;lido.');
+        }
+
+        try {
+            model(UiComponentCatalogDecision::class)->clearDecision($catalogKey, $sectionKey, $groupKey, $itemKey);
+        } catch (Throwable) {
+            return redirect()->to($this->catalogReturnUrl($returnUrl))->with('error', 'No se pudo limpiar la marca. Ejecut&aacute; las migraciones pendientes.');
+        }
+
+        return redirect()->to($this->catalogReturnUrl($returnUrl))->with('success', 'Marca eliminada correctamente.');
     }
 
     private function catalogReturnUrl(string $returnUrl): string
