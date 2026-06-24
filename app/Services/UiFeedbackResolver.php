@@ -39,18 +39,18 @@ class UiFeedbackResolver
         ];
     }
 
-    public static function message(string $actionKey, array $params = []): ?string
+    public static function message(string $actionKey, array $params = [], ?string $fallback = null): ?string
     {
         $resolved = self::resolve($actionKey, $params);
 
         if ($resolved === null) {
-            return null;
+            return $fallback;
         }
 
         $template = $resolved['template'];
 
         if ($template === null) {
-            return null;
+            return $fallback;
         }
 
         $expectedParams = $resolved['params'];

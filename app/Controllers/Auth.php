@@ -34,7 +34,7 @@ class Auth extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        return redirect()->back()->with('error', UiFeedbackResolver::message('auth.login.failed'));
+        return redirect()->back()->with('error', UiFeedbackResolver::message('auth.login.failed', [], 'Credenciales inv&aacute;lidas'));
     }
 
     public function logout()
