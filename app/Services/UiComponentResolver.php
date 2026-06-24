@@ -38,12 +38,43 @@ class UiComponentResolver
             'segmented_arc' => 'Arco por tramos',
             'segmented_donut' => 'Dona segmentada',
             'clean_arc' => 'Medialuna limpia',
-            'milestone_ring' => 'Aro con hitos',
         ],
         self::COMPONENT_GROUP_MOVEMENT_CARD => [
             'feed' => 'Feed',
             'user_color' => 'Por usuario',
             'compact' => 'Compacto',
+        ],
+        self::COMPONENT_SYSTEM_ALERT_CARD => [
+            'success_compact' => 'Exito compacto',
+            'error_action' => 'Error con acci&oacute;n',
+            'warning_debt' => 'Warning deuda',
+            'info_filter' => 'Info filtro',
+            'settled' => 'Liquidado',
+            'export_ready' => 'Exportacion lista',
+            'offline' => 'Conexion',
+            'delete_confirmation' => 'Confirmacion borrar',
+            'suggested_payment' => 'Pago sugerido',
+            'update_available' => 'Actualizacion disponible',
+            'amount_validation' => 'Validacion monto',
+            'out_of_period_date' => 'Fecha fuera de periodo',
+            'admin_permission' => 'Permiso admin',
+            'favorite_updated' => 'Favorito actualizado',
+            'import_ready' => 'Importacion lista',
+            'import_partial' => 'Importacion parcial',
+            'settlement_recommendation' => 'Liquidacion recomendada',
+            'empty_group' => 'Grupo sin movimientos',
+            'empty_filter' => 'Filtro sin resultados',
+            'duplicate_payment' => 'Pago duplicado',
+            'session_expiring' => 'Sesion por vencer',
+            'unsaved_changes' => 'Cambios sin guardar',
+            'heavy_report' => 'Reporte pesado',
+            'member_added' => 'Nuevo integrante',
+            'member_removed' => 'Integrante removido',
+            'balance_recalculated' => 'Balance recalculado',
+            'incomplete_payment_method' => 'Medio incompleto',
+            'backup_created' => 'Backup creado',
+            'synced' => 'Sincronizado',
+            'maintenance' => 'Mantenimiento',
         ],
     ];
 
@@ -52,12 +83,14 @@ class UiComponentResolver
     public const SCREEN_PAYMENTS_INDEX = 'pagos_index';
     public const SCREEN_PAYMENT_METHODS = 'mis_medios_cobro';
     public const SCREEN_GROUP_SHOW = 'grupo_show';
+    public const SCREEN_SYSTEM_ALERTS = 'system_alerts';
     public const COMPONENT_DEBT_CARD = 'debt_card';
     public const COMPONENT_HOME_GROUP_CARD = 'home_group_card';
     public const COMPONENT_FILTERED_TOTAL_CARD = 'filtered_total_card';
     public const COMPONENT_PAYMENT_METHOD_CARD = 'payment_method_card';
     public const COMPONENT_GROUP_GAUGE = 'group_gauge';
     public const COMPONENT_GROUP_MOVEMENT_CARD = 'group_movement_card';
+    public const COMPONENT_SYSTEM_ALERT_CARD = 'system_alert_card';
 
     private const DEFAULT_VARIANTS = [
         self::SCREEN_HOME => [
@@ -76,6 +109,9 @@ class UiComponentResolver
         self::SCREEN_GROUP_SHOW => [
             self::COMPONENT_GROUP_GAUGE => 'semicircle',
             self::COMPONENT_GROUP_MOVEMENT_CARD => 'feed',
+        ],
+        self::SCREEN_SYSTEM_ALERTS => [
+            self::COMPONENT_SYSTEM_ALERT_CARD => 'success_compact',
         ],
     ];
 
@@ -124,12 +160,45 @@ class UiComponentResolver
                 'segmented_arc',
                 'segmented_donut',
                 'clean_arc',
-                'milestone_ring',
             ],
             self::COMPONENT_GROUP_MOVEMENT_CARD => [
                 'feed',
                 'user_color',
                 'compact',
+            ],
+        ],
+        self::SCREEN_SYSTEM_ALERTS => [
+            self::COMPONENT_SYSTEM_ALERT_CARD => [
+                'success_compact',
+                'error_action',
+                'warning_debt',
+                'info_filter',
+                'settled',
+                'export_ready',
+                'offline',
+                'delete_confirmation',
+                'suggested_payment',
+                'update_available',
+                'amount_validation',
+                'out_of_period_date',
+                'admin_permission',
+                'favorite_updated',
+                'import_ready',
+                'import_partial',
+                'settlement_recommendation',
+                'empty_group',
+                'empty_filter',
+                'duplicate_payment',
+                'session_expiring',
+                'unsaved_changes',
+                'heavy_report',
+                'member_added',
+                'member_removed',
+                'balance_recalculated',
+                'incomplete_payment_method',
+                'backup_created',
+                'synced',
+                'maintenance',
             ],
         ],
     ];

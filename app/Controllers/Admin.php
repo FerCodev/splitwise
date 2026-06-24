@@ -58,6 +58,10 @@ class Admin extends BaseController
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_MOVEMENT_CARD
             ),
+            'selectedSystemAlertVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_SYSTEM_ALERT_CARD
+            ),
         ]);
     }
 

@@ -34,6 +34,7 @@ $selectedHomeGroupVariant = $selectedHomeGroupVariant ?? 'operational';
 $selectedExpensesTotalVariant = $selectedExpensesTotalVariant ?? 'simple';
 $selectedPaymentsTotalVariant = $selectedPaymentsTotalVariant ?? 'simple';
 $selectedPaymentMethodVariant = $selectedPaymentMethodVariant ?? 'bank_card';
+$selectedSystemAlertVariant = $selectedSystemAlertVariant ?? 'success_compact';
 $catalogCurationState = $catalogCurationState ?? [];
 $componentDecisions = $componentDecisions ?? [];
 
@@ -173,6 +174,11 @@ $catalogCurationControls = static function (bool $inUse = false): string {
     return ob_get_clean();
 };
 $screens = [
+    'alertas' => [
+        'title' => 'Alertas',
+        'description' => 'Mensajes visuales para estados, errores, confirmaciones y avisos del sistema.',
+        'badge' => '30 variantes',
+    ],
     'home' => [
         'title' => 'Home',
         'description' => 'Grupos activos y deudas pendientes.',

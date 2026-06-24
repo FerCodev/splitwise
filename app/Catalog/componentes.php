@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'alertas' => [
+        require __DIR__ . '/Components/alertas/system_alert_card.php',
+    ],
     'home' => [
         require __DIR__ . '/Components/home/home_group_card.php',
         require __DIR__ . '/Components/home/debt_card.php',
