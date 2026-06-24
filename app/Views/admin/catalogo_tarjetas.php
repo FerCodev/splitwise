@@ -34,7 +34,16 @@ $selectedHomeGroupVariant = $selectedHomeGroupVariant ?? 'operational';
 $selectedExpensesTotalVariant = $selectedExpensesTotalVariant ?? 'simple';
 $selectedPaymentsTotalVariant = $selectedPaymentsTotalVariant ?? 'simple';
 $selectedPaymentMethodVariant = $selectedPaymentMethodVariant ?? 'bank_card';
-$selectedSystemAlertVariant = $selectedSystemAlertVariant ?? 'success_compact';
+$selectedAlertSuccessVariant = $selectedAlertSuccessVariant ?? 'success_compact';
+$selectedAlertErrorVariant = $selectedAlertErrorVariant ?? 'error_action';
+$selectedAlertWarningVariant = $selectedAlertWarningVariant ?? 'warning_debt';
+$selectedAlertInfoVariant = $selectedAlertInfoVariant ?? 'info_filter';
+$selectedAlertDestructiveConfirmationVariant = $selectedAlertDestructiveConfirmationVariant ?? 'delete_confirmation';
+$selectedAlertEmptyStateVariant = $selectedAlertEmptyStateVariant ?? 'empty_group';
+$selectedAlertSecuritySessionVariant = $selectedAlertSecuritySessionVariant ?? 'admin_permission';
+$selectedAlertProcessExportVariant = $selectedAlertProcessExportVariant ?? 'export_ready';
+$selectedAlertPaymentSuggestionVariant = $selectedAlertPaymentSuggestionVariant ?? 'suggested_payment';
+$selectedAlertGroupEventVariant = $selectedAlertGroupEventVariant ?? 'balance_recalculated';
 $catalogCurationState = $catalogCurationState ?? [];
 $componentDecisions = $componentDecisions ?? [];
 
@@ -177,7 +186,7 @@ $screens = [
     'alertas' => [
         'title' => 'Alertas',
         'description' => 'Mensajes visuales para estados, errores, confirmaciones y avisos del sistema.',
-        'badge' => '30 variantes',
+        'badge' => '10 componentes',
     ],
     'home' => [
         'title' => 'Home',
