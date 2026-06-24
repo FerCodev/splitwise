@@ -9,7 +9,7 @@ class Auth extends BaseController
     public function login()
     {
         if (session()->get('isLoggedIn')) {
-            return redirect()->to(base_url('dashboard'));
+            return redirect()->to('/dashboard');
         }
 
         return view('login');
@@ -30,7 +30,7 @@ class Auth extends BaseController
                 'userEmail'  => $user['email'],
                 'userRole'   => $user['role'] ?? 'user',
             ]);
-            return redirect()->to(base_url('dashboard'));
+            return redirect()->to('/dashboard');
         }
 
         return redirect()->back()->with('error', 'Credenciales inválidas');
@@ -39,6 +39,6 @@ class Auth extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to(base_url('login'));
+        return redirect()->to('/login');
     }
 }
