@@ -32,7 +32,7 @@
                     <div class="mb-3">
                         <label for="monto" class="form-label fw-medium">Monto</label>
                         <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
-                               value="<?= esc(old('monto', $pago['monto'] ?? $prefill['monto'] ?? '')) ?>" required>
+                               value="<?= esc(old('monto', isset($pago) ? number_format((float) $pago['monto'], 2, '.', '') : ($prefill['monto'] ?? ''))) ?>" required>
                     </div>
 
                     <div class="mb-3">
