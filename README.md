@@ -37,6 +37,25 @@ database.default.DBDriver = MySQLi
 database.default.DBPrefix =
 ```
 
+### Configuracion por entorno
+
+No subir `.env` al repositorio. Cada entorno tiene el suyo:
+
+```ini
+# Local XAMPP o red local
+CI_ENVIRONMENT = development
+app.baseURL = 'http://192.168.0.9/SplitWise/'
+app.indexPage = ''
+
+# Hosting
+CI_ENVIRONMENT = production
+app.baseURL = 'https://tudominio.com/'
+app.indexPage = ''
+app.forceGlobalSecureRequests = true
+```
+
+Para desplegar cambios, subir el codigo versionado y mantener el `.env` propio del hosting con sus datos de dominio y base de datos.
+
 ```bash
 # 4. Generar clave de encriptación (opcional, requerido si se usa Encryption)
 php spark key:generate

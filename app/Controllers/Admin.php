@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\CatalogDesignCuration;
 use App\Models\UiComponentCatalogDecision;
 use App\Services\UiComponentResolver;
 use Throwable;
@@ -11,6 +12,7 @@ class Admin extends BaseController
     public function catalogoTarjetas(?string $pantalla = null)
     {
         $componentDecisions = [];
+        $catalogCurationState = [];
 
         try {
             $componentDecisions = model(UiComponentCatalogDecision::class)->decisionMap();
@@ -18,9 +20,16 @@ class Admin extends BaseController
             $componentDecisions = [];
         }
 
+        try {
+            $catalogCurationState = model(CatalogDesignCuration::class)->allByDesignId();
+        } catch (Throwable) {
+            $catalogCurationState = [];
+        }
+
         return view('admin/catalogo_tarjetas', [
             'activeScreen' => (string) $pantalla,
             'componentDecisions' => $componentDecisions,
+            'catalogCurationState' => $catalogCurationState,
             'selectedDebtVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_HOME,
                 UiComponentResolver::COMPONENT_DEBT_CARD
@@ -150,6 +159,64 @@ class Admin extends BaseController
         }
 
         return redirect()->to($this->catalogReturnUrl($returnUrl))->with('success', 'Marca eliminada correctamente.');
+    }
+
+    public function guardarCuraduria()
+    {
+        $designId = trim((string) $this->request->getPost('design_id'));
+        $designName = trim((string) $this->request->getPost('design_name'));
+        $designGroup = trim((string) $this->request->getPost('design_group'));
+        $status = trim((string) $this->request->getPost('status'));
+        $redesignNote = trim((string) $this->request->getPost('redesign_note'));
+
+        if ($designId === '' || $designName === '' || $designGroup === '') {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => 'Faltan datos del dise&ntilde;o.',
+                'csrf' => csrf_hash(),
+            ]);
+        }
+
+        if ($status === CatalogDesignCuration::STATUS_DISCARDED && in_array($designId, UiComponentResolver::activeDesignIds(), true)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'ok' => false,
+                'message' => 'Los dise&ntilde;os activos no se pueden descartar.',
+                'csrf' => csrf_hash(),
+            ]);
+        }
+
+        try {
+            model(CatalogDesignCuration::class)->saveState($designId, $designName, $designGroup, $status, $redesignNote);
+        } catch (Throwable) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'ok' => false,
+                'message' => 'No se pudo guardar la marca. Ejecut&aacute; las migraciones pendientes.',
+                'csrf' => csrf_hash(),
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'ok' => true,
+            'csrf' => csrf_hash(),
+        ]);
+    }
+
+    public function limpiarCuraduria()
+    {
+        try {
+            model(CatalogDesignCuration::class)->clearAll();
+        } catch (Throwable) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'ok' => false,
+                'message' => 'No se pudieron limpiar las marcas. Ejecut&aacute; las migraciones pendientes.',
+                'csrf' => csrf_hash(),
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'ok' => true,
+            'csrf' => csrf_hash(),
+        ]);
     }
 
     private function catalogReturnUrl(string $returnUrl): string

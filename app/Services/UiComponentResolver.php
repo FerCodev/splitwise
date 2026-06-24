@@ -7,6 +7,46 @@ use Throwable;
 
 class UiComponentResolver
 {
+    private const VARIANT_NAMES = [
+        self::COMPONENT_HOME_GROUP_CARD => [
+            'operational' => 'Operativa',
+            'balance_first' => 'Balance primero',
+            'compact' => 'Resumen compacto',
+            'action_large' => 'Acci&oacute;n amplia',
+            'activity_split' => 'Actividad separada',
+            'minimal_panel' => 'Panel simple',
+        ],
+        self::COMPONENT_DEBT_CARD => [
+            'soft' => 'Alerta suave',
+            'direct_action' => 'Acci&oacute;n directa',
+            'person_summary' => 'Resumen persona',
+        ],
+        self::COMPONENT_FILTERED_TOTAL_CARD => [
+            'simple' => 'KPI simple',
+            'detail' => 'Balance detallado',
+            'compare' => 'Comparativo',
+        ],
+        self::COMPONENT_PAYMENT_METHOD_CARD => [
+            'bank_card' => 'Credencial actual',
+            'compact' => 'Compacta operativa',
+            'favorite' => 'Favorita destacada',
+        ],
+        self::COMPONENT_GROUP_GAUGE => [
+            'semicircle' => 'Actual',
+            'compact_dial' => 'Dial compacto',
+            'scale_bar' => 'Barra de escala',
+            'segmented_arc' => 'Arco por tramos',
+            'segmented_donut' => 'Dona segmentada',
+            'clean_arc' => 'Medialuna limpia',
+            'milestone_ring' => 'Aro con hitos',
+        ],
+        self::COMPONENT_GROUP_MOVEMENT_CARD => [
+            'feed' => 'Feed',
+            'user_color' => 'Por usuario',
+            'compact' => 'Compacto',
+        ],
+    ];
+
     public const SCREEN_HOME = 'home';
     public const SCREEN_EXPENSES_INDEX = 'gastos_index';
     public const SCREEN_PAYMENTS_INDEX = 'pagos_index';
@@ -134,5 +174,59 @@ class UiComponentResolver
     public static function isAllowed(string $screenKey, string $componentKey, string $variantKey): bool
     {
         return in_array($variantKey, self::ALLOWED_VARIANTS[$screenKey][$componentKey] ?? [], true);
+    }
+
+    public static function designId(string $scope, string $group, string $name, ?string $variant = null): string
+    {
+        $raw = strtolower($scope . '-' . $group . '-' . $name . '-' . (string) $variant);
+        $raw = preg_replace('/[^a-z0-9]+/', '-', $raw) ?? $raw;
+        return trim($raw, '-');
+    }
+
+    public static function activeDesignIds(): array
+    {
+        $ids = [];
+
+        try {
+            $preferences = model(UiComponentPreference::class)->findAll();
+        } catch (Throwable) {
+            $preferences = [];
+        }
+
+        $prefMap = [];
+
+        foreach ($preferences as $pref) {
+            $key = $pref['screen_key'] . '::' . $pref['component_key'];
+            $prefMap[$key] = $pref['variant_key'];
+        }
+
+        foreach (self::ALLOWED_VARIANTS as $screenKey => $components) {
+            foreach ($components as $componentKey => $allowed) {
+                $mapKey = $screenKey . '::' . $componentKey;
+                $variantKey = $prefMap[$mapKey] ?? self::DEFAULT_VARIANTS[$screenKey][$componentKey] ?? null;
+
+                if ($variantKey === null || $variantKey === '') {
+                    continue;
+                }
+
+                if (!in_array($variantKey, $allowed, true)) {
+                    $variantKey = self::DEFAULT_VARIANTS[$screenKey][$componentKey] ?? null;
+
+                    if ($variantKey === null) {
+                        continue;
+                    }
+                }
+
+                $variantName = self::VARIANT_NAMES[$componentKey][$variantKey] ?? null;
+
+                if ($variantName === null) {
+                    continue;
+                }
+
+                $ids[] = self::designId('componente', $componentKey, $variantName, $variantKey);
+            }
+        }
+
+        return array_unique($ids);
     }
 }
