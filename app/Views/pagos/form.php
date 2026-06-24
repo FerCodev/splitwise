@@ -30,9 +30,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="monto" class="form-label fw-medium">Monto</label>
-                        <input type="number" step="0.01" min="0.01" class="form-control" id="monto" name="monto"
-                               value="<?= esc(old('monto', isset($pago) ? number_format((float) $pago['monto'], 2, '.', '') : ($prefill['monto'] ?? ''))) ?>" required>
+                        <label for="monto_visual" class="form-label fw-medium">Monto</label>
+                        <input type="text" class="form-control" id="monto_visual" name="monto_visual"
+                               value="<?= esc(old('monto_visual', isset($pago) ? numero_arg($pago['monto']) : ($prefill['monto'] !== '' && $prefill['monto'] !== null ? numero_arg((float) $prefill['monto']) : ''))) ?>" required
+                               inputmode="numeric"
+                               oninput="formatearMonto(this);">
+                        <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $pago['monto'] ?? $prefill['monto'] ?? '')) ?>">
                     </div>
 
                     <div class="mb-3">
@@ -106,12 +109,40 @@
         </div>
     </div>
 
+    <script>
+        function formatearMonto(input) {
+            var limpio = input.value.replace(/[^0-9,]/g, '');
+            var partes = limpio.split(',');
+            var entero = partes[0].replace(/\D/g, '');
+            var decimal = partes.length > 1 ? partes.slice(1).join('').replace(/\D/g, '').slice(0, 2) : '';
+            var formateado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            if (partes.length > 1) {
+                formateado += ',' + decimal;
+            }
+            if (input.value !== formateado) {
+                input.value = formateado;
+            }
+            var numStr = entero + '.' + (decimal || '0');
+            var num = parseFloat(numStr);
+            if (!isNaN(num)) {
+                document.getElementById('monto_real').value = num.toFixed(2);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var vis = document.getElementById('monto_visual');
+            var real = document.getElementById('monto_real');
+            if (vis && real && vis.value) { formatearMonto(vis); }
+        });
+    </script>
+
     <?php if (!isset($pago) && empty($grupoId)): ?>
     <script>
         document.getElementById('grupo_id').addEventListener('change', function() {
             if (this.value) {
                 var desc = encodeURIComponent(document.getElementById('descripcion').value);
-                var monto = encodeURIComponent(document.getElementById('monto').value);
+                var montoReal = document.getElementById('monto_real');
+                var monto = encodeURIComponent(montoReal ? montoReal.value : '');
                 var fecha = encodeURIComponent(document.getElementById('fecha').value);
                 var receptor = encodeURIComponent(document.getElementById('receptor_id').value);
                 window.location.href = '<?= base_url('pagos/nuevo?grupo_id=') ?>' + this.value
