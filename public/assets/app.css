@@ -2233,6 +2233,30 @@ body {
     border-color: rgba(22, 163, 74, 0.35);
     background: rgba(240, 253, 244, 0.72);
 }
+.catalog-variant-discarded {
+    opacity: 0.55;
+    filter: grayscale(0.3);
+    border-color: #e5e7eb;
+}
+.catalog-variant-discarded:hover {
+    opacity: 0.85;
+    filter: none;
+}
+.catalog-discarded-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: #6b7280;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.catalog-variant {
+    position: relative;
+}
 .catalog-variant-meta {
     display: flex;
     align-items: baseline;
@@ -2254,6 +2278,37 @@ body {
 }
 .catalog-component-action .btn {
     width: 100%;
+}
+.catalog-decision-panel {
+    display: grid;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #fff;
+}
+.catalog-decision-head,
+.catalog-decision-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.catalog-decision-head > span:first-child {
+    color: var(--muted);
+    font-size: 0.78rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+.catalog-decision-actions {
+    flex-wrap: wrap;
+}
+.catalog-decision-actions .btn {
+    flex: 1 1 96px;
+}
+.catalog-decision-panel textarea {
+    resize: vertical;
 }
 .catalog-source-badge {
     justify-self: start;
