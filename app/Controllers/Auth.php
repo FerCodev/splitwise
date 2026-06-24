@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Services\UiFeedbackResolver;
 
 class Auth extends BaseController
 {
@@ -33,7 +34,7 @@ class Auth extends BaseController
             return redirect()->to('/dashboard');
         }
 
-        return redirect()->back()->with('error', 'Credenciales inválidas');
+        return redirect()->back()->with('error', UiFeedbackResolver::message('auth.login.failed'));
     }
 
     public function logout()
