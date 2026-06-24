@@ -26,7 +26,7 @@
                     <div class="mb-3">
                         <label for="descripcion" class="form-label fw-medium">Descripción <small class="text-muted">(opcional)</small></label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion"
-                               value="<?= esc(old('descripcion', $pago['descripcion'] ?? '')) ?>">
+                               value="<?= esc(old('descripcion', $pago['descripcion'] ?? $prefill['descripcion'] ?? '')) ?>">
                     </div>
 
                     <div class="mb-3">
@@ -110,7 +110,15 @@
     <script>
         document.getElementById('grupo_id').addEventListener('change', function() {
             if (this.value) {
-                window.location.href = '<?= base_url('pagos/nuevo?grupo_id=') ?>' + this.value;
+                var desc = encodeURIComponent(document.getElementById('descripcion').value);
+                var monto = encodeURIComponent(document.getElementById('monto').value);
+                var fecha = encodeURIComponent(document.getElementById('fecha').value);
+                var receptor = encodeURIComponent(document.getElementById('receptor_id').value);
+                window.location.href = '<?= base_url('pagos/nuevo?grupo_id=') ?>' + this.value
+                    + '&descripcion=' + desc
+                    + '&monto=' + monto
+                    + '&fecha=' + fecha
+                    + '&receptor_id=' + receptor;
             }
         });
     </script>

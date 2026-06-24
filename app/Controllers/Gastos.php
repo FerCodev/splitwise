@@ -689,6 +689,11 @@ class Gastos extends BaseController
             return false;
         }
 
+        $clientName = $file->getClientName();
+        $mimeType = $file->getMimeType();
+        $fileSize = $file->getSize();
+        $extension = $file->getExtension();
+
         $year = date('Y');
         $month = date('m');
         $dir = WRITEPATH . 'uploads/recibos/' . $year . '/' . $month;
@@ -696,7 +701,6 @@ class Gastos extends BaseController
             mkdir($dir, 0755, true);
         }
 
-        $extension = $file->getExtension();
         $safeName = bin2hex(random_bytes(16)) . '.' . $extension;
         $relativePath = 'uploads/recibos/' . $year . '/' . $month . '/' . $safeName;
 
@@ -704,9 +708,9 @@ class Gastos extends BaseController
 
         return [
             'recibo_path' => $relativePath,
-            'recibo_nombre' => $file->getClientName(),
-            'recibo_mime' => $file->getMimeType(),
-            'recibo_size' => $file->getSize(),
+            'recibo_nombre' => $clientName,
+            'recibo_mime' => $mimeType,
+            'recibo_size' => $fileSize,
         ];
     }
 

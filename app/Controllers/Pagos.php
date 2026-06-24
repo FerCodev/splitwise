@@ -183,10 +183,16 @@ class Pagos extends BaseController
             $miembros = $grupoModel->getMiembros((int) $grupoId);
         }
 
+        $prefillMonto = $this->request->getGet('monto');
+        if ($prefillMonto !== null && $prefillMonto !== '') {
+            $prefillMonto = number_format((float) $prefillMonto, 2, '.', '');
+        }
+
         $prefill = [
             'receptor_id' => $this->request->getGet('receptor_id'),
-            'monto' => $this->request->getGet('monto'),
+            'monto' => $prefillMonto,
             'fecha' => $this->request->getGet('fecha'),
+            'descripcion' => $this->request->getGet('descripcion'),
         ];
 
         return view('pagos/form', [
