@@ -93,7 +93,7 @@ class Grupos extends BaseController
             }
         }
 
-        $grupoId =         $grupoModel->insert([
+        $grupoId = $grupoModel->insert([
             'nombre' => $nombre,
             'descripcion' => $this->request->getPost('descripcion'),
             'created_by' => $userId,
@@ -365,6 +365,10 @@ class Grupos extends BaseController
             'liquidado' => 'Grupo liquidado correctamente.',
             default => 'Estado actualizado.',
         };
+
+        if ($actionKey === null) {
+            return redirect()->to("/grupos/$id/editar")->with('success', $fallback);
+        }
 
         return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message($actionKey, [], $fallback));
     }
