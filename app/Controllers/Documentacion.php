@@ -19,36 +19,43 @@ class Documentacion extends BaseController
         'roadmap-html' => 'Documentacion/roadmaps/pagina/Roadmap.html',
     ];
 
+    private const COMMANDS_SLUG = 'skill-comandos';
+
     public function index(?string $slug = null)
     {
-        if ($slug === null) {
-            return $this->render('inicio', null);
+        if ($slug !== null) {
+            $slug = strtolower($slug);
         }
 
-        $path = self::ALLOWED[$slug] ?? null;
+        if ($slug === null || !array_key_exists($slug, self::ALLOWED)) {
+            return $this->render('inicio', null, false);
+        }
+
+        $path = self::ALLOWED[$slug];
 
         if ($path === null) {
-            return $this->render('inicio', null);
+            return $this->render('inicio', null, false);
         }
 
         $fullPath = ROOTPATH . $path;
 
         if (!file_exists($fullPath)) {
-            return $this->render('inicio', null);
+            return $this->render('inicio', null, false);
         }
 
         $content = file_get_contents($fullPath);
 
-        if ($path !== null && str_ends_with($path, '.html')) {
-            return $this->renderHtml($slug, $content);
+        if (str_ends_with($path, '.html')) {
+            return $this->render($slug, $content, false);
         }
 
-        $html = $this->markdownToHtml($content);
+        $isCommands = ($slug === self::COMMANDS_SLUG);
+        $html = $isCommands ? $this->markdownToCommands($content) : $this->markdownToHtml($content);
 
-        return $this->render($slug, $html);
+        return $this->render($slug, $html, $isCommands);
     }
 
-    private function render(string $slug, ?string $contentHtml): string
+    private function render(string $slug, ?string $contentHtml, bool $isCommands): string
     {
         $docs = [];
 
@@ -60,22 +67,82 @@ class Documentacion extends BaseController
             'currentSlug' => $slug,
             'contentHtml' => $contentHtml,
             'docs' => $docs,
+            'isCommands' => $isCommands,
         ]);
     }
 
-    private function renderHtml(string $slug, string $content): string
+    private function markdownToCommands(string $md): string
     {
-        $docs = [];
+        $html = '';
 
-        foreach (self::ALLOWED as $key => $p) {
-            $docs[$key] = $this->docTitle($key);
+        $lines = explode("\n", $md);
+        $inCode = false;
+        $codeContent = '';
+        $sectionTitle = '';
+        $inSection = false;
+        $bodyLines = [];
+
+        foreach ($lines as $line) {
+            if (preg_match('/^```/', trim($line))) {
+                if ($inCode) {
+                    $codeContent = trim($codeContent);
+                    if ($codeContent !== '') {
+                        $html .= '<div class="cmd-box">';
+                        if ($sectionTitle !== '') {
+                            $html .= '<div class="cmd-box-label">' . htmlspecialchars($sectionTitle) . '</div>';
+                        }
+                        $html .= '<div class="cmd-box-code"><code>' . htmlspecialchars($codeContent) . '</code></div>';
+                        $html .= '<button class="cmd-box-btn btn btn-sm btn-outline-primary" onclick="copiarComando(this)">Copiar</button>';
+                        $html .= '</div>';
+                    }
+                    $codeContent = '';
+                    $sectionTitle = '';
+                    $inCode = false;
+                } else {
+                    $inCode = true;
+                    $codeContent = '';
+                }
+                continue;
+            }
+
+            if ($inCode) {
+                $codeContent .= $line . "\n";
+                continue;
+            }
+
+            $trimmed = trim($line);
+
+            if (preg_match('/^### (.+)$/', $trimmed, $m)) {
+                $sectionTitle = $m[1];
+                continue;
+            }
+
+            if (preg_match('/^## (.+)$/', $trimmed, $m)) {
+                $sectionTitle = $m[1];
+                continue;
+            }
+
+            if ($trimmed !== '' && !str_starts_with($trimmed, '-') && !str_starts_with($trimmed, '#')) {
+                $bodyLines[] = htmlspecialchars($trimmed);
+            }
         }
 
-        return view('documentacion/index', [
-            'currentSlug' => $slug,
-            'contentHtml' => $content,
-            'docs' => $docs,
-        ]);
+        if ($inCode && trim($codeContent) !== '') {
+            $codeContent = trim($codeContent);
+            $html .= '<div class="cmd-box">';
+            if ($sectionTitle !== '') {
+                $html .= '<div class="cmd-box-label">' . htmlspecialchars($sectionTitle) . '</div>';
+            }
+            $html .= '<div class="cmd-box-code"><code>' . htmlspecialchars($codeContent) . '</code></div>';
+            $html .= '<button class="cmd-box-btn btn btn-sm btn-outline-primary" onclick="copiarComando(this)">Copiar</button>';
+            $html .= '</div>';
+        }
+
+        if ($html === '') {
+            return $this->markdownToHtml($md);
+        }
+
+        return $html;
     }
 
     private function markdownToHtml(string $md): string
