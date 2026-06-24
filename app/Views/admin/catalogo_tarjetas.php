@@ -215,169 +215,11 @@ $screens = [
     ],
 ];
 
-$catalog = [
-    'home' => [
-        [
-            'title' => 'Tarjeta de grupo activo',
-            'description' => 'Define c&oacute;mo se muestran los grupos en la pesta&ntilde;a activa del Home.',
-            'screen' => 'home',
-            'component' => 'home_group_card',
-            'selected' => $selectedHomeGroupVariant,
-            'variants' => [
-                [
-                    'key' => 'operational',
-                    'name' => 'Operativa',
-                    'hint' => 'Acciones directas para entrar o cargar gasto.',
-                    'render' => static fn () => view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo]),
-                ],
-                [
-                    'key' => 'balance_first',
-                    'name' => 'Balance primero',
-                    'hint' => 'El saldo es el dato protagonista.',
-                    'render' => static fn () => view('components/cards/grupo', ['variant' => 'balance_first', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500]),
-                ],
-                [
-                    'key' => 'compact',
-                    'name' => 'Resumen compacto',
-                    'hint' => 'Listado m&aacute;s denso para muchas tarjetas.',
-                    'render' => static fn () => view('components/cards/grupo', ['variant' => 'compact', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoDescripcion' => 'supermercado mensual']),
-                ],
-                [
-                    'key' => 'action_large',
-                    'name' => 'Acci&oacute;n amplia',
-                    'hint' => 'Botones Entrar y + Gasto m&aacute;s grandes.',
-                    'render' => static fn () => view('components/cards/grupo', ['variant' => 'action_large', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo, 'gastoUrl' => '#']),
-                ],
-                [
-                    'key' => 'activity_split',
-                    'name' => 'Actividad separada',
-                    'hint' => 'Saldo arriba y ultimo movimiento en bloque propio.',
-                    'render' => static fn () => view('components/cards/grupo', ['variant' => 'activity_split', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo, 'gastoUrl' => '#']),
-                ],
-                [
-                    'key' => 'minimal_panel',
-                    'name' => 'Panel simple',
-                    'hint' => 'Compacta con CTA inferior.',
-                    'render' => static fn () => view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoDescripcion' => 'supermercado mensual', 'gastoUrl' => '#']),
-                ],
-            ],
-        ],
-        [
-            'title' => 'Tarjeta de deuda pendiente',
-            'description' => 'Define c&oacute;mo se ven las deudas pendientes en Home.',
-            'screen' => 'home',
-            'component' => 'debt_card',
-            'selected' => $selectedDebtVariant,
-            'variants' => [
-                [
-                    'key' => 'soft',
-                    'name' => 'Alerta suave',
-                    'hint' => 'Rojo suave, parecido a cerrar sesi&oacute;n.',
-                    'render' => static fn () => view('components/cards/deuda', ['variant' => 'soft', 'modo' => 'debes', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 8500, 'preview' => true]),
-                ],
-                [
-                    'key' => 'direct_action',
-                    'name' => 'Acci&oacute;n directa',
-                    'hint' => 'Incluye CTA visible para resolver.',
-                    'render' => static fn () => view('components/cards/deuda', ['variant' => 'direct_action', 'modo' => 'debes', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 8500, 'preview' => true]),
-                ],
-                [
-                    'key' => 'person_summary',
-                    'name' => 'Resumen persona',
-                    'hint' => 'Agrupa por persona con avatar.',
-                    'render' => static fn () => view('components/cards/deuda', ['variant' => 'person_summary', 'modo' => 'te_deben', 'persona' => 'Antonella', 'grupo' => 'Mayo', 'monto' => 12300, 'preview' => true]),
-                ],
-            ],
-        ],
-    ],
-    'grupos' => [
-        [
-            'title' => 'Movimientos del grupo',
-            'description' => 'Define las tarjetas del listado de movimientos dentro de un grupo.',
-            'screen' => 'grupo_show',
-            'component' => 'group_movement_card',
-            'selected' => $selectedMovementVariant,
-            'variants' => [
-                [
-                    'key' => 'feed',
-                    'name' => 'Feed',
-                    'hint' => 'Patr&oacute;n similar a Reportes.',
-                    'render' => static fn () => view('components/cards/movimiento', ['variant' => 'feed', 'tipo' => 'gasto', 'descripcion' => 'Alquiler', 'monto' => 85000, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Vivienda', 'preview' => true]),
-                ],
-                [
-                    'key' => 'user_color',
-                    'name' => 'Por usuario',
-                    'hint' => 'Color visual seg&uacute;n qui&eacute;n hizo el movimiento.',
-                    'render' => static fn () => '<div class="report-movement-list catalog-list-preview">' . view('components/cards/movimiento', ['variant' => 'user_color', 'wrap' => false, 'tipo' => 'gasto', 'descripcion' => 'Gasto chico', 'monto' => 6000, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Otros']) . view('components/cards/movimiento', ['variant' => 'user_color', 'wrap' => false, 'tipo' => 'pago', 'descripcion' => 'Pago parcial', 'monto' => 5000, 'fecha' => $fechaDemo, 'persona' => 'Antonella']) . '</div>',
-                ],
-                [
-                    'key' => 'compact',
-                    'name' => 'Compacto',
-                    'hint' => 'Listado m&aacute;s denso.',
-                    'render' => static fn () => view('components/cards/movimiento', ['variant' => 'compact', 'tipo' => 'gasto', 'descripcion' => 'Supermercado mensual', 'monto' => 45200, 'fecha' => $fechaDemo, 'persona' => 'Fernando', 'categoria' => 'Supermercado', 'preview' => true]),
-                ],
-            ],
-        ],
-        [
-            'title' => 'Veloc&iacute;metro de aporte',
-            'description' => 'Widget que compara lo pagado por el usuario contra el total gastado del grupo.',
-            'screen' => 'grupo_show',
-            'component' => 'group_gauge',
-            'selected' => $selectedGaugeVariant,
-            'variants' => [
-                ['key' => 'semicircle', 'name' => 'Actual', 'hint' => 'Aguja semicircular.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'semicircle', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-                ['key' => 'compact_dial', 'name' => 'Dial compacto', 'hint' => 'Score central y montos.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'compact_dial', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-                ['key' => 'scale_bar', 'name' => 'Barra de escala', 'hint' => 'Lectura horizontal.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'scale_bar', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-                ['key' => 'segmented_arc', 'name' => 'Arco por tramos', 'hint' => 'Zonas verdes, amarillas y rojas.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'segmented_arc', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-                ['key' => 'segmented_donut', 'name' => 'Dona segmentada', 'hint' => 'Dial circular con zonas.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'segmented_donut', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-                ['key' => 'clean_arc', 'name' => 'Medialuna limpia', 'hint' => 'Escala numerada amplia.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'clean_arc', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-                ['key' => 'milestone_ring', 'name' => 'Aro con hitos', 'hint' => 'Importes clave visibles.', 'render' => static fn () => view('components/widgets/velocimetro_aporte', ['variant' => 'milestone_ring', 'porcentaje' => 55, 'pagado' => 860000, 'total' => 1563723])],
-            ],
-        ],
-    ],
-    'gastos' => [
-        [
-            'title' => 'Total filtrado de gastos',
-            'description' => 'Define la card superior que totaliza lo filtrado en Gastos.',
-            'screen' => 'gastos_index',
-            'component' => 'filtered_total_card',
-            'selected' => $selectedExpensesTotalVariant,
-            'variants' => [
-                ['key' => 'simple', 'name' => 'KPI simple', 'hint' => 'Monto protagonista.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'simple', 'titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Suma de gastos filtrados', 'color' => 'text-primary'])],
-                ['key' => 'detail', 'name' => 'Balance detallado', 'hint' => 'Cuatro datos en grilla.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'detail', 'titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Suma de gastos filtrados', 'color' => 'text-primary', 'secundarios' => [['label' => 'Registros', 'value' => '18'], ['label' => 'Periodo', 'value' => 'Abril'], ['label' => 'Filtro', 'value' => 'Activo']]])],
-                ['key' => 'compare', 'name' => 'Comparativo', 'hint' => 'Dos bloques de lectura.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'compare', 'titulo' => 'Total filtrado', 'monto' => 898212, 'detalle' => 'Filtro aplicado', 'color' => 'text-primary'])],
-            ],
-        ],
-    ],
-    'pagos' => [
-        [
-            'title' => 'Total filtrado de pagos',
-            'description' => 'Define la card superior que totaliza lo filtrado en Pagos.',
-            'screen' => 'pagos_index',
-            'component' => 'filtered_total_card',
-            'selected' => $selectedPaymentsTotalVariant,
-            'variants' => [
-                ['key' => 'simple', 'name' => 'KPI simple', 'hint' => 'Monto protagonista.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'simple', 'titulo' => 'Total filtrado', 'monto' => 45000, 'detalle' => 'Suma de pagos filtrados', 'color' => 'text-success'])],
-                ['key' => 'detail', 'name' => 'Balance detallado', 'hint' => 'Cuatro datos en grilla.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'detail', 'titulo' => 'Total filtrado', 'monto' => 45000, 'detalle' => 'Suma de pagos filtrados', 'color' => 'text-success', 'secundarios' => [['label' => 'Registros', 'value' => '3'], ['label' => 'Periodo', 'value' => 'Junio'], ['label' => 'Filtro', 'value' => 'Activo']]])],
-                ['key' => 'compare', 'name' => 'Comparativo', 'hint' => 'Dos bloques de lectura.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'compare', 'titulo' => 'Total filtrado', 'monto' => 45000, 'detalle' => 'Filtro aplicado', 'color' => 'text-success'])],
-            ],
-        ],
-    ],
-    'medios' => [
-        [
-            'title' => 'Tarjeta de medio de cobro',
-            'description' => 'Define c&oacute;mo se muestra cada medio de cobro guardado.',
-            'screen' => 'mis_medios_cobro',
-            'component' => 'payment_method_card',
-            'selected' => $selectedPaymentMethodVariant,
-            'variants' => [
-                ['key' => 'bank_card', 'name' => 'Credencial actual', 'hint' => 'Azul, favorita y configuraci&oacute;n.', 'render' => static fn () => view('components/cards/medio_cobro', ['variant' => 'bank_card', 'nombre' => 'Banco Galicia', 'activo' => true, 'favorito' => true, 'titular' => 'Fernando Montes de Oca', 'alias' => 'fernando.montesdeoca'])],
-                ['key' => 'compact', 'name' => 'Compacta operativa', 'hint' => 'Listado eficiente.', 'render' => static fn () => view('components/cards/medio_cobro', ['variant' => 'compact', 'nombre' => 'CBU Santander', 'activo' => true, 'favorito' => false, 'titular' => 'Fernando Montes de Oca', 'alias' => 'fer.santander'])],
-                ['key' => 'favorite', 'name' => 'Favorita destacada', 'hint' => 'Medio principal.', 'render' => static fn () => view('components/cards/medio_cobro', ['variant' => 'favorite', 'nombre' => 'Mercado Pago', 'activo' => true, 'favorito' => true, 'titular' => 'Fernando', 'alias' => 'fer.mp'])],
-            ],
-        ],
-    ],
+$catalogDemoData = [
+    'fechaDemo' => $fechaDemo,
+    'fechaCorta' => $fechaCorta,
 ];
+$catalog = require APPPATH . 'Catalog/componentes.php';
 
 $loginProposals = [
     [
@@ -419,7 +261,6 @@ $tablerCatalog = [
         'items' => [
             ['name' => 'Stat card', 'hint' => 'M&eacute;trica compacta con tendencia.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/></svg></span><span class="badge bg-success-subtle text-success">+12%</span></div><div class="tabler-proposal-label">Total del mes</div><div class="tabler-proposal-value">' . moneda(1563723) . '</div><div class="text-muted small">58 movimientos cargados</div></div>'],
             ['name' => 'KPI horizontal', 'hint' => 'Resumen con icono y subtotales.', 'render' => static fn () => '<div class="tabler-proposal-card tabler-proposal-card-flat"><div class="tabler-proposal-row"><span class="tabler-proposal-icon tabler-proposal-icon-green">$</span><div class="text-end"><div class="tabler-proposal-value text-success">' . moneda(898212) . '</div><div class="text-muted small">Vos pagaste</div></div></div><div class="tabler-proposal-split"><span>Tu parte <b>' . moneda(449106) . '</b></span><span>Registros <b>18</b></span></div></div>'],
-            ['name' => 'Balance compacto', 'hint' => 'Saldo y estado del periodo.', 'render' => static fn () => '<div class="tabler-proposal-card"><div class="tabler-proposal-label">Saldo del periodo</div><div class="tabler-proposal-value text-success">' . moneda(0) . '</div><div class="tabler-proposal-progress"><span style="width: 100%;"></span></div><div class="tabler-proposal-row"><small class="text-muted">Liquidado</small><span class="badge bg-success">OK</span></div></div>'],
         ],
     ],
     [
@@ -674,7 +515,6 @@ $proposals = [
         'items' => [
             ['name' => 'Movimiento verde', 'hint' => 'Patr&oacute;n actual.', 'render' => static fn () => '<div class="report-movement-list catalog-list-preview"><a href="#" class="report-movement-link"><div class="report-movement-card report-movement-payment catalog-border-success"><div class="catalog-card-top"><div><span class="badge bg-success me-1">Pago</span><span class="fw-medium small">Pago</span></div><span class="fw-bold small text-success">' . moneda(30000) . '</span></div><div class="text-muted small mt-1">18/04/2026 &middot; Fernando pag&oacute; a Antonella</div><div class="text-muted small">Grupo: Mayo</div></div></a></div>'],
             ['name' => 'Transferencia', 'hint' => 'De una persona a otra.', 'render' => static fn () => '<div class="dash-card catalog-preview-card"><div class="dash-card-body"><div class="catalog-transfer"><div><div class="catalog-avatar catalog-avatar-primary catalog-avatar-sm">F</div><small>Fernando</small></div><div class="catalog-transfer-arrow">&rarr;</div><div><div class="catalog-avatar catalog-avatar-success catalog-avatar-sm">A</div><small>Antonella</small></div></div><div class="catalog-balance-amount text-success text-center mt-2">' . moneda(30000) . '</div></div></div>'],
-            ['name' => 'Comprobante', 'hint' => 'Formato formal.', 'render' => static fn () => '<div class="dash-card catalog-preview-card"><div class="dash-card-header"><div class="catalog-title-row"><strong>Comprobante</strong><span class="badge bg-success">Confirmado</span></div></div><div class="dash-card-body"><div class="catalog-card-top"><span class="text-muted small">Mayo</span><span class="financial-amount text-success">' . moneda(42500) . '</span></div><div class="text-muted small mt-2">05/04/2026 &middot; Antonella &rarr; Fernando</div></div></div>'],
         ],
     ],
 ];
