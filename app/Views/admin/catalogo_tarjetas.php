@@ -737,24 +737,6 @@ $tablerItemCount = static function (array $section): int {
     </div>
 
 
-    <?php if ($activeScreenMeta): ?>
-        <div class="design-curation-panel catalog-curation-global-panel" data-catalog-curation-summary>
-            <div>
-                <span class="design-curation-kicker">Curaduria visual</span>
-                <strong>Marca dise&ntilde;os para implementar, descartar o redise&ntilde;ar</strong>
-                <p>Los dise&ntilde;os activos no se pueden descartar. Las marcas quedan guardadas en la base de datos.</p>
-            </div>
-            <div class="design-curation-counters">
-                <span><b data-catalog-count="selected">0</b> para implementar</span>
-                <span><b data-catalog-count="redesign">0</b> para redise&ntilde;ar</span>
-                <span><b data-catalog-count="discarded">0</b> descartadas</span>
-            </div>
-            <div class="design-curation-actions">
-                <button class="btn btn-outline-primary btn-sm" type="button" data-catalog-copy>Copiar seleccion</button>
-                <button class="btn btn-outline-secondary btn-sm" type="button" data-catalog-clear>Limpiar marcas</button>
-            </div>
-        </div>
-    <?php endif; ?>
 <?php if ($activeScreen === ''): ?>
         <section class="catalog-section">
             <div class="catalog-section-head">
@@ -803,7 +785,6 @@ $tablerItemCount = static function (array $section): int {
                         </div>
                         <div class="catalog-source-badge">Login</div>
                         <?= $proposal['render']() ?>
-                        <?= $catalogCurationControls(false) ?>
                         <?= $candidateActions('login', 'login', null, $itemKey, $proposal['name'], $proposal['hint'], 'Login', $decision) ?>
                     </article>
                 <?php endforeach; ?>
@@ -884,7 +865,6 @@ $tablerItemCount = static function (array $section): int {
                                                 </div>
                                                 <div class="catalog-source-badge">Ejemplo Tabler</div>
                                                 <?= $item['render']() ?>
-                                                <?= $catalogCurationControls(false) ?>
                                                 <?= $candidateActions('tabler', $sectionKey, $groupKey, $itemKey, $item['name'], $item['hint'], 'Ejemplo Tabler', $decision) ?>
                                             </article>
                                         <?php endforeach; ?>
@@ -912,7 +892,6 @@ $tablerItemCount = static function (array $section): int {
                                     </div>
                                     <div class="catalog-source-badge">Ejemplo Tabler</div>
                                     <?= $item['render']() ?>
-                                    <?= $catalogCurationControls(false) ?>
                                     <?= $candidateActions('tabler', $sectionKey, null, $itemKey, $item['name'], $item['hint'], 'Ejemplo Tabler', $decision) ?>
                                 </article>
                             <?php endforeach; ?>
@@ -953,7 +932,6 @@ $tablerItemCount = static function (array $section): int {
                                 <div class="catalog-source-badge"><?= $proposal['label'] ?></div>
                             <?php endif; ?>
                             <?= $item['render']() ?>
-                            <?= $catalogCurationControls(false) ?>
                             <?= $candidateActions('propuestas', $sectionKey, null, $itemKey, $item['name'], $item['hint'], $sourceLabel, $decision) ?>
                         </article>
                     <?php endforeach; ?>
@@ -989,7 +967,6 @@ $tablerItemCount = static function (array $section): int {
                             </div>
                             <?= $variant['render']() ?>
                             <?= $variantAction($component['screen'], $component['component'], $variant['key'], $component['selected'], $activeScreen) ?>
-                            <?= $catalogCurationControls($isSelected) ?>
                             <?= $candidateActions('catalog', $component['screen'], $component['component'], $itemKey, $variant['name'], $variant['hint'], 'Componente elegible', $decision, $variant['key']) ?>
                         </article>
                     <?php endforeach; ?>
