@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Comandos splitwise</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #20242a;
+      --muted: #626b77;
+      --line: #dfe3e8;
+      --accent: #0f8f73;
+      --accent-dark: #08715b;
+      --code: #101418;
+      --code-ink: #e7edf3;
+      --warn: #b35a00;
+      --shadow: 0 10px 30px rgba(17, 24, 39, .08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .94);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 24px;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    nav {
+      position: sticky;
+      top: 90px;
+      align-self: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    nav a {
+      display: block;
+      padding: 12px 14px;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+    }
+
+    nav a:last-child {
+      border-bottom: 0;
+    }
+
+    nav a:hover {
+      color: var(--accent-dark);
+      background: #eefaf7;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    section {
+      margin-bottom: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .section-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 20px;
+    }
+
+    .command-card {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+    }
+
+    .command-card:last-child {
+      margin-bottom: 0;
+    }
+
+    .command-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .command-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .code-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    pre {
+      margin: 0;
+      padding: 13px 14px;
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: var(--code-ink);
+      font-size: 14px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    code {
+      font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+    }
+
+    button.copy {
+      min-width: 94px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 14px;
+    }
+
+    button.copy:hover {
+      background: var(--accent-dark);
+    }
+
+    button.copy.copied {
+      background: #175f4f;
+    }
+
+    .note {
+      padding: 14px 16px;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: #eefaf7;
+      color: #123c32;
+      font-size: 14px;
+    }
+
+    .warning {
+      border-left-color: var(--warn);
+      background: #fff6ec;
+      color: #5c3100;
+    }
+
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 20px 0 36px;
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      nav {
+        position: static;
+      }
+
+      .topbar {
+        padding: 16px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .code-row {
+        grid-template-columns: 1fr;
+      }
+
+      button.copy {
+        min-height: 44px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="topbar">
+      <div>
+        <h1>Comandos para usar <code>splitwise</code></h1>
+        <p class="subtitle">Manual operativo local para OpenCode.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="Secciones">
+      <a href="#reglas">Reglas base</a>
+      <a href="#flujo">Flujo por fase</a>
+      <a href="#rapidos">Comandos rapidos</a>
+      <a href="#correcciones">Si responde mal</a>
+    </nav>
+
+    <main>
+      <section id="reglas">
+        <div class="section-head">
+          <h2>Reglas base</h2>
+          <p>Contexto que la skill deberia respetar siempre.</p>
+        </div>
+        <div class="content">
+          <div class="note">
+            Repo correcto: <code>C:\xampp\htdocs\SplitWise</code><br>
+            Repo viejo que no debe usarse: <code>F:\Fernando\fer\proyectos\SplitWise</code>
+          </div>
+          <ul>
+            <li>Leer <code>Roadmap.md</code> cuando el pedido sea de roadmap, planificacion o proxima fase.</li>
+            <li>Recordar que <code>Roadmap.md</code> es local y no debe subirse a GitHub.</li>
+            <li>Separar bugs bloqueantes de mejoras de producto.</li>
+            <li>Evitar fases gigantes.</li>
+            <li>No mergear sin autorizacion explicita.</li>
+            <li>No borrar ramas no relacionadas.</li>
+            <li>Si no hay PR y la fase esta lista, crear PR antes de mergear cuando quieras mantener revision formal.</li>
+            <li>Si hay PR, revisar el PR antes de autorizar merge.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="flujo">
+        <div class="section-head">
+          <h2>Flujo recomendado por fase</h2>
+          <p>Usa estos comandos en orden durante cada fase.</p>
+        </div>
+        <div class="content">
+          <article class="command-card">
+            <div class="command-title">
+              <h3>1. Pedir prompt para arrancar fase</h3>
+            </div>
+            <p>Lee el roadmap y arma un prompt completo para el agente implementador.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise, lee el roadmap y dame el prompt para arrancar la siguiente fase</code></pre>
+              <button class="copy" data-copy="usa splitwise, lee el roadmap y dame el prompt para arrancar la siguiente fase">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>2. Auditar cuando el agente termina</h3>
+            </div>
+            <p>Revisa rama, informe, captura o PR. Idealmente inspecciona el repo real.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise, audita esto</code></pre>
+              <button class="copy" data-copy="usa splitwise, audita esto">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>3. Pedir prompt post-auditoria</h3>
+            </div>
+            <p>Convierte hallazgos en un prompt concreto de correccion. Si no hay issues, no deberia inventar cambios.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise, armame el prompt post auditoria</code></pre>
+              <button class="copy" data-copy="usa splitwise, armame el prompt post auditoria">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>4. Crear PR</h3>
+            </div>
+            <p>Usalo cuando la rama ya fue auditada y queres abrir Pull Request antes del merge.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para crear PR de esta fase</code></pre>
+              <button class="copy" data-copy="usa splitwise para crear PR de esta fase">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>5. Crear PR de una rama concreta</h3>
+            </div>
+            <p>Alternativa si queres indicar la rama explicitamente.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para crear PR de la rama feature/nombre-rama</code></pre>
+              <button class="copy" data-copy="usa splitwise para crear PR de la rama feature/nombre-rama">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>6. Revisar ultimo PR</h3>
+            </div>
+            <p>Usalo cuando ya existe Pull Request y queres que la skill tome el ultimo PR asociado a la fase.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para revisar el ultimo PR de esta fase</code></pre>
+              <button class="copy" data-copy="usa splitwise para revisar el ultimo PR de esta fase">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>7. Revisar PR explicito</h3>
+            </div>
+            <p>Alternativa cuando queres indicar el numero exacto.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para revisar el PR #X</code></pre>
+              <button class="copy" data-copy="usa splitwise para revisar el PR #X">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>8. Autorizar merge de ultimos cambios</h3>
+            </div>
+            <p>Genera el texto de autorizacion para cerrar lo ultimo auditado. La skill no debe ejecutar merge cuando pedis prompt.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para autorizar merge de los ultimos cambios</code></pre>
+              <button class="copy" data-copy="usa splitwise para autorizar merge de los ultimos cambios">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>9. Autorizar merge de PR explicito</h3>
+            </div>
+            <p>Alternativa cuando queres indicar el numero exacto.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para autorizar merge del PR #X</code></pre>
+              <button class="copy" data-copy="usa splitwise para autorizar merge del PR #X">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>10. Autorizar merge de rama</h3>
+            </div>
+            <p>Alternativa si no usaste PR.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise para autorizar merge de la rama feature/nombre-rama</code></pre>
+              <button class="copy" data-copy="usa splitwise para autorizar merge de la rama feature/nombre-rama">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <div class="command-title">
+              <h3>11. Actualizar roadmap tras cerrar fase</h3>
+            </div>
+            <p>Marca la fase como completada y deja clara la siguiente fase pendiente.</p>
+            <div class="code-row">
+              <pre><code>usa splitwise, actualiza roadmap con el cierre de esta fase</code></pre>
+              <button class="copy" data-copy="usa splitwise, actualiza roadmap con el cierre de esta fase">Copiar</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="rapidos">
+        <div class="section-head">
+          <h2>Comandos rapidos</h2>
+          <p>Version contextual para el flujo normal y version explicita para apuntar a otro PR, rama o contexto.</p>
+        </div>
+        <div class="content">
+          <article class="command-card">
+            <h3>Nueva fase</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise, lee el roadmap y dame el prompt para arrancar la siguiente fase</code></pre>
+              <button class="copy" data-copy="usa splitwise, lee el roadmap y dame el prompt para arrancar la siguiente fase">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Auditoria</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise, audita esto</code></pre>
+              <button class="copy" data-copy="usa splitwise, audita esto">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Planificacion</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise, planifica las proximas fases desde el roadmap</code></pre>
+              <button class="copy" data-copy="usa splitwise, planifica las proximas fases desde el roadmap">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Crear PR - contextual</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para crear PR de esta fase</code></pre>
+              <button class="copy" data-copy="usa splitwise para crear PR de esta fase">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Crear PR - rama explicita</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para crear PR de la rama feature/nombre-rama</code></pre>
+              <button class="copy" data-copy="usa splitwise para crear PR de la rama feature/nombre-rama">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Revisar PR - contextual</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para revisar el ultimo PR de esta fase</code></pre>
+              <button class="copy" data-copy="usa splitwise para revisar el ultimo PR de esta fase">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Revisar PR - numero explicito</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para revisar el PR #X</code></pre>
+              <button class="copy" data-copy="usa splitwise para revisar el PR #X">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Autorizar merge - contextual</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para autorizar merge de los ultimos cambios</code></pre>
+              <button class="copy" data-copy="usa splitwise para autorizar merge de los ultimos cambios">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Autorizar merge - PR explicito</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para autorizar merge del PR #X</code></pre>
+              <button class="copy" data-copy="usa splitwise para autorizar merge del PR #X">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Autorizar merge - rama explicita</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise para autorizar merge de la rama feature/nombre-rama</code></pre>
+              <button class="copy" data-copy="usa splitwise para autorizar merge de la rama feature/nombre-rama">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Revisar prompt</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise, revisa este prompt antes de implementarlo</code></pre>
+              <button class="copy" data-copy="usa splitwise, revisa este prompt antes de implementarlo">Copiar</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="correcciones">
+        <div class="section-head">
+          <h2>Si responde mal</h2>
+          <p>Prompts de rescate cuando la skill se desvia.</p>
+        </div>
+        <div class="content">
+          <article class="command-card">
+            <h3>No inventar fases</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise. No inventes fases nuevas. Lee Roadmap.md y responde solo con la proxima fase pendiente y el prompt para ejecutarla.</code></pre>
+              <button class="copy" data-copy="usa splitwise. No inventes fases nuevas. Lee Roadmap.md y responde solo con la proxima fase pendiente y el prompt para ejecutarla.">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Separar bug de mejora</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise. Separa el bug como hotfix corto y no mezcles mejoras de producto en la misma fase.</code></pre>
+              <button class="copy" data-copy="usa splitwise. Separa el bug como hotfix corto y no mezcles mejoras de producto en la misma fase.">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>No merge directo</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise. No hagas merge directo. Crea o revisa el PR correspondiente y devolveme el link para auditar antes de mergear.</code></pre>
+              <button class="copy" data-copy="usa splitwise. No hagas merge directo. Crea o revisa el PR correspondiente y devolveme el link para auditar antes de mergear.">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>No borrar ramas ajenas</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise. No borres ramas no relacionadas. Solo podes borrar la rama de esta fase despues de confirmar que el merge fue exitoso.</code></pre>
+              <button class="copy" data-copy="usa splitwise. No borres ramas no relacionadas. Solo podes borrar la rama de esta fase despues de confirmar que el merge fue exitoso.">Copiar</button>
+            </div>
+          </article>
+
+          <article class="command-card">
+            <h3>Inspeccionar repo real</h3>
+            <div class="code-row">
+              <pre><code>usa splitwise. No confies solo en el informe pegado. Revisa el estado real del repo, diff contra main, rutas, tests y archivos tocados.</code></pre>
+              <button class="copy" data-copy="usa splitwise. No confies solo en el informe pegado. Revisa el estado real del repo, diff contra main, rutas, tests y archivos tocados.">Copiar</button>
+            </div>
+          </article>
+
+          <div class="note warning">
+            Este HTML es local. Si agregas nuevos comandos a la skill, conviene actualizar tambien este manual.
+          </div>
+        </div>
+      </section>
+
+      <div class="footer">
+        Archivo local: <code>C:\xampp\htdocs\SplitWise\SplitWiseReviewerCommands.html</code>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    async function copyText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
+
+    document.querySelectorAll('button.copy').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const original = button.textContent;
+        try {
+          await copyText(button.dataset.copy);
+          button.textContent = 'Copiado';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.textContent = original;
+            button.classList.remove('copied');
+          }, 1400);
+        } catch (error) {
+          button.textContent = 'Error';
+          setTimeout(() => {
+            button.textContent = original;
+          }, 1400);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
