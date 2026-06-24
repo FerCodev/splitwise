@@ -58,6 +58,46 @@ class Admin extends BaseController
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_MOVEMENT_CARD
             ),
+            'selectedAlertSuccessVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_SUCCESS
+            ),
+            'selectedAlertErrorVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_ERROR
+            ),
+            'selectedAlertWarningVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_WARNING
+            ),
+            'selectedAlertInfoVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_INFO
+            ),
+            'selectedAlertDestructiveConfirmationVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_DESTRUCTIVE_CONFIRMATION
+            ),
+            'selectedAlertEmptyStateVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_EMPTY_STATE
+            ),
+            'selectedAlertSecuritySessionVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_SECURITY_SESSION
+            ),
+            'selectedAlertProcessExportVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_PROCESS_EXPORT
+            ),
+            'selectedAlertPaymentSuggestionVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_PAYMENT_SUGGESTION
+            ),
+            'selectedAlertGroupEventVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_SYSTEM_ALERTS,
+                UiComponentResolver::COMPONENT_ALERT_GROUP_EVENT
+            ),
         ]);
     }
 

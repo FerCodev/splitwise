@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Services\UiFeedbackResolver;
 
 class Perfil extends BaseController
 {
@@ -44,7 +45,7 @@ class Perfil extends BaseController
 
         $existing = $userModel->where('email', $email)->where('id !=', $userId)->first();
         if ($existing) {
-            return redirect()->back()->withInput()->with('error', 'Este email ya est&aacute; en uso por otro usuario.');
+            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('profile.update.failed', ['reason' => 'El email ya est&aacute; en uso.'], 'Este email ya est&aacute; en uso por otro usuario.'));
         }
 
         $userModel->update($userId, [
@@ -54,7 +55,7 @@ class Perfil extends BaseController
         session()->set('userName', $name);
         session()->set('userEmail', $email);
 
-        return redirect()->to('/perfil')->with('success', 'Perfil actualizado correctamente.');
+        return redirect()->to('/perfil')->with('success', UiFeedbackResolver::message('profile.update.completed', [], 'Perfil actualizado correctamente.'));
     }
 
     public function password()
@@ -84,7 +85,7 @@ class Perfil extends BaseController
 
         $currentPassword = $this->request->getPost('current_password');
         if (!password_verify($currentPassword, $user['password'])) {
-            return redirect()->back()->with('error', 'La contrase&ntilde;a actual no es correcta.');
+            return redirect()->back()->with('error', UiFeedbackResolver::message('profile.password.change.failed', ['reason' => 'La contrase&ntilde;a actual no es correcta.'], 'La contrase&ntilde;a actual no es correcta.'));
         }
 
         $newPassword = $this->request->getPost('new_password');
@@ -92,7 +93,7 @@ class Perfil extends BaseController
             'password' => password_hash($newPassword, PASSWORD_DEFAULT),
         ]);
 
-        return redirect()->to('/perfil')->with('success', 'Contrase&ntilde;a actualizada correctamente.');
+        return redirect()->to('/perfil')->with('success', UiFeedbackResolver::message('profile.password.change.completed', [], 'Contrase&ntilde;a actualizada correctamente.'));
     }
 
     private function currentUser(): ?array

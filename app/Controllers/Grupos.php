@@ -9,6 +9,7 @@ use App\Models\Categoria;
 use App\Models\GrupoMiembro;
 use App\Models\UserPaymentMethod;
 use App\Services\GroupPermission;
+use App\Services\UiFeedbackResolver;
 
 class Grupos extends BaseController
 {
@@ -115,7 +116,7 @@ class Grupos extends BaseController
             }
         }
 
-        return redirect()->to('/grupos')->with('success', 'Grupo creado correctamente.');
+        return redirect()->to('/grupos')->with('success', UiFeedbackResolver::message('groups.create.completed', ['group_name' => $nombre], 'Grupo creado correctamente.'));
     }
 
     public function show(int $id)
@@ -344,20 +345,32 @@ class Grupos extends BaseController
             $gastoModel = new Gasto();
             $deudas = $gastoModel->getDeudasByGrupo($id);
             if (!empty($deudas)) {
-                return redirect()->to("/grupos/$id/editar")->with('error', 'No se puede liquidar el grupo porque hay deudas pendientes.');
+                return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.liquidate.failed', [], 'No se puede liquidar el grupo porque hay deudas pendientes.'));
             }
         }
 
         $grupoModel = new Grupo();
         $grupoModel->update($id, ['estado' => $nuevoEstado]);
 
-        $mensajes = [
+        $actionKey = match ($nuevoEstado) {
+            'cerrado' => 'groups.close.completed',
+            'activo' => 'groups.reopen.completed',
+            'liquidado' => 'groups.liquidate.completed',
+            default => null,
+        };
+
+        $fallback = match ($nuevoEstado) {
             'cerrado' => 'Grupo cerrado correctamente.',
             'activo' => 'Grupo reabierto correctamente.',
             'liquidado' => 'Grupo liquidado correctamente.',
-        ];
+            default => 'Estado actualizado.',
+        };
 
-        return redirect()->to("/grupos/$id/editar")->with('success', $mensajes[$nuevoEstado] ?? 'Estado actualizado.');
+        if ($actionKey === null) {
+            return redirect()->to("/grupos/$id/editar")->with('success', $fallback);
+        }
+
+        return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message($actionKey, [], $fallback));
     }
 
     public function edit(int $id)
@@ -426,7 +439,7 @@ class Grupos extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
         ]);
 
-        return redirect()->to("/grupos/$id/editar")->with('success', 'Grupo actualizado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message('groups.update.completed', ['group_name' => $nombre], 'Grupo actualizado correctamente.'));
     }
 
     public function delete(int $id)
@@ -445,7 +458,7 @@ class Grupos extends BaseController
         $grupoModel = new Grupo();
         $grupoModel->delete($id);
 
-        return redirect()->to('/grupos')->with('success', 'Grupo eliminado correctamente.');
+        return redirect()->to('/grupos')->with('success', UiFeedbackResolver::message('groups.delete.completed', [], 'Grupo eliminado correctamente.'));
     }
 
     public function agregarMiembro(int $id)
@@ -464,22 +477,22 @@ class Grupos extends BaseController
         $userId = (int) $this->request->getPost('user_id');
 
         if ($userId <= 0) {
-            return redirect()->to("/grupos/$id/editar")->with('error', 'Usuario inválido.');
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.add.failed', ['reason' => 'Usuario inválido.'], 'Usuario inválido.'));
         }
 
         $userModel = new \App\Models\User();
         $user = $userModel->find($userId);
         if (!$user) {
-            return redirect()->to("/grupos/$id/editar")->with('error', 'Usuario no encontrado.');
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.add.failed', ['reason' => 'Usuario no encontrado.'], 'Usuario no encontrado.'));
         }
 
         if (($user['role'] ?? '') === 'admin') {
-            return redirect()->to("/grupos/$id/editar")->with('error', 'Los administradores globales no pueden ser miembros de grupos.');
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.add.failed', ['reason' => 'Los administradores globales no pueden ser miembros de grupos.'], 'Los administradores globales no pueden ser miembros de grupos.'));
         }
 
         $grupoModel = new Grupo();
         if ($grupoModel->isMiembro($id, $userId)) {
-            return redirect()->to("/grupos/$id/editar")->with('error', 'El usuario ya pertenece al grupo.');
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.add.failed', ['reason' => 'El usuario ya pertenece al grupo.'], 'El usuario ya pertenece al grupo.'));
         }
 
         $miembroModel = new GrupoMiembro();
@@ -489,7 +502,7 @@ class Grupos extends BaseController
             'rol' => 'member',
         ]);
 
-        return redirect()->to("/grupos/$id/editar")->with('success', 'Miembro agregado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message('groups.member.add.completed', [], 'Miembro agregado correctamente.'));
     }
 
     public function cambiarRol(int $id, int $userId)
@@ -542,13 +555,13 @@ class Grupos extends BaseController
         }
 
         if ($userId === session()->get('userId')) {
-            return redirect()->to("/grupos/$id/editar")->with('error', 'No podés eliminarte a vos mismo del grupo.');
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.remove.failed', ['reason' => 'No podés eliminarte a vos mismo del grupo.'], 'No podés eliminarte a vos mismo del grupo.'));
         }
 
         $grupoModel = new Grupo();
 
         if (!$grupoModel->isMiembro($id, $userId)) {
-            return redirect()->to("/grupos/$id/editar")->with('error', 'El usuario no pertenece al grupo.');
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.remove.failed', ['reason' => 'El usuario no pertenece al grupo.'], 'El usuario no pertenece al grupo.'));
         }
 
         $rol = $grupoModel->getUserRol($id, $userId);
@@ -557,7 +570,7 @@ class Grupos extends BaseController
 
         $error = Grupo::puedeQuitarMiembro($totalAdmins, $rol, $tieneMovimientos);
         if ($error) {
-            return redirect()->to("/grupos/$id/editar")->with('error', $error);
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.remove.failed', ['reason' => $error], $error));
         }
 
         $miembroModel = new GrupoMiembro();
@@ -565,6 +578,6 @@ class Grupos extends BaseController
             ->where('user_id', $userId)
             ->delete();
 
-        return redirect()->to("/grupos/$id/editar")->with('success', 'Miembro quitado correctamente.');
+        return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message('groups.member.remove.completed', [], 'Miembro quitado correctamente.'));
     }
 }

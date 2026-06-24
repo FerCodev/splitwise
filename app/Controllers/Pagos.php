@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Pago;
 use App\Models\Grupo;
 use App\Services\GroupPermission;
+use App\Services\UiFeedbackResolver;
 
 class Pagos extends BaseController
 {
@@ -182,10 +183,16 @@ class Pagos extends BaseController
             $miembros = $grupoModel->getMiembros((int) $grupoId);
         }
 
+        $prefillMonto = $this->request->getGet('monto');
+        if ($prefillMonto !== null && $prefillMonto !== '') {
+            $prefillMonto = number_format((float) $prefillMonto, 2, '.', '');
+        }
+
         $prefill = [
             'receptor_id' => $this->request->getGet('receptor_id'),
-            'monto' => $this->request->getGet('monto'),
+            'monto' => $prefillMonto,
             'fecha' => $this->request->getGet('fecha'),
+            'descripcion' => $this->request->getGet('descripcion'),
         ];
 
         return view('pagos/form', [
@@ -196,8 +203,39 @@ class Pagos extends BaseController
         ]);
     }
 
+    private function normalizarMonto(): void
+    {
+        $raw = $this->request->getPost('monto');
+        $visual = $this->request->getPost('monto_visual');
+
+        $candidato = $raw;
+        $deVisual = false;
+        if ($candidato === null || $candidato === '') {
+            $candidato = $visual;
+            $deVisual = true;
+        }
+        if ($candidato === null || $candidato === '') {
+            return;
+        }
+
+        $limpio = $candidato;
+
+        if (str_contains($limpio, ',')) {
+            $limpio = str_replace('.', '', $limpio);
+            $limpio = str_replace(',', '.', $limpio);
+        } elseif ($deVisual) {
+            $limpio = str_replace('.', '', $limpio);
+        }
+
+        if (is_numeric($limpio)) {
+            $this->request->setGlobal('post', array_merge($this->request->getPost() ?: [], ['monto' => $limpio]));
+        }
+    }
+
     public function create()
     {
+        $this->normalizarMonto();
+
         $rules = [
             'descripcion' => 'permit_empty|max_length[255]',
             'monto' => 'required|numeric|greater_than[0]',
@@ -245,15 +283,17 @@ class Pagos extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
         ]);
 
+        $successMessage = UiFeedbackResolver::message('payments.create.completed', [], 'Pago registrado correctamente.');
+
         if ($this->request->getPost('origen') === 'grupo_balance') {
-            return redirect()->to('/grupos/' . $grupoId)->with('success', 'Pago registrado correctamente.');
+            return redirect()->to('/grupos/' . $grupoId)->with('success', $successMessage);
         }
 
         if ($this->request->getPost('origen') === 'grupo_balance_detalle') {
-            return redirect()->to('/grupos/' . $grupoId . '/balance')->with('success', 'Pago registrado correctamente.');
+            return redirect()->to('/grupos/' . $grupoId . '/balance')->with('success', $successMessage);
         }
 
-        return redirect()->to('/pagos')->with('success', 'Pago registrado correctamente.');
+        return redirect()->to('/pagos')->with('success', $successMessage);
     }
 
     public function show(int $id)
@@ -325,6 +365,8 @@ class Pagos extends BaseController
 
     public function update(int $id)
     {
+        $this->normalizarMonto();
+
         $pagoModel = new Pago();
         $pagoExistente = $pagoModel->find($id);
 
@@ -388,7 +430,7 @@ class Pagos extends BaseController
             'descripcion' => $this->request->getPost('descripcion'),
         ]);
 
-        return redirect()->to('/pagos')->with('success', 'Pago actualizado correctamente.');
+        return redirect()->to('/pagos')->with('success', UiFeedbackResolver::message('payments.update.completed', [], 'Pago actualizado correctamente.'));
     }
 
     public function delete(int $id)
@@ -397,13 +439,13 @@ class Pagos extends BaseController
         $pago = $pagoModel->find($id);
 
         if (!$pago) {
-            return redirect()->to('/pagos')->with('error', 'Pago no encontrado.');
+            return redirect()->to('/pagos')->with('error', UiFeedbackResolver::message('payments.delete.failed', ['reason' => 'Pago no encontrado.'], 'Pago no encontrado.'));
         }
 
         $grupoModel = new Grupo();
         $grupo = $grupoModel->find($pago['grupo_id']);
         if (!$grupo || !$grupoModel->isMiembro($pago['grupo_id'], session()->get('userId'))) {
-            return redirect()->to('/pagos')->with('error', 'No tenés acceso a este pago.');
+            return redirect()->to('/pagos')->with('error', UiFeedbackResolver::message('payments.delete.failed', ['reason' => 'No tenés acceso a este pago.'], 'No tenés acceso a este pago.'));
         }
 
         $userId = session()->get('userId');
@@ -416,7 +458,7 @@ class Pagos extends BaseController
 
         $pagoModel->delete($id);
 
-        return redirect()->to('/pagos')->with('success', 'Pago eliminado correctamente.');
+        return redirect()->to('/pagos')->with('success', UiFeedbackResolver::message('payments.delete.completed', [], 'Pago eliminado correctamente.'));
     }
 
     private function verificarAccesoGrupo(int $grupoId): ?array

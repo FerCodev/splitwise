@@ -8,6 +8,7 @@ use App\Models\Grupo;
 use App\Models\GastoParticipante;
 use App\Models\Categoria;
 use App\Services\GroupPermission;
+use App\Services\UiFeedbackResolver;
 
 class Gastos extends BaseController
 {
@@ -312,7 +313,7 @@ class Gastos extends BaseController
             $reciboData = $this->procesarRecibo();
             if ($reciboData === false) {
                 $db->transRollback();
-                return redirect()->back()->withInput()->with('error', 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.');
+                return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.'], 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.'));
             }
 
             $gastoId = $gastoModel->insert([
@@ -363,10 +364,10 @@ class Gastos extends BaseController
             $db->transCommit();
         } catch (\Exception $e) {
             $db->transRollback();
-            return redirect()->back()->withInput()->with('error', 'Error al crear el gasto. Intentalo de nuevo.');
+            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gasto. Intentalo de nuevo.'], 'Error al crear el gasto. Intentalo de nuevo.'));
         }
 
-        return redirect()->to('/grupos/' . $grupoId)->with('success', 'Gasto creado correctamente.');
+        return redirect()->to('/grupos/' . $grupoId)->with('success', UiFeedbackResolver::message('expenses.create.completed', [], 'Gasto creado correctamente.'));
     }
 
     public function show(int $id)
@@ -532,7 +533,7 @@ class Gastos extends BaseController
 
         $reciboData = $this->procesarRecibo();
         if ($reciboData === false) {
-            return redirect()->back()->withInput()->with('error', 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.');
+            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.update.failed', ['reason' => 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.'], 'Error al procesar el recibo. Verific&aacute; el formato y tama&ntilde;o.'));
         }
 
         $divisionTipo = $this->request->getPost('division_tipo') ?: 'igualitario';
@@ -610,10 +611,10 @@ class Gastos extends BaseController
             $db->transCommit();
         } catch (\Exception $e) {
             $db->transRollback();
-            return redirect()->back()->withInput()->with('error', 'Error al actualizar el gasto. Intentalo de nuevo.');
+            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.update.failed', ['reason' => 'Error al actualizar el gasto. Intentalo de nuevo.'], 'Error al actualizar el gasto. Intentalo de nuevo.'));
         }
 
-        return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', 'Gasto actualizado correctamente.');
+        return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', UiFeedbackResolver::message('expenses.update.completed', [], 'Gasto actualizado correctamente.'));
     }
 
     public function delete(int $id)
@@ -622,13 +623,13 @@ class Gastos extends BaseController
         $gasto = $gastoModel->find($id);
 
         if (!$gasto) {
-            return redirect()->to('/gastos')->with('error', 'Gasto no encontrado.');
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.delete.failed', ['reason' => 'Gasto no encontrado.'], 'Gasto no encontrado.'));
         }
 
         $grupoModel = new Grupo();
         $grupo = $grupoModel->find($gasto['grupo_id']);
         if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], session()->get('userId'))) {
-            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.delete.failed', ['reason' => 'No tenés acceso a este gasto.'], 'No tenés acceso a este gasto.'));
         }
 
         $userId = session()->get('userId');
@@ -649,7 +650,7 @@ class Gastos extends BaseController
 
         $gastoModel->delete($id);
 
-        return redirect()->to('/gastos')->with('success', 'Gasto eliminado correctamente.');
+        return redirect()->to('/gastos')->with('success', UiFeedbackResolver::message('expenses.delete.completed', [], 'Gasto eliminado correctamente.'));
     }
 
     private function verificarAccesoGrupo(int $grupoId): ?array
@@ -688,6 +689,11 @@ class Gastos extends BaseController
             return false;
         }
 
+        $clientName = $file->getClientName();
+        $mimeType = $file->getMimeType();
+        $fileSize = $file->getSize();
+        $extension = $file->getExtension();
+
         $year = date('Y');
         $month = date('m');
         $dir = WRITEPATH . 'uploads/recibos/' . $year . '/' . $month;
@@ -695,7 +701,6 @@ class Gastos extends BaseController
             mkdir($dir, 0755, true);
         }
 
-        $extension = $file->getExtension();
         $safeName = bin2hex(random_bytes(16)) . '.' . $extension;
         $relativePath = 'uploads/recibos/' . $year . '/' . $month . '/' . $safeName;
 
@@ -703,9 +708,9 @@ class Gastos extends BaseController
 
         return [
             'recibo_path' => $relativePath,
-            'recibo_nombre' => $file->getClientName(),
-            'recibo_mime' => $file->getMimeType(),
-            'recibo_size' => $file->getSize(),
+            'recibo_nombre' => $clientName,
+            'recibo_mime' => $mimeType,
+            'recibo_size' => $fileSize,
         ];
     }
 
@@ -737,14 +742,14 @@ class Gastos extends BaseController
         $gastoModel = new Gasto();
         $gasto = $gastoModel->find($id);
         if (!$gasto) {
-            return redirect()->to('/gastos')->with('error', 'Gasto no encontrado.');
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'Gasto no encontrado.'], 'Gasto no encontrado.'));
         }
 
         $userId = session()->get('userId');
         $grupoModel = new Grupo();
         $grupo = $grupoModel->find($gasto['grupo_id']);
         if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
-            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'No tenés acceso a este gasto.'], 'No tenés acceso a este gasto.'));
         }
 
         $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
@@ -767,7 +772,7 @@ class Gastos extends BaseController
             'recibo_size' => null,
         ]);
 
-        return redirect()->back()->with('success', 'Recibo eliminado correctamente.');
+        return redirect()->back()->with('success', UiFeedbackResolver::message('expenses.receipt.delete.completed', [], 'Recibo eliminado correctamente.'));
     }
 
     private function validarDivision(string $divisionTipo, float $monto, array $participantesIds, array $divisionValores, array $miembrosIds): ?array
