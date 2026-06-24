@@ -8,7 +8,5 @@ return [
     'selected' => $selectedPaymentsTotalVariant,
     'variants' => [
         ['key' => 'simple', 'name' => 'KPI simple', 'hint' => 'Monto protagonista.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'simple', 'titulo' => 'Total filtrado', 'monto' => 45000, 'detalle' => 'Suma de pagos filtrados', 'color' => 'text-success'])],
-        ['key' => 'detail', 'name' => 'Balance detallado', 'hint' => 'Cuatro datos en grilla.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'detail', 'titulo' => 'Total filtrado', 'monto' => 45000, 'detalle' => 'Suma de pagos filtrados', 'color' => 'text-success', 'secundarios' => [['label' => 'Registros', 'value' => '3'], ['label' => 'Periodo', 'value' => 'Junio'], ['label' => 'Filtro', 'value' => 'Activo']]])],
-        ['key' => 'compare', 'name' => 'Comparativo', 'hint' => 'Dos bloques de lectura.', 'render' => static fn () => view('components/cards/resumen', ['variant' => 'compare', 'titulo' => 'Total filtrado', 'monto' => 45000, 'detalle' => 'Filtro aplicado', 'color' => 'text-success'])],
     ],
 ];

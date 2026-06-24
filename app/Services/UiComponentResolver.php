@@ -23,8 +23,6 @@ class UiComponentResolver
         ],
         self::COMPONENT_FILTERED_TOTAL_CARD => [
             'simple' => 'KPI simple',
-            'detail' => 'Balance detallado',
-            'compare' => 'Comparativo',
         ],
         self::COMPONENT_PAYMENT_METHOD_CARD => [
             'bank_card' => 'Credencial actual',
@@ -35,9 +33,7 @@ class UiComponentResolver
             'semicircle' => 'Actual',
             'compact_dial' => 'Dial compacto',
             'scale_bar' => 'Barra de escala',
-            'segmented_arc' => 'Arco por tramos',
             'segmented_donut' => 'Dona segmentada',
-            'clean_arc' => 'Medialuna limpia',
         ],
         self::COMPONENT_GROUP_MOVEMENT_CARD => [
             'feed' => 'Feed',
@@ -172,15 +168,11 @@ class UiComponentResolver
         self::SCREEN_EXPENSES_INDEX => [
             self::COMPONENT_FILTERED_TOTAL_CARD => [
                 'simple',
-                'detail',
-                'compare',
             ],
         ],
         self::SCREEN_PAYMENTS_INDEX => [
             self::COMPONENT_FILTERED_TOTAL_CARD => [
                 'simple',
-                'detail',
-                'compare',
             ],
         ],
         self::SCREEN_PAYMENT_METHODS => [
@@ -195,9 +187,7 @@ class UiComponentResolver
                 'semicircle',
                 'compact_dial',
                 'scale_bar',
-                'segmented_arc',
                 'segmented_donut',
-                'clean_arc',
             ],
             self::COMPONENT_GROUP_MOVEMENT_CARD => [
                 'feed',
