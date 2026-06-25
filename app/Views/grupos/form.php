@@ -189,11 +189,14 @@
                                                 </form>
                                                 <?php endif; ?>
                                                 <?php if ($permisos['puede_quitar_miembro'] ?? false): ?>
-                                                <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id']) ?>" method="post" class="d-inline" id="quitar-miembro-<?= $m['user_id'] ?>">
-                                                    <?= csrf_field() ?>
-                                                    <input type="hidden" name="_method" value="DELETE">
-                                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmModal" data-confirm-title="Quitar miembro" data-confirm-msg="Se quitará este usuario del grupo." data-confirm-btn="Quitar miembro" data-confirm-form="quitar-miembro-<?= $m['user_id'] ?>">Quitar</button>
-                                                </form>
+                                                <?= view('components/forms/delete_form', [
+                                                    'action' => base_url('grupos/' . $grupo['id'] . '/miembros/' . $m['user_id']),
+                                                    'formId' => 'quitar-miembro-' . $m['user_id'],
+                                                    'buttonClass' => 'btn btn-danger btn-sm',
+                                                    'confirmTitle' => 'Quitar miembro',
+                                                    'confirmMsg' => 'Se quitará este usuario del grupo.',
+                                                    'confirmBtn' => 'Quitar miembro',
+                                                ]) ?>
                                                 <?php endif; ?>
                                             </div>
                                         <?php else: ?>
