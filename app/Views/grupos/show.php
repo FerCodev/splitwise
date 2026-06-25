@@ -3,12 +3,7 @@
 
     <div class="container mt-3 mt-md-4">
 
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
 
         <?php
             $miBalance = current(array_filter($balance, fn($b) => $b['user_id'] == session()->get('userId')));

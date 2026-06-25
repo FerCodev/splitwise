@@ -3,13 +3,7 @@
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Mi perfil</h2>
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
-
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
 
         <div class="card mb-4">
             <div class="card-body">

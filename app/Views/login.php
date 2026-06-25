@@ -15,9 +15,7 @@
                     <div class="card-body p-4">
                         <h3 class="text-center mb-4">SplitWise</h3>
 
-                        <?php if (session()->getFlashdata('error')): ?>
-                            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-                        <?php endif; ?>
+                        <?= view('partials/_feedback') ?>
 
                         <form action="<?= base_url('login') ?>" method="post">
                             <?= csrf_field() ?>

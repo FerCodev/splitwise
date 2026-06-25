@@ -7,13 +7,7 @@
             <a href="<?= base_url('grupos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
         </div>
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
-
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
 
         <?php if (empty($grupos)): ?>
             <div class="card border-0 shadow-sm">
