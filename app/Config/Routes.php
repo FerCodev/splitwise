@@ -75,6 +75,12 @@ $routes->put('/mis-medios-de-cobro/(:num)', 'MediosCobro::update/$1', ['filter' 
 $routes->post('/mis-medios-de-cobro/(:num)/toggle', 'MediosCobro::toggle/$1', ['filter' => 'auth']);
 $routes->post('/mis-medios-de-cobro/(:num)/favorito', 'MediosCobro::favorito/$1', ['filter' => 'auth']);
 $routes->delete('/mis-medios-de-cobro/(:num)', 'MediosCobro::delete/$1', ['filter' => 'auth']);
+
+$routes->get('/doc', 'Documentacion::index');
+$routes->get('/doc/(:any)', 'Documentacion::index/$1');
+// Alias /documentacion -> /doc (si mod_dir no interfiere)
+$routes->get('/documentacion', 'Documentacion::index');
+$routes->get('/documentacion/(:any)', 'Documentacion::index/$1');
 $routes->get('/admin/catalogo-tarjetas', 'Admin::catalogoTarjetas', ['filter' => ['auth', 'admin']]);
 $routes->get('/admin/catalogo-tarjetas/(:segment)', 'Admin::catalogoTarjetas/$1', ['filter' => ['auth', 'admin']]);
 $routes->post('/admin/catalogo-tarjetas/componente', 'Admin::guardarComponente', ['filter' => ['auth', 'admin']]);
