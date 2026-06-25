@@ -42,9 +42,16 @@
         .doc-main ul { margin-bottom: 1rem; padding-left: 1.25rem; }
         .doc-main li { margin-bottom: .35rem; }
         .doc-main code { background: #f0f0f0; padding: .1rem .35rem; border-radius: 3px; font-size: .85em; }
-        .doc-main pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; margin-bottom: 1rem; }
-        .doc-main pre code { background: transparent; padding: 0; color: inherit; }
+        .doc-main pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; margin-bottom: 1rem; line-height: 1.5; }
+        .doc-main pre code { background: transparent; padding: 0; color: #d4d4d4; }
         .doc-main strong { font-weight: 700; }
+        .doc-main hr { margin: 2rem 0; border: 0; border-top: 1px solid #dee2e6; }
+        .doc-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+        .doc-main table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        .doc-main th, .doc-main td { border: 1px solid #dee2e6; padding: .5rem .75rem; text-align: left; vertical-align: top; }
+        .doc-main th { background: #f8f9fa; font-weight: 600; }
+        .doc-main td code { font-size: .8rem; white-space: nowrap; }
+        .doc-main code { background: #e8e8e8; padding: .15rem .4rem; border-radius: 3px; font-size: .82em; color: #212529; }
 
         .cmd-list { display: flex; flex-direction: column; gap: 1rem; }
         .cmd-card {
@@ -74,7 +81,7 @@
             color: #212529;
             white-space: pre-wrap;
         }
-        .cmd-card-actions { display: flex; gap: .5rem; }
+        .cmd-source { display: none; }
         .cmd-card-btn {
             background: var(--bs-primary);
             color: #fff;
@@ -97,10 +104,12 @@
 <div class="doc-layout">
     <aside class="doc-sidebar">
         <div class="doc-sidebar-brand"><a href="<?= base_url('doc/inicio') ?>">SplitWise</a></div>
-        <div class="doc-sidebar-section">Documentos</div>
-        <?php foreach ($docs as $slug => $title): ?>
-            <a class="doc-sidebar-link <?= $slug === $currentSlug ? 'active' : '' ?>"
-               href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $title ?></a>
+        <?php foreach ($sections as $sectionName => $slugs): ?>
+            <div class="doc-sidebar-section"><?= $sectionName ?></div>
+            <?php foreach ($slugs as $slug): ?>
+                <a class="doc-sidebar-link <?= $slug === $currentSlug ? 'active' : '' ?>"
+                   href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $docs[$slug] ?? $slug ?></a>
+            <?php endforeach; ?>
         <?php endforeach; ?>
     </aside>
     <main class="doc-main">
@@ -109,12 +118,14 @@
             <p>Esta es la documentaci&oacute;n interna del proyecto SplitWise.</p>
             <p>Us&aacute; el men&uacute; lateral para navegar entre los documentos disponibles.</p>
             <h2>Documentos disponibles</h2>
-            <ul>
-                <?php foreach ($docs as $slug => $title): ?>
-                    <?php if ($slug === 'inicio') continue; ?>
-                    <li><a href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $title ?></a></li>
-                <?php endforeach; ?>
-            </ul>
+            <?php foreach ($sections as $sectionName => $slugs): ?>
+                <h3><?= $sectionName ?></h3>
+                <ul>
+                    <?php foreach ($slugs as $slug): ?>
+                        <li><a href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $docs[$slug] ?? $slug ?></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endforeach; ?>
         <?php elseif ($isCommands): ?>
             <?php if ($contentHtml !== null && $contentHtml !== ''): ?>
                 <div class="d-flex justify-content-end mb-3">
@@ -130,43 +141,38 @@
     </main>
 </div>
 <script>
-function copiarComando(btn) {
-    var code = btn.parentElement.parentElement.querySelector('.cmd-card-code code');
-    if (!code) code = btn.parentElement.querySelector('.cmd-card-code code');
-    if (!code) return;
-    var texto = code.textContent || code.innerText;
-    ejecutarCopia(texto, btn);
+function copiarComando(id, btn) {
+    var src = document.getElementById(id);
+    if (!src) return;
+    copiarTexto(src.value, btn);
 }
 function copiarTodos() {
-    var items = document.querySelectorAll('.cmd-card');
+    var srcs = document.querySelectorAll('.cmd-source');
     var textos = [];
-    items.forEach(function(card) {
-        var code = card.querySelector('.cmd-card-code code');
-        if (code) textos.push(code.textContent || code.innerText);
-    });
-    var texto = textos.join('\n');
-    var primerBtn = items.length > 0 ? items[0].querySelector('.cmd-card-btn') : null;
-    ejecutarCopia(texto, primerBtn, 'Todos copiados');
+    srcs.forEach(function(s) { textos.push(s.value); });
+    var texto = textos.join('\n\n');
+    var btn = document.querySelector('.btn-outline-primary');
+    ejecutarCopia(texto, btn, 'Todos copiados');
 }
-function ejecutarCopia(texto, btn, msg) {
+function copiarTexto(texto, btn) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(texto).then(function() {
-            if (btn) feedbackCopiado(btn, msg);
+            if (btn) feedbackCopiado(btn);
         }).catch(function() {
-            copiarFallback(texto, btn, msg);
+            copiarFallback(texto, btn);
         });
     } else {
-        copiarFallback(texto, btn, msg);
+        copiarFallback(texto, btn);
     }
 }
-function copiarFallback(texto, btn, msg) {
+function copiarFallback(texto, btn) {
     var ta = document.createElement('textarea');
     ta.value = texto;
     ta.style.position = 'fixed';
     ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); if (btn) feedbackCopiado(btn, msg); } catch(e) {}
+    try { document.execCommand('copy'); if (btn) feedbackCopiado(btn); } catch(e) {}
     document.body.removeChild(ta);
 }
 function feedbackCopiado(btn, msg) {
