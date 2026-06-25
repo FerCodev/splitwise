@@ -13,13 +13,7 @@
             <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
         </div>
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
-
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
         <div class="mb-3">
             <?= view('components/cards/resumen', [
                 'variant' => $summaryVariant,

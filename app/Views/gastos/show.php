@@ -3,9 +3,7 @@
 
     <div class="container mt-3 mt-md-4">
 
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
 
         <!-- Header -->
         <div class="card border-0 shadow-sm mb-4">

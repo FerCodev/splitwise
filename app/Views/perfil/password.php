@@ -3,9 +3,7 @@
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Cambiar contrase&ntilde;a</h2>
 
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
 
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
