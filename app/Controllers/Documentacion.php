@@ -94,7 +94,7 @@ class Documentacion extends BaseController
         $inCode = false;
         $codeContent = '';
         $sectionTitle = '';
-        $sectionDescription = '';
+        $cmdIndex = 0;
 
         foreach ($lines as $line) {
             $trimmed = trim($line);
@@ -103,17 +103,18 @@ class Documentacion extends BaseController
                 if ($inCode) {
                     $codeContent = trim($codeContent);
                     if ($codeContent !== '') {
+                        $cmdId = 'cmd-src-' . $cmdIndex++;
                         $html .= '<div class="cmd-card">';
                         if ($sectionTitle !== '') {
                             $html .= '<div class="cmd-card-title">' . htmlspecialchars($sectionTitle) . '</div>';
                         }
-                        $html .= '<div class="cmd-card-code"><code>' . htmlspecialchars($codeContent) . '</code></div>';
-                        $html .= '<button class="cmd-card-btn" onclick="copiarComando(this)">Copiar</button>';
+                        $html .= '<div class="cmd-card-code"><code>' . nl2br(htmlspecialchars($codeContent, ENT_QUOTES | ENT_HTML5, 'UTF-8')) . '</code></div>';
+                        $html .= '<textarea class="cmd-source" id="' . $cmdId . '">' . htmlspecialchars($codeContent, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</textarea>';
+                        $html .= '<button class="cmd-card-btn" onclick="copiarComando(\'' . $cmdId . '\', this)">Copiar</button>';
                         $html .= '</div>';
                     }
                     $codeContent = '';
                     $sectionTitle = '';
-                    $sectionDescription = '';
                     $inCode = false;
                 } else {
                     $inCode = true;
@@ -140,12 +141,14 @@ class Documentacion extends BaseController
 
         if ($inCode && trim($codeContent) !== '') {
             $codeContent = trim($codeContent);
+            $cmdId = 'cmd-src-' . $cmdIndex++;
             $html .= '<div class="cmd-card">';
             if ($sectionTitle !== '') {
                 $html .= '<div class="cmd-card-title">' . htmlspecialchars($sectionTitle) . '</div>';
             }
-            $html .= '<div class="cmd-card-code"><code>' . htmlspecialchars($codeContent) . '</code></div>';
-            $html .= '<button class="cmd-card-btn" onclick="copiarComando(this)">Copiar</button>';
+            $html .= '<div class="cmd-card-code"><code>' . nl2br(htmlspecialchars($codeContent, ENT_QUOTES | ENT_HTML5, 'UTF-8')) . '</code></div>';
+            $html .= '<textarea class="cmd-source" id="' . $cmdId . '">' . htmlspecialchars($codeContent, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</textarea>';
+            $html .= '<button class="cmd-card-btn" onclick="copiarComando(\'' . $cmdId . '\', this)">Copiar</button>';
             $html .= '</div>';
         }
 

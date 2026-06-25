@@ -81,7 +81,7 @@
             color: #212529;
             white-space: pre-wrap;
         }
-        .cmd-card-actions { display: flex; gap: .5rem; }
+        .cmd-source { display: none; }
         .cmd-card-btn {
             background: var(--bs-primary);
             color: #fff;
@@ -141,43 +141,38 @@
     </main>
 </div>
 <script>
-function copiarComando(btn) {
-    var code = btn.parentElement.parentElement.querySelector('.cmd-card-code code');
-    if (!code) code = btn.parentElement.querySelector('.cmd-card-code code');
-    if (!code) return;
-    var texto = code.textContent || code.innerText;
-    ejecutarCopia(texto, btn);
+function copiarComando(id, btn) {
+    var src = document.getElementById(id);
+    if (!src) return;
+    copiarTexto(src.value, btn);
 }
 function copiarTodos() {
-    var items = document.querySelectorAll('.cmd-card');
+    var srcs = document.querySelectorAll('.cmd-source');
     var textos = [];
-    items.forEach(function(card) {
-        var code = card.querySelector('.cmd-card-code code');
-        if (code) textos.push(code.textContent || code.innerText);
-    });
-    var texto = textos.join('\n');
-    var primerBtn = items.length > 0 ? items[0].querySelector('.cmd-card-btn') : null;
-    ejecutarCopia(texto, primerBtn, 'Todos copiados');
+    srcs.forEach(function(s) { textos.push(s.value); });
+    var texto = textos.join('\n\n');
+    var btn = document.querySelector('.btn-outline-primary');
+    ejecutarCopia(texto, btn, 'Todos copiados');
 }
-function ejecutarCopia(texto, btn, msg) {
+function copiarTexto(texto, btn) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(texto).then(function() {
-            if (btn) feedbackCopiado(btn, msg);
+            if (btn) feedbackCopiado(btn);
         }).catch(function() {
-            copiarFallback(texto, btn, msg);
+            copiarFallback(texto, btn);
         });
     } else {
-        copiarFallback(texto, btn, msg);
+        copiarFallback(texto, btn);
     }
 }
-function copiarFallback(texto, btn, msg) {
+function copiarFallback(texto, btn) {
     var ta = document.createElement('textarea');
     ta.value = texto;
     ta.style.position = 'fixed';
     ta.style.opacity = '0';
     document.body.appendChild(ta);
     ta.select();
-    try { document.execCommand('copy'); if (btn) feedbackCopiado(btn, msg); } catch(e) {}
+    try { document.execCommand('copy'); if (btn) feedbackCopiado(btn); } catch(e) {}
     document.body.removeChild(ta);
 }
 function feedbackCopiado(btn, msg) {
