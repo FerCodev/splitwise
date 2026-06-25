@@ -14,7 +14,7 @@
                         <p class="text-muted small mb-0">Pag&oacute; <?= esc($gasto['pagador_nombre']) ?></p>
                     </div>
                     <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#accionesGastoModal">Acciones</button>
+                    <button type="button" class="btn btn-light border btn-sm" data-bs-toggle="modal" data-bs-target="#accionesGastoModal">&#8942; Acciones</button>
                     <?php endif; ?>
                 </div>
                 <h5 class="fw-bold mb-1"><?= esc($gasto['descripcion']) ?></h5>
@@ -154,8 +154,8 @@
 
 <?= view('partials/_confirm_modal') ?>
 
-<div class="modal fade" id="accionesGastoModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
+<div class="modal fade expense-actions-modal" id="accionesGastoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h6 class="modal-title">Acciones del gasto</h6>

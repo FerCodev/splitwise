@@ -930,6 +930,16 @@ body {
     background: #fff;
     box-shadow: 0 1px 4px rgba(16, 24, 40, 0.07);
 }
+.expense-actions-modal .modal-dialog {
+    max-width: 360px;
+}
+@media (max-width: 480px) {
+    .expense-actions-modal .modal-dialog {
+        width: calc(100% - 32px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
 .report-movement-list {
     display: grid;
     gap: 12px;
