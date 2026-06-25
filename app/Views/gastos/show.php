@@ -14,27 +14,20 @@
                         <p class="text-muted small mb-0">Pag&oacute; <?= esc($gasto['pagador_nombre']) ?></p>
                     </div>
                     <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Opciones">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3"/></svg>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <?php if ($permisos['puede_editar_gasto']): ?>
-                                <li><a class="dropdown-item" href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>">Editar</a></li>
-                            <?php endif; ?>
-                            <?php if ($permisos['puede_eliminar_gasto']): ?>
-                                <li>
-                                    <?= view('components/forms/delete_form', [
-                                        'action' => base_url('gastos/' . $gasto['id']),
-                                        'formId' => 'delete-gasto-' . $gasto['id'],
-                                        'buttonClass' => 'dropdown-item text-danger',
-                                        'confirmTitle' => 'Eliminar gasto',
-                                        'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
-                                        'confirmBtn' => 'Eliminar gasto',
-                                    ]) ?>
-                                </li>
-                            <?php endif; ?>
-                        </ul>
+                    <div class="d-flex gap-2">
+                        <?php if ($permisos['puede_editar_gasto']): ?>
+                            <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
+                        <?php endif; ?>
+                        <?php if ($permisos['puede_eliminar_gasto']): ?>
+                            <?= view('components/forms/delete_form', [
+                                'action' => base_url('gastos/' . $gasto['id']),
+                                'formId' => 'delete-gasto-' . $gasto['id'],
+                                'buttonClass' => 'btn btn-outline-danger btn-sm',
+                                'confirmTitle' => 'Eliminar gasto',
+                                'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
+                                'confirmBtn' => 'Eliminar gasto',
+                            ]) ?>
+                        <?php endif; ?>
                     </div>
                     <?php endif; ?>
                 </div>
@@ -46,24 +39,7 @@
                     <span>&middot;</span>
                     <span class="badge bg-light text-dark"><?= esc($gasto['categoria_nombre'] ?? 'Otros') ?></span>
                 </p>
-                <!-- Desktop actions -->
-                <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
-                <div class="d-none d-md-flex gap-2 mt-3">
-                    <?php if ($permisos['puede_editar_gasto']): ?>
-                        <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
-                    <?php endif; ?>
-                    <?php if ($permisos['puede_eliminar_gasto']): ?>
-                        <?= view('components/forms/delete_form', [
-                            'action' => base_url('gastos/' . $gasto['id']),
-                            'formId' => 'delete-gasto-d-' . $gasto['id'],
-                            'buttonClass' => 'btn btn-danger btn-sm',
-                            'confirmTitle' => 'Eliminar gasto',
-                            'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
-                            'confirmBtn' => 'Eliminar gasto',
-                        ]) ?>
-                    <?php endif; ?>
-                </div>
-                <?php endif; ?>
+
             </div>
         </div>
 
