@@ -24,16 +24,14 @@
                             <?php endif; ?>
                             <?php if ($permisos['puede_eliminar_gasto']): ?>
                                 <li>
-                                    <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" id="delete-gasto-<?= $gasto['id'] ?>">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="dropdown-item text-danger"
-                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                            data-confirm-title="Eliminar gasto"
-                                            data-confirm-msg="Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer."
-                                            data-confirm-btn="Eliminar gasto"
-                                            data-confirm-form="delete-gasto-<?= $gasto['id'] ?>">Eliminar</button>
-                                    </form>
+                                    <?= view('components/forms/delete_form', [
+                                        'action' => base_url('gastos/' . $gasto['id']),
+                                        'formId' => 'delete-gasto-' . $gasto['id'],
+                                        'buttonClass' => 'dropdown-item text-danger',
+                                        'confirmTitle' => 'Eliminar gasto',
+                                        'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
+                                        'confirmBtn' => 'Eliminar gasto',
+                                    ]) ?>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -55,16 +53,14 @@
                         <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_gasto']): ?>
-                        <form action="<?= base_url('gastos/' . $gasto['id']) ?>" method="post" id="delete-gasto-d-<?= $gasto['id'] ?>">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-danger btn-sm"
-                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                data-confirm-title="Eliminar gasto"
-                                data-confirm-msg="Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer."
-                                data-confirm-btn="Eliminar gasto"
-                                data-confirm-form="delete-gasto-d-<?= $gasto['id'] ?>">Eliminar</button>
-                        </form>
+                        <?= view('components/forms/delete_form', [
+                            'action' => base_url('gastos/' . $gasto['id']),
+                            'formId' => 'delete-gasto-d-' . $gasto['id'],
+                            'buttonClass' => 'btn btn-danger btn-sm',
+                            'confirmTitle' => 'Eliminar gasto',
+                            'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
+                            'confirmBtn' => 'Eliminar gasto',
+                        ]) ?>
                     <?php endif; ?>
                 </div>
                 <?php endif; ?>

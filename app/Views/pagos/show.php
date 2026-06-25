@@ -26,16 +26,14 @@
                             <?php endif; ?>
                             <?php if ($permisos['puede_eliminar_pago']): ?>
                                 <li>
-                                    <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" id="delete-pago-<?= $pago['id'] ?>">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button type="button" class="dropdown-item text-danger"
-                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                            data-confirm-title="Eliminar pago"
-                                            data-confirm-msg="Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer."
-                                            data-confirm-btn="Eliminar pago"
-                                            data-confirm-form="delete-pago-<?= $pago['id'] ?>">Eliminar</button>
-                                    </form>
+                                    <?= view('components/forms/delete_form', [
+                                        'action' => base_url('pagos/' . $pago['id']),
+                                        'formId' => 'delete-pago-' . $pago['id'],
+                                        'buttonClass' => 'dropdown-item text-danger',
+                                        'confirmTitle' => 'Eliminar pago',
+                                        'confirmMsg' => 'Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer.',
+                                        'confirmBtn' => 'Eliminar pago',
+                                    ]) ?>
                                 </li>
                             <?php endif; ?>
                         </ul>
@@ -55,16 +53,14 @@
                         <a href="<?= base_url('pagos/' . $pago['id'] . '/editar') ?>" class="btn btn-primary btn-sm">Editar</a>
                     <?php endif; ?>
                     <?php if ($permisos['puede_eliminar_pago']): ?>
-                        <form action="<?= base_url('pagos/' . $pago['id']) ?>" method="post" id="delete-pago-d-<?= $pago['id'] ?>">
-                            <?= csrf_field() ?>
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="button" class="btn btn-danger btn-sm"
-                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                data-confirm-title="Eliminar pago"
-                                data-confirm-msg="Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer."
-                                data-confirm-btn="Eliminar pago"
-                                data-confirm-form="delete-pago-d-<?= $pago['id'] ?>">Eliminar</button>
-                        </form>
+                        <?= view('components/forms/delete_form', [
+                            'action' => base_url('pagos/' . $pago['id']),
+                            'formId' => 'delete-pago-d-' . $pago['id'],
+                            'buttonClass' => 'btn btn-danger btn-sm',
+                            'confirmTitle' => 'Eliminar pago',
+                            'confirmMsg' => 'Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer.',
+                            'confirmBtn' => 'Eliminar pago',
+                        ]) ?>
                     <?php endif; ?>
                 </div>
                 <?php endif; ?>
