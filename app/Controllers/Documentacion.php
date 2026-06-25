@@ -158,58 +158,147 @@ class Documentacion extends BaseController
 
     private function markdownToHtml(string $md): string
     {
-        $html = $md;
-        $html = htmlspecialchars($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $html = preg_replace('/^### (.+)$/m', '<h3>$1</h3>', $html);
-        $html = preg_replace('/^## (.+)$/m', '<h2>$1</h2>', $html);
-        $html = preg_replace('/^# (.+)$/m', '<h1>$1</h1>', $html);
-        $html = preg_replace('/^- (.+)$/m', '<li>$1</li>', $html);
-        $html = preg_replace('/((?:<li>.*?<\/li>\n?)+)/s', '<ul>$1</ul>', $html);
-        $html = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $html);
-        $html = preg_replace('/`([^`]+)`/', '<code>$1</code>', $html);
+        $html = $this->escapeAndRender($md);
+        return $html;
+    }
 
-        $lines = explode("\n", $html);
-        $result = [];
+    private function escapeAndRender(string $md): string
+    {
+        $lines = explode("\n", $md);
+        $out = [];
         $inCode = false;
-        $codeBuffer = [];
+        $codeLines = [];
+        $i = 0;
 
-        foreach ($lines as $line) {
-            if (preg_match('/^<h[1-3]|<li|<ul/', $line)) {
-                if ($inCode) {
-                    $result[] = '<pre><code>' . implode("\n", $codeBuffer) . '</code></pre>';
-                    $codeBuffer = [];
-                    $inCode = false;
-                }
-                $result[] = $line;
-                continue;
-            }
-
+        while ($i < count($lines)) {
+            $line = $lines[$i];
             $trimmed = trim($line);
 
-            if ($trimmed === '') {
+            if (preg_match('/^```/', $trimmed)) {
                 if ($inCode) {
-                    $codeBuffer[] = '';
-                } else {
-                    $result[] = '';
+                    $escaped = htmlspecialchars(implode("\n", $codeLines), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $out[] = '<pre><code>' . $escaped . '</code></pre>';
+                    $codeLines = [];
+                    $inCode = false;
+                    $i++;
+                    continue;
                 }
+                $inCode = true;
+                $codeLines = [];
+                $i++;
                 continue;
             }
 
             if ($inCode) {
-                $codeBuffer[] = $line;
+                $codeLines[] = $line;
+                $i++;
                 continue;
             }
 
-            $result[] = '<p>' . $line . '</p>';
+            if ($trimmed === '') {
+                $out[] = '';
+                $i++;
+                continue;
+            }
+
+            if (preg_match('/^#{1,3}\s/', $trimmed)) {
+                $escaped = htmlspecialchars($line, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $escaped = preg_replace('/^### (.+)$/', '<h3>$1</h3>', $escaped);
+                $escaped = preg_replace('/^## (.+)$/', '<h2>$1</h2>', $escaped);
+                $escaped = preg_replace('/^# (.+)$/', '<h1>$1</h1>', $escaped);
+                $out[] = $escaped;
+                $i++;
+                continue;
+            }
+
+            if ($trimmed === '---') {
+                $out[] = '<hr>';
+                $i++;
+                continue;
+            }
+
+            if (str_starts_with($trimmed, '|')) {
+                $tableRows = [];
+                while ($i < count($lines) && str_starts_with(trim($lines[$i]), '|')) {
+                    $tableRows[] = trim($lines[$i]);
+                    $i++;
+                }
+                $out[] = $this->renderTable($tableRows);
+                continue;
+            }
+
+            $escaped = htmlspecialchars($line, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $escaped = preg_replace('/^- (.+)$/', '<li>$1</li>', $escaped);
+            $escaped = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $escaped);
+            $escaped = preg_replace('/`([^`]+)`/', '<code>$1</code>', $escaped);
+
+            $out[] = '<p>' . $escaped . '</p>';
+            $i++;
         }
 
-        if ($inCode && !empty($codeBuffer)) {
-            $result[] = '<pre><code>' . implode("\n", $codeBuffer) . '</code></pre>';
+        if ($inCode && !empty($codeLines)) {
+            $escaped = htmlspecialchars(implode("\n", $codeLines), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $out[] = '<pre><code>' . $escaped . '</code></pre>';
         }
 
-        $html = implode("\n", $result);
+        $html = implode("\n", $out);
         $html = preg_replace('/<li><\/li>\n?/', '', $html);
+        $html = preg_replace('/((?:<li>.*?<\/li>\n?)+)/s', '<ul>$1</ul>', $html);
         return $html;
+    }
+
+    private function renderTable(array $rows): string
+    {
+        if (count($rows) < 2) {
+            return '<p>' . htmlspecialchars(implode("\n", $rows), ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</p>';
+        }
+
+        $html = '<div class="doc-table-wrap"><table>';
+
+        $headerCells = $this->parseTableRow($rows[0]);
+        $isSeparator = preg_match('/^[\s|:-]+$/', trim(str_replace('|', '', $rows[1])));
+
+        if ($isSeparator) {
+            $html .= '<thead><tr>';
+            foreach ($headerCells as $cell) {
+                $html .= '<th>' . htmlspecialchars(trim($cell), ENT_QUOTES | ENT_HTML5, 'UTF-8') . '</th>';
+            }
+            $html .= '</tr></thead><tbody>';
+            for ($i = 2; $i < count($rows); $i++) {
+                $cells = $this->parseTableRow($rows[$i]);
+                $html .= '<tr>';
+                foreach ($cells as $cell) {
+                    $v = htmlspecialchars(trim($cell), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $v = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $v);
+                    $v = preg_replace('/`([^`]+)`/', '<code>$1</code>', $v);
+                    $html .= '<td>' . $v . '</td>';
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody>';
+        } else {
+            $html .= '<tbody>';
+            foreach ($rows as $row) {
+                $cells = $this->parseTableRow($row);
+                $html .= '<tr>';
+                foreach ($cells as $cell) {
+                    $v = htmlspecialchars(trim($cell), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    $html .= '<td>' . $v . '</td>';
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</tbody>';
+        }
+
+        $html .= '</table></div>';
+        return $html;
+    }
+
+    private function parseTableRow(string $line): array
+    {
+        $line = trim($line);
+        $line = trim($line, '|');
+        return explode('|', $line);
     }
 
     private function docTitle(string $slug): string

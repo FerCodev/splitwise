@@ -42,9 +42,16 @@
         .doc-main ul { margin-bottom: 1rem; padding-left: 1.25rem; }
         .doc-main li { margin-bottom: .35rem; }
         .doc-main code { background: #f0f0f0; padding: .1rem .35rem; border-radius: 3px; font-size: .85em; }
-        .doc-main pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; margin-bottom: 1rem; }
-        .doc-main pre code { background: transparent; padding: 0; color: inherit; }
+        .doc-main pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; margin-bottom: 1rem; line-height: 1.5; }
+        .doc-main pre code { background: transparent; padding: 0; color: #d4d4d4; }
         .doc-main strong { font-weight: 700; }
+        .doc-main hr { margin: 2rem 0; border: 0; border-top: 1px solid #dee2e6; }
+        .doc-table-wrap { overflow-x: auto; margin-bottom: 1rem; }
+        .doc-main table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+        .doc-main th, .doc-main td { border: 1px solid #dee2e6; padding: .5rem .75rem; text-align: left; vertical-align: top; }
+        .doc-main th { background: #f8f9fa; font-weight: 600; }
+        .doc-main td code { font-size: .8rem; white-space: nowrap; }
+        .doc-main code { background: #e8e8e8; padding: .15rem .4rem; border-radius: 3px; font-size: .82em; color: #212529; }
 
         .cmd-list { display: flex; flex-direction: column; gap: 1rem; }
         .cmd-card {
