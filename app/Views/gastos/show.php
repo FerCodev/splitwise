@@ -14,21 +14,7 @@
                         <p class="text-muted small mb-0">Pag&oacute; <?= esc($gasto['pagador_nombre']) ?></p>
                     </div>
                     <?php if ($permisos['puede_editar_gasto'] || $permisos['puede_eliminar_gasto']): ?>
-                    <div class="d-flex gap-2">
-                        <?php if ($permisos['puede_editar_gasto']): ?>
-                            <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-outline-primary btn-sm">Editar</a>
-                        <?php endif; ?>
-                        <?php if ($permisos['puede_eliminar_gasto']): ?>
-                            <?= view('components/forms/delete_form', [
-                                'action' => base_url('gastos/' . $gasto['id']),
-                                'formId' => 'delete-gasto-' . $gasto['id'],
-                                'buttonClass' => 'btn btn-outline-danger btn-sm',
-                                'confirmTitle' => 'Eliminar gasto',
-                                'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
-                                'confirmBtn' => 'Eliminar gasto',
-                            ]) ?>
-                        <?php endif; ?>
-                    </div>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#accionesGastoModal">Acciones</button>
                     <?php endif; ?>
                 </div>
                 <h5 class="fw-bold mb-1"><?= esc($gasto['descripcion']) ?></h5>
@@ -167,4 +153,31 @@
     </div>
 
 <?= view('partials/_confirm_modal') ?>
+
+<div class="modal fade" id="accionesGastoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title">Acciones del gasto</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-2">
+                <?php if ($permisos['puede_editar_gasto']): ?>
+                    <a href="<?= base_url('gastos/' . $gasto['id'] . '/editar') ?>" class="btn btn-primary w-100">Editar</a>
+                <?php endif; ?>
+                <?php if ($permisos['puede_eliminar_gasto']): ?>
+                    <?= view('components/forms/delete_form', [
+                        'action' => base_url('gastos/' . $gasto['id']),
+                        'formId' => 'delete-gasto-' . $gasto['id'],
+                        'buttonClass' => 'btn btn-danger w-100',
+                        'confirmTitle' => 'Eliminar gasto',
+                        'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
+                        'confirmBtn' => 'Eliminar gasto',
+                    ]) ?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= view('partials/_footer') ?>
