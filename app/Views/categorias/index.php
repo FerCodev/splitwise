@@ -72,16 +72,14 @@
                                                     </form>
                                                 <?php endif; ?>
                                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
-                                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="d-inline" id="delete-cat-<?= $c['id'] ?>">
-                                                            <?= csrf_field() ?>
-                                                            <input type="hidden" name="_method" value="DELETE">
-                                                            <button type="button" class="btn btn-sm btn-danger"
-                                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                                data-confirm-title="Eliminar categor&iacute;a"
-                                                                data-confirm-msg="Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos."
-                                                                data-confirm-btn="Eliminar"
-                                                                data-confirm-form="delete-cat-<?= $c['id'] ?>">Eliminar</button>
-                                                        </form>
+                                                        <?= view('components/forms/delete_form', [
+                                                            'action' => base_url('categorias/' . $c['id']),
+                                                            'formId' => 'delete-cat-' . $c['id'],
+                                                            'buttonClass' => 'btn btn-sm btn-danger',
+                                                            'confirmTitle' => 'Eliminar categor&iacute;a',
+                                                            'confirmMsg' => 'Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos.',
+                                                            'confirmBtn' => 'Eliminar',
+                                                        ]) ?>
                                                     <?php endif; ?>
                                                 <?php endif; ?>
                                             </div>
@@ -143,16 +141,14 @@
                                         </form>
                                     <?php endif; ?>
                                     <?php if (($usadas[(int) $c['id']] ?? 0) === 0): ?>
-                                        <form action="<?= base_url('categorias/' . $c['id']) ?>" method="post" class="flex-fill" id="delete-cat-m-<?= $c['id'] ?>">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="_method" value="DELETE">
-                                            <button type="button" class="btn btn-danger btn-sm w-100"
-                                                data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                                data-confirm-title="Eliminar categor&iacute;a"
-                                                data-confirm-msg="Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos."
-                                                data-confirm-btn="Eliminar"
-                                                data-confirm-form="delete-cat-m-<?= $c['id'] ?>">Eliminar</button>
-                                        </form>
+                                        <?= view('components/forms/delete_form', [
+                                            'action' => base_url('categorias/' . $c['id']),
+                                            'formId' => 'delete-cat-m-' . $c['id'],
+                                            'buttonClass' => 'btn btn-danger btn-sm w-100',
+                                            'confirmTitle' => 'Eliminar categor&iacute;a',
+                                            'confirmMsg' => 'Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos.',
+                                            'confirmBtn' => 'Eliminar',
+                                        ]) ?>
                                     <?php endif; ?>
                                 <?php endif; ?>
                             </div>

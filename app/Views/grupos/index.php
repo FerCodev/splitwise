@@ -47,16 +47,14 @@
                             <div class="card-footer bg-transparent border-0 pt-0 d-flex gap-2">
                                 <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-primary flex-fill">Abrir</a>
                                 <a href="<?= base_url('grupos/' . $grupo['id'] . '/editar') ?>" class="btn btn-secondary flex-fill">Editar</a>
-                                <form action="<?= base_url('grupos/' . $grupo['id']) ?>" method="post" class="flex-fill" id="delete-grupo-<?= $grupo['id'] ?>">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="button" class="btn btn-danger w-100"
-                                        data-bs-toggle="modal" data-bs-target="#confirmModal"
-                                        data-confirm-title="Eliminar grupo"
-                                        data-confirm-msg="Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer."
-                                        data-confirm-btn="Eliminar grupo"
-                                        data-confirm-form="delete-grupo-<?= $grupo['id'] ?>">Eliminar</button>
-                                </form>
+                                <?= view('components/forms/delete_form', [
+                                    'action' => base_url('grupos/' . $grupo['id']),
+                                    'formId' => 'delete-grupo-' . $grupo['id'],
+                                    'buttonClass' => 'btn btn-danger w-100',
+                                    'confirmTitle' => 'Eliminar grupo',
+                                    'confirmMsg' => 'Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer.',
+                                    'confirmBtn' => 'Eliminar grupo',
+                                ]) ?>
                             </div>
                         </div>
                     </div>
