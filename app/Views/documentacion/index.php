@@ -97,10 +97,12 @@
 <div class="doc-layout">
     <aside class="doc-sidebar">
         <div class="doc-sidebar-brand"><a href="<?= base_url('doc/inicio') ?>">SplitWise</a></div>
-        <div class="doc-sidebar-section">Documentos</div>
-        <?php foreach ($docs as $slug => $title): ?>
-            <a class="doc-sidebar-link <?= $slug === $currentSlug ? 'active' : '' ?>"
-               href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $title ?></a>
+        <?php foreach ($sections as $sectionName => $slugs): ?>
+            <div class="doc-sidebar-section"><?= $sectionName ?></div>
+            <?php foreach ($slugs as $slug): ?>
+                <a class="doc-sidebar-link <?= $slug === $currentSlug ? 'active' : '' ?>"
+                   href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $docs[$slug] ?? $slug ?></a>
+            <?php endforeach; ?>
         <?php endforeach; ?>
     </aside>
     <main class="doc-main">
@@ -109,12 +111,14 @@
             <p>Esta es la documentaci&oacute;n interna del proyecto SplitWise.</p>
             <p>Us&aacute; el men&uacute; lateral para navegar entre los documentos disponibles.</p>
             <h2>Documentos disponibles</h2>
-            <ul>
-                <?php foreach ($docs as $slug => $title): ?>
-                    <?php if ($slug === 'inicio') continue; ?>
-                    <li><a href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $title ?></a></li>
-                <?php endforeach; ?>
-            </ul>
+            <?php foreach ($sections as $sectionName => $slugs): ?>
+                <h3><?= $sectionName ?></h3>
+                <ul>
+                    <?php foreach ($slugs as $slug): ?>
+                        <li><a href="<?= base_url('doc/' . rawurlencode($slug)) ?>"><?= $docs[$slug] ?? $slug ?></a></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endforeach; ?>
         <?php elseif ($isCommands): ?>
             <?php if ($contentHtml !== null && $contentHtml !== ''): ?>
                 <div class="d-flex justify-content-end mb-3">

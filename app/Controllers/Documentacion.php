@@ -6,6 +6,14 @@ class Documentacion extends BaseController
 {
     private const ALLOWED = [
         'inicio' => null,
+        'proyecto-actual' => 'Documentacion/proyecto/proyecto-actual.md',
+        'funcionalidades' => 'Documentacion/proyecto/funcionalidades.md',
+        'flujos' => 'Documentacion/proyecto/flujos-principales.md',
+        'arquitectura' => 'Documentacion/proyecto/arquitectura-tecnica.md',
+        'rutas' => 'Documentacion/proyecto/rutas.md',
+        'base-de-datos' => 'Documentacion/proyecto/base-de-datos.md',
+        'ui-catalogo-feedback' => 'Documentacion/proyecto/ui-catalogo-feedback.md',
+        'operacion-deploy' => 'Documentacion/proyecto/operacion-deploy.md',
         'roadmap-activo' => 'Documentacion/roadmaps/actuales/roadmap-personalizacion-componentes-y-colores.md',
         'roadmap-historico-general' => 'Documentacion/roadmaps/historicos/Roadmap.md',
         'roadmap-reportes' => 'Documentacion/roadmaps/historicos/Roadmap_Reportes_Analytics.md',
@@ -16,6 +24,21 @@ class Documentacion extends BaseController
         'roadmap-cierres' => 'Documentacion/roadmaps/historicos/roadmap-cierres.md',
         'roadmap-ponytail' => 'Documentacion/roadmaps/historicos/roadmap-ponytail-cleanup.md',
         'skill-comandos' => 'Documentacion/skill/SplitWiseReviewerCommands.md',
+    ];
+
+    private const SECTIONS = [
+        'Proyecto actual' => [
+            'proyecto-actual', 'funcionalidades', 'flujos', 'arquitectura',
+            'rutas', 'base-de-datos', 'ui-catalogo-feedback', 'operacion-deploy',
+        ],
+        'Roadmaps e hist&oacute;rico' => [
+            'roadmap-activo', 'roadmap-historico-general', 'roadmap-reportes',
+            'roadmap-visuales', 'roadmap-ux', 'roadmap-gastos', 'roadmap-grupos',
+            'roadmap-cierres', 'roadmap-ponytail',
+        ],
+        'Herramientas' => [
+            'skill-comandos',
+        ],
     ];
 
     public function index(?string $slug = null)
@@ -59,6 +82,7 @@ class Documentacion extends BaseController
             'currentSlug' => $slug,
             'contentHtml' => $contentHtml,
             'docs' => $docs,
+            'sections' => self::SECTIONS,
             'isCommands' => $isCommands,
         ]);
     }
@@ -192,6 +216,14 @@ class Documentacion extends BaseController
     {
         $titles = [
             'inicio' => 'Inicio',
+            'proyecto-actual' => 'Proyecto actual',
+            'funcionalidades' => 'Funcionalidades',
+            'flujos' => 'Flujos principales',
+            'arquitectura' => 'Arquitectura t&eacute;cnica',
+            'rutas' => 'Rutas',
+            'base-de-datos' => 'Base de datos',
+            'ui-catalogo-feedback' => 'UI, cat&aacute;logo y feedback',
+            'operacion-deploy' => 'Operaci&oacute;n y deploy',
             'roadmap-activo' => 'Roadmap: Componentes y colores',
             'roadmap-historico-general' => 'Roadmap general (hist&oacute;rico)',
             'roadmap-reportes' => 'Roadmap reportes',
