@@ -16,7 +16,6 @@ class Documentacion extends BaseController
         'roadmap-cierres' => 'Documentacion/roadmaps/historicos/roadmap-cierres.md',
         'roadmap-ponytail' => 'Documentacion/roadmaps/historicos/roadmap-ponytail-cleanup.md',
         'skill-comandos' => 'Documentacion/skill/SplitWiseReviewerCommands.md',
-        'roadmap-html' => 'Documentacion/roadmaps/pagina/Roadmap.html',
     ];
 
     public function index(?string $slug = null)
@@ -43,37 +42,10 @@ class Documentacion extends BaseController
 
         $content = file_get_contents($fullPath);
 
-        if (str_ends_with($path, '.html')) {
-            return $this->renderHtml($slug);
-        }
-
         $isCommands = ($slug === 'skill-comandos');
         $html = $isCommands ? $this->extractCommands($content) : $this->markdownToHtml($content);
 
         return $this->render($slug, $html, $isCommands);
-    }
-
-    private function renderHtml(string $slug): string
-    {
-        $fullPath = ROOTPATH . self::ALLOWED[$slug];
-        $content = file_get_contents($fullPath);
-
-        if (preg_match('/<body[^>]*>.*?<\/body>/is', $content, $m)) {
-            $body = $m[0];
-        } else {
-            $body = $content;
-        }
-
-        $docs = [];
-        foreach (self::ALLOWED as $key => $p) {
-            $docs[$key] = $this->docTitle($key);
-        }
-
-        return view('documentacion/html', [
-            'currentSlug' => $slug,
-            'htmlContent' => $body,
-            'docs' => $docs,
-        ]);
     }
 
     private function render(string $slug, ?string $contentHtml, bool $isCommands): string
@@ -230,7 +202,6 @@ class Documentacion extends BaseController
             'roadmap-cierres' => 'Roadmap cierres',
             'roadmap-ponytail' => 'Roadmap deuda t&eacute;cnica',
             'skill-comandos' => 'Comandos Skill SplitWise',
-            'roadmap-html' => 'Roadmap completo (HTML)',
         ];
         return $titles[$slug] ?? $slug;
     }
