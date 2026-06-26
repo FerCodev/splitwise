@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\User;
 use App\Services\UiFeedbackResolver;
+use App\Services\UserColor;
 
 class Perfil extends BaseController
 {
@@ -14,7 +15,10 @@ class Perfil extends BaseController
             return redirect()->to('/logout');
         }
 
-        return view('perfil/index', ['user' => $user]);
+        return view('perfil/index', [
+            'user'  => $user,
+            'palette' => UserColor::PALETTE,
+        ]);
     }
 
     public function editar()
@@ -24,14 +28,18 @@ class Perfil extends BaseController
             return redirect()->to('/logout');
         }
 
-        return view('perfil/editar', ['user' => $user]);
+        return view('perfil/editar', [
+            'user'    => $user,
+            'palette' => UserColor::PALETTE,
+        ]);
     }
 
     public function actualizar()
     {
         $rules = [
-            'name' => 'required|min_length[2]|max_length[255]',
+            'name'  => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email',
+            'color' => 'permit_empty|max_length[32]',
         ];
 
         if (!$this->validate($rules)) {
@@ -40,8 +48,13 @@ class Perfil extends BaseController
 
         $userId = session()->get('userId');
         $userModel = new User();
-        $name = $this->request->getPost('name');
+        $name  = $this->request->getPost('name');
         $email = $this->request->getPost('email');
+        $color = UserColor::sanitizeInput($this->request->getPost('color'));
+
+        if ($color === null) {
+            return redirect()->back()->withInput()->with('error', 'Color inv&aacute;lido. Eleg&iacute; uno de la paleta.');
+        }
 
         $existing = $userModel->where('email', $email)->where('id !=', $userId)->first();
         if ($existing) {
@@ -49,8 +62,9 @@ class Perfil extends BaseController
         }
 
         $userModel->update($userId, [
-            'name' => $name,
+            'name'  => $name,
             'email' => $email,
+            'color' => $color,
         ]);
         session()->set('userName', $name);
         session()->set('userEmail', $email);

@@ -29,6 +29,7 @@ $routes->post('/grupos/(:num)/estado', 'Grupos::cambiarEstado/$1', ['filter' => 
 $routes->post('/grupos/(:num)/miembros', 'Grupos::agregarMiembro/$1', ['filter' => 'auth']);
 $routes->post('/grupos/(:num)/miembros/(:num)/rol', 'Grupos::cambiarRol/$1/$2', ['filter' => 'auth']);
 $routes->delete('/grupos/(:num)/miembros/(:num)', 'Grupos::quitarMiembro/$1/$2', ['filter' => 'auth']);
+$routes->post('/grupos/(:num)/colores/(:num)', 'Grupos::actualizarColorMiembro/$1/$2', ['filter' => 'auth']);
 $routes->get('/gastos', 'Gastos::index', ['filter' => 'auth']);
 $routes->get('/gastos/nuevo', 'Gastos::new', ['filter' => 'auth']);
 $routes->get('/gastos/exportar-pdf', 'Gastos::exportarPdf', ['filter' => 'auth']);

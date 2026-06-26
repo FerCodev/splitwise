@@ -8,8 +8,10 @@ use App\Models\Grupo;
 use App\Models\Categoria;
 use App\Models\GrupoMiembro;
 use App\Models\UserPaymentMethod;
+use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
 use App\Services\UiFeedbackResolver;
+use App\Services\UserColor;
 
 class Grupos extends BaseController
 {
@@ -149,6 +151,8 @@ class Grupos extends BaseController
             ? $grupoModel->getUsuariosDisponibles($id)
             : [];
 
+        $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, $movimientos);
+
         return view('grupos/show', [
             'grupo' => $acceso['grupo'],
             'rol' => $acceso['rol'],
@@ -164,7 +168,112 @@ class Grupos extends BaseController
             'categorias' => $categorias,
             'totalPagado' => $totalPagado,
             'usuariosDisponibles' => $usuariosDisponibles,
+            'colorMap' => $colorMap,
+            'colorPalette' => UserColor::PALETTE,
         ]);
+    }
+
+    /**
+     * Resuelve un mapa [userId => colorKey] para todos los miembros del
+     * grupo, mas las personas que aparecen en movimientos pero no son
+     * miembros (caso limite: gastos viejos tras quitar un miembro).
+     *
+     * Tambien devuelve un mapa [movimientoId => colorKey] para que la
+     * vista pueda pintar cada tarjeta con el color del pagador sin
+     * recalcular. Los pagos conservan color reservado (no aparecen en
+     * el mapa, la vista usa el reserved correspondiente).
+     *
+     * @return array{miembros: array<int,string>, movimientos: array<int,string>}
+     */
+    private function buildColorMapForGrupo(int $viewerId, int $grupoId, array $miembros, array $movimientos): array
+    {
+        $overrideModel = new UserGroupColorOverride();
+        $overrides = $overrideModel->getOverridesForGroup($viewerId, $grupoId);
+
+        $targetIds = [];
+        foreach ($miembros as $m) {
+            $targetIds[(int) $m['user_id']] = true;
+        }
+        foreach ($movimientos as $m) {
+            if (($m['tipo'] ?? '') === 'gasto') {
+                $targetIds[(int) ($m['persona_id'] ?? 0)] = true;
+            }
+        }
+        $targetIds = array_filter(array_keys($targetIds));
+
+        $globalMap = [];
+        if (!empty($targetIds)) {
+            $rows = db_connect()->table('users')
+                ->select('id, color')
+                ->whereIn('id', $targetIds)
+                ->get()
+                ->getResultArray();
+            foreach ($rows as $row) {
+                $globalMap[(int) $row['id']] = (string) ($row['color'] ?? UserColor::DEFAULT_KEY);
+            }
+        }
+
+        $memberColors = UserColor::resolveMap($overrides, $globalMap);
+
+        $movColors = [];
+        foreach ($movimientos as $m) {
+            if (($m['tipo'] ?? '') !== 'gasto') {
+                continue;
+            }
+            $tid = (int) ($m['persona_id'] ?? 0);
+            if ($tid <= 0) {
+                continue;
+            }
+            $movColors[(int) $m['id']] = $memberColors[$tid] ?? UserColor::DEFAULT_KEY;
+        }
+
+        return [
+            'miembros'    => $memberColors,
+            'movimientos' => $movColors,
+        ];
+    }
+
+    public function actualizarColorMiembro(int $grupoId, int $targetId)
+    {
+        $acceso = $this->verificarAcceso($grupoId);
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        // El target debe ser miembro actual del grupo.
+        $grupoModel = new Grupo();
+        if (! $grupoModel->isMiembro($grupoId, $targetId)) {
+            return redirect()->to("/grupos/{$grupoId}")->with('error', 'La persona seleccionada ya no pertenece al grupo.');
+        }
+
+        $action        = (string) $this->request->getPost('action');
+        $rawColor      = $this->request->getPost('color');
+        $overrideModel = new UserGroupColorOverride();
+        $viewerId      = (int) $acceso['userId'];
+
+        // Toda la decision es pura; vive en UserColor::classifyOverrideSubmit.
+        $decision = UserColor::classifyOverrideSubmit($action, $rawColor);
+
+        if ($decision['action'] === UserColor::SUBMIT_RESET) {
+            $overrideModel->clearOverride($viewerId, $grupoId, $targetId);
+            return redirect()->to("/grupos/{$grupoId}#colores")->with('success', 'Color restaurado al valor global.');
+        }
+
+        if ($decision['action'] === UserColor::SUBMIT_ERROR) {
+            $message = ($decision['reason'] ?? '') === UserColor::REASON_EMPTY
+                ? 'Deb&eacute;s seleccionar un color o usar el bot&oacute;n "Global" para volver al valor por defecto.'
+                : 'Color inv&aacute;lido.';
+            return redirect()->to("/grupos/{$grupoId}#colores")->with('error', $message);
+        }
+
+        // SUBMIT_SET
+        try {
+            $overrideModel->setOverride($viewerId, $grupoId, $targetId, (string) $decision['colorKey']);
+        } catch (\InvalidArgumentException $e) {
+            return redirect()->to("/grupos/{$grupoId}#colores")->with('error', $e->getMessage());
+        }
+
+        return redirect()->to("/grupos/{$grupoId}#colores")->with('success', 'Color guardado para este grupo.');
     }
 
     private function getMovimientoFilters(array $grupo, array $gastos = [], array $pagos = []): array

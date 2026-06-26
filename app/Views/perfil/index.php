@@ -1,3 +1,10 @@
+<?php
+    $currentColor = $user['color'] ?? \App\Services\UserColor::DEFAULT_KEY;
+    $colorInfo = \App\Services\UserColor::get($currentColor);
+    $previewBg = $colorInfo['bg'] ?? \App\Services\UserColor::RESERVED['system']['bg'];
+    $previewBorder = $colorInfo['border'] ?? \App\Services\UserColor::RESERVED['system']['border'];
+    $previewLabel = $colorInfo['label'] ?? 'Autom&aacute;tico';
+?>
 <?= view('partials/_head', ['title' => 'Mi perfil - SplitWise']) ?>
     <?= view('partials/_navbar', ['pageTitle' => 'Perfil']) ?>
     <div class="container py-4">
@@ -20,6 +27,14 @@
                     <div>
                         <div class="fw-semibold">Rol</div>
                         <div class="text-muted"><?= $user['role'] === 'admin' ? 'Administrador' : 'Usuario' ?></div>
+                    </div>
+                    <div>
+                        <div class="fw-semibold">Color personal</div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="user-color-swatch-circle" style="background: <?= esc($previewBg) ?>; border-color: <?= esc($previewBorder) ?>; width: 24px; height: 24px;"></span>
+                            <span class="text-muted"><?= $previewLabel ?></span>
+                        </div>
+                        <div class="text-muted small mt-1">Es el color por defecto con el que otros ven tus gastos. Cada usuario puede overridearlo en su grupo.</div>
                     </div>
                 </div>
                 <a href="<?= base_url('perfil/editar') ?>" class="btn btn-primary w-100">Editar perfil</a>

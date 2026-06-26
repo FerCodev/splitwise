@@ -7,15 +7,18 @@ use App\Models\GastoDivision;
 use App\Models\Grupo;
 use App\Models\GastoParticipante;
 use App\Models\Categoria;
+use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
 use App\Services\UiFeedbackResolver;
+use App\Services\UserColor;
 
 class Gastos extends BaseController
 {
     public function index()
     {
+        $userId = (int) session()->get('userId');
         $grupoModel = new Grupo();
-        $grupos = $grupoModel->getGruposByUser(session()->get('userId'));
+        $grupos = $grupoModel->getGruposByUser($userId);
 
         $gastoModel = new Gasto();
         $filters = $this->getFilters();
@@ -24,6 +27,8 @@ class Gastos extends BaseController
         $totalFiltrado = $this->getTotalFiltrado($filters);
         $pager = $gastoModel->pager;
 
+        $colorMap = $this->buildColorMapForMovimientos($userId, $gastos);
+
         if ($this->request->getGet('partial')) {
             $requestedPage = max(1, (int) ($this->request->getGet('page') ?: 1));
             if ($requestedPage > $pager->getPageCount()) {
@@ -31,8 +36,9 @@ class Gastos extends BaseController
             }
 
             return view('gastos/_items', [
-                'gastos' => $gastos,
-                'filters' => $filters,
+                'gastos'    => $gastos,
+                'filters'   => $filters,
+                'colorMap'  => $colorMap,
             ]);
         }
 
@@ -43,7 +49,67 @@ class Gastos extends BaseController
             'totalFiltrado' => $totalFiltrado,
             'categorias' => model(Categoria::class)->getActivas(),
             'pager' => $pager,
+            'colorMap' => $colorMap,
         ]);
+    }
+
+    /**
+     * Construye un mapa [gasto_id => colorKey] resolviendo el color del
+     * pagador de cada gasto en su grupo para el viewer actual.
+     *
+     * Optimizacion: agrupa overrides por grupo (1 query por grupo unico)
+     * y global colors por pagador (1 query para todos los pagadores
+     * unicos). Asi el costo no crece lineal con el numero de gastos
+     * mostrados.
+     *
+     * @return array<int, string>
+     */
+    private function buildColorMapForMovimientos(int $viewerId, array $movimientos): array
+    {
+        if (empty($movimientos)) {
+            return [];
+        }
+
+        $grupoIds  = [];
+        $targetIds = [];
+        foreach ($movimientos as $m) {
+            $gid = (int) ($m['grupo_id'] ?? 0);
+            $tid = (int) ($m['pagador_id'] ?? 0);
+            if ($gid > 0) $grupoIds[$gid] = true;
+            if ($tid > 0) $targetIds[$tid] = true;
+        }
+        if (empty($targetIds)) {
+            return [];
+        }
+
+        $overrideModel = new UserGroupColorOverride();
+        $overridesByGroup = [];
+        foreach (array_keys($grupoIds) as $gid) {
+            $overridesByGroup[$gid] = $overrideModel->getOverridesForGroup($viewerId, $gid);
+        }
+
+        $targetIdList = array_keys($targetIds);
+        $globals = db_connect()->table('users')
+            ->select('id, color')
+            ->whereIn('id', $targetIdList)
+            ->get()
+            ->getResultArray();
+        $globalMap = [];
+        foreach ($globals as $row) {
+            $globalMap[(int) $row['id']] = (string) ($row['color'] ?? UserColor::DEFAULT_KEY);
+        }
+
+        $out = [];
+        foreach ($movimientos as $m) {
+            $gid = (int) ($m['grupo_id'] ?? 0);
+            $tid = (int) ($m['pagador_id'] ?? 0);
+            if ($tid <= 0 || $gid <= 0) {
+                continue;
+            }
+            $override = $overridesByGroup[$gid][$tid] ?? null;
+            $out[(int) $m['id']] = UserColor::resolve($override, $globalMap[$tid] ?? null);
+        }
+        return $out;
     }
 
     public function exportarPdf()
