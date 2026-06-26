@@ -169,7 +169,6 @@ class Grupos extends BaseController
             'totalPagado' => $totalPagado,
             'usuariosDisponibles' => $usuariosDisponibles,
             'colorMap' => $colorMap,
-            'colorPalette' => UserColor::PALETTE,
         ]);
     }
 
@@ -254,26 +253,30 @@ class Grupos extends BaseController
         // Toda la decision es pura; vive en UserColor::classifyOverrideSubmit.
         $decision = UserColor::classifyOverrideSubmit($action, $rawColor);
 
+        // La configuracion de colores vive en la pantalla de edicion
+        // del grupo, no en el detalle principal.
+        $redirectTo = "/grupos/{$grupoId}/editar#colores";
+
         if ($decision['action'] === UserColor::SUBMIT_RESET) {
             $overrideModel->clearOverride($viewerId, $grupoId, $targetId);
-            return redirect()->to("/grupos/{$grupoId}#colores")->with('success', 'Color restaurado al valor global.');
+            return redirect()->to($redirectTo)->with('success', 'Color restaurado al valor global.');
         }
 
         if ($decision['action'] === UserColor::SUBMIT_ERROR) {
             $message = ($decision['reason'] ?? '') === UserColor::REASON_EMPTY
                 ? 'Deb&eacute;s seleccionar un color o usar el bot&oacute;n "Global" para volver al valor por defecto.'
                 : 'Color inv&aacute;lido.';
-            return redirect()->to("/grupos/{$grupoId}#colores")->with('error', $message);
+            return redirect()->to($redirectTo)->with('error', $message);
         }
 
         // SUBMIT_SET
         try {
             $overrideModel->setOverride($viewerId, $grupoId, $targetId, (string) $decision['colorKey']);
         } catch (\InvalidArgumentException $e) {
-            return redirect()->to("/grupos/{$grupoId}#colores")->with('error', $e->getMessage());
+            return redirect()->to($redirectTo)->with('error', $e->getMessage());
         }
 
-        return redirect()->to("/grupos/{$grupoId}#colores")->with('success', 'Color guardado para este grupo.');
+        return redirect()->to($redirectTo)->with('success', 'Color guardado para este grupo.');
     }
 
     private function getMovimientoFilters(array $grupo, array $gastos = [], array $pagos = []): array
@@ -504,12 +507,19 @@ class Grupos extends BaseController
             ? $grupoModel->getUsuariosDisponibles($id)
             : [];
 
+        // La seccion "Colores por usuario" vive en esta pantalla; pasamos
+        // el mapa de colores efectivos por miembro para que la vista
+        // pueda marcar el swatch correspondiente como checked.
+        $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, []);
+
         return view('grupos/form', [
             'grupo' => $acceso['grupo'],
             'deudas' => $deudas,
             'miembros' => $miembros,
             'permisos' => $permisos,
             'usuariosDisponibles' => $usuariosDisponibles,
+            'colorMap' => $colorMap,
+            'colorPalette' => UserColor::PALETTE,
         ]);
     }
 

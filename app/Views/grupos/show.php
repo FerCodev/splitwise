@@ -133,52 +133,6 @@
             <?php endif; ?>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4" id="colores">
-            <div class="card-header bg-white border-bottom">
-                <h5 class="mb-0 fw-bold">Colores por usuario</h5>
-                <small class="text-muted d-block mt-1">Estos colores se aplican solo a tu vista. Si los quit&aacute;s, cada gasto vuelve al color global que esa persona eligi&oacute; en su perfil.</small>
-            </div>
-            <div class="card-body">
-                <?php if (empty($miembros)): ?>
-                    <p class="text-muted mb-0">El grupo todav&iacute;a no tiene miembros.</p>
-                <?php else: ?>
-                    <div class="d-grid gap-3">
-                        <?php foreach ($miembros as $miembro):
-                            $tid = (int) $miembro['user_id'];
-                            $effectiveKey = $colorMap['miembros'][$tid] ?? \App\Services\UserColor::DEFAULT_KEY;
-                            $effective = \App\Services\UserColor::get($effectiveKey);
-                            $effBg = $effective['bg'] ?? \App\Services\UserColor::RESERVED['system']['bg'];
-                            $effBorder = $effective['border'] ?? \App\Services\UserColor::RESERVED['system']['border'];
-                            $effLabel = $effective['label'] ?? 'Autom&aacute;tico';
-                        ?>
-                            <form action="<?= base_url('grupos/' . (int) $grupo['id'] . '/colores/' . $tid) ?>" method="post" class="user-color-row">
-                                <?= csrf_field() ?>
-                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                    <span class="user-color-swatch-circle flex-shrink-0" style="background: <?= esc($effBg) ?>; border-color: <?= esc($effBorder) ?>;"></span>
-                                    <div class="flex-grow-1 min-width-0">
-                                        <div class="fw-medium text-break"><?= esc($miembro['name']) ?></div>
-                                        <div class="text-muted small">Color actual: <?= $effLabel ?></div>
-                                    </div>
-                                    <div class="user-color-swatches user-color-swatches-inline">
-                                        <?php foreach (($colorPalette ?? \App\Services\UserColor::PALETTE) as $key => $info): ?>
-                                            <label class="user-color-swatch <?= $effectiveKey === $key ? 'is-selected' : '' ?>" title="<?= esc($info['label']) ?>">
-                                                <input type="radio" name="color" value="<?= esc($key) ?>" <?= $effectiveKey === $key ? 'checked' : '' ?>>
-                                                <span class="user-color-swatch-circle" style="background: <?= esc($info['bg']) ?>; border-color: <?= esc($info['border']) ?>;"></span>
-                                            </label>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    <div class="d-flex gap-1 flex-shrink-0">
-                                        <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
-                                        <button type="submit" name="action" value="reset" class="btn btn-sm btn-outline-secondary" title="Volver al color global">Global</button>
-                                    </div>
-                                </div>
-                            </form>
-                        <?php endforeach; ?>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
     </div>
 
     <div class="modal fade" id="movimientoFilterModal" tabindex="-1" aria-labelledby="movimientoFilterModalLabel" aria-hidden="true">
