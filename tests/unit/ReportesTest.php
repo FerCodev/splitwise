@@ -43,6 +43,7 @@ final class ReportesTest extends CIUnitTestCase
         $this->assertTrue(method_exists(Reportes::class, 'resumenGlobal'));
         $this->assertTrue(method_exists(Reportes::class, 'gastosPorCategoria'));
         $this->assertTrue(method_exists(Reportes::class, 'gastosPorGrupo'));
+        $this->assertTrue(method_exists(Reportes::class, 'ultimosMovimientos'));
         $this->assertTrue(method_exists(Reportes::class, 'gastosParaExportar'));
         $this->assertTrue(method_exists(Reportes::class, 'calcularResumen'));
         $this->assertTrue(method_exists(Reportes::class, 'formatearFilasCsv'));
