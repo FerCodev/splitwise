@@ -239,34 +239,6 @@ class Reportes
         return array_slice($movimientos, 0, $limit);
     }
 
-    public static function ultimosMovimientos(int $userId, int $limit = 10): array
-    {
-        $db = \Config\Database::connect();
-        $gruposIds = self::gruposIds($userId);
-        if (empty($gruposIds)) return [];
-        $ids = implode(',', $gruposIds);
-        $gastos = $db->query(
-            "SELECT g.id, 'gasto' AS tipo, g.descripcion, g.monto, g.fecha, u.name AS persona, gr.nombre AS grupo
-               FROM gastos g JOIN users u ON u.id = g.pagador_id JOIN grupos gr ON gr.id = g.grupo_id
-               WHERE g.grupo_id IN ({$ids}) ORDER BY g.fecha DESC, g.created_at DESC LIMIT ?",
-            [$limit]
-        )->getResultArray();
-        $pagos = $db->query(
-            "SELECT p.id, 'pago' AS tipo, COALESCE(p.descripcion, 'Pago') AS descripcion, p.monto, p.fecha,
-                    CONCAT(pag.name, ' pagó a ', rec.name) AS persona, gr.nombre AS grupo
-               FROM pagos p
-               JOIN users pag ON pag.id = p.pagador_id
-               JOIN users rec ON rec.id = p.receptor_id
-               JOIN grupos gr ON gr.id = p.grupo_id
-              WHERE p.grupo_id IN ({$ids})
-              ORDER BY p.fecha DESC, p.created_at DESC LIMIT ?",
-            [$limit]
-        )->getResultArray();
-        $movimientos = array_merge($gastos, $pagos);
-        usort($movimientos, static fn($a, $b) => strcmp($b['fecha'] . 'z', $a['fecha'] . 'z'));
-        return array_slice($movimientos, 0, $limit);
-    }
-
     public static function ultimosMovimientosPorGrupo(int $grupoId, int $limit = 10): array
     {
         $db = \Config\Database::connect();
@@ -394,13 +366,6 @@ class Reportes
     }
 
     private static function scalarTotal(?object $row): float { return round((float) ($row->total ?? 0), 2); }
-
-    private static function ordenarAgrupadoPorTotal(array $agrupado): array
-    {
-        $rows = array_values(array_map(static fn(array $row): array => ['total' => round((float) $row['total'], 2)] + $row, $agrupado));
-        usort($rows, static fn(array $a, array $b): int => $b['total'] <=> $a['total'] ?: strcmp((string) ($a['categoria'] ?? $a['grupo'] ?? ''), (string) ($b['categoria'] ?? $b['grupo'] ?? '')));
-        return $rows;
-    }
 
     private static function tieneGastosEnMes(array $gruposIds, string $yearMonth): bool
     {
