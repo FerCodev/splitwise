@@ -172,4 +172,94 @@ final class UserColorTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame('violet', $out[1]);
         $this->assertSame('lime',   $out[2]);
     }
+
+    // ---- classifyOverrideSubmit: logica de submit del endpoint de grupo ----
+
+    public function testClassifyActionResetBorraOverride(): void
+    {
+        $d = UserColor::classifyOverrideSubmit('reset', 'amber');
+        $this->assertSame(UserColor::SUBMIT_RESET, $d['action']);
+        $this->assertArrayNotHasKey('colorKey', $d);
+
+        // action=reset gana incluso si color es basura o vacio.
+        $d = UserColor::classifyOverrideSubmit('reset', '');
+        $this->assertSame(UserColor::SUBMIT_RESET, $d['action']);
+
+        $d = UserColor::classifyOverrideSubmit('reset', 'payment');
+        $this->assertSame(UserColor::SUBMIT_RESET, $d['action']);
+    }
+
+    public function testClassifyAutoResetBorraOverride(): void
+    {
+        // Input explicito 'auto' == volver al global, igual que el
+        // boton Global. No debe llegar a setOverride.
+        $d = UserColor::classifyOverrideSubmit(null, 'auto');
+        $this->assertSame(UserColor::SUBMIT_RESET, $d['action']);
+
+        $d = UserColor::classifyOverrideSubmit('', '  auto  ');
+        $this->assertSame(UserColor::SUBMIT_RESET, $d['action']);
+    }
+
+    public function testClassifyColorValidoDevuelveSet(): void
+    {
+        $d = UserColor::classifyOverrideSubmit(null, 'amber');
+        $this->assertSame(UserColor::SUBMIT_SET, $d['action']);
+        $this->assertSame('amber', $d['colorKey']);
+
+        $d = UserColor::classifyOverrideSubmit(null, '  violet  ');
+        $this->assertSame(UserColor::SUBMIT_SET, $d['action']);
+        $this->assertSame('violet', $d['colorKey']);
+    }
+
+    public function testClassifyVacioDevuelveErrorEmpty(): void
+    {
+        // Sin seleccion explicita. El controller NO debe llamar a
+        // setOverride ni a clearOverride: ni setea ni borra.
+        $d = UserColor::classifyOverrideSubmit(null, null);
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_EMPTY, $d['reason']);
+
+        $d = UserColor::classifyOverrideSubmit('', '');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_EMPTY, $d['reason']);
+
+        $d = UserColor::classifyOverrideSubmit(null, '   ');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_EMPTY, $d['reason']);
+    }
+
+    public function testClassifyColorInvalidoDevuelveErrorInvalid(): void
+    {
+        // Color basura o reservado: el controller NO debe borrar el
+        // override; debe responder con error.
+        $d = UserColor::classifyOverrideSubmit(null, 'payment');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_INVALID, $d['reason']);
+
+        $d = UserColor::classifyOverrideSubmit(null, 'debt');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_INVALID, $d['reason']);
+
+        $d = UserColor::classifyOverrideSubmit(null, 'system');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_INVALID, $d['reason']);
+
+        $d = UserColor::classifyOverrideSubmit(null, 'not-a-color');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_INVALID, $d['reason']);
+
+        $d = UserColor::classifyOverrideSubmit(null, '<script>');
+        $this->assertSame(UserColor::SUBMIT_ERROR, $d['action']);
+        $this->assertSame(UserColor::REASON_INVALID, $d['reason']);
+    }
+
+    public function testClassifyAutoNoSeConsideraColorValidoParaSet(): void
+    {
+        // 'auto' cae en reset, no en set. Esto evita que un caller
+        // (modelo o controller) persista una fila con color='auto',
+        // que seria funcionalmente equivalente a no tener override
+        // pero ocupa espacio y confunde la invariante de la tabla.
+        $d = UserColor::classifyOverrideSubmit(null, 'auto');
+        $this->assertNotSame(UserColor::SUBMIT_SET, $d['action']);
+    }
 }

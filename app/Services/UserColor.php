@@ -10,6 +10,7 @@ namespace App\Services;
  *   - colores reservados (pagos, deudas, sistema) que NO son elegibles
  *   - validacion de color
  *   - resolucion efectiva (override > global > auto)
+ *   - decision de submit del endpoint de grupos (reset/set/error)
  *
  * Los metodos son estaticos para que sean directamente testeables sin DB
  * ni estado compartido. Toda la logica pura vive aca; el acceso a datos
@@ -18,6 +19,12 @@ namespace App\Services;
 class UserColor
 {
     public const DEFAULT_KEY = 'auto';
+
+    public const SUBMIT_RESET  = 'reset';
+    public const SUBMIT_SET    = 'set';
+    public const SUBMIT_ERROR  = 'error';
+    public const REASON_EMPTY  = 'empty';
+    public const REASON_INVALID = 'invalid';
 
     /**
      * Paleta cerrada, segura y con buen contraste. NO incluye verde
@@ -221,5 +228,48 @@ class UserColor
             return $raw;
         }
         return null;
+    }
+
+    /**
+     * Clasifica un submit del endpoint de color de grupo en una de tres
+     * acciones: reset (borrar override), set (guardar override con la
+     * clave devuelta), o error (no tocar nada).
+     *
+     * Reglas:
+     *   - action='reset' (boton Global)              -> reset
+     *   - color='auto' (input explicito)             -> reset
+     *   - color vacio o solo whitespace              -> error empty
+     *   - color en paleta                            -> set con esa clave
+     *   - cualquier otra cosa (basura, reservado)   -> error invalid
+     *
+     * El controller usa este metodo para decidir si llama
+     * clearOverride, setOverride, o devuelve un mensaje de error
+     * sin tocar la DB.
+     *
+     * @return array{action: string, colorKey?: string, reason?: string}
+     */
+    public static function classifyOverrideSubmit(?string $action, ?string $rawColor): array
+    {
+        $action    = is_string($action) ? trim($action) : '';
+        $rawColor  = is_string($rawColor) ? trim($rawColor) : '';
+
+        if ($action === self::SUBMIT_RESET) {
+            return ['action' => self::SUBMIT_RESET];
+        }
+
+        if ($rawColor === self::DEFAULT_KEY) {
+            return ['action' => self::SUBMIT_RESET];
+        }
+
+        if ($rawColor === '') {
+            return ['action' => self::SUBMIT_ERROR, 'reason' => self::REASON_EMPTY];
+        }
+
+        $color = self::sanitizeInput($rawColor);
+        if ($color === null) {
+            return ['action' => self::SUBMIT_ERROR, 'reason' => self::REASON_INVALID];
+        }
+
+        return ['action' => self::SUBMIT_SET, 'colorKey' => $color];
     }
 }

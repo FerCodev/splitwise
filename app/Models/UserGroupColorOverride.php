@@ -55,14 +55,16 @@ class UserGroupColorOverride extends Model
     }
 
     /**
-     * Inserta o actualiza el override. Valida que el color sea
-     * aceptable segun la paleta; un color invalido (incluido un
-     * reservado) lanza excepcion para que el caller aborte la
+     * Inserta o actualiza el override. Solo acepta claves de la paleta
+     * permitida: ni 'auto' ni un color reservado. Para volver al color
+     * global del target el caller debe usar clearOverride().
+     *
+     * Un color invalido lanza excepcion para que el caller aborte la
      * operacion antes de tocar la DB.
      */
     public function setOverride(int $viewerId, int $groupId, int $targetId, string $color): void
     {
-        if (! UserColor::isValidKey($color) && $color !== UserColor::DEFAULT_KEY) {
+        if (! UserColor::isValidKey($color)) {
             throw new \InvalidArgumentException("Color no permitido: {$color}");
         }
 

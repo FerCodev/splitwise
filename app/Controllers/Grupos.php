@@ -246,28 +246,29 @@ class Grupos extends BaseController
             return redirect()->to("/grupos/{$grupoId}")->with('error', 'La persona seleccionada ya no pertenece al grupo.');
         }
 
-        $action = (string) $this->request->getPost('action');
+        $action        = (string) $this->request->getPost('action');
+        $rawColor      = $this->request->getPost('color');
         $overrideModel = new UserGroupColorOverride();
-        $viewerId = (int) $acceso['userId'];
+        $viewerId      = (int) $acceso['userId'];
 
-        if ($action === 'reset') {
+        // Toda la decision es pura; vive en UserColor::classifyOverrideSubmit.
+        $decision = UserColor::classifyOverrideSubmit($action, $rawColor);
+
+        if ($decision['action'] === UserColor::SUBMIT_RESET) {
             $overrideModel->clearOverride($viewerId, $grupoId, $targetId);
             return redirect()->to("/grupos/{$grupoId}#colores")->with('success', 'Color restaurado al valor global.');
         }
 
-        $color = UserColor::sanitizeInput($this->request->getPost('color'));
-        if ($color === null || $color === UserColor::DEFAULT_KEY) {
-            // 'auto' o vacio == volver al global; lo manejamos como reset.
-            $overrideModel->clearOverride($viewerId, $grupoId, $targetId);
-            return redirect()->to("/grupos/{$grupoId}#colores")->with('success', 'Color restaurado al valor global.');
+        if ($decision['action'] === UserColor::SUBMIT_ERROR) {
+            $message = ($decision['reason'] ?? '') === UserColor::REASON_EMPTY
+                ? 'Deb&eacute;s seleccionar un color o usar el bot&oacute;n "Global" para volver al valor por defecto.'
+                : 'Color inv&aacute;lido.';
+            return redirect()->to("/grupos/{$grupoId}#colores")->with('error', $message);
         }
 
-        if (! UserColor::isValidKey($color)) {
-            return redirect()->to("/grupos/{$grupoId}#colores")->with('error', 'Color inv&aacute;lido.');
-        }
-
+        // SUBMIT_SET
         try {
-            $overrideModel->setOverride($viewerId, $grupoId, $targetId, $color);
+            $overrideModel->setOverride($viewerId, $grupoId, $targetId, (string) $decision['colorKey']);
         } catch (\InvalidArgumentException $e) {
             return redirect()->to("/grupos/{$grupoId}#colores")->with('error', $e->getMessage());
         }

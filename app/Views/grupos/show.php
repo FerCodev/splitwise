@@ -162,7 +162,7 @@
                                     <div class="user-color-swatches user-color-swatches-inline">
                                         <?php foreach (($colorPalette ?? \App\Services\UserColor::PALETTE) as $key => $info): ?>
                                             <label class="user-color-swatch <?= $effectiveKey === $key ? 'is-selected' : '' ?>" title="<?= esc($info['label']) ?>">
-                                                <input type="radio" name="color" value="<?= esc($key) ?>" formnovalidate>
+                                                <input type="radio" name="color" value="<?= esc($key) ?>" <?= $effectiveKey === $key ? 'checked' : '' ?>>
                                                 <span class="user-color-swatch-circle" style="background: <?= esc($info['bg']) ?>; border-color: <?= esc($info['border']) ?>;"></span>
                                             </label>
                                         <?php endforeach; ?>
