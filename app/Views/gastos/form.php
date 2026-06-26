@@ -498,7 +498,16 @@
     <script>
         document.getElementById('grupo_id').addEventListener('change', function() {
             if (this.value) {
-                window.location.href = '<?= base_url('gastos/nuevo?grupo_id=') ?>' + this.value;
+                var montoReal = document.getElementById('monto_real');
+                var monto = montoReal ? montoReal.value : '';
+                var desc = encodeURIComponent(document.getElementById('descripcion').value);
+                var fecha = encodeURIComponent(document.getElementById('fecha').value);
+                var categoria = encodeURIComponent(document.getElementById('categoria_id').value);
+                window.location.href = '<?= base_url('gastos/nuevo?grupo_id=') ?>' + this.value
+                    + '&descripcion=' + desc
+                    + '&monto=' + monto
+                    + '&fecha=' + fecha
+                    + '&categoria_id=' + categoria;
             }
         });
     </script>

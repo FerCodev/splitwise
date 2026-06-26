@@ -51,6 +51,11 @@
                 Cat&aacute;logo
             </a>
         <?php endif; ?>
+        <div class="desktop-sidebar-section">Recursos</div>
+        <a href="<?= base_url('doc/inicio') ?>" class="desktop-sidebar-link <?= tabActive('doc', $current) ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.393-.13-.803-.264-1.186-.406-1.078-.401-1.868-.465-2.604-.138v-6.972c0-.507-.133-.954-.4-1.358a1.2 1.2 0 0 0-.479-.458c-.295-.166-.651-.19-1.078-.093-.47.106-.896.336-1.356.628V2.828z"/></svg>
+            Documentaci&oacute;n
+        </a>
     </nav>
     <div class="desktop-sidebar-footer">
         <div class="desktop-sidebar-user">
@@ -112,6 +117,11 @@
                 <a href="<?= base_url('admin/catalogo-tarjetas') ?>" class="mobile-menu-link">Cat&aacute;logo</a>
             </div>
         <?php endif; ?>
+
+        <div class="mobile-menu-section">
+            <div class="mobile-menu-section-title">Recursos</div>
+            <a href="<?= base_url('doc/inicio') ?>" class="mobile-menu-link">Documentaci&oacute;n</a>
+        </div>
 
         <div class="mobile-menu-session">
             <a href="<?= base_url('logout') ?>" class="mobile-menu-logout">
