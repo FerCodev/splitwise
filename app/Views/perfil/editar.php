@@ -1,3 +1,7 @@
+<?php
+    $currentColor = old('color', $user['color'] ?? \App\Services\UserColor::DEFAULT_KEY);
+    $colorInfo = \App\Services\UserColor::get($currentColor);
+?>
 <?= view('partials/_head', ['title' => 'Editar perfil - SplitWise']) ?>
     <?= view('partials/_navbar', ['pageTitle' => 'Editar perfil']) ?>
     <div class="container py-4">
@@ -26,6 +30,24 @@
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
                         <input type="email" class="form-control" id="email" name="email" value="<?= old('email', esc($user['email'])) ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label d-block">Color personal</label>
+                        <p class="text-muted small mb-2">Eleg&iacute; el color que usaremos por defecto para tus movimientos en los grupos. Los dem&aacute;s pueden ver otro color para vos si lo configuran en su grupo.</p>
+                        <div class="user-color-swatches" role="radiogroup" aria-label="Color personal">
+                            <label class="user-color-swatch <?= $currentColor === \App\Services\UserColor::DEFAULT_KEY ? 'is-selected' : '' ?>" title="Sin color personalizado">
+                                <input type="radio" name="color" value="<?= \App\Services\UserColor::DEFAULT_KEY ?>" <?= $currentColor === \App\Services\UserColor::DEFAULT_KEY ? 'checked' : '' ?>>
+                                <span class="user-color-swatch-circle" style="background: <?= esc(\App\Services\UserColor::RESERVED['system']['bg']) ?>; border-color: <?= esc(\App\Services\UserColor::RESERVED['system']['border']) ?>;">AUTO</span>
+                                <span class="user-color-swatch-label">Autom&aacute;tico</span>
+                            </label>
+                            <?php foreach ($palette as $key => $info): ?>
+                                <label class="user-color-swatch <?= $currentColor === $key ? 'is-selected' : '' ?>" title="<?= esc($info['label']) ?>">
+                                    <input type="radio" name="color" value="<?= esc($key) ?>" <?= $currentColor === $key ? 'checked' : '' ?>>
+                                    <span class="user-color-swatch-circle" style="background: <?= esc($info['bg']) ?>; border-color: <?= esc($info['border']) ?>;"></span>
+                                    <span class="user-color-swatch-label"><?= esc($info['label']) ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
                         <a href="<?= base_url('perfil') ?>" class="btn btn-secondary">Cancelar</a>
