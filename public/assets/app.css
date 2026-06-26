@@ -932,12 +932,11 @@ body {
 }
 .expense-actions-modal .modal-dialog {
     max-width: 360px;
+    margin: 1.75rem auto;
 }
 @media (max-width: 480px) {
     .expense-actions-modal .modal-dialog {
         width: calc(100% - 32px);
-        margin-left: auto;
-        margin-right: auto;
     }
 }
 .report-movement-list {

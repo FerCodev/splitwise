@@ -188,6 +188,18 @@ class Gastos extends BaseController
             $participantesIds = array_column($miembros, 'user_id');
         }
 
+        $prefillMonto = $this->request->getGet('monto');
+        if ($prefillMonto !== null && $prefillMonto !== '') {
+            $prefillMonto = number_format((float) $prefillMonto, 2, '.', '');
+        }
+
+        $prefill = [
+            'descripcion' => $this->request->getGet('descripcion'),
+            'monto' => $prefillMonto,
+            'fecha' => $this->request->getGet('fecha'),
+            'categoria_id' => $this->request->getGet('categoria_id'),
+        ];
+
         return view('gastos/form', [
             'grupos' => $grupos,
             'grupoId' => $grupoId,
@@ -195,6 +207,7 @@ class Gastos extends BaseController
             'participantesIds' => $participantesIds,
             'pagadorPorDefecto' => session()->get('userId'),
             'categorias' => model(Categoria::class)->getActivas(),
+            'prefill' => $prefill,
         ]);
     }
 

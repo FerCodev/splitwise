@@ -4,6 +4,7 @@
     <div class="container mt-3 mt-md-4">
         <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
 
+    <?php $prefill = $prefill ?? []; ?>
         <?php if (session()->getFlashdata('errors')): ?>
             <div class="alert alert-danger">
                 <ul class="mb-0">
@@ -25,21 +26,21 @@
                     <div class="mb-3">
                         <label for="monto" class="form-label fw-medium">Monto total</label>
                         <input type="text" class="form-control" id="monto" name="monto_visual"
-                               value="<?= esc(old('monto_visual', isset($gasto) ? numero_arg($gasto['monto']) : '')) ?>" required
+                               value="<?= esc(old('monto_visual', isset($gasto) ? numero_arg($gasto['monto']) : ($prefill['monto'] !== '' && $prefill['monto'] !== null ? numero_arg((float) $prefill['monto']) : ''))) ?>" required
                                inputmode="numeric"
                                oninput="formatearMonto(this); recalcularDivision();">
-                        <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? '')) ?>">
+                        <input type="hidden" name="monto" id="monto_real" value="<?= esc(old('monto', $gasto['monto'] ?? $prefill['monto'] ?? '')) ?>">
                     </div>
 
                     <div class="mb-3">
                         <label for="descripcion" class="form-label fw-medium">Descripci&oacute;n <small class="text-muted">(opcional)</small></label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion"
-                               value="<?= esc(old('descripcion', $gasto['descripcion'] ?? '')) ?>"
+                               value="<?= esc(old('descripcion', $gasto['descripcion'] ?? $prefill['descripcion'] ?? '')) ?>"
                                oninput="inferirCategoria(this.value)">
                         <div id="categoriaSugerida" class="mt-1 small text-muted d-none"></div>
                     </div>
 
-                    <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota'); ?>
+                    <?php $mostrarMasAcciones = isset($gasto) || old('fecha') || old('nota') || ($prefill['fecha'] ?? '') !== ''; ?>
                     <div class="mb-3">
                         <button class="btn btn-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#masAccionesGasto" aria-expanded="<?= $mostrarMasAcciones ? 'true' : 'false' ?>" aria-controls="masAccionesGasto">
                             M&aacute;s acciones
@@ -51,7 +52,7 @@
                             <div class="mb-3">
                                 <label for="fecha" class="form-label fw-medium">Fecha</label>
                                 <input type="date" class="form-control" id="fecha" name="fecha"
-                                       value="<?= esc(old('fecha', $gasto['fecha'] ?? date('Y-m-d'))) ?>" required>
+                                       value="<?= esc(old('fecha', $gasto['fecha'] ?? $prefill['fecha'] ?? date('Y-m-d'))) ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="nota" class="form-label fw-medium">Nota <small class="text-muted">(opcional)</small></label>
@@ -88,7 +89,7 @@
                     <?php endif; ?>
 
                     <!-- Categoria (oculta, inferida desde descripcion) -->
-                    <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? '') ?>">
+                    <input type="hidden" name="categoria_id" id="categoria_id" value="<?= old('categoria_id', $gasto['categoria_id'] ?? $prefill['categoria_id'] ?? '') ?>">
                     <input type="hidden" name="division_tipo" id="divisionTipoHidden" value="<?= esc(old('division_tipo', $gasto['division_tipo'] ?? 'igualitario')) ?>">
                     <div id="participantesHiddenContainer"></div>
                     <div id="divisionValoresContainer"></div>
@@ -498,7 +499,16 @@
     <script>
         document.getElementById('grupo_id').addEventListener('change', function() {
             if (this.value) {
-                window.location.href = '<?= base_url('gastos/nuevo?grupo_id=') ?>' + this.value;
+                var montoReal = document.getElementById('monto_real');
+                var monto = montoReal ? montoReal.value : '';
+                var desc = encodeURIComponent(document.getElementById('descripcion').value);
+                var fecha = encodeURIComponent(document.getElementById('fecha').value);
+                var categoria = encodeURIComponent(document.getElementById('categoria_id').value);
+                window.location.href = '<?= base_url('gastos/nuevo?grupo_id=') ?>' + this.value
+                    + '&descripcion=' + desc
+                    + '&monto=' + monto
+                    + '&fecha=' + fecha
+                    + '&categoria_id=' + categoria;
             }
         });
     </script>
