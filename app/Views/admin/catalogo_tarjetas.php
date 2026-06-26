@@ -938,20 +938,6 @@ $tablerItemCount = static function (array $section): int {
         window.alert(message || 'No se pudo guardar la marca.');
     }
 
-    function updateCounts() {
-        var selected = 0;
-        var discarded = 0;
-        var redesign = 0;
-        Object.keys(state).forEach(function(id) {
-            if (state[id].status === 'selected') selected += 1;
-            if (state[id].status === 'discarded') discarded += 1;
-            if (state[id].redesignNote) redesign += 1;
-        });
-        document.querySelectorAll('[data-catalog-count="selected"]').forEach(function(node) { node.textContent = String(selected); });
-        document.querySelectorAll('[data-catalog-count="discarded"]').forEach(function(node) { node.textContent = String(discarded); });
-        document.querySelectorAll('[data-catalog-count="redesign"]').forEach(function(node) { node.textContent = String(redesign); });
-    }
-
     function applyItemState(item) {
         var id = item.dataset.catalogDesignId;
         var itemState = state[id] || {};
@@ -975,7 +961,6 @@ $tablerItemCount = static function (array $section): int {
 
     function refresh() {
         items.forEach(applyItemState);
-        updateCounts();
     }
 
     items.forEach(function(item) {
@@ -1042,56 +1027,6 @@ $tablerItemCount = static function (array $section): int {
                 });
             });
         }
-    });
-
-    document.querySelectorAll('[data-catalog-copy]').forEach(function(copyButton) {
-        copyButton.addEventListener('click', function() {
-            var lines = ['Catalogo visual - curaduria'];
-            [
-                ['selected', 'Para implementar'],
-                ['discarded', 'Descartadas'],
-                ['redesign', 'Para redisenar']
-            ].forEach(function(section) {
-                lines.push('', section[1] + ':');
-                var matches = items.filter(function(item) {
-                    var itemState = state[item.dataset.catalogDesignId] || {};
-                    return section[0] === 'redesign' ? !!itemState.redesignNote : itemState.status === section[0];
-                });
-                if (!matches.length) {
-                    lines.push('- Sin marcas');
-                    return;
-                }
-                matches.forEach(function(item) {
-                    var itemState = state[item.dataset.catalogDesignId] || {};
-                    var note = itemState.redesignNote ? ' -> ' + itemState.redesignNote : '';
-                    lines.push('- ' + item.dataset.catalogDesignGroup + ' / ' + item.dataset.catalogDesignName + ' (' + item.dataset.catalogDesignId + ')' + note);
-                });
-            });
-            navigator.clipboard.writeText(lines.join('\n')).then(function() {
-                copyButton.textContent = 'Copiado';
-                window.setTimeout(function() { copyButton.textContent = 'Copiar seleccion'; }, 1500);
-            }).catch(function() {
-                window.prompt('Copia la seleccion', lines.join('\n'));
-            });
-        });
-    });
-
-    document.querySelectorAll('[data-catalog-clear]').forEach(function(clearButton) {
-        clearButton.addEventListener('click', function() {
-            if (clearButton.disabled) return;
-            clearButton.disabled = true;
-            var previous = state;
-            state = {};
-            refresh();
-            request(clearUrl).then(function() {
-                clearButton.disabled = false;
-            }).catch(function(error) {
-                clearButton.disabled = false;
-                state = previous;
-                refresh();
-                showSaveError(error.message);
-            });
-        });
     });
 
     refresh();

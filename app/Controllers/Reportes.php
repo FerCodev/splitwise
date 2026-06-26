@@ -21,8 +21,6 @@ class Reportes extends BaseController
             $filters['year_month'] = $mesBase['mes'];
         }
         $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
-        $topGrupos = ReportesService::topGrupos($userId, $filters['year_month']);
-        $topCategorias = ReportesService::topCategorias($userId, $filters['year_month']);
         $porCategoria = ReportesService::gastosPorCategoria($userId, $filters);
         $porGrupo = ReportesService::gastosPorGrupo($userId, $filters);
         $movimientos = ReportesService::movimientosFiltrados($userId, $filters, 12);
@@ -33,8 +31,6 @@ class Reportes extends BaseController
         return view('reportes/index', [
             'resumen' => $resumen,
             'resumenMensual' => $resumenMensual,
-            'topGrupos' => $topGrupos,
-            'topCategorias' => $topCategorias,
             'porCategoria' => $porCategoria,
             'porGrupo' => $porGrupo,
             'movimientos' => $movimientos,

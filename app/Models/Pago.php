@@ -87,21 +87,4 @@ class Pago extends Model
 
         return (float) ($result->monto ?? 0);
     }
-
-    /**
-     * Retorna los ultimos pagos visibles para el usuario en todos sus grupos.
-     */
-    public function getUltimosPagosByUser(int $userId, int $limit = 5): array
-    {
-        return $this->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, grupos.nombre as grupo_nombre')
-            ->join('users as pagador', 'pagador.id = pagos.pagador_id')
-            ->join('users as receptor', 'receptor.id = pagos.receptor_id')
-            ->join('grupos', 'grupos.id = pagos.grupo_id')
-            ->join('grupo_miembros', 'grupo_miembros.grupo_id = pagos.grupo_id AND grupo_miembros.user_id = ' . $userId)
-            ->groupBy('pagos.id')
-            ->orderBy('pagos.fecha', 'DESC')
-            ->orderBy('pagos.created_at', 'DESC')
-            ->limit($limit)
-            ->findAll();
-    }
 }
