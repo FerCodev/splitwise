@@ -495,10 +495,37 @@ body {
     min-height: 52px;
     justify-content: center;
 }
+.mobile-back-button {
+    position: absolute;
+    left: 4px;
+    top: 50%;
+    z-index: 1;
+    transform: translateY(-50%);
+    width: var(--touch-target);
+    height: var(--touch-target);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #fff;
+    padding: 0;
+}
+.mobile-back-button:hover,
+.mobile-back-button:focus-visible {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    outline: none;
+}
+.mobile-back-button svg {
+    width: 24px;
+    height: 24px;
+}
 .mobile-page-title {
     position: absolute;
-    left: 16px;
-    right: 16px;
+    left: 64px;
+    right: 64px;
     color: #fff;
     font-size: 22px;
     font-weight: 800;
