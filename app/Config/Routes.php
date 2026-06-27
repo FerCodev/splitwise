@@ -3,6 +3,7 @@
 use CodeIgniter\Router\RouteCollection;
 
 /** @var RouteCollection $routes */
+$routes->get('manifest.webmanifest', 'PwaManifest::index');
 $routes->get('/', 'Auth::login');
 $routes->get('/login', 'Auth::login');
 $routes->post('/login', 'Auth::doLogin');
