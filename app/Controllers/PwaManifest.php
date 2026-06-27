@@ -29,8 +29,7 @@ class PwaManifest extends Controller
         }
 
         return $this->response
-            ->setContentType('application/manifest+json')
-            ->setCharset('utf-8')
+            ->setHeader('Content-Type', 'application/manifest+json; charset=utf-8')
             ->setBody($content);
     }
 }
