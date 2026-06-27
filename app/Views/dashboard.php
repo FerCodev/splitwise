@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Dashboard']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Dashboard']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Home']) ?>
 
     <div class="container mt-3 mt-md-4">

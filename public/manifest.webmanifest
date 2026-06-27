@@ -1,6 +1,6 @@
 {
-  "name": "SplitWise",
-  "short_name": "SplitWise",
+  "name": "Gastito",
+  "short_name": "Gastito",
   "description": "Gestiona gastos compartidos, pagos y balances de grupos.",
   "id": "/",
   "start_url": "/login",

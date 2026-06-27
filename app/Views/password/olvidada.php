@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SplitWise - Recuperar contrase&ntilde;a</title>
+    <title>Gastito - Recuperar contrase&ntilde;a</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
@@ -12,7 +12,7 @@
             <div class="col-md-4">
                 <div class="card shadow">
                     <div class="card-body p-4">
-                        <h3 class="text-center mb-1">SplitWise</h3>
+                        <h3 class="text-center mb-1">Gastito</h3>
                         <p class="text-center text-muted small mb-4">Recuperar contrase&ntilde;a</p>
 
                         <?php if (session()->getFlashdata('error')): ?>

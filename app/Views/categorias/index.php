@@ -1,5 +1,5 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Categor&iacute;as']) ?>
-<?= view('partials/_navbar', ['pageTitle' => 'Categorías']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Categor&iacute;as']) ?>
+<?= view('partials/_navbar', ['pageTitle' => 'CategorÃ­as']) ?>
 
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">

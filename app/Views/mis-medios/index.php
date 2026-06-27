@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Mis medios de cobro']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Mis medios de cobro']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Medios de cobro']) ?>
 
     <?php $paymentMethodVariant = \App\Services\UiComponentResolver::variant('mis_medios_cobro', 'payment_method_card'); ?>

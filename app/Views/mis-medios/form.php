@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($medio) ? 'Editar' : 'Nuevo') . ' medio de cobro']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - ' . (isset($medio) ? 'Editar' : 'Nuevo') . ' medio de cobro']) ?>
 <?= view('partials/_navbar', ['pageTitle' => isset($medio) ? 'Editar medio' : 'Nuevo medio']) ?>
 
     <div class="container mt-3 mt-md-4">

@@ -5,7 +5,7 @@
     $previewBorder = $colorInfo['border'] ?? \App\Services\UserColor::RESERVED['system']['border'];
     $previewLabel = $colorInfo['label'] ?? 'Autom&aacute;tico';
 ?>
-<?= view('partials/_head', ['title' => 'Mi perfil - SplitWise']) ?>
+<?= view('partials/_head', ['title' => 'Mi perfil - Gastito']) ?>
     <?= view('partials/_navbar', ['pageTitle' => 'Perfil']) ?>
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Mi perfil</h2>

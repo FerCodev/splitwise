@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Pago']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Pago']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Detalle de pago']) ?>
 
     <div class="container mt-3 mt-md-4">
@@ -31,7 +31,7 @@
                                         'formId' => 'delete-pago-' . $pago['id'],
                                         'buttonClass' => 'dropdown-item text-danger',
                                         'confirmTitle' => 'Eliminar pago',
-                                        'confirmMsg' => 'Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer.',
+                                        'confirmMsg' => 'Se eliminarÃ¡ este pago y el balance del grupo volverÃ¡ a reflejar esa deuda. Esta acciÃ³n no se puede deshacer.',
                                         'confirmBtn' => 'Eliminar pago',
                                     ]) ?>
                                 </li>
@@ -58,7 +58,7 @@
                             'formId' => 'delete-pago-d-' . $pago['id'],
                             'buttonClass' => 'btn btn-danger btn-sm',
                             'confirmTitle' => 'Eliminar pago',
-                            'confirmMsg' => 'Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer.',
+                            'confirmMsg' => 'Se eliminarÃ¡ este pago y el balance del grupo volverÃ¡ a reflejar esa deuda. Esta acciÃ³n no se puede deshacer.',
                             'confirmBtn' => 'Eliminar pago',
                         ]) ?>
                     <?php endif; ?>

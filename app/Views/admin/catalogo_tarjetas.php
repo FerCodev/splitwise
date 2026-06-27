@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $numericSeccion = (string) (service('request')->getGet('seccion') ?? '');
 if ($numericSeccion !== '' && ctype_digit($numericSeccion)) {
     $tablerTitles = [
@@ -19,7 +19,7 @@ if ($numericSeccion !== '' && ctype_digit($numericSeccion)) {
     }
 }
 ?>
-<?= view('partials/_head', ['title' => 'SplitWise - Cat&aacute;logo de tarjetas']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Cat&aacute;logo de tarjetas']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Cat&aacute;logo Admin']) ?>
 
 <?php
@@ -240,7 +240,7 @@ $loginProposals = [
     [
         'name' => 'Centrada limpia',
         'hint' => 'Formulario directo con marca y foco en ingresar.',
-        'render' => static fn () => '<div class="login-preview login-preview-centered"><div class="login-preview-card"><div class="login-preview-brand"><span>S</span><strong>SplitWise</strong></div><label>Email</label><div class="login-preview-input">fernando@email.com</div><label>Contrase&ntilde;a</label><div class="login-preview-input login-preview-password">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div><button class="btn btn-primary w-100" type="button">Ingresar</button><a href="#">Olvid&eacute; mi contrase&ntilde;a</a></div></div>',
+        'render' => static fn () => '<div class="login-preview login-preview-centered"><div class="login-preview-card"><div class="login-preview-brand"><span>S</span><strong>Gastito</strong></div><label>Email</label><div class="login-preview-input">fernando@email.com</div><label>Contrase&ntilde;a</label><div class="login-preview-input login-preview-password">&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</div><button class="btn btn-primary w-100" type="button">Ingresar</button><a href="#">Olvid&eacute; mi contrase&ntilde;a</a></div></div>',
     ],
     [
         'name' => 'Panel dividido',
@@ -250,7 +250,7 @@ $loginProposals = [
     [
         'name' => 'Mobile primero',
         'hint' => 'Tarjeta amplia y controles c&oacute;modos.',
-        'render' => static fn () => '<div class="login-preview login-preview-mobile"><div class="login-preview-phone"><div class="login-preview-brand"><span>S</span><strong>SplitWise</strong></div><p>Ingres&aacute; para ver tus grupos activos.</p><div class="login-preview-input">Email</div><div class="login-preview-input">Contrase&ntilde;a</div><button class="btn btn-primary w-100" type="button">Ingresar</button><button class="btn btn-light w-100" type="button">Recuperar acceso</button></div></div>',
+        'render' => static fn () => '<div class="login-preview login-preview-mobile"><div class="login-preview-phone"><div class="login-preview-brand"><span>S</span><strong>Gastito</strong></div><p>Ingres&aacute; para ver tus grupos activos.</p><div class="login-preview-input">Email</div><div class="login-preview-input">Contrase&ntilde;a</div><button class="btn btn-primary w-100" type="button">Ingresar</button><button class="btn btn-light w-100" type="button">Recuperar acceso</button></div></div>',
     ],
     [
         'name' => 'Segura compacta',
@@ -265,7 +265,7 @@ $loginProposals = [
     [
         'name' => 'Sobria admin',
         'hint' => 'Mas neutra, con estetica de panel interno.',
-        'render' => static fn () => '<div class="login-preview login-preview-admin"><div class="login-preview-card"><div class="login-preview-kicker">SplitWise</div><strong>Acceso a la cuenta</strong><div class="login-preview-input">usuario@dominio.com</div><div class="login-preview-input">Contrase&ntilde;a</div><div class="login-preview-actions"><button class="btn btn-primary" type="button">Ingresar</button><button class="btn btn-outline-secondary" type="button">Ayuda</button></div></div></div>',
+        'render' => static fn () => '<div class="login-preview login-preview-admin"><div class="login-preview-card"><div class="login-preview-kicker">Gastito</div><strong>Acceso a la cuenta</strong><div class="login-preview-input">usuario@dominio.com</div><div class="login-preview-input">Contrase&ntilde;a</div><div class="login-preview-actions"><button class="btn btn-primary" type="button">Ingresar</button><button class="btn btn-outline-secondary" type="button">Ayuda</button></div></div></div>',
     ],
 ];
 

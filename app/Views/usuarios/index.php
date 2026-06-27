@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Usuarios']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Usuarios']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Usuarios']) ?>
 
     <div class="container mt-3 mt-md-4">

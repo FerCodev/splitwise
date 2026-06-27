@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte SplitWise</title>
+    <title>Reporte Gastito</title>
     <style>
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 12px; color: #333; }
         h1 { font-size: 20px; margin-bottom: 4px; }

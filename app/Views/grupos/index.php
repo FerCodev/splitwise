@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Grupos']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Grupos']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Grupos']) ?>
 
     <div class="container mt-3 mt-md-4">
@@ -40,7 +40,7 @@
                                             <h5 class="card-title fw-bold mb-0"><?= esc($grupo['nombre']) ?></h5>
                                             <span class="badge <?= $clase ?> flex-shrink-0"><?= ucfirst($grupo['estado']) ?></span>
                                         </div>
-                                        <p class="card-text text-muted small mb-0 mt-1"><?= esc($grupo['descripcion'] ?? 'Sin descripción') ?></p>
+                                        <p class="card-text text-muted small mb-0 mt-1"><?= esc($grupo['descripcion'] ?? 'Sin descripciÃ³n') ?></p>
                                     </div>
                                 </div>
                             </div>
@@ -52,7 +52,7 @@
                                     'formId' => 'delete-grupo-' . $grupo['id'],
                                     'buttonClass' => 'btn btn-danger w-100',
                                     'confirmTitle' => 'Eliminar grupo',
-                                    'confirmMsg' => 'Se eliminará el grupo y ya no podrás consultarlo. Esta acción no se puede deshacer.',
+                                    'confirmMsg' => 'Se eliminarÃ¡ el grupo y ya no podrÃ¡s consultarlo. Esta acciÃ³n no se puede deshacer.',
                                     'confirmBtn' => 'Eliminar grupo',
                                 ]) ?>
                             </div>

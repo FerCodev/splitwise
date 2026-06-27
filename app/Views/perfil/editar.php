@@ -2,7 +2,7 @@
     $currentColor = old('color', $user['color'] ?? \App\Services\UserColor::DEFAULT_KEY);
     $colorInfo = \App\Services\UserColor::get($currentColor);
 ?>
-<?= view('partials/_head', ['title' => 'Editar perfil - SplitWise']) ?>
+<?= view('partials/_head', ['title' => 'Editar perfil - Gastito']) ?>
     <?= view('partials/_navbar', ['pageTitle' => 'Editar perfil']) ?>
     <div class="container py-4">
         <h2 class="mb-4 d-none d-md-block">Editar perfil</h2>
