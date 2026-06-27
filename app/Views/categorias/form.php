@@ -1,5 +1,5 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($categoria) ? 'Editar' : 'Nueva') . ' Categor&iacute;a']) ?>
-<?= view('partials/_navbar', ['pageTitle' => isset($categoria) ? 'Editar categoría' : 'Nueva categoría']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - ' . (isset($categoria) ? 'Editar' : 'Nueva') . ' Categor&iacute;a']) ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($categoria) ? 'Editar categorÃ­a' : 'Nueva categorÃ­a']) ?>
 
     <div class="container mt-3 mt-md-4">
         <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($categoria) ? 'Editar Categor&iacute;a' : 'Nueva Categor&iacute;a' ?></h2>

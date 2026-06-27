@@ -1,4 +1,4 @@
-﻿<?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' Gasto']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' Gasto']) ?>
 <?= view('partials/_navbar', ['pageTitle' => isset($gasto) ? 'Editar gasto' : 'Nuevo gasto']) ?>
 
     <div class="container mt-3 mt-md-4">

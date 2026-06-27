@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Reporte: ' . $grupo['nombre']]) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Reporte: ' . $grupo['nombre']]) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Reporte']) ?>
 
     <div class="container mt-3 mt-md-4">

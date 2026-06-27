@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - ' . (isset($grupo) ? 'Editar' : 'Nuevo') . ' Grupo']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - ' . (isset($grupo) ? 'Editar' : 'Nuevo') . ' Grupo']) ?>
 <?= view('partials/_navbar', ['pageTitle' => isset($grupo) ? 'Editar grupo' : 'Nuevo grupo']) ?>
 
     <div class="container mt-3 mt-md-4">
@@ -194,7 +194,7 @@
                                                     'formId' => 'quitar-miembro-' . $m['user_id'],
                                                     'buttonClass' => 'btn btn-danger btn-sm',
                                                     'confirmTitle' => 'Quitar miembro',
-                                                    'confirmMsg' => 'Se quitará este usuario del grupo.',
+                                                    'confirmMsg' => 'Se quitarÃ¡ este usuario del grupo.',
                                                     'confirmBtn' => 'Quitar miembro',
                                                 ]) ?>
                                                 <?php endif; ?>

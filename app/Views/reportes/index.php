@@ -1,4 +1,4 @@
-﻿<?= view('partials/_head', ['title' => 'SplitWise - Reportes']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Reportes']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Reportes']) ?>
 <?php
     $mesReporte = $resumenMensual['mes'] ?? ($filters['year_month'] ?? date('Y-m'));

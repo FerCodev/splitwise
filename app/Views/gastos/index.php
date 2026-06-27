@@ -1,4 +1,4 @@
-<?= view('partials/_head', ['title' => 'SplitWise - Gastos']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Gastos']) ?>
 <?= view('partials/_navbar', ['pageTitle' => 'Gastos']) ?>
 <?php
     use App\Services\UserColor;
