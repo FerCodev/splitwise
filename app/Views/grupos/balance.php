@@ -2,7 +2,7 @@
 <?= view('partials/_navbar', ['pageTitle' => 'Balance']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3">&larr; Volver al grupo</a>
+        <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3 d-none d-lg-inline-flex">&larr; Volver al grupo</a>
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
