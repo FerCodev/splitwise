@@ -173,7 +173,7 @@
                         'formId' => 'delete-gasto-' . $gasto['id'],
                         'buttonClass' => 'btn btn-danger w-100',
                         'confirmTitle' => 'Eliminar gasto',
-                        'confirmMsg' => 'Se eliminarÃ¡ este gasto del grupo y el balance se recalcularÃ¡. Esta acciÃ³n no se puede deshacer.',
+                        'confirmMsg' => 'Se eliminará este gasto del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
                         'confirmBtn' => 'Eliminar gasto',
                     ]) ?>
                 <?php endif; ?>

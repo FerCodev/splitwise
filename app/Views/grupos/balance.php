@@ -39,8 +39,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>Nombre</th>
-                                    <th class="text-end">PagÃ³ en gastos</th>
-                                    <th class="text-end">ConsumiÃ³</th>
+                                    <th class="text-end">Pagó en gastos</th>
+                                    <th class="text-end">Consumió</th>
                                     <th class="text-end">Pagos enviados</th>
                                     <th class="text-end">Pagos recibidos</th>
                                     <th class="text-end">Saldo</th>
@@ -142,7 +142,7 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Gastos por categorÃ­a</h5>
+                <h5 class="mb-0 fw-bold">Gastos por categoría</h5>
             </div>
             <?php if (empty($gastosPorCategoria)): ?>
                 <div class="card-body text-center py-4">
@@ -154,7 +154,7 @@
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>CategorÃ­a</th>
+                                    <th>Categoría</th>
                                     <th class="text-end">Cantidad</th>
                                     <th class="text-end">Total</th>
                                 </tr>
@@ -193,7 +193,7 @@
                 <div class="card-body text-center py-4">
                     <p class="text-muted mb-0">
                         <span class="text-success fw-bold">&check;</span>
-                        El grupo estÃ¡ saldado. No hay deudas pendientes.
+                        El grupo está saldado. No hay deudas pendientes.
                     </p>
                 </div>
             <?php else: ?>
@@ -285,7 +285,7 @@
                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post">
                         <?= csrf_field() ?>
                         <input type="hidden" name="estado" value="liquidado">
-                        <p class="mb-3">El grupo estÃ¡ saldado y cerrado. Â¿Marcar como liquidado?</p>
+                        <p class="mb-3">El grupo está saldado y cerrado. ¿Marcar como liquidado?</p>
                         <button type="submit" class="btn btn-secondary">Liquidar grupo</button>
                     </form>
                 </div>
@@ -294,7 +294,7 @@
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body text-center py-4">
                     <p class="text-muted mb-0">
-                        Hay deudas pendientes. RegistrÃ¡ los pagos correspondientes antes de liquidar.
+                        Hay deudas pendientes. Registrá los pagos correspondientes antes de liquidar.
                     </p>
                 </div>
             </div>
@@ -360,7 +360,7 @@
                     btn.textContent = textoOriginal;
                 }, 2000);
             } catch (e) {
-                alert('No se pudo copiar al portapapeles. SeleccionÃ¡ y copiÃ¡ manualmente.');
+                alert('No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
             }
             document.body.removeChild(textarea);
         }

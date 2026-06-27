@@ -194,7 +194,7 @@
                                                     'formId' => 'quitar-miembro-' . $m['user_id'],
                                                     'buttonClass' => 'btn btn-danger btn-sm',
                                                     'confirmTitle' => 'Quitar miembro',
-                                                    'confirmMsg' => 'Se quitarÃ¡ este usuario del grupo.',
+                                                    'confirmMsg' => 'Se quitará este usuario del grupo.',
                                                     'confirmBtn' => 'Quitar miembro',
                                                 ]) ?>
                                                 <?php endif; ?>

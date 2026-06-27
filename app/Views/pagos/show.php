@@ -31,7 +31,7 @@
                                         'formId' => 'delete-pago-' . $pago['id'],
                                         'buttonClass' => 'dropdown-item text-danger',
                                         'confirmTitle' => 'Eliminar pago',
-                                        'confirmMsg' => 'Se eliminarÃ¡ este pago y el balance del grupo volverÃ¡ a reflejar esa deuda. Esta acciÃ³n no se puede deshacer.',
+                                        'confirmMsg' => 'Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer.',
                                         'confirmBtn' => 'Eliminar pago',
                                     ]) ?>
                                 </li>
@@ -58,7 +58,7 @@
                             'formId' => 'delete-pago-d-' . $pago['id'],
                             'buttonClass' => 'btn btn-danger btn-sm',
                             'confirmTitle' => 'Eliminar pago',
-                            'confirmMsg' => 'Se eliminarÃ¡ este pago y el balance del grupo volverÃ¡ a reflejar esa deuda. Esta acciÃ³n no se puede deshacer.',
+                            'confirmMsg' => 'Se eliminará este pago y el balance del grupo volverá a reflejar esa deuda. Esta acción no se puede deshacer.',
                             'confirmBtn' => 'Eliminar pago',
                         ]) ?>
                     <?php endif; ?>
