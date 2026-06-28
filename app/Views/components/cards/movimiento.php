@@ -3,7 +3,7 @@ use App\Services\UserColor;
 
 $variant = $variant ?? 'feed';
 $tipo = $tipo ?? 'gasto';
-$descripcion = $descripcion ?? ($tipo === 'pago' ? 'Pago' : 'Gasto');
+$descripcion = $descripcion ?? ($tipo === 'pago' ? 'Pago' : 'Gastito');
 $monto = (float) ($monto ?? 0);
 $fecha = $fecha ?? date('Y-m-d');
 $persona = $persona ?? 'Usuario';
@@ -50,7 +50,7 @@ $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
                 <div class="group-movement-avatar"><?= esc($inicialPersona) ?></div>
                 <div class="min-width-0">
                     <div>
-                        <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gasto' : 'Pago' ?></span>
+                        <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gastito' : 'Pago' ?></span>
                         <span class="fw-medium small"><?= esc($descripcion) ?></span>
                     </div>
                     <div class="text-muted small"><?= date('d/m/Y', strtotime($fecha)) ?> &middot; <?= esc($persona) ?></div>
@@ -69,7 +69,7 @@ $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
     <div class="group-movement-compact-card" style="background: <?= esc($bg) ?>; border-left: 3px solid <?= esc($border) ?>;">
         <div class="min-width-0">
             <div>
-                <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gasto' : 'Pago' ?></span>
+                <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gastito' : 'Pago' ?></span>
                 <span class="fw-semibold small"><?= esc($descripcion) ?></span>
             </div>
             <div class="text-muted small"><?= date('d/m/Y', strtotime($fecha)) ?> &middot; <?= esc($persona) ?><?= $categoria ? ' &middot; ' . esc($categoria) : '' ?></div>
@@ -80,7 +80,7 @@ $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
     <div class="report-movement-card" style="background: <?= esc($bg) ?>; border-left: 3px solid <?= esc($border) ?>;">
         <div class="catalog-card-top">
             <div class="min-width-0">
-                <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gasto' : 'Pago' ?></span>
+                <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gastito' : 'Pago' ?></span>
                 <span class="fw-medium small"><?= esc($descripcion) ?></span>
                 <?php if ($categoria): ?>
                     <span class="badge bg-light text-dark ms-1"><?= esc($categoria) ?></span>
