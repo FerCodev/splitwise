@@ -44,7 +44,7 @@ class GroupPermission
                 return null;
             }
             $accionLabel = $accion === 'gasto_edit' ? 'editar' : 'eliminar';
-            return "Solo el administrador del grupo o quien pag&oacute; el gasto puede {$accionLabel}lo.";
+            return "Solo el administrador del grupo o quien pag&oacute; el gastito puede {$accionLabel}lo.";
         }
 
         if ($accion === 'pago_edit' || $accion === 'pago_delete') {

@@ -1,8 +1,8 @@
-<?= view('partials/_head', ['title' => 'Gastito - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' Gasto']) ?>
-<?= view('partials/_navbar', ['pageTitle' => isset($gasto) ? 'Editar gasto' : 'Nuevo gasto']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - ' . (isset($gasto) ? 'Editar' : 'Nuevo') . ' gastito']) ?>
+<?= view('partials/_navbar', ['pageTitle' => isset($gasto) ? 'Editar gastito' : 'Nuevo gastito']) ?>
 
     <div class="container mt-3 mt-md-4">
-        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($gasto) ? 'Editar Gasto' : 'Nuevo Gasto' ?></h2>
+        <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($gasto) ? 'Editar gastito' : 'Nuevo gastito' ?></h2>
 
     <?php $prefill = $prefill ?? []; ?>
         <?php if (session()->getFlashdata('errors')): ?>
@@ -143,7 +143,7 @@
 
                     <!-- SECCION DIVISION (resumen compacto) -->
                     <div id="divisionSection" class="mb-4 <?= !isset($miembros) || count($miembros) === 0 ? 'd-none' : '' ?>">
-                        <label class="form-label fw-medium">Divisi&oacute;n del gasto</label>
+                        <label class="form-label fw-medium">Divisi&oacute;n del gastito</label>
                         <button type="button" class="btn btn-secondary w-100 text-start py-3 px-3 division-summary d-flex align-items-center" id="divisionSummaryBtn" data-bs-toggle="modal" data-bs-target="#divisionPresetModal">
                             <span class="division-summary-title flex-grow-1">Por defecto, dividido en partes iguales.</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="flex-shrink-0 ms-2" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>
@@ -153,7 +153,7 @@
                     <div class="d-flex gap-2">
                         <a href="<?= !empty($grupoId) ? base_url('grupos/' . $grupoId) : base_url('gastos') ?>" class="btn btn-secondary flex-fill">Cancelar</a>
                         <button type="submit" class="btn btn-primary flex-fill">
-                            <?= isset($gasto) ? 'Guardar Cambios' : 'Crear Gasto' ?>
+                            <?= isset($gasto) ? 'Guardar Cambios' : 'Crear gastito' ?>
                         </button>
                     </div>
                 </form>
@@ -374,7 +374,7 @@
                 return;
             }
             if (seleccionados === 0) {
-                resultado.innerHTML = 'Seleccion\u00e1 al menos un participante para dividir el gasto.';
+                resultado.innerHTML = 'Seleccion\u00e1 al menos un participante para dividir el gastito.';
                 error.classList.add('d-none');
                 actualizarMontosCalculados(modo, montoTotal, rows, []);
                 sincronizarDivisionHidden(rows);
@@ -517,7 +517,7 @@
     <div class="modal-dialog modal-fullscreen-md-down modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title fw-bold" id="divisionPresetModalLabel">&iquest;C&oacute;mo se dividi&oacute; este gasto?</h5>
+                <h5 class="modal-title fw-bold" id="divisionPresetModalLabel">&iquest;C&oacute;mo se dividi&oacute; este gastito?</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body p-3">
@@ -526,7 +526,7 @@
                     <div class="list-group mb-3">
                         <button type="button" class="list-group-item list-group-item-action quick-split-option active" data-preset="equal" onclick="aplicarPresetDivision('equal', this)">
                             <span class="d-block fw-semibold">Partes iguales</span>
-                            <span class="d-block small text-muted">Todos participan del gasto.</span>
+                            <span class="d-block small text-muted">Todos participan del gastito.</span>
                         </button>
                         <button type="button" class="list-group-item list-group-item-action quick-split-option" data-preset="me_paid_others" onclick="aplicarPresetDivision('me_paid_others', this)">
                             <span class="d-block fw-semibold">Yo pagu&eacute;, me deben</span>

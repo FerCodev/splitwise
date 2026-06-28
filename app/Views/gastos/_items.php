@@ -18,7 +18,7 @@ $systemSolid = UserColor::RESERVED['system']['solid'];
         <div class="report-movement-card report-movement-expense" style="border-left: 3px solid <?= esc($border) ?>; background: <?= esc($bg) ?>;">
             <div class="d-flex justify-content-between align-items-start gap-2">
                 <div class="min-width-0">
-                    <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;">Gasto</span>
+                    <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;">Gastito</span>
                     <span class="fw-medium small"><?= esc($gasto['descripcion']) ?></span>
                 </div>
                 <span class="fw-bold small text-nowrap" style="color: <?= esc($solid) ?>;"><?= moneda($gasto['monto']) ?></span>

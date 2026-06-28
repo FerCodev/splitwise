@@ -407,7 +407,7 @@ class Gastos extends BaseController
             ] + ($reciboData ?: []));
 
             if (!$gastoId) {
-                throw new \RuntimeException('Error al crear el gasto.');
+                throw new \RuntimeException('Error al crear el gastito.');
             }
 
             $participanteModel = new GastoParticipante();
@@ -443,10 +443,10 @@ class Gastos extends BaseController
             $db->transCommit();
         } catch (\Exception $e) {
             $db->transRollback();
-            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gasto. Intentalo de nuevo.'], 'Error al crear el gasto. Intentalo de nuevo.'));
+            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gastito. Intentalo de nuevo.'], 'Error al crear el gastito. Intentalo de nuevo.'));
         }
 
-        return redirect()->to('/grupos/' . $grupoId)->with('success', UiFeedbackResolver::message('expenses.create.completed', [], 'Gasto creado correctamente.'));
+        return redirect()->to('/grupos/' . $grupoId)->with('success', UiFeedbackResolver::message('expenses.create.completed', [], 'Gastito creado correctamente.'));
     }
 
     public function show(int $id)
@@ -459,14 +459,14 @@ class Gastos extends BaseController
             ->find($id);
 
         if (!$gasto) {
-            return redirect()->to('/gastos')->with('error', 'Gasto no encontrado.');
+            return redirect()->to('/gastos')->with('error', 'Gastito no encontrado.');
         }
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
 
         if (!$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
-            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gastito.');
         }
 
         $grupo = $grupoModel->find($gasto['grupo_id']);
@@ -490,14 +490,14 @@ class Gastos extends BaseController
         $gasto = $gastoModel->find($id);
 
         if (!$gasto) {
-            return redirect()->to('/gastos')->with('error', 'Gasto no encontrado.');
+            return redirect()->to('/gastos')->with('error', 'Gastito no encontrado.');
         }
 
         $grupoModel = new Grupo();
         $userId = session()->get('userId');
 
         if (!$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
-            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gastito.');
         }
 
         $grupo = $grupoModel->find($gasto['grupo_id']);
@@ -541,7 +541,7 @@ class Gastos extends BaseController
         $gastoExistente = $gastoModel->find($id);
 
         if (!$gastoExistente) {
-            return redirect()->to('/gastos')->with('error', 'Gasto no encontrado.');
+            return redirect()->to('/gastos')->with('error', 'Gastito no encontrado.');
         }
 
         $rules = [
@@ -574,7 +574,7 @@ class Gastos extends BaseController
         $grupo = $grupoModel->find($grupoIdOriginal);
 
         if (!$grupo || !$grupoModel->isMiembro($grupoIdOriginal, $userId)) {
-            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gasto.');
+            return redirect()->to('/gastos')->with('error', 'No tenés acceso a este gastito.');
         }
 
         $rol = $grupoModel->getUserRol($grupoIdOriginal, $userId);
@@ -690,10 +690,10 @@ class Gastos extends BaseController
             $db->transCommit();
         } catch (\Exception $e) {
             $db->transRollback();
-            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.update.failed', ['reason' => 'Error al actualizar el gasto. Intentalo de nuevo.'], 'Error al actualizar el gasto. Intentalo de nuevo.'));
+            return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.update.failed', ['reason' => 'Error al actualizar el gastito. Intentalo de nuevo.'], 'Error al actualizar el gastito. Intentalo de nuevo.'));
         }
 
-        return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', UiFeedbackResolver::message('expenses.update.completed', [], 'Gasto actualizado correctamente.'));
+        return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', UiFeedbackResolver::message('expenses.update.completed', [], 'Gastito actualizado correctamente.'));
     }
 
     public function delete(int $id)
@@ -702,13 +702,13 @@ class Gastos extends BaseController
         $gasto = $gastoModel->find($id);
 
         if (!$gasto) {
-            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.delete.failed', ['reason' => 'Gasto no encontrado.'], 'Gasto no encontrado.'));
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.delete.failed', ['reason' => 'Gastito no encontrado.'], 'Gastito no encontrado.'));
         }
 
         $grupoModel = new Grupo();
         $grupo = $grupoModel->find($gasto['grupo_id']);
         if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], session()->get('userId'))) {
-            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.delete.failed', ['reason' => 'No tenés acceso a este gasto.'], 'No tenés acceso a este gasto.'));
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.delete.failed', ['reason' => 'No tenés acceso a este gastito.'], 'No tenés acceso a este gastito.'));
         }
 
         $userId = session()->get('userId');
@@ -729,7 +729,7 @@ class Gastos extends BaseController
 
         $gastoModel->delete($id);
 
-        return redirect()->to('/gastos')->with('success', UiFeedbackResolver::message('expenses.delete.completed', [], 'Gasto eliminado correctamente.'));
+        return redirect()->to('/gastos')->with('success', UiFeedbackResolver::message('expenses.delete.completed', [], 'Gastito eliminado correctamente.'));
     }
 
     private function verificarAccesoGrupo(int $grupoId): ?array
@@ -821,14 +821,14 @@ class Gastos extends BaseController
         $gastoModel = new Gasto();
         $gasto = $gastoModel->find($id);
         if (!$gasto) {
-            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'Gasto no encontrado.'], 'Gasto no encontrado.'));
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'Gastito no encontrado.'], 'Gastito no encontrado.'));
         }
 
         $userId = session()->get('userId');
         $grupoModel = new Grupo();
         $grupo = $grupoModel->find($gasto['grupo_id']);
         if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
-            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'No tenés acceso a este gasto.'], 'No tenés acceso a este gasto.'));
+            return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'No tenés acceso a este gastito.'], 'No tenés acceso a este gastito.'));
         }
 
         $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
@@ -899,7 +899,7 @@ class Gastos extends BaseController
         }
 
         if ($divisionTipo === 'monto_fijo' && abs($monto - $totalValor) > 0.01) {
-            return ['division' => 'La suma de montos fijos no coincide con el total del gasto.'];
+            return ['division' => 'La suma de montos fijos no coincide con el total del gastito.'];
         }
         if ($divisionTipo === 'porcentaje' && abs($totalValor - 100) > 0.1) {
             return ['division' => 'Los porcentajes deben sumar 100%.'];

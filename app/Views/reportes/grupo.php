@@ -23,7 +23,7 @@
             </div>
             <div class="col-4 col-md-3">
                 <div class="card border-0 shadow-sm text-center py-3 h-100">
-                    <div class="small text-muted">Gastos</div>
+                    <div class="small text-muted">Gastitos</div>
                     <div class="fw-bold fs-5 text-secondary"><?= $resumen['cant_gastos'] ?></div>
                 </div>
             </div>
@@ -70,11 +70,11 @@
             <div class="col-12 col-md-6">
                 <div class="card border-0 shadow-sm h-100">
                     <div class="card-header bg-white">
-                        <h5 class="mb-0 fw-bold">Gastos por categor&iacute;a</h5>
+                        <h5 class="mb-0 fw-bold">Gastitos por categor&iacute;a</h5>
                     </div>
                     <div class="card-body p-0">
                         <?php if (empty($porCategoria)): ?>
-                            <p class="text-muted small p-3 mb-0">Sin gastos categorizados.</p>
+                            <p class="text-muted small p-3 mb-0">Sin gastitos categorizados.</p>
                         <?php else: ?>
                             <?php foreach ($porCategoria as $c): ?>
                                 <div class="mobile-card-item">
@@ -132,7 +132,7 @@
                         <div class="mobile-card-item">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $m['tipo'] === 'gasto' ? 'Gasto' : 'Pago' ?></span>
+                                    <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $m['tipo'] === 'gasto' ? 'Gastito' : 'Pago' ?></span>
                                     <span class="fw-medium small ms-1"><?= esc($m['descripcion']) ?></span>
                                 </div>
                                 <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>"><?= moneda($m['monto']) ?></span>

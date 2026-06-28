@@ -94,7 +94,7 @@
                                 <button type="button" class="btn btn-warning"
                                     data-bs-toggle="modal" data-bs-target="#confirmModal"
                                     data-confirm-title="Cerrar grupo"
-                                    data-confirm-msg="Se cerrara el grupo. No se podran crear ni editar gastos, solo registrar pagos para saldar deudas."
+                                    data-confirm-msg="Se cerrara el grupo. No se podran crear ni editar gastitos, solo registrar pagos para saldar deudas."
                                     data-confirm-btn="Cerrar grupo"
                                     data-confirm-class="btn-warning"
                                     data-confirm-form="cerrar-grupo-<?= $grupo['id'] ?>">Cerrar grupo</button>
@@ -107,7 +107,7 @@
                                     <button type="button" class="btn btn-success"
                                         data-bs-toggle="modal" data-bs-target="#confirmModal"
                                         data-confirm-title="Reabrir grupo"
-                                        data-confirm-msg="Se reabrira el grupo. Los miembros podran crear y editar gastos nuevamente."
+                                        data-confirm-msg="Se reabrira el grupo. Los miembros podran crear y editar gastitos nuevamente."
                                         data-confirm-btn="Reabrir grupo"
                                         data-confirm-class="btn-success"
                                         data-confirm-form="reabrir-grupo-<?= $grupo['id'] ?>">Reabrir grupo</button>
@@ -214,7 +214,7 @@
             <div class="card border-0 shadow-sm mt-4" id="colores">
                 <div class="card-header bg-white border-bottom">
                     <h5 class="mb-0 fw-bold">Colores por usuario</h5>
-                    <small class="text-muted d-block mt-1">Estos colores se aplican solo a tu vista. Si los quit&aacute;s, cada gasto vuelve al color global que esa persona eligi&oacute; en su perfil.</small>
+                    <small class="text-muted d-block mt-1">Estos colores se aplican solo a tu vista. Si los quit&aacute;s, cada gastito vuelve al color global que esa persona eligi&oacute; en su perfil.</small>
                 </div>
                 <div class="card-body">
                     <?php if (empty($miembros)): ?>

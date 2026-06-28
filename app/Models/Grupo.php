@@ -156,9 +156,9 @@ class Grupo extends Model
     public static function restriccionEstado(string $estado, string $accion): ?string
     {
         $bloqueos = [
-            'gasto_create' => ['cerrado' => 'No se pueden crear gastos en un grupo cerrado.', 'liquidado' => 'No se pueden crear gastos en un grupo liquidado.'],
-            'gasto_edit'   => ['cerrado' => 'No se pueden editar gastos en un grupo cerrado.', 'liquidado' => 'No se pueden editar gastos en un grupo liquidado.'],
-            'gasto_delete' => ['cerrado' => 'No se pueden eliminar gastos en un grupo cerrado.', 'liquidado' => 'No se pueden eliminar gastos en un grupo liquidado.'],
+            'gasto_create' => ['cerrado' => 'No se pueden crear gastitos en un grupo cerrado.', 'liquidado' => 'No se pueden crear gastitos en un grupo liquidado.'],
+            'gasto_edit'   => ['cerrado' => 'No se pueden editar gastitos en un grupo cerrado.', 'liquidado' => 'No se pueden editar gastitos en un grupo liquidado.'],
+            'gasto_delete' => ['cerrado' => 'No se pueden eliminar gastitos en un grupo cerrado.', 'liquidado' => 'No se pueden eliminar gastitos en un grupo liquidado.'],
             'pago_create'  => ['liquidado' => 'No se pueden registrar pagos en un grupo liquidado.'],
             'pago_edit'    => ['liquidado' => 'No se pueden editar pagos en un grupo liquidado.'],
             'pago_delete'  => ['liquidado' => 'No se pueden eliminar pagos en un grupo liquidado.'],

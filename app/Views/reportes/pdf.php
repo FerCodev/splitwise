@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <h1>Reporte de gastos</h1>
+    <h1>Reporte de gastitos</h1>
     <div class="fecha">Generado el <?= $fecha ?></div>
 
     <table class="resumen">
@@ -29,9 +29,9 @@
     </table>
 
     <?php if (!empty($topGrupos)): ?>
-    <div class="section-title">Top grupos por gasto</div>
+    <div class="section-title">Grupos con mayor total</div>
     <table>
-        <tr><th>Grupo</th><th>Gastos</th><th>Total</th></tr>
+        <tr><th>Grupo</th><th>Gastitos</th><th>Total</th></tr>
         <?php foreach ($topGrupos as $g): ?>
         <tr><td><?= htmlspecialchars($g['nombre']) ?></td><td><?= $g['cantidad'] ?></td><td><?= moneda($g['total']) ?></td></tr>
         <?php endforeach; ?>

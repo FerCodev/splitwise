@@ -34,7 +34,7 @@
                             <span class="user-color-swatch-circle" style="background: <?= esc($previewBg) ?>; border-color: <?= esc($previewBorder) ?>; width: 24px; height: 24px;"></span>
                             <span class="text-muted"><?= $previewLabel ?></span>
                         </div>
-                        <div class="text-muted small mt-1">Es el color por defecto con el que otros ven tus gastos. Cada usuario puede overridearlo en su grupo.</div>
+                        <div class="text-muted small mt-1">Es el color por defecto con el que otros ven tus gastitos. Cada usuario puede overridearlo en su grupo.</div>
                     </div>
                 </div>
                 <a href="<?= base_url('perfil/editar') ?>" class="btn btn-primary w-100">Editar perfil</a>
