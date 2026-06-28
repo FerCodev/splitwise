@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gastos</title>
+    <title>Gastitos</title>
     <style>
         body { font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #222; }
         h1 { font-size: 20px; margin: 0 0 4px; }
@@ -17,11 +17,11 @@
     </style>
 </head>
 <body>
-    <h1>Gastos</h1>
+    <h1>Gastitos</h1>
     <div class="meta">Generado el <?= esc($fecha) ?></div>
     <div class="summary">
         <strong>Total: <?= moneda($total) ?></strong><br>
-        <span class="muted"><?= count($gastos) ?> gasto(s) exportado(s)</span>
+        <span class="muted"><?= count($gastos) ?> <?= pluralizar(count($gastos), 'gastito exportado', 'gastitos exportados') ?></span>
     </div>
 
     <table>

@@ -13,7 +13,7 @@
 <body>
     <table>
         <tr>
-            <th colspan="7">Gastos exportados</th>
+            <th colspan="7">Gastitos exportados</th>
         </tr>
         <tr>
             <td colspan="7">Generado el <?= esc($fecha) ?></td>

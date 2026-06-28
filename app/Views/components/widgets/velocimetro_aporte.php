@@ -16,7 +16,7 @@ $variant = $variant ?? 'semicircle';
 </div>
 <?php elseif ($variant === 'scale_bar'): ?>
 <div class="catalog-gauge-bar">
-    <div class="catalog-card-top"><div><span class="text-muted small d-block">Tu aporte al gasto</span><strong><?= round($porcentaje) ?>%</strong></div><b class="text-primary"><?= moneda($pagado) ?></b></div>
+    <div class="catalog-card-top"><div><span class="text-muted small d-block">Tu aporte al gastito</span><strong><?= round($porcentaje) ?>%</strong></div><b class="text-primary"><?= moneda($pagado) ?></b></div>
     <div class="catalog-gauge-bar-track"><span style="width: <?= round($porcentaje, 2) ?>%;"></span><i style="left: <?= round($porcentaje, 2) ?>%;"></i></div>
     <div class="group-spend-gauge-scale"><span><?= moneda(0) ?></span><span><?= moneda($total) ?></span></div>
     <div class="text-muted small mt-2">La escala completa representa el total gastado del grupo.</div>
@@ -30,10 +30,10 @@ $variant = $variant ?? 'semicircle';
 <?php else: ?>
 <div class="group-spend-gauge" style="--gauge-angle: <?= round($angulo, 2) ?>deg;">
     <div class="group-spend-gauge-copy">
-        <span>Tu aporte al gasto</span>
+        <span>Tu aporte al gastito</span>
         <strong><?= round($porcentaje) ?>%</strong>
     </div>
-    <div class="group-spend-gauge-meter" aria-label="Vos pagaste <?= round($porcentaje) ?>% del total gastado del grupo">
+    <div class="group-spend-gauge-meter" aria-label="Vos pagaste <?= round($porcentaje) ?>% del total de gastitos del grupo">
         <div class="group-spend-gauge-arc"></div>
         <div class="group-spend-gauge-needle"></div>
         <div class="group-spend-gauge-hub"></div>

@@ -130,7 +130,7 @@ class Categorias extends BaseController
         }
 
         if ($model->esUsadaPorGastos($id)) {
-            return redirect()->to('/categorias')->with('error', 'No se puede eliminar la categoría porque tiene gastos asociados.');
+            return redirect()->to('/categorias')->with('error', 'No se puede eliminar la categoría porque tiene gastitos asociados.');
         }
 
         $model->delete($id);

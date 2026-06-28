@@ -1,5 +1,5 @@
-<?= view('partials/_head', ['title' => 'Gastito - Gastos']) ?>
-<?= view('partials/_navbar', ['pageTitle' => 'Gastos']) ?>
+<?= view('partials/_head', ['title' => 'Gastito - Gastitos']) ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Gastitos']) ?>
 <?php
     use App\Services\UserColor;
     $pdfUrl = base_url('gastos/exportar-pdf?' . http_build_query($filters));
@@ -14,7 +14,7 @@
 
     <div class="container mt-3 mt-md-4">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold mb-0 d-none d-md-block">Gastos</h2>
+            <h2 class="fw-bold mb-0 d-none d-md-block">Gastitos</h2>
             <a href="<?= base_url('gastos/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
         </div>
 
@@ -24,7 +24,7 @@
                 'variant' => $summaryVariant,
                 'titulo' => 'Total filtrado',
                 'monto' => $totalFiltrado,
-                'detalle' => 'Suma de gastos filtrados',
+                'detalle' => 'Total filtrado',
                 'color' => 'text-primary',
             ]) ?>
         </div>
@@ -35,7 +35,7 @@
                     <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:64px;height:64px;background:#dbeafe;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="#2563eb" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
                     </div>
-                    <p class="text-muted mb-0">No hay gastos registrados.</p>
+                    <p class="text-muted mb-0">No hay gastitos registrados.</p>
                 </div>
             </div>
         <?php else: ?>
@@ -113,7 +113,7 @@
                                 <div class="report-movement-card report-movement-expense" style="border-left: 3px solid <?= esc($border) ?>; background: <?= esc($bg) ?>;">
                                     <div class="d-flex justify-content-between align-items-start gap-2">
                                         <div class="min-width-0">
-                                            <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;">Gasto</span>
+                                            <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;">Gastito</span>
                                             <span class="fw-medium small"><?= esc($gasto['descripcion']) ?></span>
                                         </div>
                                         <span class="fw-bold small text-nowrap" style="color: <?= esc($solid) ?>;"><?= moneda($gasto['monto']) ?></span>
@@ -142,7 +142,7 @@
 
         <a href="<?= base_url('gastos/nuevo') ?>" class="fab fab-extended d-md-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>
-            <span>Nuevo gasto</span>
+            <span>Nuevo gastito</span>
         </a>
     </div>
 
@@ -152,7 +152,7 @@
             <div class="modal-content">
                 <form method="get">
                     <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="gastoFilterModalLabel">Filtrar gastos</h5>
+                        <h5 class="modal-title fw-bold" id="gastoFilterModalLabel">Filtrar gastitos</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">

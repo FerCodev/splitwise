@@ -21,7 +21,7 @@
         </a>
         <a href="<?= base_url('gastos') ?>" class="desktop-sidebar-link <?= tabActive('gastos', $current) ?>">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M4 11H2v3h2v-3zm5-4H7v7h2V7zm5-5h-2v12h2V2zm-4-2v2h2V2H9zm-4 4v2h2V7H5zm-4 4v2h2v-2H1z"/></svg>
-            Gastos
+            Gastitos
         </a>
         <a href="<?= base_url('pagos') ?>" class="desktop-sidebar-link <?= tabActive('pagos', $current) ?>">
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3zm1 0v10h12V3H2z"/></svg>
@@ -113,7 +113,7 @@
                 <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Grupos</span>
             </a>
             <a href="<?= base_url('gastos') ?>" class="mobile-menu-link <?= tabActive('gastos', $current) ?>" <?= $current === 'gastos' ? 'aria-current="page"' : '' ?>>
-                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2ZM9 7h6M9 11h6M9 15h3"/></svg></span><span>Gastos</span>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2ZM9 7h6M9 11h6M9 15h3"/></svg></span><span>Gastitos</span>
             </a>
             <a href="<?= base_url('pagos') ?>" class="mobile-menu-link <?= tabActive('pagos', $current) ?>" <?= $current === 'pagos' ? 'aria-current="page"' : '' ?>>
                 <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2"/></svg></span><span>Pagos</span>

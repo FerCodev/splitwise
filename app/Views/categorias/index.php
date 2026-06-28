@@ -23,7 +23,7 @@
                             <tr>
                                 <th>Nombre</th>
                                 <th>Estado</th>
-                                <th class="text-end">Gastos</th>
+                                <th class="text-end">Gastitos</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -61,7 +61,7 @@
                                                         <button type="button" class="btn btn-sm btn-warning"
                                                             data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                             data-confirm-title="Desactivar categor&iacute;a"
-                                                            data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
+                                                            data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastitos, pero los gastitos existentes la conservar&aacute;n."
                                                             data-confirm-btn="Desactivar"
                                                             data-confirm-form="toggle-cat-<?= $c['id'] ?>">Desactivar</button>
                                                     </form>
@@ -77,7 +77,7 @@
                                                             'formId' => 'delete-cat-' . $c['id'],
                                                             'buttonClass' => 'btn btn-sm btn-danger',
                                                             'confirmTitle' => 'Eliminar categor&iacute;a',
-                                                            'confirmMsg' => 'Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos.',
+                                                            'confirmMsg' => 'Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastitos.',
                                                             'confirmBtn' => 'Eliminar',
                                                         ]) ?>
                                                     <?php endif; ?>
@@ -120,7 +120,7 @@
                                     <?php endif; ?>
                                 </div>
                             </div>
-                            <div class="text-muted small mt-1"><?= $usadas[(int) $c['id']] ?? 0 ?> gasto(s)</div>
+                            <div class="text-muted small mt-1"><?= $usadas[(int) $c['id']] ?? 0 ?> <?= pluralizar((int) ($usadas[(int) $c['id']] ?? 0), 'gastito', 'gastitos') ?></div>
                             <div class="mt-3 d-flex gap-1 flex-wrap">
                                 <?php if ($c['nombre'] !== $protegida): ?>
                                     <a href="<?= base_url('categorias/' . $c['id'] . '/editar') ?>" class="btn btn-primary btn-sm flex-fill">Editar</a>
@@ -130,7 +130,7 @@
                                             <button type="button" class="btn btn-sm btn-warning w-100"
                                                 data-bs-toggle="modal" data-bs-target="#confirmModal"
                                                 data-confirm-title="Desactivar categor&iacute;a"
-                                                data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastos, pero los gastos existentes la conservar&aacute;n."
+                                                data-confirm-msg="La categor&iacute;a dejar&aacute; de estar disponible para nuevos gastitos, pero los gastitos existentes la conservar&aacute;n."
                                                 data-confirm-btn="Desactivar"
                                                 data-confirm-form="toggle-cat-m-<?= $c['id'] ?>">Desactivar</button>
                                         </form>
@@ -146,7 +146,7 @@
                                             'formId' => 'delete-cat-m-' . $c['id'],
                                             'buttonClass' => 'btn btn-danger btn-sm w-100',
                                             'confirmTitle' => 'Eliminar categor&iacute;a',
-                                            'confirmMsg' => 'Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastos.',
+                                            'confirmMsg' => 'Se eliminar&aacute; la categor&iacute;a del sistema. Solo se puede eliminar si no est&aacute; usada por gastitos.',
                                             'confirmBtn' => 'Eliminar',
                                         ]) ?>
                                     <?php endif; ?>

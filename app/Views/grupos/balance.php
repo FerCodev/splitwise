@@ -142,11 +142,11 @@
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Gastos por categoría</h5>
+                <h5 class="mb-0 fw-bold">Gastitos por categoría</h5>
             </div>
             <?php if (empty($gastosPorCategoria)): ?>
                 <div class="card-body text-center py-4">
-                    <p class="text-muted mb-0">No hay gastos registrados.</p>
+                    <p class="text-muted mb-0">No hay gastitos registrados.</p>
                 </div>
             <?php else: ?>
                 <div class="card-body p-0 d-none d-md-block">
@@ -178,7 +178,7 @@
                                 <span class="badge bg-light text-dark"><?= esc($cat['categoria_nombre']) ?></span>
                                 <span class="fw-medium"><?= moneda($cat['total']) ?></span>
                             </div>
-                            <div class="text-muted small"><?= $cat['cantidad'] ?> gasto(s)</div>
+                            <div class="text-muted small"><?= $cat['cantidad'] ?> <?= pluralizar((int) $cat['cantidad'], 'gastito', 'gastitos') ?></div>
                         </div>
                     <?php endforeach; ?>
                 </div>
