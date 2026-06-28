@@ -128,18 +128,18 @@
                 <?php if (empty($movimientos)): ?>
                     <p class="text-muted small p-3 mb-0">Sin movimientos recientes.</p>
                 <?php else: ?>
+                    <div class="report-movement-list">
                     <?php foreach ($movimientos as $m): ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <span class="badge <?= $m['tipo'] === 'gasto' ? 'bg-primary' : 'bg-success' ?>"><?= $m['tipo'] === 'gasto' ? 'Gastito' : 'Pago' ?></span>
-                                    <span class="fw-medium small ms-1"><?= esc($m['descripcion']) ?></span>
-                                </div>
-                                <span class="fw-bold small <?= $m['tipo'] === 'gasto' ? 'text-primary' : 'text-success' ?>"><?= moneda($m['monto']) ?></span>
-                            </div>
-                            <div class="text-muted small"><?= date('d/m/Y', strtotime($m['fecha'])) ?> &middot; <?= esc($m['persona']) ?></div>
-                        </div>
+                        <?= view('components/cards/movimiento', [
+                            'tipo' => $m['tipo'],
+                            'descripcion' => $m['descripcion'],
+                            'monto' => $m['monto'],
+                            'fecha' => $m['fecha'],
+                            'persona' => $m['persona'],
+                            'url' => null,
+                        ]) ?>
                     <?php endforeach; ?>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

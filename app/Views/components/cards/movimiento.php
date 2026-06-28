@@ -7,21 +7,16 @@ $descripcion = $descripcion ?? ($tipo === 'pago' ? 'Pago' : 'Gastito');
 $monto = (float) ($monto ?? 0);
 $fecha = $fecha ?? date('Y-m-d');
 $persona = $persona ?? 'Usuario';
+$url = $url ?? null;
 $categoria = $categoria ?? null;
-$contexto = $contexto ?? null;
-$wrap = $wrap ?? true;
-$preview = $preview ?? false;
+$grupo = $grupo ?? null;
+$participantes = $participantes ?? null;
+$colorKey = $colorKey ?? null;
 $esGasto = $tipo === 'gasto';
 
-// Si el caller pasa colorKey y el movimiento es un gasto, se aplica
-// esa paleta. Pagos, deudas y sistema conservan colores reservados
-// sin importar el colorKey.
 $colorKey = $esGasto ? ($colorKey ?? UserColor::DEFAULT_KEY) : null;
 $colorInfo = $colorKey !== null ? UserColor::get($colorKey) : null;
 
-// Pagos: color reservado payment (verde).
-// Gastos sin colorKey o colorKey=auto: reservado system (azul claro).
-// Gastos con colorKey valido: paleta del usuario.
 if ($esGasto && $colorInfo !== null) {
     $bg     = $colorInfo['bg'];
     $border = $colorInfo['border'];
@@ -36,14 +31,10 @@ if ($esGasto && $colorInfo !== null) {
 }
 
 $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
-?>
 
-<?php if ($wrap): ?>
-<div class="report-movement-list <?= $preview ? 'catalog-list-preview' : '' ?>">
-    <a href="#" class="report-movement-link">
-<?php endif; ?>
-
-<?php if ($variant === 'user_color'): ?>
+$cardContent = '';
+if ($variant === 'user_color'):
+    ob_start(); ?>
     <div class="report-movement-card group-movement-user-card" style="background: <?= esc($bg) ?>; border-left: 3px solid <?= esc($border) ?>;">
         <div class="catalog-card-top">
             <div class="catalog-row min-width-0">
@@ -58,14 +49,15 @@ $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
             </div>
             <span class="fw-bold small text-nowrap" style="color: <?= esc($solid) ?>;"><?= moneda($monto) ?></span>
         </div>
-        <?php if ($categoria || $contexto): ?>
+        <?php if ($categoria): ?>
             <div class="text-muted small mt-1">
-                <?php if ($categoria): ?><span class="badge bg-light text-dark me-1"><?= esc($categoria) ?></span><?php endif; ?>
-                <?= esc((string) $contexto) ?>
+                <span class="badge bg-light text-dark me-1"><?= esc($categoria) ?></span>
             </div>
         <?php endif; ?>
     </div>
-<?php elseif ($variant === 'compact'): ?>
+    <?php $cardContent = ob_get_clean();
+elseif ($variant === 'compact'):
+    ob_start(); ?>
     <div class="group-movement-compact-card" style="background: <?= esc($bg) ?>; border-left: 3px solid <?= esc($border) ?>;">
         <div class="min-width-0">
             <div>
@@ -76,7 +68,9 @@ $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
         </div>
         <span class="fw-bold small text-nowrap" style="color: <?= esc($solid) ?>;"><?= moneda($monto) ?></span>
     </div>
-<?php else: ?>
+    <?php $cardContent = ob_get_clean();
+else:
+    ob_start(); ?>
     <div class="report-movement-card" style="background: <?= esc($bg) ?>; border-left: 3px solid <?= esc($border) ?>;">
         <div class="catalog-card-top">
             <div class="min-width-0">
@@ -89,13 +83,19 @@ $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
             <span class="fw-bold small text-nowrap" style="color: <?= esc($solid) ?>;"><?= moneda($monto) ?></span>
         </div>
         <div class="text-muted small mt-1"><?= date('d/m/Y', strtotime($fecha)) ?> &middot; <?= esc($persona) ?></div>
-        <?php if ($contexto): ?>
-            <div class="text-muted small"><?= esc($contexto) ?></div>
+        <?php if ($grupo !== null || $participantes !== null): ?>
+            <div class="text-muted small mt-1">
+                <?php if ($grupo !== null): ?>Grupo: <?= esc($grupo) ?><?php endif; ?>
+                <?php if ($grupo !== null && $participantes !== null): ?> &middot; <?php endif; ?>
+                <?php if ($participantes !== null): ?><?= $participantes ?> part.<?php endif; ?>
+            </div>
         <?php endif; ?>
     </div>
-<?php endif; ?>
+    <?php $cardContent = ob_get_clean();
+endif; ?>
 
-<?php if ($wrap): ?>
-    </a>
-</div>
+<?php if ($url !== null): ?>
+<a href="<?= esc($url, 'attr') ?>" class="report-movement-link"><?= $cardContent ?></a>
+<?php else: ?>
+<?= $cardContent ?>
 <?php endif; ?>
