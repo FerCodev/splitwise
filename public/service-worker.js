@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splitwise-pwa-v6';
+const CACHE_NAME = 'splitwise-pwa-v7';
 const SCOPE_URL = new URL(self.registration.scope);
 const assetUrl = (path) => new URL(path, SCOPE_URL).toString();
 const CORE_ASSETS = [
