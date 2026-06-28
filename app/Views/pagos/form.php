@@ -24,7 +24,7 @@
                     <?php endif; ?>
 
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label fw-medium">DescripciÃ³n <small class="text-muted">(opcional)</small></label>
+                        <label for="descripcion" class="form-label fw-medium">Descripción <small class="text-muted">(opcional)</small></label>
                         <input type="text" class="form-control" id="descripcion" name="descripcion"
                                value="<?= esc(old('descripcion', $pago['descripcion'] ?? $prefill['descripcion'] ?? '')) ?>">
                     </div>
