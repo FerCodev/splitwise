@@ -13,7 +13,7 @@
             <div class="col-md-4">
                 <div class="card shadow">
                     <div class="card-body p-4">
-                        <h3 class="text-center mb-4">Gastito</h3>
+                        <h3 class="text-center mb-4 display-3 fw-bold text-dark">Gastito</h3>
 
                         <?= view('partials/_feedback') ?>
 
