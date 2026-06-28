@@ -106,15 +106,27 @@
 
         <div class="mobile-menu-section">
             <div class="mobile-menu-section-title">Navegaci&oacute;n</div>
-            <a href="<?= base_url('perfil') ?>" class="mobile-menu-link">Mi perfil</a>
-            <a href="<?= base_url('grupos') ?>" class="mobile-menu-link">Grupos</a>
-            <a href="<?= base_url('gastos') ?>" class="mobile-menu-link">Gastos</a>
-            <a href="<?= base_url('pagos') ?>" class="mobile-menu-link">Pagos</a>
-            <a href="<?= base_url('reportes') ?>" class="mobile-menu-link">Reportes</a>
-            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="mobile-menu-link">Mis medios de cobro</a>
+            <a href="<?= base_url('perfil') ?>" class="mobile-menu-link <?= tabActive('perfil', $current) ?>" <?= $current === 'perfil' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 21a8 8 0 0 0-16 0M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z"/></svg></span><span>Mi perfil</span>
+            </a>
+            <a href="<?= base_url('grupos') ?>" class="mobile-menu-link <?= tabActive('grupos', $current) ?>" <?= $current === 'grupos' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Grupos</span>
+            </a>
+            <a href="<?= base_url('gastos') ?>" class="mobile-menu-link <?= tabActive('gastos', $current) ?>" <?= $current === 'gastos' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2ZM9 7h6M9 11h6M9 15h3"/></svg></span><span>Gastos</span>
+            </a>
+            <a href="<?= base_url('pagos') ?>" class="mobile-menu-link <?= tabActive('pagos', $current) ?>" <?= $current === 'pagos' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h2"/></svg></span><span>Pagos</span>
+            </a>
+            <a href="<?= base_url('reportes') ?>" class="mobile-menu-link <?= tabActive('reportes', $current) ?>" <?= $current === 'reportes' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span><span>Reportes</span>
+            </a>
+            <a href="<?= base_url('mis-medios-de-cobro') ?>" class="mobile-menu-link <?= tabActive('mis-medios-de-cobro', $current) ?>" <?= $current === 'mis-medios-de-cobro' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 7V5a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h15v10a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3V6M16 13h4"/></svg></span><span>Mis medios de cobro</span>
+            </a>
             <?php if ($current === 'dashboard'): ?>
                 <button type="button" class="mobile-menu-link mobile-menu-link-button" data-bs-dismiss="offcanvas" onclick="var el=document.getElementById('resumenCollapse');if(el){bootstrap.Collapse.getOrCreateInstance(el).toggle()}">
-                    Resumen
+                    <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16M9 20V9"/></svg></span><span>Resumen</span>
                 </button>
             <?php endif; ?>
         </div>
@@ -122,15 +134,23 @@
         <?php if ($isAdmin): ?>
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Administraci&oacute;n</div>
-                <a href="<?= base_url('categorias') ?>" class="mobile-menu-link">Categor&iacute;as</a>
-                <a href="<?= base_url('usuarios') ?>" class="mobile-menu-link">Usuarios</a>
-                <a href="<?= base_url('admin/catalogo-tarjetas') ?>" class="mobile-menu-link">Cat&aacute;logo</a>
+                <a href="<?= base_url('categorias') ?>" class="mobile-menu-link <?= tabActive('categorias', $current) ?>" <?= $current === 'categorias' ? 'aria-current="page"' : '' ?>>
+                    <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20 13 11 22l-9-9V4a2 2 0 0 1 2-2h9l7 7a3 3 0 0 1 0 4ZM7 7h.01"/></svg></span><span>Categor&iacute;as</span>
+                </a>
+                <a href="<?= base_url('usuarios') ?>" class="mobile-menu-link <?= tabActive('usuarios', $current) ?>" <?= $current === 'usuarios' ? 'aria-current="page"' : '' ?>>
+                    <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6"/></svg></span><span>Usuarios</span>
+                </a>
+                <a href="<?= base_url('admin/catalogo-tarjetas') ?>" class="mobile-menu-link <?= tabActive('admin', $current) ?>" <?= $current === 'admin' ? 'aria-current="page"' : '' ?>>
+                    <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span>Cat&aacute;logo</span>
+                </a>
             </div>
         <?php endif; ?>
 
         <div class="mobile-menu-section">
             <div class="mobile-menu-section-title">Recursos</div>
-            <a href="<?= base_url('doc/inicio') ?>" class="mobile-menu-link">Documentaci&oacute;n</a>
+            <a href="<?= base_url('doc/inicio') ?>" class="mobile-menu-link <?= tabActive('doc', $current) ?>" <?= $current === 'doc' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></span><span>Documentaci&oacute;n</span>
+            </a>
         </div>
 
         <div class="mobile-menu-session">
@@ -138,15 +158,11 @@
                 <span class="mobile-menu-logout-icon" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-6A1.5 1.5 0 0 1 2 11.5v-7A1.5 1.5 0 0 1 3.5 3h6a.5.5 0 0 1 0 1h-6A.5.5 0 0 0 3 4.5v7a.5.5 0 0 0 .5.5h6a.5.5 0 0 1 .5.5z"/><path fill-rule="evenodd" d="M11.854 5.146a.5.5 0 0 0-.708.708L12.293 7H6.5a.5.5 0 0 0 0 1h5.793l-1.147 1.146a.5.5 0 0 0 .708.708l2-2a.5.5 0 0 0 0-.708l-2-2z"/></svg>
                 </span>
-                <span>
-                    <span class="mobile-menu-logout-title">Cerrar sesi&oacute;n</span>
-                    <span class="mobile-menu-logout-subtitle">Salir de esta cuenta</span>
-                </span>
+                <span><span class="mobile-menu-logout-title">Cerrar sesi&oacute;n</span><span class="mobile-menu-logout-subtitle">Salir de esta cuenta</span></span>
             </a>
         </div>
     </div>
 </div>
-
 <!-- Bottom tab bar (mobile) -->
 <nav class="d-lg-none bottom-tab-bar">
     <a href="<?= base_url('dashboard') ?>" class="bottom-tab-item <?= tabActive('dashboard', $current) ?>">
