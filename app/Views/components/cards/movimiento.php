@@ -32,8 +32,6 @@ if ($esGasto && $colorInfo !== null) {
 
 $inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
 
-$hasMeta = $categoria || $grupo || $participantes;
-
 $cardContent = '';
 if ($variant === 'user_color'):
     ob_start(); ?>
@@ -85,11 +83,11 @@ else:
             <span class="fw-bold small text-nowrap" style="color: <?= esc($solid) ?>;"><?= moneda($monto) ?></span>
         </div>
         <div class="text-muted small mt-1"><?= date('d/m/Y', strtotime($fecha)) ?> &middot; <?= esc($persona) ?></div>
-        <?php if ($grupo || $participantes): ?>
+        <?php if ($grupo !== null || $participantes !== null): ?>
             <div class="text-muted small mt-1">
-                <?php if ($grupo): ?>Grupo: <?= esc($grupo) ?><?php endif; ?>
-                <?php if ($grupo && $participantes): ?> &middot; <?php endif; ?>
-                <?php if ($participantes): ?><?= $participantes ?> part.<?php endif; ?>
+                <?php if ($grupo !== null): ?>Grupo: <?= esc($grupo) ?><?php endif; ?>
+                <?php if ($grupo !== null && $participantes !== null): ?> &middot; <?php endif; ?>
+                <?php if ($participantes !== null): ?><?= $participantes ?> part.<?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
