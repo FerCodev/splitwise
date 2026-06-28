@@ -13,7 +13,9 @@ $colorMap = $colorMap ?? [];
         'monto' => $gasto['monto'],
         'fecha' => $gasto['fecha'],
         'persona' => $gasto['pagador_nombre'],
-        'categoria' => $gasto['categoria_nombre'] ?: 'Otros',
+        'categoria' => trim((string) ($gasto['categoria_nombre'] ?? '')) !== ''
+            ? $gasto['categoria_nombre']
+            : 'Otros',
         'grupo' => $gasto['grupo_nombre'],
         'participantes' => $gasto['total_participantes'] ?? null,
         'colorKey' => $colorKey,
