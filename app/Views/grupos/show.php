@@ -112,13 +112,8 @@
                                 : null;
                         ?>
                         <?php if ($m['tipo'] === 'gasto'): ?>
-                        <a href="<?= base_url('gastos/' . $m['id']) ?>" class="report-movement-link">
-                        <?php else: ?>
-                        <a href="<?= base_url('pagos/' . $m['id']) ?>" class="report-movement-link">
-                        <?php endif; ?>
                             <?= view('components/cards/movimiento', [
                                 'variant' => $movementCardVariant,
-                                'wrap' => false,
                                 'tipo' => $m['tipo'],
                                 'descripcion' => $m['descripcion'],
                                 'monto' => $m['monto'],
@@ -126,8 +121,20 @@
                                 'persona' => $m['persona'],
                                 'categoria' => $m['categoria_nombre'],
                                 'colorKey' => $movColorKey,
+                                'url' => base_url('gastos/' . $m['id']),
                             ]) ?>
-                        </a>
+                        <?php else: ?>
+                            <?= view('components/cards/movimiento', [
+                                'variant' => $movementCardVariant,
+                                'tipo' => $m['tipo'],
+                                'descripcion' => $m['descripcion'],
+                                'monto' => $m['monto'],
+                                'fecha' => $m['fecha'],
+                                'persona' => $m['persona'],
+                                'colorKey' => $movColorKey,
+                                'url' => base_url('pagos/' . $m['id']),
+                            ]) ?>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
