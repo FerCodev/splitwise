@@ -536,6 +536,32 @@ body {
     white-space: nowrap;
     text-align: center;
 }
+.mobile-topbar-actions {
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    z-index: 2;
+    transform: translateY(-50%);
+}
+.mobile-topbar-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target);
+    height: var(--touch-target);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: #fff;
+}
+.mobile-topbar-action:hover,
+.mobile-topbar-action:focus-visible,
+.mobile-topbar-action[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    outline: none;
+}
 .bottom-tab-bar {
     position: fixed;
     bottom: 0;
@@ -939,38 +965,90 @@ body {
 /* Report toolbar */
 .report-toolbar {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
     gap: 8px;
-    padding: 10px 0;
-    margin-bottom: 4px;
+    padding: 0 0 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--border);
 }
-.report-toolbar-info {
-    min-width: 0;
-}
-.report-toolbar-info .fw-bold {
-    font-size: 1.05rem;
-}
-.report-toolbar-actions {
+.report-period-trigger {
     display: flex;
-    gap: 6px;
-    flex-shrink: 0;
+    flex: 1 1 auto;
     align-items: center;
+    min-width: 0;
+    min-height: var(--touch-target);
+    padding: 7px 4px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text);
+    text-align: left;
 }
-.report-filter-btn {
+.report-period-trigger:hover,
+.report-period-trigger:focus-visible {
+    background: #f1f5f9;
+    color: var(--text);
+    outline: none;
+}
+.report-period-trigger:focus-visible {
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+}
+.report-period-value {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.report-period-filter {
     position: relative;
+    display: inline-flex;
+    flex: 0 0 40px;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-left: auto;
+    color: var(--primary);
 }
 .report-filter-badge {
     position: absolute;
-    top: -4px;
-    right: -4px;
-    font-size: 0.65rem;
-    padding: 2px 5px;
-    min-width: 16px;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border: 2px solid var(--surface-muted);
+    border-radius: 999px;
+    background: var(--primary);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
     line-height: 1;
 }
-
+.report-export-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--touch-target);
+    gap: 8px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--muted);
+    font-weight: 600;
+}
+.report-export-button:hover,
+.report-export-button:focus-visible,
+.report-export-button[aria-expanded="true"] {
+    background: #f1f5f9;
+    color: var(--text);
+    outline: none;
+}
 /* Active filter chips */
 .report-active-chips {
     display: flex;

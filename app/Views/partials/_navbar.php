@@ -2,6 +2,7 @@
     $current = service('uri')->getSegment(1) ?: 'dashboard';
     $isAdmin = session()->get('userRole') === 'admin';
     $mobileTitle = $pageTitle ?? 'Home';
+    $mobileTopbarActions = $mobileTopbarActions ?? null;
     function tabActive($tab, $current) {
         return $tab === $current ? 'active' : '';
     }
@@ -86,6 +87,9 @@
         </button>
         <?php endif; ?>
         <span class="mobile-page-title"><?= esc($mobileTitle) ?></span>
+        <?php if ($mobileTopbarActions): ?>
+            <div class="mobile-topbar-actions"><?= $mobileTopbarActions ?></div>
+        <?php endif; ?>
     </div>
 </nav>
 

@@ -1,8 +1,13 @@
-<?= view('partials/_head', ['title' => 'Gastito - Reportes']) ?>
-<?= view('partials/_navbar', ['pageTitle' => 'Reportes']) ?>
 <?php
     $mesReporte = $resumenMensual['mes'] ?? ($filters['year_month'] ?? date('Y-m'));
-    $mesReporteTexto = $mesReporte ? date('m/Y', strtotime($mesReporte . '-01')) : 'periodo';
+    $meses = [
+        1 => 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+    ];
+    $mesFecha = $mesReporte ? DateTimeImmutable::createFromFormat('!Y-m', $mesReporte) : false;
+    $mesReporteTexto = $mesFecha
+        ? $meses[(int) $mesFecha->format('n')] . ' ' . $mesFecha->format('Y')
+        : 'Seleccionar periodo';
     $csvUrl = base_url('reportes/exportar?' . http_build_query($filters));
     $pdfUrl = base_url('reportes/exportar-pdf?' . http_build_query($filters));
     $saldo = (float) ($resumenMensual['saldo'] ?? 0);
@@ -41,40 +46,60 @@
     $grupoSelected = esc($filters['grupo_id'] ?? '');
     $catSelected = esc($filters['categoria_id'] ?? '');
     $yearMonthVal = esc($filters['year_month'] ?? $mesReporte);
+
+    ob_start();
 ?>
+<div class="dropdown">
+    <button type="button" class="mobile-topbar-action" data-bs-toggle="dropdown"
+            aria-expanded="false" aria-label="Exportar reporte" title="Exportar reporte">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>
+        </svg>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="<?= $pdfUrl ?>">Exportar PDF</a></li>
+        <li><a class="dropdown-item" href="<?= $csvUrl ?>">Exportar CSV</a></li>
+    </ul>
+</div>
+<?php
+    $mobileTopbarActions = ob_get_clean();
+?>
+<?= view('partials/_head', ['title' => 'Gastito - Reportes']) ?>
+<?= view('partials/_navbar', ['pageTitle' => 'Reportes', 'mobileTopbarActions' => $mobileTopbarActions]) ?>
 
 <div class="container mt-3 mt-md-4">
 
-    <!-- Toolbar compacta -->
+    <!-- Selector compacto de periodo y acciones -->
     <div class="report-toolbar">
-        <div class="report-toolbar-info">
-            <div class="text-muted small">Periodo</div>
-            <div class="fw-bold"><?= esc($mesReporteTexto) ?></div>
-        </div>
-        <div class="report-toolbar-actions">
-            <button type="button" class="btn btn-outline-primary btn-sm report-filter-btn"
-                    data-bs-toggle="offcanvas" data-bs-target="#reportFilterPanel"
-                    aria-label="Filtrar reportes" title="Filtrar reportes" id="reportFilterBtn"
-                    style="min-width:44px;min-height:44px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
+        <button type="button" class="report-period-trigger"
+                data-bs-toggle="offcanvas" data-bs-target="#reportFilterPanel"
+                aria-label="Filtrar reportes para <?= esc($mesReporteTexto) ?>" id="reportFilterBtn">
+            <span class="report-period-value"><?= esc($mesReporteTexto) ?></span>
+            <span class="report-period-filter" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
+                </svg>
                 <?php if ($activeCount > 0): ?>
-                <span class="badge bg-primary ms-1 report-filter-badge"><?= $activeCount ?></span>
+                    <span class="report-filter-badge"><?= $activeCount ?></span>
                 <?php endif; ?>
+            </span>
+        </button>
+
+        <div class="dropdown d-none d-lg-block">
+            <button type="button" class="report-export-button" data-bs-toggle="dropdown"
+                    aria-expanded="false" aria-label="Exportar reporte">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                </svg>
+                <span>Exportar</span>
             </button>
-            <div class="dropdown">
-                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button"
-                        data-bs-toggle="dropdown" aria-expanded="false" aria-label="Exportar reporte" title="Exportar"
-                        style="min-width:44px;min-height:44px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="<?= $pdfUrl ?>">Exportar PDF</a></li>
-                    <li><a class="dropdown-item" href="<?= $csvUrl ?>">Exportar CSV</a></li>
-                </ul>
-            </div>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="<?= $pdfUrl ?>">Exportar PDF</a></li>
+                <li><a class="dropdown-item" href="<?= $csvUrl ?>">Exportar CSV</a></li>
+            </ul>
         </div>
     </div>
-
     <!-- Chips de filtros activos -->
     <?php if (!empty($activeChips)): ?>
     <div class="report-active-chips">
