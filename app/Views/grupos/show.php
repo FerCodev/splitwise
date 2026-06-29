@@ -120,6 +120,8 @@
                                 'fecha' => $m['fecha'],
                                 'persona' => $m['persona'],
                                 'categoria' => $m['categoria_nombre'],
+                                'grupo' => null,
+                                'participantes' => null,
                                 'colorKey' => $movColorKey,
                                 'url' => base_url('gastos/' . $m['id']),
                             ]) ?>
@@ -131,6 +133,9 @@
                                 'monto' => $m['monto'],
                                 'fecha' => $m['fecha'],
                                 'persona' => $m['persona'],
+                                'categoria' => null,
+                                'grupo' => null,
+                                'participantes' => null,
                                 'colorKey' => $movColorKey,
                                 'url' => base_url('pagos/' . $m['id']),
                             ]) ?>
