@@ -139,9 +139,9 @@
     <div class="row g-3 mb-3">
         <div class="col-12 col-lg-4">
             <details class="card border-0 shadow-sm report-breakdown-card">
-                <summary class="card-header bg-white border-bottom d-flex justify-content-between align-items-center report-breakdown-summary">
-                    <span class="report-breakdown-title"><span class="report-breakdown-arrow" aria-hidden="true"></span>Gastitos por grupo</span>
-                    <span class="text-muted small"><?= (int) ($resumenMensual['grupos_activos'] ?? 0) ?> activo(s)</span>
+                <summary class="card-header bg-white border-bottom report-breakdown-summary">
+                    <span class="report-breakdown-title">Gastitos por grupo</span>
+                    <span class="report-breakdown-meta"><span class="text-muted small"><?= (int) ($resumenMensual['grupos_activos'] ?? 0) ?> activo(s)</span><span class="report-breakdown-arrow" aria-hidden="true"></span></span>
                 </summary>
                 <div class="card-body p-0">
                     <?php if (empty($porGrupo)): ?>
@@ -165,7 +165,8 @@
         <div class="col-12 col-lg-4">
             <details class="card border-0 shadow-sm report-breakdown-card">
                 <summary class="card-header bg-white border-bottom report-breakdown-summary">
-                    <span class="report-breakdown-title"><span class="report-breakdown-arrow" aria-hidden="true"></span>Gastitos por categoría</span>
+                    <span class="report-breakdown-title">Gastitos por categoría</span>
+                    <span class="report-breakdown-arrow" aria-hidden="true"></span>
                 </summary>
                 <div class="card-body p-0">
                     <?php if (empty($porCategoria)): ?>
@@ -187,8 +188,11 @@
         </div>
 
         <div class="col-12 col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Saldos actuales</h5></div>
+            <details class="card border-0 shadow-sm report-breakdown-card">
+                <summary class="card-header bg-white border-bottom report-breakdown-summary">
+                    <span class="report-breakdown-title">Saldos actuales</span>
+                    <span class="report-breakdown-arrow" aria-hidden="true"></span>
+                </summary>
                 <div class="card-body report-debt-list">
                     <?php if (empty($deudas)): ?>
                         <p class="text-muted small mb-0">No hay deudas pendientes.</p>
@@ -203,7 +207,7 @@
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-            </div>
+            </details>
         </div>
     </div>
 

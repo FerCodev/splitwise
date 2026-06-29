@@ -1136,6 +1136,10 @@ body {
     overflow: hidden;
 }
 .report-breakdown-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     min-height: 58px;
     cursor: pointer;
     list-style: none;
@@ -1149,13 +1153,18 @@ body {
     outline-offset: -2px;
 }
 .report-breakdown-title {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
+    min-width: 0;
     font-size: 1.25rem;
     font-weight: 700;
 }
+.report-breakdown-meta {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 10px;
+}
 .report-breakdown-arrow {
+    flex-shrink: 0;
     width: 0;
     height: 0;
     border-top: 6px solid transparent;
