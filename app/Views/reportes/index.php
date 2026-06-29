@@ -214,8 +214,11 @@
     <!-- Movimientos -->
     <div class="row g-3 mb-4">
         <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Movimientos del periodo</h5></div>
+            <details class="card border-0 shadow-sm report-breakdown-card">
+                <summary class="card-header bg-white border-bottom report-breakdown-summary">
+                    <span class="report-breakdown-title">Movimientos del periodo</span>
+                    <span class="report-breakdown-arrow" aria-hidden="true"></span>
+                </summary>
                 <div class="card-body report-movement-list">
                     <?php if (empty($movimientos)): ?>
                         <p class="text-muted small p-3 mb-0">No hay movimientos para el periodo.</p>
@@ -225,7 +228,7 @@
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-            </div>
+            </details>
         </div>
     </div>
 </div>
