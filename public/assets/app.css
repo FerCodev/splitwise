@@ -1130,9 +1130,9 @@ body {
 
 /* Filter offcanvas panel */
 .offcanvas.report-filter-panel {
-    --bs-offcanvas-height: min(72dvh, 680px);
-    height: 72vh;
-    height: min(72dvh, 680px);
+    --bs-offcanvas-height: min(64dvh, 600px);
+    height: 64vh;
+    height: min(64dvh, 600px);
     max-height: calc(100dvh - 72px);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
@@ -1148,14 +1148,35 @@ body {
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     background: #fff;
 }
+.report-date-range {
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+}
+.report-date-range summary {
+    min-height: var(--touch-target);
+    padding: 11px 2px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.report-date-range[open] summary {
+    margin-bottom: 8px;
+}
+.report-date-range-optional {
+    float: right;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 500;
+}
 
 @media (min-width: 768px) {
     .report-toolbar {
         padding: 10px 4px;
     }
     .offcanvas.report-filter-panel {
-        --bs-offcanvas-height: min(70vh, 620px);
-        height: min(70vh, 620px);
+        --bs-offcanvas-height: min(64vh, 600px);
+        height: min(64vh, 600px);
         max-height: calc(100vh - 48px);
     }
 }

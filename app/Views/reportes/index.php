@@ -46,6 +46,7 @@
     $grupoSelected = esc($filters['grupo_id'] ?? '');
     $catSelected = esc($filters['categoria_id'] ?? '');
     $yearMonthVal = esc($filters['year_month'] ?? $mesReporte);
+    $hasDateRange = !empty($filters['fecha_desde']) || !empty($filters['fecha_hasta']);
 
     ob_start();
 ?>
@@ -169,16 +170,6 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <div class="row g-2 mb-3">
-                <div class="col-6">
-                    <label for="report_desde" class="form-label small fw-medium">Desde</label>
-                    <input type="date" id="report_desde" name="fecha_desde" class="form-control" value="<?= $fechaDesdeVal ?>">
-                </div>
-                <div class="col-6">
-                    <label for="report_hasta" class="form-label small fw-medium">Hasta</label>
-                    <input type="date" id="report_hasta" name="fecha_hasta" class="form-control" value="<?= $fechaHastaVal ?>">
-                </div>
-            </div>
             <div class="mb-3">
                 <label for="report_categoria" class="form-label small fw-medium">Categoría</label>
                 <select id="report_categoria" name="categoria_id" class="form-select">
@@ -188,6 +179,22 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+            <details class="report-date-range" <?= $hasDateRange ? 'open' : '' ?>>
+                <summary>
+                    <span>Rango de fechas</span>
+                    <span class="report-date-range-optional">Opcional</span>
+                </summary>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label for="report_desde" class="form-label small fw-medium">Desde</label>
+                        <input type="date" id="report_desde" name="fecha_desde" class="form-control" value="<?= $fechaDesdeVal ?>">
+                    </div>
+                    <div class="col-6">
+                        <label for="report_hasta" class="form-label small fw-medium">Hasta</label>
+                        <input type="date" id="report_hasta" name="fecha_hasta" class="form-control" value="<?= $fechaHastaVal ?>">
+                    </div>
+                </div>
+            </details>
         </form>
     </div>
     <div class="offcanvas-footer border-top p-3 d-flex gap-2">
