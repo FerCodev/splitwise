@@ -53,8 +53,8 @@
 <div class="dropdown">
     <button type="button" class="mobile-topbar-action" data-bs-toggle="dropdown"
             aria-expanded="false" aria-label="Exportar reporte" title="Exportar reporte">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     </button>
     <ul class="dropdown-menu dropdown-menu-end report-export-menu">
