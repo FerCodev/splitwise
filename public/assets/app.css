@@ -1130,10 +1130,9 @@ body {
 
 /* Filter offcanvas panel */
 .offcanvas.report-filter-panel {
-    --bs-offcanvas-height: min(64dvh, 600px);
-    height: 64vh;
-    height: min(64dvh, 600px);
-    max-height: calc(100dvh - 72px);
+    --bs-offcanvas-height: auto;
+    height: auto;
+    max-height: min(64dvh, 600px);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
 }
@@ -1175,9 +1174,9 @@ body {
         padding: 10px 4px;
     }
     .offcanvas.report-filter-panel {
-        --bs-offcanvas-height: min(64vh, 600px);
-        height: min(64vh, 600px);
-        max-height: calc(100vh - 48px);
+        --bs-offcanvas-height: auto;
+        height: auto;
+        max-height: min(64vh, 600px);
     }
 }
 
