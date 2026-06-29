@@ -564,34 +564,14 @@ body {
 }
 .report-export-menu {
     width: min(280px, calc(100vw - 24px));
-    right: 16px !important;
+    right: 6px !important;
     margin-top: 8px !important;
     padding: 8px;
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
 }
-.report-export-menu::before,
-.report-export-menu::after {
-    position: absolute;
-    right: 4px;
-    width: 0;
-    height: 0;
-    border-right: 9px solid transparent;
-    border-left: 9px solid transparent;
-    content: "";
-    pointer-events: none;
-}
-.report-export-menu::before {
-    top: -10px;
-    border-bottom: 10px solid var(--border);
-}
-.report-export-menu::after {
-    top: -8px;
-    border-right-width: 8px;
-    border-bottom: 9px solid var(--surface);
-    border-left-width: 8px;
-}
+
 .report-export-item {
     display: grid;
     grid-template-columns: 38px minmax(0, 1fr);
