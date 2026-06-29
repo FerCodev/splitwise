@@ -936,6 +936,101 @@ body {
     padding-inline: 14px;
     white-space: nowrap;
 }
+/* Report toolbar */
+.report-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 0;
+    margin-bottom: 4px;
+}
+.report-toolbar-info {
+    min-width: 0;
+}
+.report-toolbar-info .fw-bold {
+    font-size: 1.05rem;
+}
+.report-toolbar-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    align-items: center;
+}
+.report-filter-btn {
+    position: relative;
+}
+.report-filter-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    min-width: 16px;
+    line-height: 1;
+}
+
+/* Active filter chips */
+.report-active-chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.report-active-chips::-webkit-scrollbar {
+    display: none;
+}
+.report-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    background: #eef2ff;
+    color: #3730a3;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border: 1px solid #c7d2fe;
+}
+.report-chip-label {
+    font-weight: 600;
+}
+.report-chip-value {
+    opacity: 0.75;
+}
+
+/* Filter offcanvas panel */
+.report-filter-panel {
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+}
+.report-filter-panel .offcanvas-header {
+    padding: 14px 18px;
+}
+.report-filter-panel .offcanvas-body {
+    padding: 16px 18px;
+}
+.report-filter-panel .offcanvas-footer {
+    padding: 12px 18px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background: #fff;
+}
+
+@media (min-width: 768px) {
+    .report-toolbar {
+        padding: 10px 4px;
+    }
+    .report-filter-panel {
+        max-height: none !important;
+        border-radius: 0 !important;
+    }
+}
+
 .report-movement-link {
     display: block;
     color: inherit;
