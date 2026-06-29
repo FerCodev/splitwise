@@ -263,5 +263,59 @@
             <?php endif; ?>
     </div>
 
+<?php if (isset($grupo)): ?>
+<script>
+(function () {
+    var storageKey = 'gastito:group-colors-changed:<?= (int) $grupo['id'] ?>';
+
+    document.querySelectorAll('#colores .user-color-row').forEach(function (form) {
+        form.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            var submitter = event.submitter;
+            var formData = new FormData(form);
+            if (submitter && submitter.name) {
+                formData.set(submitter.name, submitter.value);
+            }
+
+            var buttons = form.querySelectorAll('button[type="submit"]');
+            buttons.forEach(function (button) { button.disabled = true; });
+
+            try {
+                var response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                var contentType = response.headers.get('content-type') || '';
+
+                if (!contentType.includes('application/json')) {
+                    if (response.redirected && response.url) {
+                        window.location.replace(response.url);
+                    } else {
+                        window.location.reload();
+                    }
+                    return;
+                }
+
+                var payload = await response.json();
+                if (payload.ok) {
+                    sessionStorage.setItem(storageKey, '1');
+                }
+                window.location.replace(payload.redirect || window.location.href);
+            } catch (error) {
+                buttons.forEach(function (button) { button.disabled = false; });
+                alert('No se pudo guardar el color. Intentá nuevamente.');
+            }
+        });
+    });
+})();
+</script>
+<?php endif; ?>
+
 <?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>
