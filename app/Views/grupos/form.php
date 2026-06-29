@@ -267,6 +267,11 @@
 <script>
 (function () {
     var storageKey = 'gastito:group-colors-changed:<?= (int) $grupo['id'] ?>';
+    var currentUrl = new URL(window.location.href);
+
+    if (currentUrl.searchParams.delete('_color_refresh')) {
+        window.history.replaceState(null, '', currentUrl.pathname + currentUrl.search + currentUrl.hash);
+    }
 
     document.querySelectorAll('#colores .user-color-row').forEach(function (form) {
         form.addEventListener('submit', async function (event) {
@@ -307,7 +312,10 @@
                 if (payload.ok) {
                     sessionStorage.setItem(storageKey, '1');
                 }
-                window.location.replace(payload.redirect || window.location.href);
+
+                var redirectUrl = new URL(payload.redirect || window.location.href, window.location.origin);
+                redirectUrl.searchParams.set('_color_refresh', Date.now().toString());
+                window.location.replace(redirectUrl.toString());
             } catch (error) {
                 buttons.forEach(function (button) { button.disabled = false; });
                 alert('No se pudo guardar el color. Intentá nuevamente.');
