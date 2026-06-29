@@ -11,7 +11,7 @@ class GroupPermission
     public static function check(string $rol, string $estado, string $accion, ?int $userId = null, ?int $ownerId = null): ?string
     {
         if ($rol === '') {
-            return 'No ten&eacute;s acceso a este grupo.';
+            return 'No tenés acceso a este grupo.';
         }
 
         $bloqueoEstado = \App\Models\Grupo::restriccionEstado($estado, $accion);
@@ -29,7 +29,7 @@ class GroupPermission
         ];
 
         if (in_array($accion, $adminOnly, true)) {
-            return $rol === 'admin' ? null : 'Solo los administradores del grupo pueden realizar esta acci&oacute;n.';
+            return $rol === 'admin' ? null : 'Solo los administradores del grupo pueden realizar esta acción.';
         }
 
         if ($accion === 'gasto_create' || $accion === 'pago_create') {
@@ -44,7 +44,7 @@ class GroupPermission
                 return null;
             }
             $accionLabel = $accion === 'gasto_edit' ? 'editar' : 'eliminar';
-            return "Solo el administrador del grupo o quien pag&oacute; el gastito puede {$accionLabel}lo.";
+            return "Solo el administrador del grupo o quien pagó el gastito puede {$accionLabel}lo.";
         }
 
         if ($accion === 'pago_edit' || $accion === 'pago_delete') {
@@ -55,10 +55,10 @@ class GroupPermission
                 return null;
             }
             $accionLabel = $accion === 'pago_edit' ? 'editar' : 'eliminar';
-            return "Solo el administrador del grupo o quien realiz&oacute; el pago puede {$accionLabel}lo.";
+            return "Solo el administrador del grupo o quien realizó el pago puede {$accionLabel}lo.";
         }
 
-        return 'Acci&oacute;n no permitida.';
+        return 'Acción no permitida.';
     }
 
     /**

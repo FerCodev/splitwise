@@ -274,4 +274,86 @@ final class PermisosGrupoTest extends CIUnitTestCase
         $this->assertFalse($p['puede_eliminar_pago']);
     }
 
+    // -- Mensajes en UTF-8 (sin entidades HTML) --
+
+    public function testMensajeNoMiembroEsUtf8(): void
+    {
+        $msg = GroupPermission::check('', 'activo', 'grupo_edit');
+        $this->assertStringContainsString('tenés', $msg);
+        $this->assertStringNotContainsString('&eacute;', $msg);
+        $this->assertStringNotContainsString('&oacute;', $msg);
+        $this->assertStringNotContainsString('&aacute;', $msg);
+    }
+
+    public function testMensajeAdminOnlyEsUtf8(): void
+    {
+        $msg = GroupPermission::check('member', 'activo', 'grupo_edit');
+        $this->assertStringContainsString('acción', $msg);
+        $this->assertStringNotContainsString('&oacute;', $msg);
+    }
+
+    public function testMensajeGastoEditMemberEsUtf8(): void
+    {
+        $msg = GroupPermission::check('member', 'activo', 'gasto_edit', 1, 2);
+        $this->assertStringContainsString('pagó', $msg);
+        $this->assertStringNotContainsString('&oacute;', $msg);
+    }
+
+    public function testMensajePagoEditMemberEsUtf8(): void
+    {
+        $msg = GroupPermission::check('member', 'activo', 'pago_edit', 1, 2);
+        $this->assertStringContainsString('realizó', $msg);
+        $this->assertStringNotContainsString('&oacute;', $msg);
+    }
+
+    public function testMensajeAccionDesconocidaEsUtf8(): void
+    {
+        $msg = GroupPermission::check('admin', 'activo', 'accion_inventada');
+        $this->assertStringContainsString('Acción', $msg);
+        $this->assertStringNotContainsString('&oacute;', $msg);
+    }
+
+    public function testNingunMensajeContieneEntidadesHtml(): void
+    {
+        $casos = [
+            GroupPermission::check('', 'activo', 'grupo_edit'),
+            GroupPermission::check('member', 'activo', 'grupo_edit'),
+            GroupPermission::check('member', 'activo', 'grupo_delete'),
+            GroupPermission::check('member', 'activo', 'grupo_estado'),
+            GroupPermission::check('member', 'activo', 'miembro_create'),
+            GroupPermission::check('member', 'activo', 'miembro_delete'),
+            GroupPermission::check('member', 'activo', 'miembro_role'),
+            GroupPermission::check('member', 'activo', 'gasto_edit', 1, 2),
+            GroupPermission::check('member', 'activo', 'gasto_delete', 1, 2),
+            GroupPermission::check('member', 'activo', 'pago_edit', 1, 2),
+            GroupPermission::check('member', 'activo', 'pago_delete', 1, 2),
+            GroupPermission::check('admin', 'activo', 'accion_inventada'),
+        ];
+        foreach ($casos as $msg) {
+            $this->assertNotNull($msg);
+            $this->assertStringNotContainsString('&eacute;', $msg);
+            $this->assertStringNotContainsString('&oacute;', $msg);
+            $this->assertStringNotContainsString('&aacute;', $msg);
+            $this->assertStringNotContainsString('&iacute;', $msg);
+            $this->assertStringNotContainsString('&ntilde;', $msg);
+        }
+    }
+
+    // -- Miembro comun sigue sin poder ejecutar acciones administrativas --
+
+    public function testMemberBloqueadoEnTodosLosAdminActions(): void
+    {
+        $adminActions = ['grupo_edit', 'grupo_delete', 'grupo_estado', 'miembro_create', 'miembro_delete', 'miembro_role'];
+        foreach ($adminActions as $accion) {
+            $this->assertTrue($this->blocked('member', 'activo', $accion), "Member deberia estar bloqueado para {$accion}");
+        }
+    }
+
+    public function testAdminConservaTodosLosPermisos(): void
+    {
+        $adminActions = ['grupo_edit', 'grupo_delete', 'grupo_estado', 'miembro_create', 'miembro_delete', 'miembro_role', 'gasto_create', 'gasto_edit', 'gasto_delete', 'pago_create', 'pago_edit', 'pago_delete'];
+        foreach ($adminActions as $accion) {
+            $this->assertFalse($this->blocked('admin', 'activo', $accion, 1, 2), "Admin deberia poder {$accion}");
+        }
+    }
 }

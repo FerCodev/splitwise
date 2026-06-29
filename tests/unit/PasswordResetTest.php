@@ -147,4 +147,50 @@ final class PasswordResetTest extends \CodeIgniter\Test\CIUnitTestCase
         $result = PasswordReset::smtpConfigurado();
         $this->assertIsBool($result);
     }
+
+    // ---------------------------------------------------------------
+    // Branding Gastito en emails
+    // ---------------------------------------------------------------
+
+    public function testClasePasswordResetExisteYBienNombrada(): void
+    {
+        $reflection = new \ReflectionClass(PasswordReset::class);
+        $this->assertSame('PasswordReset.php', basename($reflection->getFileName()));
+    }
+
+    public function testControladorPasswordResetExisteYBienNombrado(): void
+    {
+        $this->assertTrue(class_exists(\App\Controllers\PasswordResetController::class));
+        $reflection = new \ReflectionClass(\App\Controllers\PasswordResetController::class);
+        $this->assertSame('PasswordResetController.php', basename($reflection->getFileName()));
+    }
+
+    public function testControladorTieneMetodoEnviarEnlace(): void
+    {
+        $this->assertTrue(method_exists(\App\Controllers\PasswordResetController::class, 'enviarEnlace'));
+    }
+
+    public function testControladorTieneMetodoCambiarPassword(): void
+    {
+        $this->assertTrue(method_exists(\App\Controllers\PasswordResetController::class, 'cambiarPassword'));
+    }
+
+    public function testModeloEnviarEmailNoContieneSplitWiseEnCodigo(): void
+    {
+        // Verifica que el fallback del remitente no contenga la marca anterior.
+        $reflection = new \ReflectionClass(PasswordReset::class);
+        $source = file_get_contents($reflection->getFileName());
+        $this->assertStringNotContainsString("'SplitWise'", $source);
+    }
+
+    // ---------------------------------------------------------------
+    // UiFeedback template expenses.create.completed
+    // ---------------------------------------------------------------
+
+    public function testTemplateExpensesCreateCompletedDiceGastito(): void
+    {
+        $actionMap = \Config\UiFeedback::ACTION_MAP;
+        $this->assertArrayHasKey('expenses.create.completed', $actionMap);
+        $this->assertSame('Gastito creado correctamente.', $actionMap['expenses.create.completed']['template']);
+    }
 }

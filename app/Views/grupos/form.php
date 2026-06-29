@@ -15,6 +15,7 @@
         <?php endif; ?>
         <?= view('partials/_feedback') ?>
 
+        <?php if (!isset($grupo) || ($rol ?? '') === 'admin'): ?>
         <div class="card border-0 shadow-sm">
             <div class="card-body">
                 <form action="<?= isset($grupo) ? base_url('grupos/' . $grupo['id']) : base_url('grupos') ?>" method="post">
@@ -74,8 +75,10 @@
                 </form>
             </div>
         </div>
+        <?php endif; ?>
 
             <?php if (isset($grupo) && isset($miembros)): ?>
+            <?php if (($rol ?? '') === 'admin'): ?>
             <?php
                 $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
                 $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
@@ -210,6 +213,7 @@
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
             <div class="card border-0 shadow-sm mt-4" id="colores">
                 <div class="card-header bg-white border-bottom">

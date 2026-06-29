@@ -264,8 +264,8 @@ class Grupos extends BaseController
 
         if ($decision['action'] === UserColor::SUBMIT_ERROR) {
             $message = ($decision['reason'] ?? '') === UserColor::REASON_EMPTY
-                ? 'Deb&eacute;s seleccionar un color o usar el bot&oacute;n "Global" para volver al valor por defecto.'
-                : 'Color inv&aacute;lido.';
+                ? 'Debés seleccionar un color o usar el botón "Global" para volver al valor por defecto.'
+                : 'Color inválido.';
             return redirect()->to($redirectTo)->with('error', $message);
         }
 
@@ -493,11 +493,6 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
-        $errorPermiso = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'grupo_edit');
-        if ($errorPermiso) {
-            return redirect()->to("/grupos/$id")->with('error', $errorPermiso);
-        }
-
         $grupoModel = new Grupo();
         $gastoModel = new \App\Models\Gasto();
         $deudas = $gastoModel->getDeudasByGrupo($id);
@@ -507,13 +502,11 @@ class Grupos extends BaseController
             ? $grupoModel->getUsuariosDisponibles($id)
             : [];
 
-        // La seccion "Colores por usuario" vive en esta pantalla; pasamos
-        // el mapa de colores efectivos por miembro para que la vista
-        // pueda marcar el swatch correspondiente como checked.
         $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, []);
 
         return view('grupos/form', [
             'grupo' => $acceso['grupo'],
+            'rol' => $acceso['rol'],
             'deudas' => $deudas,
             'miembros' => $miembros,
             'permisos' => $permisos,

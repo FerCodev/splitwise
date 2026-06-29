@@ -82,7 +82,7 @@ class PasswordReset extends Model
                 'charset'   => 'UTF-8',
             ]);
 
-            $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'SplitWise');
+            $email->setFrom(env('email.fromEmail'), env('email.fromName') ?: 'Gastito');
             $email->setTo($to);
             $email->setSubject($subject);
             $email->setMessage($message);
