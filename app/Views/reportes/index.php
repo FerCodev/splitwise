@@ -135,16 +135,94 @@
         <div class="col-6 col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body py-3"><div class="small text-muted">Saldo del periodo</div><div class="fw-bold fs-5 <?= $saldo >= 0 ? 'text-success' : 'text-danger' ?>"><?= moneda(abs($saldo)) ?> <span class="small fw-normal"><?= $saldo > 0 ? 'a favor' : ($saldo < 0 ? 'debe' : 'saldado') ?></span></div></div></div></div>
     </div>
 
-    <!-- Graficos -->
+    <!-- Resumenes por grupo, categoria y saldos -->
     <div class="row g-3 mb-3">
-        <div class="col-12 col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold">Gastitos por grupo</h5><span class="text-muted small"><?= (int) ($resumenMensual['grupos_activos'] ?? 0) ?> activo(s)</span></div><div class="card-body p-0"><?php if (empty($porGrupo)): ?><p class="text-muted small p-3 mb-0">Sin gastitos para el periodo.</p><?php else: ?><?php $maxGrupo = max(array_map(static fn($g) => (float) $g['total'], $porGrupo)); ?><?php foreach ($porGrupo as $g): ?><div class="mobile-card-item"><div class="d-flex justify-content-between align-items-center gap-2"><div class="fw-medium"><?= esc($g['grupo']) ?> <span class="text-muted small"><?= $g['cantidad'] ?> <?= pluralizar((int) $g['cantidad'], 'gastito', 'gastitos') ?></span></div><div class="fw-bold text-primary"><?= moneda($g['total']) ?></div></div><div class="progress mt-2" style="height:4px"><div class="progress-bar bg-primary" style="width:<?= $maxGrupo > 0 ? ($g['total'] / $maxGrupo * 100) : 0 ?>%"></div></div></div><?php endforeach; ?><?php endif; ?></div></div></div>
-        <div class="col-12 col-lg-6"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Gastitos por categoría</h5></div><div class="card-body p-0"><?php if (empty($porCategoria)): ?><p class="text-muted small p-3 mb-0">Sin categorias para el periodo.</p><?php else: ?><?php $maxCategoria = max(array_map(static fn($c) => (float) $c['total'], $porCategoria)); ?><?php foreach ($porCategoria as $c): ?><div class="mobile-card-item"><div class="d-flex justify-content-between align-items-center gap-2"><div><span class="badge bg-light text-dark"><?= esc($c['categoria']) ?></span> <span class="text-muted small"><?= $c['cantidad'] ?> <?= pluralizar((int) $c['cantidad'], 'gastito', 'gastitos') ?></span></div><div class="fw-bold"><?= moneda($c['total']) ?></div></div><div class="progress mt-2" style="height:4px"><div class="progress-bar bg-warning" style="width:<?= $maxCategoria > 0 ? ($c['total'] / $maxCategoria * 100) : 0 ?>%"></div></div></div><?php endforeach; ?><?php endif; ?></div></div></div>
+        <div class="col-12 col-lg-4">
+            <details class="card border-0 shadow-sm report-breakdown-card">
+                <summary class="card-header bg-white border-bottom d-flex justify-content-between align-items-center report-breakdown-summary">
+                    <span class="report-breakdown-title"><span class="report-breakdown-arrow" aria-hidden="true"></span>Gastitos por grupo</span>
+                    <span class="text-muted small"><?= (int) ($resumenMensual['grupos_activos'] ?? 0) ?> activo(s)</span>
+                </summary>
+                <div class="card-body p-0">
+                    <?php if (empty($porGrupo)): ?>
+                        <p class="text-muted small p-3 mb-0">Sin gastitos para el periodo.</p>
+                    <?php else: ?>
+                        <?php $maxGrupo = max(array_map(static fn($g) => (float) $g['total'], $porGrupo)); ?>
+                        <?php foreach ($porGrupo as $g): ?>
+                            <div class="mobile-card-item">
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                    <div class="fw-medium"><?= esc($g['grupo']) ?> <span class="text-muted small"><?= $g['cantidad'] ?> <?= pluralizar((int) $g['cantidad'], 'gastito', 'gastitos') ?></span></div>
+                                    <div class="fw-bold text-primary"><?= moneda($g['total']) ?></div>
+                                </div>
+                                <div class="progress mt-2" style="height:4px"><div class="progress-bar bg-primary" style="width:<?= $maxGrupo > 0 ? ($g['total'] / $maxGrupo * 100) : 0 ?>%"></div></div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </details>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <details class="card border-0 shadow-sm report-breakdown-card">
+                <summary class="card-header bg-white border-bottom report-breakdown-summary">
+                    <span class="report-breakdown-title"><span class="report-breakdown-arrow" aria-hidden="true"></span>Gastitos por categoría</span>
+                </summary>
+                <div class="card-body p-0">
+                    <?php if (empty($porCategoria)): ?>
+                        <p class="text-muted small p-3 mb-0">Sin categorias para el periodo.</p>
+                    <?php else: ?>
+                        <?php $maxCategoria = max(array_map(static fn($c) => (float) $c['total'], $porCategoria)); ?>
+                        <?php foreach ($porCategoria as $c): ?>
+                            <div class="mobile-card-item">
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                    <div><span class="badge bg-light text-dark"><?= esc($c['categoria']) ?></span> <span class="text-muted small"><?= $c['cantidad'] ?> <?= pluralizar((int) $c['cantidad'], 'gastito', 'gastitos') ?></span></div>
+                                    <div class="fw-bold"><?= moneda($c['total']) ?></div>
+                                </div>
+                                <div class="progress mt-2" style="height:4px"><div class="progress-bar bg-warning" style="width:<?= $maxCategoria > 0 ? ($c['total'] / $maxCategoria * 100) : 0 ?>%"></div></div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </details>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Saldos actuales</h5></div>
+                <div class="card-body report-debt-list">
+                    <?php if (empty($deudas)): ?>
+                        <p class="text-muted small mb-0">No hay deudas pendientes.</p>
+                    <?php else: ?>
+                        <?php foreach ($deudas as $d): ?>
+                            <div class="report-debt-item">
+                                <div class="d-flex justify-content-between align-items-center gap-2">
+                                    <div><strong><?= esc($d['deudor']) ?></strong><span class="text-muted"> le debe a </span><strong><?= esc($d['acreedor']) ?></strong><?php if (!empty($d['grupo'])): ?><div class="text-muted small"><?= esc($d['grupo']) ?></div><?php endif; ?></div>
+                                    <div class="fw-bold text-danger"><?= moneda($d['monto']) ?></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Movimientos y saldos -->
+    <!-- Movimientos -->
     <div class="row g-3 mb-4">
-        <div class="col-12 col-lg-7"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Movimientos del periodo</h5></div><div class="card-body report-movement-list"><?php if (empty($movimientos)): ?><p class="text-muted small p-3 mb-0">No hay movimientos para el periodo.</p><?php else: ?><?php foreach ($movimientos as $m): ?><?= view('components/cards/movimiento', ['tipo' => $m['tipo'], 'descripcion' => mb_substr((string) $m['descripcion'], 0, 40), 'monto' => $m['monto'], 'fecha' => $m['fecha'], 'persona' => $m['persona'], 'grupo' => $m['grupo'] ?? null, 'url' => base_url(($m['tipo'] === 'gasto' ? 'gastos/' : 'pagos/') . $m['id'])]) ?><?php endforeach; ?><?php endif; ?></div></div></div>
-        <div class="col-12 col-lg-5"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Saldos actuales</h5></div><div class="card-body report-debt-list"><?php if (empty($deudas)): ?><p class="text-muted small mb-0">No hay deudas pendientes.</p><?php else: ?><?php foreach ($deudas as $d): ?><div class="report-debt-item"><div class="d-flex justify-content-between align-items-center gap-2"><div><strong><?= esc($d['deudor']) ?></strong><span class="text-muted"> le debe a </span><strong><?= esc($d['acreedor']) ?></strong><?php if (!empty($d['grupo'])): ?><div class="text-muted small"><?= esc($d['grupo']) ?></div><?php endif; ?></div><div class="fw-bold text-danger"><?= moneda($d['monto']) ?></div></div></div><?php endforeach; ?><?php endif; ?></div></div></div>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom"><h5 class="mb-0 fw-bold">Movimientos del periodo</h5></div>
+                <div class="card-body report-movement-list">
+                    <?php if (empty($movimientos)): ?>
+                        <p class="text-muted small p-3 mb-0">No hay movimientos para el periodo.</p>
+                    <?php else: ?>
+                        <?php foreach ($movimientos as $m): ?>
+                            <?= view('components/cards/movimiento', ['tipo' => $m['tipo'], 'descripcion' => mb_substr((string) $m['descripcion'], 0, 40), 'monto' => $m['monto'], 'fecha' => $m['fecha'], 'persona' => $m['persona'], 'grupo' => $m['grupo'] ?? null, 'url' => base_url(($m['tipo'] === 'gasto' ? 'gastos/' : 'pagos/') . $m['id'])]) ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

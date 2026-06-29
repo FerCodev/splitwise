@@ -1131,6 +1131,47 @@ body {
     opacity: 0.75;
 }
 
+/* Collapsible report breakdowns */
+.report-breakdown-card {
+    overflow: hidden;
+}
+.report-breakdown-summary {
+    min-height: 58px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+}
+.report-breakdown-summary::-webkit-details-marker {
+    display: none;
+}
+.report-breakdown-summary:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}
+.report-breakdown-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+.report-breakdown-arrow {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 7px solid currentColor;
+    color: var(--muted);
+    transition: transform 160ms ease;
+}
+.report-breakdown-card[open] .report-breakdown-arrow {
+    transform: rotate(90deg);
+}
+@media (max-width: 767.98px) {
+    .report-breakdown-title {
+        font-size: 1rem;
+    }
+}
 /* Filter offcanvas panel */
 .offcanvas.report-filter-panel {
     --bs-offcanvas-height: auto;
