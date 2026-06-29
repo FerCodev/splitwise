@@ -135,7 +135,7 @@
 
 <!-- Panel de filtros offcanvas -->
 <div class="offcanvas offcanvas-bottom report-filter-panel" tabindex="-1" id="reportFilterPanel"
-     aria-labelledby="reportFilterPanelLabel" style="max-height:85vh; border-radius: 16px 16px 0 0;">
+     aria-labelledby="reportFilterPanelLabel">
     <div class="offcanvas-header border-bottom">
         <h5 class="offcanvas-title fw-bold" id="reportFilterPanelLabel">Filtros</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>

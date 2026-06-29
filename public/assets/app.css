@@ -1085,6 +1085,10 @@ body {
 
 /* Filter offcanvas panel */
 .report-filter-panel {
+    height: 72vh;
+    height: min(72dvh, 680px);
+    max-height: calc(100dvh - 72px);
+    border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
 }
 .report-filter-panel .offcanvas-header {
@@ -1104,8 +1108,8 @@ body {
         padding: 10px 4px;
     }
     .report-filter-panel {
-        max-height: none !important;
-        border-radius: 0 !important;
+        height: min(70vh, 620px);
+        max-height: calc(100vh - 48px);
     }
 }
 
