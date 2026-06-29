@@ -282,7 +282,8 @@
             buttons.forEach(function (button) { button.disabled = true; });
 
             try {
-                var response = await fetch(form.action, {
+                var actionUrl = form.getAttribute('action');
+                var response = await fetch(actionUrl, {
                     method: 'POST',
                     body: formData,
                     credentials: 'same-origin',
