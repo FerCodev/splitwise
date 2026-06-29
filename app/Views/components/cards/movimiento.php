@@ -8,9 +8,17 @@ $monto = (float) ($monto ?? 0);
 $fecha = $fecha ?? date('Y-m-d');
 $persona = $persona ?? 'Usuario';
 $url = $url ?? null;
-$categoria = $categoria ?? null;
-$grupo = $grupo ?? null;
-$participantes = $participantes ?? null;
+$categoria = isset($categoria) && (is_string($categoria) || is_numeric($categoria))
+    ? trim((string) $categoria)
+    : null;
+$grupo = isset($grupo) && (is_string($grupo) || is_numeric($grupo))
+    ? trim((string) $grupo)
+    : null;
+$participantes = isset($participantes) && is_numeric($participantes)
+    ? (int) $participantes
+    : null;
+$categoria = $categoria !== '' ? $categoria : null;
+$grupo = $grupo !== '' ? $grupo : null;
 $colorKey = $colorKey ?? null;
 $esGasto = $tipo === 'gasto';
 

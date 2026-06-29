@@ -136,6 +136,9 @@
                             'monto' => $m['monto'],
                             'fecha' => $m['fecha'],
                             'persona' => $m['persona'],
+                            'categoria' => null,
+                            'grupo' => null,
+                            'participantes' => null,
                             'url' => null,
                         ]) ?>
                     <?php endforeach; ?>
