@@ -45,14 +45,14 @@ class PasswordResetController extends BaseController
         if (PasswordReset::smtpConfigurado()) {
             $enviado = PasswordReset::enviarEmail(
                 $user['email'],
-                'Recuperación de contraseña - SplitWise',
+                'Recuperación de contraseña - Gastito',
                 "Hola {$user['name']},\n\n"
                 . "Recibimos una solicitud para restablecer tu contraseña.\n\n"
                 . "Hacé clic en el siguiente enlace para crear una nueva contraseña:\n"
                 . "{$link}\n\n"
                 . "Este enlace expira en 60 minutos.\n\n"
                 . "Si no solicitaste este cambio, ignorá este mensaje.\n\n"
-                . "— SplitWise"
+                . "— Gastito"
             );
 
             if (!$enviado) {
@@ -121,11 +121,11 @@ class PasswordResetController extends BaseController
         if ($updatedUser && PasswordReset::smtpConfigurado()) {
             PasswordReset::enviarEmail(
                 $updatedUser['email'],
-                'Tu contraseña fue cambiada - SplitWise',
+                'Tu contraseña fue cambiada - Gastito',
                 "Hola {$updatedUser['name']},\n\n"
-                . "Tu contraseña de SplitWise fue cambiada correctamente.\n\n"
+                . "Tu contraseña de Gastito fue cambiada correctamente.\n\n"
                 . "Si no realizaste este cambio, contactá al administrador del sistema.\n\n"
-                . "— SplitWise"
+                . "— Gastito"
             );
         }
 

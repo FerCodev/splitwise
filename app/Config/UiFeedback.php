@@ -204,7 +204,7 @@ class UiFeedback
             'slot' => 'feedback.success',
             'component' => 'alert_success',
             'variant' => 'success_compact',
-            'template' => 'Gasto creado correctamente.',
+            'template' => 'Gastito creado correctamente.',
             'params' => [],
             'active' => true,
         ],
