@@ -56,9 +56,23 @@
             <circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>
         </svg>
     </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="<?= $pdfUrl ?>">Exportar PDF</a></li>
-        <li><a class="dropdown-item" href="<?= $csvUrl ?>">Exportar CSV</a></li>
+    <ul class="dropdown-menu dropdown-menu-end report-export-menu">
+        <li>
+            <a class="dropdown-item report-export-item" href="<?= $pdfUrl ?>">
+                <span class="report-export-item-icon report-export-item-icon-pdf" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4 0h5.5L14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2Zm5 1.5V5h3.5L9 1.5Z"/><path d="M4.5 8.25h2a1.5 1.5 0 0 1 0 3h-.75V13h-1.25V8.25Zm1.25 1v1h.65a.5.5 0 0 0 0-1h-.65ZM8 8.25h1.65A2.35 2.35 0 0 1 12 10.6 2.4 2.4 0 0 1 9.6 13H8V8.25Zm1.25 1V12h.35a1.35 1.35 0 0 0 0-2.75h-.35Z"/></svg>
+                </span>
+                <span><strong>Exportar PDF</strong><small>Documento para imprimir</small></span>
+            </a>
+        </li>
+        <li>
+            <a class="dropdown-item report-export-item" href="<?= $csvUrl ?>">
+                <span class="report-export-item-icon report-export-item-icon-csv" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M1 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V3Zm1 2v3h3V5H2Zm4 0v3h4V5H6Zm5 0v3h3V5h-3ZM2 9v3h3V9H2Zm4 0v3h4V9H6Zm5 0v3h3V9h-3Z"/></svg>
+                </span>
+                <span><strong>Exportar CSV</strong><small>Datos para Excel</small></span>
+            </a>
+        </li>
     </ul>
 </div>
 <?php
