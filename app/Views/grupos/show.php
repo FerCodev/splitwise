@@ -347,5 +347,20 @@
     </script>
     <?php endif; ?>
 
+<script>
+(function () {
+    var storageKey = 'gastito:group-colors-changed:<?= (int) $grupo['id'] ?>';
+
+    window.addEventListener('pageshow', function () {
+        if (sessionStorage.getItem(storageKey) !== '1') {
+            return;
+        }
+
+        sessionStorage.removeItem(storageKey);
+        window.location.reload();
+    });
+})();
+</script>
+
 <?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>

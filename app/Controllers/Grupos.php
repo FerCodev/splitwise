@@ -256,27 +256,39 @@ class Grupos extends BaseController
         // La configuracion de colores vive en la pantalla de edicion
         // del grupo, no en el detalle principal.
         $redirectTo = "/grupos/{$grupoId}/editar#colores";
+        $respond = function (string $type, string $message) use ($grupoId, $redirectTo) {
+            if ($this->request->isAJAX()) {
+                session()->setFlashdata($type, $message);
+
+                return $this->response->setJSON([
+                    'ok' => $type === 'success',
+                    'redirect' => base_url("grupos/{$grupoId}/editar") . '#colores',
+                ]);
+            }
+
+            return redirect()->to($redirectTo)->with($type, $message);
+        };
 
         if ($decision['action'] === UserColor::SUBMIT_RESET) {
             $overrideModel->clearOverride($viewerId, $grupoId, $targetId);
-            return redirect()->to($redirectTo)->with('success', 'Color restaurado al valor global.');
+            return $respond('success', 'Color restaurado al valor global.');
         }
 
         if ($decision['action'] === UserColor::SUBMIT_ERROR) {
             $message = ($decision['reason'] ?? '') === UserColor::REASON_EMPTY
                 ? 'Debés seleccionar un color o usar el botón "Global" para volver al valor por defecto.'
                 : 'Color inválido.';
-            return redirect()->to($redirectTo)->with('error', $message);
+            return $respond('error', $message);
         }
 
         // SUBMIT_SET
         try {
             $overrideModel->setOverride($viewerId, $grupoId, $targetId, (string) $decision['colorKey']);
         } catch (\InvalidArgumentException $e) {
-            return redirect()->to($redirectTo)->with('error', $e->getMessage());
+            return $respond('error', $e->getMessage());
         }
 
-        return redirect()->to($redirectTo)->with('success', 'Color guardado para este grupo.');
+        return $respond('success', 'Color guardado para este grupo.');
     }
 
     private function getMovimientoFilters(array $grupo, array $gastos = [], array $pagos = []): array
