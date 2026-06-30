@@ -35,9 +35,11 @@
                         <label class="form-label d-block">Color personal</label>
                         <p class="text-muted small mb-2">Eleg&iacute; el color que usaremos por defecto para tus movimientos en los grupos. Los dem&aacute;s pueden ver otro color para vos si lo configuran en su grupo.</p>
                         <div class="user-color-swatches" role="radiogroup" aria-label="Color personal">
-                            <label class="user-color-swatch <?= $currentColor === \App\Services\UserColor::DEFAULT_KEY ? 'is-selected' : '' ?>" title="Sin color personalizado">
+                            <label class="user-color-swatch user-color-swatch-auto <?= $currentColor === \App\Services\UserColor::DEFAULT_KEY ? 'is-selected' : '' ?>" title="Sin color personalizado">
                                 <input type="radio" name="color" value="<?= \App\Services\UserColor::DEFAULT_KEY ?>" <?= $currentColor === \App\Services\UserColor::DEFAULT_KEY ? 'checked' : '' ?>>
-                                <span class="user-color-swatch-circle" style="background: <?= esc(\App\Services\UserColor::RESERVED['system']['bg']) ?>; border-color: <?= esc(\App\Services\UserColor::RESERVED['system']['border']) ?>;">AUTO</span>
+                                <span class="user-color-swatch-circle" style="background: <?= esc(\App\Services\UserColor::RESERVED['system']['bg']) ?>; border-color: <?= esc(\App\Services\UserColor::RESERVED['system']['border']) ?>;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66L20 8.68M20 4v4.68h-4.68" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
                                 <span class="user-color-swatch-label">Autom&aacute;tico</span>
                             </label>
                             <?php foreach ($palette as $key => $info): ?>
