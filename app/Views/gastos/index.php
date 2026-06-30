@@ -18,7 +18,7 @@
         <div class="mb-3">
             <?= view('components/cards/resumen', [
                 'variant' => $summaryVariant,
-                'titulo' => 'Total filtrado',
+                'titulo' => 'Total de gastitos',
                 'monto' => $totalFiltrado,
                 'detalle' => 'Total filtrado',
                 'color' => 'text-primary',
