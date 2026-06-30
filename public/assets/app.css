@@ -1364,24 +1364,31 @@ body {
 
 /* Selector de color personal (perfil + colores por usuario en grupo) */
 .user-color-swatches {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px 8px;
+    align-items: start;
+}
+@media (min-width: 768px) {
+    .user-color-swatches:not(.user-color-swatches-inline) {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+    }
 }
 .user-color-swatches-inline {
-    gap: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 .user-color-swatch {
+    position: relative;
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 7px;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 8px;
-    border: 2px solid transparent;
-    transition: border-color 0.15s ease;
-    min-width: 44px;
+    padding: 3px 2px;
+    border: 0;
+    min-width: 58px;
     min-height: 44px;
     justify-content: center;
 }
@@ -1393,30 +1400,70 @@ body {
     height: 1px;
     margin: 0;
 }
-.user-color-swatch.is-selected {
-    border-color: #1e293b;
-}
-.user-color-swatch:focus-within {
-    outline: 2px solid #2563eb;
-    outline-offset: 2px;
-}
 .user-color-swatch-circle {
-    width: 28px;
-    height: 28px;
+    position: relative;
+    width: 42px;
+    height: 42px;
     border-radius: 999px;
     border: 2px solid;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.65rem;
-    font-weight: 700;
     color: #1e293b;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+.user-color-swatch input[type="radio"]:checked + .user-color-swatch-circle {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px #1e293b;
+}
+.user-color-swatch input[type="radio"]:checked + .user-color-swatch-circle::after {
+    content: "\2713";
+    position: absolute;
+    right: -6px;
+    bottom: -4px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: #1e293b;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 14px;
+    text-align: center;
+}
+.user-color-swatch:focus-within .user-color-swatch-circle {
+    outline: 2px solid #2563eb;
+    outline-offset: 4px;
 }
 .user-color-swatch-label {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: #475569;
     line-height: 1.1;
     text-align: center;
+}
+.user-color-swatch-auto {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 42px minmax(0, 1fr);
+    justify-content: start;
+    justify-items: start;
+    gap: 12px;
+    min-height: 56px;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: #f8fafc;
+}
+.user-color-swatch-auto .user-color-swatch-label {
+    align-self: center;
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+.user-color-swatches-inline .user-color-swatch {
+    min-width: 44px;
+    padding: 3px;
 }
 .user-color-row {
     padding: 8px 0;
@@ -1425,7 +1472,6 @@ body {
 .user-color-row:last-child {
     border-bottom: 0;
 }
-
 .group-movement-compact-card {
     min-height: 64px;
     padding: 12px 14px;
