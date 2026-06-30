@@ -41,7 +41,7 @@
                             <a href="<?= $pdfUrl ?>" class="btn btn-danger btn-sm">PDF</a>
                             <a href="<?= $excelUrl ?>" class="btn btn-success btn-sm">Excel</a>
                         </div>
-                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
+                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="offcanvas" data-bs-target="#pagoFilterPanel" aria-controls="pagoFilterPanel" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
                         </button>
                     </div>
@@ -86,7 +86,7 @@
                             <a href="<?= $pdfUrl ?>" class="btn btn-danger btn-sm">PDF</a>
                             <a href="<?= $excelUrl ?>" class="btn btn-success btn-sm">Excel</a>
                         </div>
-                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="modal" data-bs-target="#pagoFilterModal" aria-label="Filtros">
+                        <button type="button" class="btn btn-primary feed-filter-btn flex-shrink-0" data-bs-toggle="offcanvas" data-bs-target="#pagoFilterPanel" aria-controls="pagoFilterPanel" aria-label="Filtros">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/></svg>
                         </button>
                     </div>
@@ -127,49 +127,44 @@
         </a>
     </div>
 
-    <div class="modal fade" id="pagoFilterModal" tabindex="-1" aria-labelledby="pagoFilterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <form method="get">
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="pagoFilterModalLabel">Filtrar pagos</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+    <div class="offcanvas offcanvas-bottom filter-bottom-sheet" tabindex="-1" id="pagoFilterPanel" aria-labelledby="pagoFilterPanelLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="pagoFilterPanelLabel">Filtrar pagos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form method="get" id="pagoFilterForm">
+                <div class="mb-3">
+                    <label class="form-label">Grupo</label>
+                    <select name="grupo_id" class="form-select">
+                        <option value="">Todos</option>
+                        <?php foreach ($grupos as $g): ?>
+                            <option value="<?= $g['id'] ?>" <?= ($filters['grupo_id'] ?? '') == $g['id'] ? 'selected' : '' ?>><?= esc($g['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Descripci&oacute;n</label>
+                    <input type="text" name="descripcion" class="form-control" placeholder="Buscar..." value="<?= esc($filters['descripcion'] ?? '') ?>">
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label">Desde</label>
+                        <input type="date" name="fecha_desde" class="form-control" value="<?= esc($filters['fecha_desde'] ?? '') ?>">
                     </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Grupo</label>
-                            <select name="grupo_id" class="form-select">
-                                <option value="">Todos</option>
-                                <?php foreach ($grupos as $g): ?>
-                                    <option value="<?= $g['id'] ?>" <?= ($filters['grupo_id'] ?? '') == $g['id'] ? 'selected' : '' ?>><?= esc($g['nombre']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Descripci&oacute;n</label>
-                            <input type="text" name="descripcion" class="form-control" placeholder="Buscar..." value="<?= esc($filters['descripcion'] ?? '') ?>">
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <label class="form-label">Desde</label>
-                                <input type="date" name="fecha_desde" class="form-control" value="<?= esc($filters['fecha_desde'] ?? '') ?>">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label">Hasta</label>
-                                <input type="date" name="fecha_hasta" class="form-control" value="<?= esc($filters['fecha_hasta'] ?? '') ?>">
-                            </div>
-                        </div>
-                        <input type="hidden" name="sort" value="<?= esc($filters['sort'] ?? 'fecha') ?>">
-                        <input type="hidden" name="order" value="<?= esc($filters['order'] ?? 'DESC') ?>">
+                    <div class="col-6">
+                        <label class="form-label">Hasta</label>
+                        <input type="date" name="fecha_hasta" class="form-control" value="<?= esc($filters['fecha_hasta'] ?? '') ?>">
                     </div>
-                    <div class="modal-footer">
-                        <a href="<?= base_url('pagos') ?>" class="btn btn-secondary flex-fill">Limpiar</a>
-                        <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                <input type="hidden" name="sort" value="<?= esc($filters['sort'] ?? 'fecha') ?>">
+                <input type="hidden" name="order" value="<?= esc($filters['order'] ?? 'DESC') ?>">
+            </form>
+        </div>
+        <div class="offcanvas-footer border-top d-flex gap-2">
+            <a href="<?= base_url('pagos') ?>" class="btn btn-outline-secondary flex-fill">Limpiar</a>
+            <button type="submit" form="pagoFilterForm" class="btn btn-primary flex-fill">Filtrar</button>
         </div>
     </div>
-
 <?= view('partials/_scroll_infinito') ?>
 <?= view('partials/_footer') ?>

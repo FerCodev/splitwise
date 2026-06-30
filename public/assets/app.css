@@ -1200,20 +1200,20 @@ body {
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     background: #fff;
 }
-.offcanvas.gasto-filter-panel {
+.offcanvas.filter-bottom-sheet {
     --bs-offcanvas-height: auto;
     height: auto;
     max-height: min(78dvh, 680px);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
 }
-.gasto-filter-panel .offcanvas-header {
+.filter-bottom-sheet .offcanvas-header {
     padding: 14px 18px;
 }
-.gasto-filter-panel .offcanvas-body {
+.filter-bottom-sheet .offcanvas-body {
     padding: 16px 18px;
 }
-.gasto-filter-panel .offcanvas-footer {
+.filter-bottom-sheet .offcanvas-footer {
     padding: 12px 18px;
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     background: #fff;
