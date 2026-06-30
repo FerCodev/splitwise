@@ -11,6 +11,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Gastito">
+    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
     <link rel="manifest" href="<?= base_url('manifest.webmanifest') ?>">
     <link rel="apple-touch-icon" href="<?= base_url('assets/pwa/icon-192.png') ?>">
     <script>
