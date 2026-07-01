@@ -315,6 +315,29 @@ class Reportes
 
     private static function scalarTotal(?object $row): float { return round((float) ($row->total ?? 0), 2); }
 
+    public static function validarFiltros(array $filters): ?string
+    {
+        $desde = !empty($filters['fecha_desde']) ? $filters['fecha_desde'] : null;
+        $hasta = !empty($filters['fecha_hasta']) ? $filters['fecha_hasta'] : null;
+
+        if ($desde !== null && !self::esFechaValida($desde)) {
+            return 'La fecha Desde no tiene un formato valido.';
+        }
+        if ($hasta !== null && !self::esFechaValida($hasta)) {
+            return 'La fecha Hasta no tiene un formato valido.';
+        }
+        if ($desde !== null && $hasta !== null && $desde > $hasta) {
+            return 'La fecha Desde no puede ser posterior a la fecha Hasta.';
+        }
+        return null;
+    }
+
+    private static function esFechaValida(string $fecha): bool
+    {
+        $d = \DateTime::createFromFormat('Y-m-d', $fecha);
+        return $d !== false && $d->format('Y-m-d') === $fecha;
+    }
+
     public static function deudasPendientes(int $userId, int $limit = 5, array $filters = []): array
     {
         $gruposIds = self::gruposIds($userId);

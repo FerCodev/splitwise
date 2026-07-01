@@ -15,6 +15,15 @@ class Reportes extends BaseController
         $filters = $this->request->getGet(array_keys($this->filtrosEsperados()));
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
 
+        $skipValidation = (bool) ($this->request->getGet('_fv') ?? false);
+        $error = !$skipValidation ? ReportesService::validarFiltros($filters) : null;
+        if ($error !== null) {
+            $queryString = http_build_query(array_filter($filters));
+            $url = base_url('reportes') . ($queryString ? '?' . $queryString : '');
+            $url .= ($queryString ? '&' : '?') . '_fv=1';
+            return redirect()->to($url)->with('error', $error);
+        }
+
         $resumen = ReportesService::resumenGlobal($userId);
         $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
         $porCategoria = ReportesService::gastosPorCategoria($userId, $filters);
@@ -73,6 +82,11 @@ class Reportes extends BaseController
         $filters = $this->request->getGet(array_keys($this->filtrosEsperados()));
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
 
+        $error = ReportesService::validarFiltros($filters);
+        if ($error !== null) {
+            return $this->response->setStatusCode(400)->setBody('Error: ' . $error);
+        }
+
         $rows = ReportesService::gastosParaExportar($userId, $filters);
         $filename = 'gastos_' . date('Y-m-d') . '.csv';
 
@@ -94,6 +108,11 @@ class Reportes extends BaseController
         $userId = session()->get('userId');
         $filters = $this->request->getGet(array_keys($this->filtrosEsperados()));
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
+
+        $error = ReportesService::validarFiltros($filters);
+        if ($error !== null) {
+            return $this->response->setStatusCode(400)->setBody('Error: ' . $error);
+        }
         $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
         $topGrupos = ReportesService::topGrupos($userId, $filters);
         $topCategorias = ReportesService::topCategorias($userId, $filters);

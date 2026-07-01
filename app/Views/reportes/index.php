@@ -72,6 +72,7 @@
 <?= view('partials/_navbar', ['pageTitle' => 'Reportes', 'mobileTopbarActions' => $mobileTopbarActions]) ?>
 
 <div class="container mt-3 mt-md-4">
+    <?= view('partials/_feedback') ?>
 
     <!-- Selector compacto de periodo y acciones -->
     <div class="report-toolbar">
