@@ -48,6 +48,10 @@
                                         'ultimoFecha' => $mv['fecha'] ?? null,
                                         'entrarUrl' => base_url('grupos/' . $grupo['id']),
                                         'gastoUrl' => base_url('gastos/nuevo?grupo_id=' . $grupo['id']),
+                                        'balanceUrl' => $grupo['balance_url'] ?? null,
+                                        'tieneDeuda' => $grupo['tiene_deuda'] ?? false,
+                                        'esAdmin' => $grupo['es_admin'] ?? false,
+                                        'deudaAcreedor' => $grupo['deuda_acreedor'] ?? null,
                                     ]) ?>
                                 </div>
                             <?php endforeach; ?>
@@ -230,6 +234,10 @@
                                 'ultimoFecha' => $mv['fecha'] ?? null,
                                 'entrarUrl' => base_url('grupos/' . $grupo['id']),
                                 'gastoUrl' => base_url('gastos/nuevo?grupo_id=' . $grupo['id']),
+                                'balanceUrl' => $grupo['balance_url'] ?? null,
+                                'tieneDeuda' => $grupo['tiene_deuda'] ?? false,
+                                'esAdmin' => $grupo['es_admin'] ?? false,
+                                'deudaAcreedor' => $grupo['deuda_acreedor'] ?? null,
                             ]) ?>
                         </div>
                     <?php endforeach; ?>

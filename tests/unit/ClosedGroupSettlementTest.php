@@ -86,7 +86,7 @@ final class ClosedGroupSettlementTest extends CIUnitTestCase
     public function testAdminGetAllCerradoPermiteGestionBasica(): void
     {
         $p = GroupPermission::getAll('admin', 'cerrado', 1);
-        $this->assertTrue($p['puede_editar_grupo']);
+        $this->assertFalse($p['puede_editar_grupo']);
         $this->assertTrue($p['puede_cambiar_estado']);
     }
 
@@ -185,5 +185,27 @@ final class ClosedGroupSettlementTest extends CIUnitTestCase
         $this->assertArrayHasKey('acreedor', $deudas[0]);
         $this->assertArrayHasKey('acreedor_id', $deudas[0]);
         $this->assertArrayHasKey('monto', $deudas[0]);
+    }
+
+    public function testGrupoEditBloqueadoEnCerrado(): void
+    {
+        $this->assertNotNull(Grupo::restriccionEstado('cerrado', 'grupo_edit'));
+    }
+
+    public function testGrupoEditBloqueadoEnLiquidado(): void
+    {
+        $this->assertNotNull(Grupo::restriccionEstado('liquidado', 'grupo_edit'));
+    }
+
+    public function testAdminNoPuedeEditarGrupoEnCerrado(): void
+    {
+        $result = GroupPermission::check('admin', 'cerrado', 'grupo_edit');
+        $this->assertNotNull($result);
+    }
+
+    public function testMemberNoPuedeEditarGrupoEnCerrado(): void
+    {
+        $result = GroupPermission::check('member', 'cerrado', 'grupo_edit');
+        $this->assertNotNull($result);
     }
 }

@@ -162,7 +162,7 @@ class Grupo extends Model
             'pago_create'  => ['cerrado' => 'En un grupo cerrado solo se pueden registrar pagos para saldar deudas.', 'liquidado' => 'No se pueden registrar pagos en un grupo liquidado.'],
             'pago_edit'    => ['cerrado' => 'No se pueden editar pagos en un grupo cerrado.', 'liquidado' => 'No se pueden editar pagos en un grupo liquidado.'],
             'pago_delete'  => ['cerrado' => 'No se pueden eliminar pagos en un grupo cerrado.', 'liquidado' => 'No se pueden eliminar pagos en un grupo liquidado.'],
-            'grupo_edit'     => ['liquidado' => 'No se puede editar un grupo liquidado.'],
+            'grupo_edit'     => ['cerrado' => 'No se puede editar un grupo cerrado.', 'liquidado' => 'No se puede editar un grupo liquidado.'],
             'grupo_delete'   => ['cerrado' => 'No se puede eliminar un grupo cerrado.', 'liquidado' => 'No se puede eliminar un grupo liquidado.'],
             'miembro_create' => ['cerrado' => 'No se pueden agregar miembros a un grupo cerrado.', 'liquidado' => 'No se pueden agregar miembros a un grupo liquidado.'],
             'miembro_role'   => ['cerrado' => 'No se puede cambiar el rol en un grupo cerrado.', 'liquidado' => 'No se puede cambiar el rol en un grupo liquidado.'],

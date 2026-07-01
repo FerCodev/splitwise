@@ -239,6 +239,11 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
+        $estado = $acceso['grupo']['estado'] ?? 'activo';
+        if ($estado !== 'activo') {
+            return redirect()->to("/grupos/{$grupoId}")->with('error', 'No se pueden cambiar colores en un grupo ' . $estado . '.');
+        }
+
         // El target debe ser miembro actual del grupo.
         $grupoModel = new Grupo();
         if (! $grupoModel->isMiembro($grupoId, $targetId)) {
@@ -481,6 +486,8 @@ class Grupos extends BaseController
 
         $db = \Config\Database::connect();
         $db->transStart();
+
+        $db->query('SELECT id FROM grupos WHERE id = ? FOR UPDATE', [$id]);
 
         $deudaRevalidada = $gastoModel->getDeudaVigente($id, $userId, $receptorId);
         if ($deudaRevalidada === null || (float) $deudaRevalidada['monto'] < $monto) {
