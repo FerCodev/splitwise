@@ -42,7 +42,7 @@ return [
         [
             'key' => 'minimal_panel',
             'name' => 'Panel simple',
-            'hint' => 'Total gastado visible y accesos equilibrados.',
+            'hint' => 'Total gastado visible, acceso al tocar la tarjeta y bot&oacute;n +Gastito a la derecha.',
             'render' => static fn () => view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'totalGastado' => 145000, 'ultimoDescripcion' => 'supermercado mensual', 'entrarUrl' => '#', 'gastoUrl' => '#']),
         ],
     ],

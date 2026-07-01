@@ -112,12 +112,11 @@ $saldoTexto = moneda(abs($saldo));
                 <strong class="financial-amount text-primary"><?= moneda($totalGastado) ?></strong>
             </div>
         </a>
-        <div class="group-card-minimal-footer">
-            <a class="btn btn-outline-primary btn-sm" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
-            <?php if ($estado === 'activo' && $gastoUrl): ?>
+        <?php if ($estado === 'activo' && $gastoUrl): ?>
+            <div class="group-card-minimal-footer">
                 <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php endif; ?>
     </div>
 <?php elseif ($variant === 'compact'): ?>
     <div class="dash-card">
