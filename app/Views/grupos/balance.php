@@ -12,7 +12,10 @@
             $debo = $miSaldo < 0 && $misDeudas !== [];
             $grupoCerrado = $grupo['estado'] === 'cerrado';
             $grupoActivo = $grupo['estado'] === 'activo';
+            $grupoLiquidado = $grupo['estado'] === 'liquidado';
             $esAdmin = ($rol ?? '') === 'admin';
+
+            $deudasAjenas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] !== $miUserId));
         ?>
 
         <div class="card border-0 shadow-sm mb-4">
@@ -35,13 +38,22 @@
             </div>
         </div>
 
-        <?php if ($debo && $grupoCerrado): ?>
-        <div class="d-grid mb-4">
-            <a href="#transferencias-sugeridas" class="btn btn-warning btn-lg">Saldar deuda</a>
-        </div>
-        <?php elseif ($debo && $grupoActivo): ?>
-        <div class="d-grid mb-4">
-            <a href="#transferencias-sugeridas" class="btn btn-success btn-lg">Registrar pago</a>
+        <?php if ($debo): ?>
+        <div class="mb-4">
+            <h5 class="fw-bold mb-3">Tus deudas pendientes</h5>
+            <?php foreach ($misDeudas as $idx => $d): ?>
+                <?php $acreedorId = (int) $d['acreedor_id']; ?>
+                <?= view('components/cards/deuda_pendiente', [
+                    'monto'          => $d['monto'],
+                    'acreedorNombre' => $d['acreedor'],
+                    'acreedorId'     => $acreedorId,
+                    'grupoId'        => (int) $grupo['id'],
+                    'grupoEstado'    => $grupo['estado'],
+                    'mediosCobro'    => $mediosPorAcreedor[$acreedorId] ?? [],
+                    'formId'         => 'deuda-' . $idx . '-' . $acreedorId,
+                    'fechaDefault'   => date('Y-m-d'),
+                ]) ?>
+            <?php endforeach; ?>
         </div>
         <?php endif; ?>
 
@@ -206,123 +218,28 @@
             <?php endif; ?>
         </div>
 
+        <?php if (!empty($deudasAjenas)): ?>
         <div class="card border-0 shadow-sm mb-4" id="transferencias-sugeridas">
             <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Transferencias sugeridas</h5>
+                <h5 class="mb-0 fw-bold">Estado general</h5>
             </div>
-            <?php if (empty($deudas)): ?>
-                <div class="card-body text-center py-4">
-                    <p class="text-muted mb-0">
-                        <span class="text-success fw-bold">&check;</span>
-                        El grupo está saldado. No hay deudas pendientes.
-                    </p>
-                </div>
-            <?php else: ?>
-                <div class="card-body p-0">
-                    <?php foreach ($deudas as $d): ?>
-                        <?php $acreedorId = (int) $d['acreedor_id']; ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong><?= esc($d['deudor']) ?></strong>
-                                    <span class="text-muted"> le debe a </span>
-                                    <strong><?= esc($d['acreedor']) ?></strong>
-                                </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="fw-bold text-danger fs-5"><?= moneda($d['monto']) ?></div>
-                                    <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
-                                    <button type="button" class="btn btn-success pagar-btn" data-target="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" style="min-height:44px">
-                                        Pagar
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
+            <div class="card-body p-0">
+                <?php foreach ($deudasAjenas as $d): ?>
+                    <?php $acreedorId = (int) $d['acreedor_id']; ?>
+                    <div class="mobile-card-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong><?= esc($d['deudor']) ?></strong>
+                                <span class="text-muted"> le debe a </span>
+                                <strong><?= esc($d['acreedor']) ?></strong>
                             </div>
-                            <div id="pagar-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
-                                <div class="card border">
-                                    <div class="card-body py-2 px-3">
-                                        <p class="mb-1 small text-muted">Al registrar el pago, se actualizar&aacute; el saldo del grupo.</p>
-                                        <?php if (!empty($mediosPorAcreedor[$acreedorId])): ?>
-                                            <p class="mb-1 small text-muted fw-medium">Medios de cobro de <?= esc($d['acreedor']) ?>:</p>
-                                            <?php foreach ($mediosPorAcreedor[$acreedorId] as $m): ?>
-                                                <div class="mb-1">
-                                                    <span class="small fw-medium"><?= esc($m['nombre'] ?? $m['tipo']) ?></span>
-                                                    <div class="d-flex flex-wrap gap-1 mt-1">
-                                                        <?php if ($m['alias']): ?>
-                                                            <span class="small text-muted me-2">Alias: <?= esc($m['alias']) ?></span>
-                                                            <button type="button" class="btn btn-secondary copiar-btn" data-copiar="<?= esc($m['alias'], 'attr') ?>" style="min-height:44px">Copiar alias</button>
-                                                        <?php endif; ?>
-                                                        <?php if ($m['cbu_cvu']): ?>
-                                                            <span class="small text-muted me-2">CBU/CVU: <?= esc($m['cbu_cvu']) ?></span>
-                                                            <button type="button" class="btn btn-secondary copiar-btn" data-copiar="<?= esc($m['cbu_cvu'], 'attr') ?>" style="min-height:44px">Copiar CBU/CVU</button>
-                                                        <?php endif; ?>
-                                                        <?php if ($m['payment_link']): ?>
-                                                            <a href="<?= esc($m['payment_link']) ?>" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="min-height:44px">Abrir link de pago</a>
-                                                        <?php endif; ?>
-                                                        <?php if ($m['banco']): ?>
-                                                            <span class="small text-muted">- <?= esc($m['banco']) ?></span>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <p class="mb-1 small text-muted"><?= esc($d['acreedor']) ?> no tiene medios de cobro registrados.</p>
-                                        <?php endif; ?>
-                                        <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
-                                        <div class="mt-2">
-                                            <?php if ($grupo['estado'] === 'cerrado'): ?>
-                                            <button type="button" class="btn btn-sm btn-warning pago-manual-btn" data-target="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
-                                                Saldar deuda
-                                            </button>
-                                            <p class="small text-muted mt-1 mb-0">Deuda pendiente: <strong><?= moneda($d['monto']) ?></strong> a <?= esc($d['acreedor']) ?>.</p>
-                                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/saldar-deuda') ?>" method="post" id="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="receptor_id" value="<?= $acreedorId ?>">
-                                                <div class="mb-2">
-                                                    <label class="form-label small mb-1">Monto (m&aacute;x <?= moneda($d['monto']) ?>)</label>
-                                                    <input type="number" step="0.01" min="0.01" max="<?= esc(number_format((float) $d['monto'], 2, '.', '')) ?>" name="monto" class="form-control" value="<?= esc(number_format((float) $d['monto'], 2, '.', '')) ?>" required>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label small mb-1">Fecha</label>
-                                                    <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>" required>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label small mb-1">Descripci&oacute;n</label>
-                                                    <input type="text" name="descripcion" class="form-control" value="Saldar deuda - <?= esc($grupo['nombre']) ?>" maxlength="255">
-                                                </div>
-                                                <button type="submit" class="btn btn-warning w-100">Confirmar pago</button>
-                                            </form>
-                                            <?php else: ?>
-                                            <button type="button" class="btn btn-sm btn-primary pago-manual-btn" data-target="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
-                                                Registrar pago manual
-                                            </button>
-                                            <p class="small text-muted mt-1 mb-0">Se registrar&aacute; un pago de <?= esc($d['deudor']) ?> a <?= esc($d['acreedor']) ?> por <?= moneda($d['monto']) ?>.</p>
-                                            <form action="<?= base_url('pagos') ?>" method="post" id="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
-                                                <?= csrf_field() ?>
-                                                <input type="hidden" name="grupo_id" value="<?= (int) $grupo['id'] ?>">
-                                                <input type="hidden" name="receptor_id" value="<?= $acreedorId ?>">
-                                                <input type="hidden" name="descripcion" value="Pago de deuda - <?= esc($grupo['nombre']) ?>">
-                                                <input type="hidden" name="origen" value="grupo_balance_detalle">
-                                                <div class="mb-2">
-                                                    <label class="form-label small mb-1">Monto</label>
-                                                    <input type="number" step="0.01" min="0.01" name="monto" class="form-control" value="<?= esc(number_format((float) $d['monto'], 2, '.', '')) ?>" required>
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label small mb-1">Fecha</label>
-                                                    <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>" required>
-                                                </div>
-                                                <button type="submit" class="btn btn-success w-100">Confirmar pago</button>
-                                            </form>
-                                            <?php endif; ?>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
+                            <div class="fw-bold text-danger"><?= moneda($d['monto']) ?></div>
                         </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
         </div>
+        <?php endif; ?>
 
         <?php if ($grupo['estado'] === 'cerrado' && empty($deudas) && $rol === 'admin'): ?>
             <div class="card border-0 shadow-sm mb-4">
@@ -347,22 +264,14 @@
     </div>
 
     <script>
-        document.querySelectorAll('.pagar-btn').forEach(function(btn) {
+        document.querySelectorAll('.deuda-pendiente-cta').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var targetId = this.getAttribute('data-target');
                 var target = document.getElementById(targetId);
                 if (target) {
+                    var isOpen = !target.classList.contains('d-none');
                     target.classList.toggle('d-none');
-                }
-            });
-        });
-
-        document.querySelectorAll('.pago-manual-btn').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                var targetId = this.getAttribute('data-target');
-                var target = document.getElementById(targetId);
-                if (target) {
-                    target.classList.toggle('d-none');
+                    this.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
                 }
             });
         });
@@ -405,7 +314,7 @@
                     btn.textContent = textoOriginal;
                 }, 2000);
             } catch (e) {
-                alert('No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
+                alert('No se pudo copiar al portapapeles. Selecciona y copia manualmente.');
             }
             document.body.removeChild(textarea);
         }
