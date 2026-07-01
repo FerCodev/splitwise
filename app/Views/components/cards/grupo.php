@@ -14,6 +14,7 @@ $balanceUrl = $balanceUrl ?? null;
 $tieneDeuda = $tieneDeuda ?? false;
 $esAdmin = $esAdmin ?? false;
 $deudaAcreedor = $deudaAcreedor ?? null;
+$grupoSaldado = $grupoSaldado ?? false;
 $inicial = mb_strtoupper(mb_substr($nombre, 0, 1));
 $badgeClase = match ($estado) {
     'activo' => 'bg-success',
@@ -26,18 +27,18 @@ $saldoTexto = moneda(abs($saldo));
 
 $accionHtml = '';
 if ($estado === 'cerrado' && $tieneDeuda) {
-    $accionLabel = 'Saldar deuda';
-    if ($deudaAcreedor) { $accionLabel .= ' - a ' . esc($deudaAcreedor); }
-    $accionHtml = '<a class="btn btn-warning btn-sm" href="' . esc($balanceUrl, 'attr') . '">' . $accionLabel . '</a>';
-} elseif ($estado === 'cerrado' && $esAdmin) {
+    $label = 'Saldar deuda';
+    if ($deudaAcreedor) { $label .= ' - a ' . esc($deudaAcreedor); }
+    $accionHtml = '<a class="btn btn-warning btn-sm" href="' . esc($balanceUrl, 'attr') . '">' . $label . '</a>';
+} elseif ($estado === 'cerrado' && $grupoSaldado && $esAdmin) {
     $accionHtml = '<a class="btn btn-outline-secondary btn-sm" href="' . esc($balanceUrl, 'attr') . '">Liquidar grupo</a>';
 } elseif ($estado === 'cerrado') {
     $accionHtml = '<a class="btn btn-outline-secondary btn-sm" href="' . esc($balanceUrl, 'attr') . '">Ver balance</a>';
-} elseif ($estado === 'liquidado') {
-    $accionHtml = '';
 } elseif ($estado === 'activo' && $gastoUrl) {
     $accionHtml = '<a class="btn btn-primary btn-sm" href="' . esc($gastoUrl, 'attr') . '">+ Gastito</a>';
 }
+
+$entrarHtml = '<a class="btn btn-outline-primary btn-sm" href="' . esc($entrarUrl, 'attr') . '">Entrar</a>';
 ?>
 
 <?php if ($variant === 'balance_first'): ?>
@@ -47,6 +48,7 @@ if ($estado === 'cerrado' && $tieneDeuda) {
             <div class="catalog-balance-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></div>
             <div class="small text-muted"><?= $saldo > 0 ? 'a favor' : ($saldo < 0 ? 'debe' : 'saldado') ?></div>
             <div class="catalog-actions justify-content-center mt-3">
+                <?= $entrarHtml ?>
                 <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
@@ -75,6 +77,7 @@ if ($estado === 'cerrado' && $tieneDeuda) {
                 </div>
             <?php endif; ?>
             <div class="group-card-big-actions mt-3">
+                <?= $entrarHtml ?>
                 <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
@@ -105,6 +108,7 @@ if ($estado === 'cerrado' && $tieneDeuda) {
                 <?php endif; ?>
             </div>
             <div class="catalog-actions mt-3">
+                <?= $entrarHtml ?>
                 <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
@@ -166,6 +170,7 @@ if ($estado === 'cerrado' && $tieneDeuda) {
                 </div>
             </div>
             <div class="catalog-actions mt-3">
+                <?= $entrarHtml ?>
                 <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>

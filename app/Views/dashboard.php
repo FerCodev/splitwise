@@ -52,6 +52,7 @@
                                         'tieneDeuda' => $grupo['tiene_deuda'] ?? false,
                                         'esAdmin' => $grupo['es_admin'] ?? false,
                                         'deudaAcreedor' => $grupo['deuda_acreedor'] ?? null,
+                                        'grupoSaldado' => $grupo['grupo_saldado'] ?? false,
                                     ]) ?>
                                 </div>
                             <?php endforeach; ?>
@@ -238,6 +239,7 @@
                                 'tieneDeuda' => $grupo['tiene_deuda'] ?? false,
                                 'esAdmin' => $grupo['es_admin'] ?? false,
                                 'deudaAcreedor' => $grupo['deuda_acreedor'] ?? null,
+                                'grupoSaldado' => $grupo['grupo_saldado'] ?? false,
                             ]) ?>
                         </div>
                     <?php endforeach; ?>
