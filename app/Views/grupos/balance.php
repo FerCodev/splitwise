@@ -4,6 +4,17 @@
     <div class="container mt-3 mt-md-4">
         <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3 d-none d-lg-inline-flex">&larr; Volver al grupo</a>
 
+        <?php
+            $miUserId = (int) session()->get('userId');
+            $miBalance = current(array_filter($balance, fn($b) => $b['user_id'] == $miUserId));
+            $miSaldo = $miBalance['saldo'] ?? 0;
+            $misDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === $miUserId));
+            $debo = $miSaldo < 0 && $misDeudas !== [];
+            $grupoCerrado = $grupo['estado'] === 'cerrado';
+            $grupoActivo = $grupo['estado'] === 'activo';
+            $esAdmin = ($rol ?? '') === 'admin';
+        ?>
+
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h3 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h3>
@@ -24,7 +35,17 @@
             </div>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4">
+        <?php if ($debo && $grupoCerrado): ?>
+        <div class="d-grid mb-4">
+            <a href="#transferencias-sugeridas" class="btn btn-warning btn-lg">Saldar deuda</a>
+        </div>
+        <?php elseif ($debo && $grupoActivo): ?>
+        <div class="d-grid mb-4">
+            <a href="#transferencias-sugeridas" class="btn btn-success btn-lg">Registrar pago</a>
+        </div>
+        <?php endif; ?>
+
+        <div class="card border-0 shadow-sm mb-4" id="balance-por-usuario">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Balance por usuario</h5>
             </div>
@@ -185,7 +206,7 @@
             <?php endif; ?>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card border-0 shadow-sm mb-4" id="transferencias-sugeridas">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Transferencias sugeridas</h5>
             </div>
@@ -248,6 +269,29 @@
                                         <?php endif; ?>
                                         <?php if ((int) $d['deudor_id'] === (int) session()->get('userId')): ?>
                                         <div class="mt-2">
+                                            <?php if ($grupo['estado'] === 'cerrado'): ?>
+                                            <button type="button" class="btn btn-sm btn-warning pago-manual-btn" data-target="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
+                                                Saldar deuda
+                                            </button>
+                                            <p class="small text-muted mt-1 mb-0">Deuda pendiente: <strong><?= moneda($d['monto']) ?></strong> a <?= esc($d['acreedor']) ?>.</p>
+                                            <form action="<?= base_url('grupos/' . $grupo['id'] . '/saldar-deuda') ?>" method="post" id="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>" class="mt-2 d-none">
+                                                <?= csrf_field() ?>
+                                                <input type="hidden" name="receptor_id" value="<?= $acreedorId ?>">
+                                                <div class="mb-2">
+                                                    <label class="form-label small mb-1">Monto (m&aacute;x <?= moneda($d['monto']) ?>)</label>
+                                                    <input type="number" step="0.01" min="0.01" max="<?= esc(number_format((float) $d['monto'], 2, '.', '')) ?>" name="monto" class="form-control" value="<?= esc(number_format((float) $d['monto'], 2, '.', '')) ?>" required>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label small mb-1">Fecha</label>
+                                                    <input type="date" name="fecha" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                                                </div>
+                                                <div class="mb-2">
+                                                    <label class="form-label small mb-1">Descripci&oacute;n</label>
+                                                    <input type="text" name="descripcion" class="form-control" value="Saldar deuda - <?= esc($grupo['nombre']) ?>" maxlength="255">
+                                                </div>
+                                                <button type="submit" class="btn btn-warning w-100">Confirmar pago</button>
+                                            </form>
+                                            <?php else: ?>
                                             <button type="button" class="btn btn-sm btn-primary pago-manual-btn" data-target="pago-manual-<?= $d['deudor_id'] ?>-<?= $acreedorId ?>">
                                                 Registrar pago manual
                                             </button>
@@ -268,6 +312,7 @@
                                                 </div>
                                                 <button type="submit" class="btn btn-success w-100">Confirmar pago</button>
                                             </form>
+                                            <?php endif; ?>
                                         </div>
                                         <?php endif; ?>
                                     </div>

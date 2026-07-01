@@ -445,6 +445,75 @@ class Grupos extends BaseController
         ]);
     }
 
+    public function saldarDeuda(int $id)
+    {
+        $userId = session()->get('userId');
+        $acceso = $this->verificarAcceso($id);
+
+        if ($acceso === null) {
+            return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        }
+
+        $grupo = $acceso['grupo'];
+
+        if ($grupo['estado'] !== 'cerrado') {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'Este grupo no está cerrado. Usá el flujo normal de pagos.');
+        }
+
+        $receptorId = (int) $this->request->getPost('receptor_id');
+        $monto = (float) $this->request->getPost('monto');
+
+        if ($monto <= 0) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'El monto debe ser mayor a cero.');
+        }
+
+        $gastoModel = new Gasto();
+
+        $deuda = $gastoModel->getDeudaVigente($id, $userId, $receptorId);
+        if ($deuda === null) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'Esta deuda ya fue saldada o cambió. Actualizá la página.');
+        }
+
+        $deudaMonto = (float) $deuda['monto'];
+        if ($monto > $deudaMonto) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'El monto no puede superar la deuda pendiente de ' . moneda($deudaMonto) . '.');
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $deudaRevalidada = $gastoModel->getDeudaVigente($id, $userId, $receptorId);
+        if ($deudaRevalidada === null || (float) $deudaRevalidada['monto'] < $monto) {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'Esta deuda ya fue saldada o cambió. Actualizá la página.');
+        }
+
+        $pagoModel = new Pago();
+        $pagoModel->insert([
+            'grupo_id'    => $id,
+            'pagador_id'  => $userId,
+            'receptor_id' => $receptorId,
+            'monto'       => $monto,
+            'fecha'       => $this->request->getPost('fecha') ?? date('Y-m-d'),
+            'descripcion' => $this->request->getPost('descripcion') ?? ('Saldar deuda - ' . $grupo['nombre']),
+        ]);
+
+        $db->transComplete();
+
+        if (!$db->transStatus()) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'No se pudo registrar el pago. Intentá nuevamente.');
+        }
+
+        $deudaRestante = max(0, round($deudaMonto - $monto, 2));
+
+        if ($deudaRestante > 0) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('success',
+                'Pago registrado. Tu deuda pendiente es de ' . moneda($deudaRestante) . '.');
+        }
+
+        return redirect()->to('/grupos/' . $id . '/balance')->with('success', 'Deuda saldada correctamente.');
+    }
+
     public function cambiarEstado(int $id)
     {
         $acceso = $this->verificarAcceso($id);

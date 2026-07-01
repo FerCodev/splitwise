@@ -10,13 +10,14 @@
             $miSaldo = $miBalance['saldo'] ?? 0;
             $misDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === (int) session()->get('userId')));
             $deudaPrincipal = $misDeudas[0] ?? null;
-            $puedePagarBalance = $miSaldo < 0 && $permisos['puede_crear_pago'] && $deudaPrincipal !== null;
             $miTotalPagado = (float) ($miBalance['total_pagado_gastos'] ?? 0);
             $totalGrupoGauge = max((float) $totalGastado, 0);
             $miPorcentajePagado = $totalGrupoGauge > 0 ? min(100, max(0, ($miTotalPagado / $totalGrupoGauge) * 100)) : 0;
             $balanceCardVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_balance_card');
             $gaugeVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_gauge');
             $movementCardVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_movement_card');
+            $esAdmin = ($rol ?? '') === 'admin';
+            $estadoGrupo = $grupo['estado'] ?? 'activo';
 
             $badgeEstado = ['activo' => 'bg-success', 'cerrado' => 'bg-warning text-dark', 'liquidado' => 'bg-secondary'];
             $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
@@ -43,8 +44,31 @@
                     'variant' => $balanceCardVariant,
                     'saldo' => $miSaldo,
                     'href' => base_url('grupos/' . $grupo['id'] . '/balance'),
-                    'modalTarget' => $puedePagarBalance ? '#pagarBalanceModal' : null,
                 ]) ?>
+
+                <?php if ($estadoGrupo === 'cerrado' && $miSaldo < 0 && $deudaPrincipal !== null): ?>
+                <div class="d-grid mt-3">
+                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-warning">
+                        Saldar deuda &mdash; deb&eacute;s <?= moneda(abs($miSaldo)) ?> a <?= esc($deudaPrincipal['acreedor']) ?>
+                    </a>
+                </div>
+                <?php elseif ($estadoGrupo === 'cerrado'): ?>
+                <div class="d-grid mt-3">
+                    <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>" class="btn btn-outline-secondary">Ver balance</a>
+                </div>
+                <?php elseif ($estadoGrupo === 'liquidado'): ?>
+                <p class="text-muted small mt-2 mb-0">Este grupo est&aacute; finalizado. Solo lectura.</p>
+                <?php endif; ?>
+
+                <?php if ($estadoGrupo === 'cerrado' && empty($deudas) && $esAdmin): ?>
+                <div class="d-grid mt-2">
+                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/estado') ?>" method="post" id="liquidar-desde-show-<?= $grupo['id'] ?>">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="estado" value="liquidado">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm w-100">Liquidar grupo</button>
+                    </form>
+                </div>
+                <?php endif; ?>
                 <?= view('components/widgets/velocimetro_aporte', [
                     'variant' => $gaugeVariant,
                     'porcentaje' => $miPorcentajePagado,
@@ -182,148 +206,6 @@
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/></svg>
         <span>Agregar gastito</span>
     </a>
-    <?php endif; ?>
-
-    <?php if ($puedePagarBalance): ?>
-    <div class="modal fade" id="pagarBalanceModal" tabindex="-1" aria-labelledby="pagarBalanceModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-fullscreen-sm-down">
-            <div class="modal-content pagar-balance-modal">
-                <form action="<?= base_url('pagos') ?>" method="post">
-                    <?= csrf_field() ?>
-                    <input type="hidden" name="grupo_id" value="<?= (int) $grupo['id'] ?>">
-                    <input type="hidden" name="receptor_id" id="balancePagoReceptor" value="<?= (int) $deudaPrincipal['acreedor_id'] ?>">
-                    <input type="hidden" name="descripcion" value="Pago de deuda - <?= esc($grupo['nombre']) ?>">
-                    <input type="hidden" name="origen" value="grupo_balance">
-
-                    <div class="modal-header">
-                        <h5 class="modal-title fw-bold" id="pagarBalanceModalLabel">Pagar deuda</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <p class="text-muted mb-3">Registr&aacute; un pago para reducir tu deuda en <?= esc($grupo['nombre']) ?>.</p>
-
-                        <?php if (count($misDeudas) > 1): ?>
-                            <div class="mb-3">
-                                <label class="form-label fw-medium">Eleg&iacute; a qui&eacute;n pagar</label>
-                                <div class="d-grid gap-2">
-                                    <?php foreach ($misDeudas as $idx => $deuda): ?>
-                                        <label class="deuda-option <?= $idx === 0 ? 'is-selected' : '' ?>">
-                                            <input type="radio"
-                                                name="deuda_option"
-                                                value="<?= (int) $deuda['acreedor_id'] ?>"
-                                                data-monto="<?= esc(number_format((float) $deuda['monto'], 2, '.', '')) ?>"
-                                                data-monto-visual="<?= esc(moneda($deuda['monto'], false)) ?>"
-                                                <?= $idx === 0 ? 'checked' : '' ?>>
-                                            <span>
-                                                <strong><?= esc($deuda['acreedor']) ?></strong>
-                                                <small>Le deb&eacute;s</small>
-                                            </span>
-                                            <strong><?= moneda($deuda['monto']) ?></strong>
-                                        </label>
-                                    <?php endforeach; ?>
-                                </div>
-                            </div>
-                        <?php else: ?>
-                            <div class="pagar-balance-summary mb-3">
-                                <span>Le pag&aacute;s a</span>
-                                <strong><?= esc($deudaPrincipal['acreedor']) ?></strong>
-                            </div>
-                        <?php endif; ?>
-
-                        <div class="mb-3">
-                            <label for="balancePagoMontoVisual" class="form-label fw-medium">Monto a pagar</label>
-                            <input type="text"
-                                inputmode="decimal"
-                                class="form-control form-control-lg"
-                                id="balancePagoMontoVisual"
-                                name="monto_visual"
-                                value="<?= esc(moneda($deudaPrincipal['monto'], false)) ?>"
-                                required>
-                            <input type="hidden"
-                                id="balancePagoMonto"
-                                name="monto"
-                                value="<?= esc(number_format((float) $deudaPrincipal['monto'], 2, '.', '')) ?>">
-                            <div class="form-text">Pod&eacute;s registrar un pago parcial si no vas a saldar todo ahora.</div>
-                        </div>
-
-                        <div class="mb-0">
-                            <label for="balancePagoFecha" class="form-label fw-medium">Fecha</label>
-                            <input type="date" class="form-control" id="balancePagoFecha" name="fecha" value="<?= date('Y-m-d') ?>" required>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Registrar pago</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    <script>
-        const balancePagoVisible = document.getElementById('balancePagoMontoVisual');
-        const balancePagoHidden = document.getElementById('balancePagoMonto');
-
-        function normalizarMontoArgentino(valor) {
-            return valor.trim().replace(/\./g, '').replace(',', '.');
-        }
-
-        function agregarMiles(valor) {
-            return valor.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        }
-
-        function formatearMontoArgentino(valor) {
-            const limpio = valor.replace(/[^\d,]/g, '');
-            const partes = limpio.split(',');
-            const entero = agregarMiles((partes[0] || '').replace(/^0+(?=\d)/, '') || '0');
-            const tieneComa = limpio.includes(',');
-
-            if (!tieneComa) {
-                return entero;
-            }
-
-            const decimales = (partes[1] || '').replace(/\D/g, '').slice(0, 2);
-            return entero + ',' + decimales;
-        }
-
-        function formatearMontoArgentinoCompleto(valor) {
-            const normalizado = normalizarMontoArgentino(valor);
-            const numero = Number.parseFloat(normalizado);
-
-            if (!Number.isFinite(numero)) {
-                return '';
-            }
-
-            const fijo = numero.toFixed(2);
-            const partes = fijo.split('.');
-            return agregarMiles(partes[0]) + ',' + partes[1];
-        }
-
-        if (balancePagoVisible && balancePagoHidden) {
-            balancePagoVisible.addEventListener('input', function() {
-                this.value = formatearMontoArgentino(this.value);
-                balancePagoHidden.value = normalizarMontoArgentino(this.value);
-            });
-
-            balancePagoVisible.addEventListener('blur', function() {
-                this.value = formatearMontoArgentinoCompleto(this.value);
-                balancePagoHidden.value = normalizarMontoArgentino(this.value);
-            });
-        }
-
-        document.querySelectorAll('#pagarBalanceModal input[name="deuda_option"]').forEach(function(input) {
-            input.addEventListener('change', function() {
-                document.querySelectorAll('#pagarBalanceModal .deuda-option').forEach(function(label) {
-                    label.classList.remove('is-selected');
-                });
-                this.closest('.deuda-option').classList.add('is-selected');
-                document.getElementById('balancePagoReceptor').value = this.value;
-                balancePagoHidden.value = this.dataset.monto;
-                balancePagoVisible.value = this.dataset.montoVisual;
-            });
-        });
-    </script>
     <?php endif; ?>
 
 <script>
