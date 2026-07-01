@@ -252,14 +252,14 @@ final class ClosedGroupSettlementTest extends CIUnitTestCase
         $this->assertNull($method->invoke(null, null));
     }
 
-    public function testMontoACentavosRedondeaTresDecimales(): void
+    public function testMontoACentavosRechazaMasDeDosDecimales(): void
     {
         $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
         $method = $reflection->getMethod('montoACentavos');
         $method->setAccessible(true);
 
-        $this->assertSame(123, $method->invoke(null, '1.234'));
-        $this->assertSame(124, $method->invoke(null, '1.236'));
+        $this->assertNull($method->invoke(null, '1.234'));
+        $this->assertNull($method->invoke(null, '1.236'));
     }
 
     public function testEsFechaValidaAceptaYMD(): void

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Pago;
 use App\Models\Grupo;
 use App\Services\GroupPermission;
+use App\Services\DebtPaymentValidator;
 use App\Services\UiFeedbackResolver;
 
 class Pagos extends BaseController
@@ -271,6 +272,55 @@ class Pagos extends BaseController
 
         if (!$grupoModel->isMiembro($grupoId, $receptorId)) {
             return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El receptor no pertenece al grupo.']);
+        }
+
+        $origen = $this->request->getPost('origen');
+        if ($origen === 'grupo_balance_detalle') {
+            $montoCentavos = DebtPaymentValidator::amountToCents($this->request->getPost('monto'));
+            if ($montoCentavos === null) {
+                return redirect()->back()->withInput()->with('error', 'El monto debe ser mayor a cero y tener como máximo dos decimales.');
+            }
+
+            $db = \Config\Database::connect();
+            $db->transStart();
+            $db->query('SELECT id FROM grupos WHERE id = ? FOR UPDATE', [$grupoId]);
+
+            $grupoActual = $grupoModel->find($grupoId);
+            if (!$grupoActual || $grupoActual['estado'] !== 'activo' || !$grupoModel->isMiembro($grupoId, $pagadorId)) {
+                $db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'El grupo cambió. Actualizá la página antes de registrar el pago.');
+            }
+
+            $gastoModel = new \App\Models\Gasto();
+            $deuda = $gastoModel->getDeudaVigente($grupoId, $pagadorId, $receptorId);
+            $errorMonto = DebtPaymentValidator::validateCurrentDebt($deuda, $this->request->getPost('monto'));
+            if ($errorMonto !== null) {
+                $db->transRollback();
+                return redirect()->back()->withInput()->with('error', $errorMonto);
+            }
+
+            $pagoModel = new Pago();
+            $insertId = $pagoModel->insert([
+                'grupo_id' => $grupoId,
+                'pagador_id' => $pagadorId,
+                'receptor_id' => $receptorId,
+                'monto' => DebtPaymentValidator::centsToDecimal($montoCentavos),
+                'fecha' => $this->request->getPost('fecha'),
+                'descripcion' => $this->request->getPost('descripcion'),
+            ]);
+
+            if (!$insertId) {
+                $db->transRollback();
+                return redirect()->back()->withInput()->with('error', 'No se pudo registrar el pago. Intentá nuevamente.');
+            }
+
+            $db->transComplete();
+            if (!$db->transStatus()) {
+                return redirect()->back()->withInput()->with('error', 'No se pudo registrar el pago. Intentá nuevamente.');
+            }
+
+            $successMessage = UiFeedbackResolver::message('payments.create.completed', [], 'Pago registrado correctamente.');
+            return redirect()->to('/grupos/' . $grupoId . '/balance')->with('success', $successMessage);
         }
 
         $pagoModel = new Pago();

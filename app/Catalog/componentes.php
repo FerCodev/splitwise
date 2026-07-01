@@ -22,6 +22,9 @@ return [
         require __DIR__ . '/Components/grupos/group_balance_card.php',
         require __DIR__ . '/Components/grupos/group_gauge.php',
     ],
+    'balance' => [
+        require __DIR__ . '/Components/balance/deuda_pendiente_card.php',
+    ],
     'gastos' => [
         require __DIR__ . '/Components/gastos/filtered_total_card.php',
     ],

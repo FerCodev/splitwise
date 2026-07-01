@@ -4784,3 +4784,74 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.deuda-pendiente-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 12px;
+}
+.deuda-pendiente-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.deuda-pendiente-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.deuda-pendiente-acreedor {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+.deuda-pendiente-monto {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--danger, #dc3545);
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+.deuda-pendiente-contexto {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+}
+.deuda-pendiente-cta {
+    min-height: 48px;
+    width: 100%;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+.deuda-pendiente-form {
+    margin-top: 12px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: #f8f9fa;
+}
+.deuda-pendiente-medios {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+.deuda-pendiente-medio {
+    margin-bottom: 8px;
+}
+.deuda-pendiente-sin-medios {
+    margin-top: 10px;
+}
+@media (max-width: 767.98px) {
+    .deuda-pendiente-card {
+        padding: 14px;
+    }
+    .deuda-pendiente-monto {
+        font-size: 1.35rem;
+    }
+}

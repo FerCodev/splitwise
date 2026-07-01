@@ -62,6 +62,10 @@ class Admin extends BaseController
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_MOVEMENT_CARD
             ),
+            'selectedDebtPendingVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_GROUP_BALANCE,
+                UiComponentResolver::COMPONENT_DEUDA_PENDIENTE_CARD
+            ),
             'selectedAlertSuccessVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_SYSTEM_ALERTS,
                 UiComponentResolver::COMPONENT_ALERT_SUCCESS

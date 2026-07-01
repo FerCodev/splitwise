@@ -10,6 +10,7 @@ use App\Models\GrupoMiembro;
 use App\Models\UserPaymentMethod;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
+use App\Services\DebtPaymentValidator;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
 
@@ -547,15 +548,7 @@ class Grupos extends BaseController
 
     private static function montoACentavos($valor): ?int
     {
-        if ($valor === null || $valor === '') {
-            return null;
-        }
-        $limpio = is_string($valor) ? str_replace(',', '.', $valor) : (string) $valor;
-        if (!is_numeric($limpio)) {
-            return null;
-        }
-        $centavos = (int) round((float) $limpio * 100);
-        return $centavos > 0 ? $centavos : null;
+        return DebtPaymentValidator::amountToCents($valor);
     }
 
     private static function esFechaValida(?string $fecha): bool
