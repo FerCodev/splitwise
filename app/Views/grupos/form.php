@@ -235,21 +235,23 @@
                             ?>
                                 <form action="<?= base_url('grupos/' . (int) $grupo['id'] . '/colores/' . $tid) ?>" method="post" class="user-color-row">
                                     <?= csrf_field() ?>
-                                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                                        <span class="user-color-swatch-circle flex-shrink-0" style="background: <?= esc($effBg) ?>; border-color: <?= esc($effBorder) ?>;"></span>
-                                        <div class="flex-grow-1 min-width-0">
-                                            <div class="fw-medium text-break"><?= esc($miembro['name']) ?></div>
-                                            <div class="text-muted small">Color actual: <?= $effLabel ?></div>
+                                    <div class="user-color-row-layout">
+                                        <div class="user-color-current">
+                                            <span class="user-color-swatch-circle flex-shrink-0" style="background: <?= esc($effBg) ?>; border-color: <?= esc($effBorder) ?>;"></span>
+                                            <div class="min-width-0">
+                                                <div class="fw-medium text-break"><?= esc($miembro['name']) ?></div>
+                                                <div class="text-muted small">Color guardado: <?= $effLabel ?></div>
+                                            </div>
                                         </div>
-                                        <div class="user-color-swatches user-color-swatches-inline">
+                                        <div class="user-color-swatches user-color-swatches-inline" role="radiogroup" aria-label="Color para <?= esc($miembro['name']) ?>">
                                             <?php foreach (($colorPalette ?? \App\Services\UserColor::PALETTE) as $key => $info): ?>
                                                 <label class="user-color-swatch <?= $effectiveKey === $key ? 'is-selected' : '' ?>" title="<?= esc($info['label']) ?>">
-                                                    <input type="radio" name="color" value="<?= esc($key) ?>" <?= $effectiveKey === $key ? 'checked' : '' ?>>
+                                                    <input type="radio" name="color" value="<?= esc($key) ?>" <?= $effectiveKey === $key ? 'checked' : '' ?> aria-label="<?= esc($info['label']) ?>">
                                                     <span class="user-color-swatch-circle" style="background: <?= esc($info['bg']) ?>; border-color: <?= esc($info['border']) ?>;"></span>
                                                 </label>
                                             <?php endforeach; ?>
                                         </div>
-                                        <div class="d-flex gap-1 flex-shrink-0">
+                                        <div class="user-color-actions">
                                             <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
                                             <button type="submit" name="action" value="reset" class="btn btn-sm btn-outline-secondary" title="Volver al color global">Global</button>
                                         </div>

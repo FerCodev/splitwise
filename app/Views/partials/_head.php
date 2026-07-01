@@ -1,3 +1,7 @@
+<?php
+    $appCssPath = FCPATH . 'assets/app.css';
+    $appCssVersion = is_file($appCssPath) ? filemtime($appCssPath) : null;
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= esc($title ?? 'Gastito') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="<?= base_url('assets/app.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/app.css') ?><?= $appCssVersion !== null ? '?v=' . $appCssVersion : '' ?>" rel="stylesheet">
     <meta name="theme-color" content="#0d6efd">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
