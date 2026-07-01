@@ -5,7 +5,7 @@ return [
     'description' => 'Muestra una deuda propia con monto, acreedor y acci&oacute;n para pagar.',
     'screen' => 'grupo_balance',
     'component' => 'deuda_pendiente_card',
-    'selected' => 'default',
+    'selected' => $selectedDebtPendingVariant,
     'variants' => [
         [
             'key' => 'default',
