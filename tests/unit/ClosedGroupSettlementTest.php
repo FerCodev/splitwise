@@ -208,4 +208,95 @@ final class ClosedGroupSettlementTest extends CIUnitTestCase
         $result = GroupPermission::check('member', 'cerrado', 'grupo_edit');
         $this->assertNotNull($result);
     }
+
+    public function testMontoACentavosConDecimal(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('montoACentavos');
+        $method->setAccessible(true);
+
+        $this->assertSame(12345, $method->invoke(null, '123.45'));
+        $this->assertSame(10000, $method->invoke(null, '100'));
+        $this->assertSame(1, $method->invoke(null, '0.01'));
+        $this->assertSame(100, $method->invoke(null, 1.0));
+    }
+
+    public function testMontoACentavosConComaDecimal(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('montoACentavos');
+        $method->setAccessible(true);
+
+        $this->assertSame(12345, $method->invoke(null, '123,45'));
+    }
+
+    public function testMontoACentavosRechazaCero(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('montoACentavos');
+        $method->setAccessible(true);
+
+        $this->assertNull($method->invoke(null, '0'));
+        $this->assertNull($method->invoke(null, '0.00'));
+        $this->assertNull($method->invoke(null, '-5'));
+    }
+
+    public function testMontoACentavosRechazaNoNumerico(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('montoACentavos');
+        $method->setAccessible(true);
+
+        $this->assertNull($method->invoke(null, 'abc'));
+        $this->assertNull($method->invoke(null, ''));
+        $this->assertNull($method->invoke(null, null));
+    }
+
+    public function testMontoACentavosRedondeaTresDecimales(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('montoACentavos');
+        $method->setAccessible(true);
+
+        $this->assertSame(123, $method->invoke(null, '1.234'));
+        $this->assertSame(124, $method->invoke(null, '1.236'));
+    }
+
+    public function testEsFechaValidaAceptaYMD(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('esFechaValida');
+        $method->setAccessible(true);
+
+        $this->assertTrue($method->invoke(null, '2026-07-15'));
+        $this->assertTrue($method->invoke(null, '2026-01-01'));
+    }
+
+    public function testEsFechaValidaRechazaFormatosInvalidos(): void
+    {
+        $reflection = new ReflectionClass(\App\Controllers\Grupos::class);
+        $method = $reflection->getMethod('esFechaValida');
+        $method->setAccessible(true);
+
+        $this->assertFalse($method->invoke(null, '15/07/2026'));
+        $this->assertFalse($method->invoke(null, '2026-13-01'));
+        $this->assertFalse($method->invoke(null, ''));
+        $this->assertFalse($method->invoke(null, null));
+        $this->assertFalse($method->invoke(null, '2026-07-01 12:00:00'));
+    }
+
+    public function testRestriccionEstadoCerradoBloqueaGrupoEdit(): void
+    {
+        $this->assertNotNull(Grupo::restriccionEstado('cerrado', 'grupo_edit'));
+    }
+
+    public function testRestriccionEstadoCerradoBloqueaGrupoDelete(): void
+    {
+        $this->assertNotNull(Grupo::restriccionEstado('cerrado', 'grupo_delete'));
+    }
+
+    public function testRestriccionEstadoActivoPermiteGrupoEdit(): void
+    {
+        $this->assertNull(Grupo::restriccionEstado('activo', 'grupo_edit'));
+    }
 }

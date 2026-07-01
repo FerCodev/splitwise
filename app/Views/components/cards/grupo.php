@@ -29,6 +29,8 @@ if ($estado === 'cerrado' && $tieneDeuda) {
     $accionLabel = 'Saldar deuda';
     if ($deudaAcreedor) { $accionLabel .= ' - a ' . esc($deudaAcreedor); }
     $accionHtml = '<a class="btn btn-warning btn-sm" href="' . esc($balanceUrl, 'attr') . '">' . $accionLabel . '</a>';
+} elseif ($estado === 'cerrado' && $esAdmin) {
+    $accionHtml = '<a class="btn btn-outline-secondary btn-sm" href="' . esc($balanceUrl, 'attr') . '">Liquidar grupo</a>';
 } elseif ($estado === 'cerrado') {
     $accionHtml = '<a class="btn btn-outline-secondary btn-sm" href="' . esc($balanceUrl, 'attr') . '">Ver balance</a>';
 } elseif ($estado === 'liquidado') {

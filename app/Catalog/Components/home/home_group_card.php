@@ -16,7 +16,8 @@ return [
             'render' => static fn () => '<div style="display:grid;gap:12px">'
                 . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo, 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
                 . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Junio', 'estado' => 'cerrado', 'saldo' => -8500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Cena', 'ultimoMonto' => 12000, 'ultimoFecha' => $fechaDemo, 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => true, 'esAdmin' => false, 'deudaAcreedor' => 'Juan'])
-                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Julio', 'estado' => 'liquidado', 'saldo' => 0, 'ultimoDescripcion' => 'finalizado', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
+                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Julio', 'estado' => 'cerrado', 'saldo' => 0, 'ultimoDescripcion' => 'saldado', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => true])
+                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Agosto', 'estado' => 'liquidado', 'saldo' => 3200, 'ultimoDescripcion' => 'finalizado', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
                 . '</div>',
         ],
         [
