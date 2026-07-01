@@ -4,6 +4,11 @@ use CodeIgniter\Test\CIUnitTestCase;
 
 final class GrupoCardRenderTest extends CIUnitTestCase
 {
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        service('renderer')->resetData();
+    }
     private function render(array $overrides = []): string
     {
         return view('components/cards/grupo', array_merge([
