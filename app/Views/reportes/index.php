@@ -1,18 +1,9 @@
 <?php
-    $mesReporte = $resumenMensual['mes'] ?? ($filters['year_month'] ?? date('Y-m'));
-    $meses = [
-        1 => 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
-    ];
-    $mesFecha = $mesReporte ? DateTimeImmutable::createFromFormat('!Y-m', $mesReporte) : false;
-    $mesReporteTexto = $mesFecha
-        ? $meses[(int) $mesFecha->format('n')] . ' ' . $mesFecha->format('Y')
-        : 'Seleccionar periodo';
+    $periodoTexto = \App\Controllers\Reportes::periodoTexto($filters);
     $csvUrl = base_url('reportes/exportar?' . http_build_query($filters));
     $pdfUrl = base_url('reportes/exportar-pdf?' . http_build_query($filters));
     $saldo = (float) ($resumenMensual['saldo'] ?? 0);
 
-    // Contar filtros avanzados activos (excluyendo el mes)
     $activeCount = 0;
     $activeChips = [];
 
@@ -45,8 +36,6 @@
     $fechaHastaVal = esc($filters['fecha_hasta'] ?? '');
     $grupoSelected = esc($filters['grupo_id'] ?? '');
     $catSelected = esc($filters['categoria_id'] ?? '');
-    $yearMonthVal = esc($filters['year_month'] ?? $mesReporte);
-    $hasDateRange = !empty($filters['fecha_desde']) || !empty($filters['fecha_hasta']);
 
     ob_start();
 ?>
@@ -83,13 +72,14 @@
 <?= view('partials/_navbar', ['pageTitle' => 'Reportes', 'mobileTopbarActions' => $mobileTopbarActions]) ?>
 
 <div class="container mt-3 mt-md-4">
+    <?= view('partials/_feedback') ?>
 
     <!-- Selector compacto de periodo y acciones -->
     <div class="report-toolbar">
         <button type="button" class="report-period-trigger"
                 data-bs-toggle="offcanvas" data-bs-target="#reportFilterPanel"
-                aria-label="Filtrar reportes para <?= esc($mesReporteTexto) ?>" id="reportFilterBtn">
-            <span class="report-period-value"><?= esc($mesReporteTexto) ?></span>
+                aria-label="Filtrar reportes para <?= esc($periodoTexto) ?>" id="reportFilterBtn">
+            <span class="report-period-value"><?= esc($periodoTexto) ?></span>
             <span class="report-period-filter" aria-hidden="true">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5z"/>
@@ -242,9 +232,15 @@
     </div>
     <div class="offcanvas-body">
         <form method="get" id="reportFilterForm">
-            <div class="mb-3">
-                <label for="report_mes" class="form-label small fw-medium">Mes</label>
-                <input type="month" id="report_mes" name="year_month" class="form-control" value="<?= $yearMonthVal ?>">
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label for="report_desde" class="form-label small fw-medium">Desde</label>
+                    <input type="date" id="report_desde" name="fecha_desde" class="form-control" value="<?= $fechaDesdeVal ?>">
+                </div>
+                <div class="col-6">
+                    <label for="report_hasta" class="form-label small fw-medium">Hasta</label>
+                    <input type="date" id="report_hasta" name="fecha_hasta" class="form-control" value="<?= $fechaHastaVal ?>">
+                </div>
             </div>
             <div class="mb-3">
                 <label for="report_grupo" class="form-label small fw-medium">Grupo</label>
@@ -264,22 +260,6 @@
                     <?php endforeach; ?>
                 </select>
             </div>
-            <details class="report-date-range" <?= $hasDateRange ? 'open' : '' ?>>
-                <summary>
-                    <span>Rango de fechas</span>
-                    <span class="report-date-range-optional">Opcional</span>
-                </summary>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <label for="report_desde" class="form-label small fw-medium">Desde</label>
-                        <input type="date" id="report_desde" name="fecha_desde" class="form-control" value="<?= $fechaDesdeVal ?>">
-                    </div>
-                    <div class="col-6">
-                        <label for="report_hasta" class="form-label small fw-medium">Hasta</label>
-                        <input type="date" id="report_hasta" name="fecha_hasta" class="form-control" value="<?= $fechaHastaVal ?>">
-                    </div>
-                </div>
-            </details>
         </form>
     </div>
     <div class="offcanvas-footer border-top p-3 d-flex gap-2">
