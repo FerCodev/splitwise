@@ -15,23 +15,32 @@ class Reportes extends BaseController
         $filters = $this->request->getGet(array_keys($this->filtrosEsperados()));
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
 
-        $skipValidation = (bool) ($this->request->getGet('_fv') ?? false);
-        $error = !$skipValidation ? ReportesService::validarFiltros($filters) : null;
+        $error = ReportesService::validarFiltros($filters);
+        $grupos = model(Grupo::class)->getGruposByUser($userId);
+        $categorias = model(Categoria::class)->getActivas();
+        $resumen = ReportesService::resumenGlobal($userId);
+
         if ($error !== null) {
-            $queryString = http_build_query(array_filter($filters));
-            $url = base_url('reportes') . ($queryString ? '?' . $queryString : '');
-            $url .= ($queryString ? '&' : '?') . '_fv=1';
-            return redirect()->to($url)->with('error', $error);
+            session()->setFlashdata('error', $error);
+            $vacio = ['total_gastado' => 0, 'total_pagado' => 0, 'total_consumido' => 0, 'saldo' => 0, 'grupos_activos' => 0];
+            return view('reportes/index', [
+                'resumen' => $resumen,
+                'resumenMensual' => $vacio,
+                'porCategoria' => [],
+                'porGrupo' => [],
+                'movimientos' => [],
+                'deudas' => [],
+                'grupos' => $grupos,
+                'categorias' => $categorias,
+                'filters' => $filters,
+            ]);
         }
 
-        $resumen = ReportesService::resumenGlobal($userId);
         $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
         $porCategoria = ReportesService::gastosPorCategoria($userId, $filters);
         $porGrupo = ReportesService::gastosPorGrupo($userId, $filters);
         $movimientos = ReportesService::movimientosFiltrados($userId, $filters, 12);
         $deudas = ReportesService::deudasPendientes($userId, 5, $filters);
-        $grupos = model(Grupo::class)->getGruposByUser($userId);
-        $categorias = model(Categoria::class)->getActivas();
 
         return view('reportes/index', [
             'resumen' => $resumen,
