@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Reportes;
+use App\Controllers\Reportes as ReportesController;
 use CodeIgniter\Test\CIUnitTestCase;
 
 final class ReportesTest extends CIUnitTestCase
@@ -46,6 +47,15 @@ final class ReportesTest extends CIUnitTestCase
         $this->assertTrue(method_exists(Reportes::class, 'gastosParaExportar'));
         $this->assertTrue(method_exists(Reportes::class, 'calcularResumen'));
         $this->assertTrue(method_exists(Reportes::class, 'formatearFilasCsv'));
+        $this->assertTrue(method_exists(Reportes::class, 'topGrupos'));
+        $this->assertTrue(method_exists(Reportes::class, 'topCategorias'));
+        $this->assertTrue(method_exists(Reportes::class, 'movimientosFiltrados'));
+        $this->assertTrue(method_exists(Reportes::class, 'deudasPendientes'));
+    }
+
+    public function testMetodoMensualEliminado(): void
+    {
+        $this->assertFalse(method_exists(Reportes::class, 'resumenMensual'));
     }
 
     public function testCalcularResumen(): void
@@ -94,5 +104,72 @@ final class ReportesTest extends CIUnitTestCase
     public function testFormatearFilasCsvVacio(): void
     {
         $this->assertSame([], Reportes::formatearFilasCsv([]));
+    }
+
+    public function testPeriodoTextoSinFechas(): void
+    {
+        $this->assertSame('Todo el historial', ReportesController::periodoTexto([]));
+    }
+
+    public function testPeriodoTextoSoloDesde(): void
+    {
+        $this->assertSame('Desde 01/07/2026', ReportesController::periodoTexto(['fecha_desde' => '2026-07-01']));
+    }
+
+    public function testPeriodoTextoSoloHasta(): void
+    {
+        $this->assertSame('Hasta 31/07/2026', ReportesController::periodoTexto(['fecha_hasta' => '2026-07-31']));
+    }
+
+    public function testPeriodoTextoRangoCompleto(): void
+    {
+        $this->assertSame(
+            '01/07/2026 al 31/07/2026',
+            ReportesController::periodoTexto(['fecha_desde' => '2026-07-01', 'fecha_hasta' => '2026-07-31'])
+        );
+    }
+
+    public function testPeriodoTextoUnSoloDia(): void
+    {
+        $this->assertSame(
+            '15/07/2026 al 15/07/2026',
+            ReportesController::periodoTexto(['fecha_desde' => '2026-07-15', 'fecha_hasta' => '2026-07-15'])
+        );
+    }
+
+    public function testPeriodoTextoConGrupoYFechas(): void
+    {
+        $this->assertSame(
+            '01/07/2026 al 31/07/2026',
+            ReportesController::periodoTexto(['fecha_desde' => '2026-07-01', 'fecha_hasta' => '2026-07-31', 'grupo_id' => '5'])
+        );
+    }
+
+    public function testPeriodoTextoConCategoriaYFechas(): void
+    {
+        $this->assertSame(
+            'Desde 01/07/2026',
+            ReportesController::periodoTexto(['fecha_desde' => '2026-07-01', 'categoria_id' => '3'])
+        );
+    }
+
+    public function testPeriodoTextoIgnoraOldYearMonth(): void
+    {
+        $this->assertSame(
+            'Todo el historial',
+            ReportesController::periodoTexto(['year_month' => '2026-07'])
+        );
+    }
+
+    public function testYearMonthNoEstaEnFiltrosEsperados(): void
+    {
+        $reflection = new ReflectionClass(ReportesController::class);
+        $method = $reflection->getMethod('filtrosEsperados');
+        $method->setAccessible(true);
+        $instance = $reflection->newInstanceWithoutConstructor();
+        $filtros = $method->invoke($instance);
+        $this->assertArrayNotHasKey('year_month', $filtros);
+        $this->assertArrayHasKey('fecha_desde', $filtros);
+        $this->assertArrayHasKey('fecha_hasta', $filtros);
     }
 }

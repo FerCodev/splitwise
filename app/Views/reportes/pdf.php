@@ -19,12 +19,12 @@
 </head>
 <body>
     <h1>Reporte de gastitos</h1>
-    <div class="fecha">Generado el <?= $fecha ?></div>
+    <div class="fecha"><?= esc($periodoTexto ?? 'Todo el historial') ?> &middot; Generado el <?= $fecha ?></div>
 
     <table class="resumen">
-        <tr><td>Total gastado este mes</td><td class="total"><?= moneda($resumenMensual['total_gastado']) ?></td></tr>
-        <tr><td>Total pagado este mes</td><td class="total verde"><?= moneda($resumenMensual['total_pagado']) ?></td></tr>
-        <tr><td>Saldo del mes</td><td class="total <?= $resumenMensual['saldo'] >= 0 ? 'verde' : 'rojo' ?>"><?= moneda(abs($resumenMensual['saldo'])) ?></td></tr>
+        <tr><td>Total gastado en el periodo</td><td class="total"><?= moneda($resumenMensual['total_gastado']) ?></td></tr>
+        <tr><td>Total pagado en el periodo</td><td class="total verde"><?= moneda($resumenMensual['total_pagado']) ?></td></tr>
+        <tr><td>Saldo del periodo</td><td class="total <?= $resumenMensual['saldo'] >= 0 ? 'verde' : 'rojo' ?>"><?= moneda(abs($resumenMensual['saldo'])) ?></td></tr>
         <tr><td>Grupos con actividad</td><td class="total"><?= $resumenMensual['grupos_activos'] ?></td></tr>
     </table>
 

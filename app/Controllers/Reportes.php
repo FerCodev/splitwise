@@ -16,10 +16,6 @@ class Reportes extends BaseController
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
 
         $resumen = ReportesService::resumenGlobal($userId);
-        $mesBase = ReportesService::resumenMensual($userId, $filters['year_month'] ?? '');
-        if (empty($filters['year_month'])) {
-            $filters['year_month'] = $mesBase['mes'];
-        }
         $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
         $porCategoria = ReportesService::gastosPorCategoria($userId, $filters);
         $porGrupo = ReportesService::gastosPorGrupo($userId, $filters);
@@ -98,13 +94,9 @@ class Reportes extends BaseController
         $userId = session()->get('userId');
         $filters = $this->request->getGet(array_keys($this->filtrosEsperados()));
         $filters = array_intersect_key($filters, $this->filtrosEsperados());
-        $mesBase = ReportesService::resumenMensual($userId, $filters['year_month'] ?? '');
-        if (empty($filters['year_month'])) {
-            $filters['year_month'] = $mesBase['mes'];
-        }
         $resumenMensual = ReportesService::resumenFiltrado($userId, $filters);
-        $topGrupos = ReportesService::topGrupos($userId, $filters['year_month']);
-        $topCategorias = ReportesService::topCategorias($userId, $filters['year_month']);
+        $topGrupos = ReportesService::topGrupos($userId, $filters);
+        $topCategorias = ReportesService::topCategorias($userId, $filters);
         $movimientos = ReportesService::movimientosFiltrados($userId, $filters, 10);
         $deudas = ReportesService::deudasPendientes($userId, 5, $filters);
 
@@ -115,6 +107,7 @@ class Reportes extends BaseController
             'movimientos' => $movimientos,
             'deudas' => $deudas,
             'fecha' => date('d/m/Y H:i'),
+            'periodoTexto' => self::periodoTexto($filters),
         ]);
 
         $dompdf = new \Dompdf\Dompdf();
@@ -132,7 +125,23 @@ class Reportes extends BaseController
             'categoria_id' => '',
             'fecha_desde' => '',
             'fecha_hasta' => '',
-            'year_month' => '',
         ];
+    }
+
+    public static function periodoTexto(array $filters): string
+    {
+        $desde = !empty($filters['fecha_desde']) ? $filters['fecha_desde'] : null;
+        $hasta = !empty($filters['fecha_hasta']) ? $filters['fecha_hasta'] : null;
+
+        if ($desde && $hasta) {
+            return date('d/m/Y', strtotime($desde)) . ' al ' . date('d/m/Y', strtotime($hasta));
+        }
+        if ($desde) {
+            return 'Desde ' . date('d/m/Y', strtotime($desde));
+        }
+        if ($hasta) {
+            return 'Hasta ' . date('d/m/Y', strtotime($hasta));
+        }
+        return 'Todo el historial';
     }
 }

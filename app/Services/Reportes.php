@@ -84,95 +84,45 @@ class Reportes
         )->getRow()->total;
 
         return self::calcularResumen($totalGastado, $totalPagadoGastos, $totalRecibido, $totalConsumido, $totalPagosEnviados) + [
-            'mes' => $filters['year_month'] ?? '',
             'total_pagos' => round($totalPagosEnviados + $totalRecibido, 2),
             'grupos_activos' => $gruposActivos,
         ];
     }
 
-    public static function resumenMensual(int $userId, string $yearMonth = ''): array
-    {
-        $db = \Config\Database::connect();
-        $gruposDelUser = self::gruposIds($userId);
-        if (empty($gruposDelUser)) {
-            return self::resumenVacio();
-        }
-        if (empty($yearMonth)) {
-            $yearMonth = date('Y-m');
-            $tieneDatos = self::tieneGastosEnMes($gruposDelUser, $yearMonth);
-            if (!$tieneDatos) {
-                $ultimoMes = self::ultimoMesConActividad($gruposDelUser);
-                if ($ultimoMes) {
-                    $yearMonth = $ultimoMes;
-                }
-            }
-        }
-        $ids = implode(',', $gruposDelUser);
-        $totalGastado = self::scalarTotal($db->query(
-            "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE grupo_id IN ({$ids}) AND DATE_FORMAT(fecha, '%Y-%m') = ?",
-            [$yearMonth]
-        )->getRow());
-        $totalPagadoGastos = self::scalarTotal($db->query(
-            "SELECT COALESCE(SUM(monto), 0) AS total FROM gastos WHERE pagador_id = ? AND grupo_id IN ({$ids}) AND DATE_FORMAT(fecha, '%Y-%m') = ?",
-            [$userId, $yearMonth]
-        )->getRow());
-        $totalConsumido = self::scalarTotal($db->query(
-            "SELECT COALESCE(SUM(gp.monto_asignado), 0) AS total FROM gasto_participantes gp JOIN gastos g ON g.id = gp.gasto_id WHERE gp.user_id = ? AND g.grupo_id IN ({$ids}) AND DATE_FORMAT(g.fecha, '%Y-%m') = ?",
-            [$userId, $yearMonth]
-        )->getRow());
-        $totalPagos = self::scalarTotal($db->query(
-            "SELECT COALESCE(SUM(monto), 0) AS total FROM pagos WHERE grupo_id IN ({$ids}) AND DATE_FORMAT(fecha, '%Y-%m') = ?",
-            [$yearMonth]
-        )->getRow());
-        $gruposActivos = self::scalarTotal($db->query(
-            "SELECT COUNT(DISTINCT g.grupo_id) AS total FROM gastos g WHERE g.grupo_id IN ({$ids}) AND DATE_FORMAT(g.fecha, '%Y-%m') = ?",
-            [$yearMonth]
-        )->getRow());
-        return [
-            'mes' => $yearMonth,
-            'total_gastado' => round($totalGastado, 2),
-            'total_pagado' => round($totalPagadoGastos, 2),
-            'total_consumido' => round($totalConsumido, 2),
-            'total_pagos' => round($totalPagos, 2),
-            'saldo' => round($totalPagadoGastos - $totalConsumido, 2),
-            'grupos_activos' => (int) $gruposActivos,
-        ];
-    }
-
-    public static function topGrupos(int $userId, string $yearMonth = '', int $limit = 5): array
+    public static function topGrupos(int $userId, array $filters = [], int $limit = 5): array
     {
         $db = \Config\Database::connect();
         $gruposDelUser = self::gruposIds($userId);
         if (empty($gruposDelUser)) return [];
-        if (empty($yearMonth)) $yearMonth = date('Y-m');
         $ids = implode(',', $gruposDelUser);
+        $where = self::buildWhere($userId, array_merge($filters, ['grupo_id' => '']), 'g');
         return $db->query(
             "SELECT gr.nombre, gr.id, COALESCE(SUM(g.monto), 0) AS total, COUNT(g.id) AS cantidad
                FROM grupos gr
-               LEFT JOIN gastos g ON g.grupo_id = gr.id AND DATE_FORMAT(g.fecha, '%Y-%m') = ?
+               LEFT JOIN gastos g ON g.grupo_id = gr.id AND ({$where['sql']})
                WHERE gr.id IN ({$ids})
                GROUP BY gr.id, gr.nombre
                HAVING total > 0
                ORDER BY total DESC LIMIT ?",
-            [$yearMonth, $limit]
+            array_merge($where['binds'], [$limit])
         )->getResultArray();
     }
 
-    public static function topCategorias(int $userId, string $yearMonth = '', int $limit = 10): array
+    public static function topCategorias(int $userId, array $filters = [], int $limit = 10): array
     {
         $db = \Config\Database::connect();
         $gruposDelUser = self::gruposIds($userId);
         if (empty($gruposDelUser)) return [];
-        if (empty($yearMonth)) $yearMonth = date('Y-m');
         $ids = implode(',', $gruposDelUser);
+        $where = self::buildWhere($userId, array_merge($filters, ['grupo_id' => '']), 'g');
         return $db->query(
             "SELECT COALESCE(c.nombre, 'Otros') AS categoria, COUNT(g.id) AS cantidad, SUM(g.monto) AS total
                FROM gastos g
                LEFT JOIN categorias c ON c.id = g.categoria_id
-               WHERE g.grupo_id IN ({$ids}) AND DATE_FORMAT(g.fecha, '%Y-%m') = ?
+               WHERE g.grupo_id IN ({$ids}) AND ({$where['sql']})
                GROUP BY g.categoria_id, c.nombre
                ORDER BY total DESC LIMIT ?",
-            [$yearMonth, $limit]
+            array_merge($where['binds'], [$limit])
         )->getResultArray();
     }
 
@@ -349,7 +299,6 @@ class Reportes
         if (!empty($filters['categoria_id'])) { $clauses[] = "{$alias}.categoria_id = ?"; $binds[] = (int) $filters['categoria_id']; }
         if (!empty($filters['fecha_desde'])) { $clauses[] = "{$alias}.fecha >= ?"; $binds[] = $filters['fecha_desde']; }
         if (!empty($filters['fecha_hasta'])) { $clauses[] = "{$alias}.fecha <= ?"; $binds[] = $filters['fecha_hasta']; }
-        if (!empty($filters['year_month'])) { $clauses[] = "DATE_FORMAT({$alias}.fecha, '%Y-%m') = ?"; $binds[] = $filters['year_month']; }
         return ['sql' => $clauses ? implode(' AND ', $clauses) : '1=1', 'binds' => $binds];
     }
 
@@ -361,34 +310,10 @@ class Reportes
         if (!empty($filters['grupo_id'])) { $clauses[] = "{$alias}.grupo_id = ?"; $binds[] = (int) $filters['grupo_id']; }
         if (!empty($filters['fecha_desde'])) { $clauses[] = "{$alias}.fecha >= ?"; $binds[] = $filters['fecha_desde']; }
         if (!empty($filters['fecha_hasta'])) { $clauses[] = "{$alias}.fecha <= ?"; $binds[] = $filters['fecha_hasta']; }
-        if (!empty($filters['year_month'])) { $clauses[] = "DATE_FORMAT({$alias}.fecha, '%Y-%m') = ?"; $binds[] = $filters['year_month']; }
         return ['sql' => $clauses ? implode(' AND ', $clauses) : '1=1', 'binds' => $binds];
     }
 
     private static function scalarTotal(?object $row): float { return round((float) ($row->total ?? 0), 2); }
-
-    private static function tieneGastosEnMes(array $gruposIds, string $yearMonth): bool
-    {
-        $db = \Config\Database::connect();
-        if (empty($gruposIds)) return false;
-        $ids = implode(',', $gruposIds);
-        $row = $db->query("SELECT COUNT(*) AS c FROM gastos WHERE grupo_id IN ({$ids}) AND DATE_FORMAT(fecha, '%Y-%m') = ?", [$yearMonth])->getRow();
-        return $row && (int) $row->c > 0;
-    }
-
-    private static function ultimoMesConActividad(array $gruposIds): ?string
-    {
-        $db = \Config\Database::connect();
-        if (empty($gruposIds)) return null;
-        $ids = implode(',', $gruposIds);
-        $row = $db->query("SELECT DATE_FORMAT(MAX(fecha), '%Y-%m') AS mes FROM gastos WHERE grupo_id IN ({$ids})")->getRow();
-        return ($row && $row->mes) ? $row->mes : null;
-    }
-
-    private static function resumenVacio(): array
-    {
-        return ['mes' => date('Y-m'), 'total_gastado' => 0, 'total_pagado' => 0, 'total_consumido' => 0, 'total_pagos' => 0, 'saldo' => 0, 'grupos_activos' => 0];
-    }
 
     public static function deudasPendientes(int $userId, int $limit = 5, array $filters = []): array
     {
