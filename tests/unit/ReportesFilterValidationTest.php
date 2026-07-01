@@ -2,9 +2,27 @@
 
 use App\Services\Reportes;
 use CodeIgniter\Test\CIUnitTestCase;
+use CodeIgniter\Test\FeatureTestTrait;
 
 final class ReportesFilterValidationTest extends CIUnitTestCase
 {
+    use FeatureTestTrait;
+
+    protected $refresh = false;
+    protected $migrate = false;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->session = [
+            'isLoggedIn' => true,
+            'userId'     => 1,
+            'userName'   => 'Test',
+            'userEmail'  => 'test@test.com',
+            'userRole'   => 'user',
+        ];
+    }
     public function testValidarFiltrosDesdeMayorQueHastaEsInvalido(): void
     {
         $error = Reportes::validarFiltros([
@@ -94,5 +112,76 @@ final class ReportesFilterValidationTest extends CIUnitTestCase
     public function testValidarFiltrosYearMonthAntiguoEsIgnorado(): void
     {
         $this->assertNull(Reportes::validarFiltros(['year_month' => '2026-07']));
+    }
+
+    public function testHttpReportesRangoInvalidoRespondeOkYConError(): void
+    {
+        $result = $this->get('/reportes?fecha_desde=2026-07-31&fecha_hasta=2026-07-01');
+
+        $result->assertOK();
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('no puede ser posterior', $body);
+    }
+
+    public function testHttpReportesRangoInvalidoConservaFechasEnFormulario(): void
+    {
+        $result = $this->get('/reportes?fecha_desde=2026-07-31&fecha_hasta=2026-07-01');
+
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('value="2026-07-31"', $body);
+        $this->assertStringContainsString('value="2026-07-01"', $body);
+    }
+
+    public function testHttpReportesRangoInvalidoNoMuestraMovimientosFiltrados(): void
+    {
+        $result = $this->get('/reportes?fecha_desde=2026-07-31&fecha_hasta=2026-07-01');
+
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('Total gastado', $body);
+    }
+
+    public function testHttpExportarCsvRangoInvalidoDevuelve400(): void
+    {
+        $result = $this->get('/reportes/exportar?fecha_desde=2026-07-31&fecha_hasta=2026-07-01');
+
+        $result->assertStatus(400);
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('no puede ser posterior', $body);
+    }
+
+    public function testHttpExportarPdfRangoInvalidoDevuelve400(): void
+    {
+        $result = $this->get('/reportes/exportar-pdf?fecha_desde=2026-07-31&fecha_hasta=2026-07-01');
+
+        $result->assertStatus(400);
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('no puede ser posterior', $body);
+    }
+
+    public function testHttpFvNoPermiteSaltarValidacion(): void
+    {
+        $result = $this->get('/reportes?_fv=1&fecha_desde=2026-07-31&fecha_hasta=2026-07-01');
+
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('no puede ser posterior', $body);
+    }
+
+    public function testHttpFechaDesdeFormatoInvalidoEnExportarRetorna400(): void
+    {
+        $result = $this->get('/reportes/exportar?fecha_desde=abc');
+
+        $result->assertStatus(400);
+        $body = (string) $result->response()->getBody();
+        $this->assertStringContainsString('no tiene un formato valido', $body);
+    }
+
+    public function testHttpReportesSinFechasRespondeOkSinError(): void
+    {
+        $result = $this->get('/reportes');
+
+        $result->assertOK();
+        $body = (string) $result->response()->getBody();
+        $this->assertStringNotContainsString('no puede ser posterior', $body);
+        $this->assertStringNotContainsString('no tiene un formato valido', $body);
     }
 }

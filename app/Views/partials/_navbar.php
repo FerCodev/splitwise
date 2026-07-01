@@ -3,8 +3,10 @@
     $isAdmin = session()->get('userRole') === 'admin';
     $mobileTitle = $pageTitle ?? 'Home';
     $mobileTopbarActions = $mobileTopbarActions ?? null;
-    function tabActive($tab, $current) {
-        return $tab === $current ? 'active' : '';
+    if (!function_exists('tabActive')) {
+        function tabActive($tab, $current) {
+            return $tab === $current ? 'active' : '';
+        }
     }
 ?>
 
