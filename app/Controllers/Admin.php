@@ -50,6 +50,10 @@ class Admin extends BaseController
                 UiComponentResolver::SCREEN_PAYMENT_METHODS,
                 UiComponentResolver::COMPONENT_PAYMENT_METHOD_CARD
             ),
+            'selectedGroupBalanceVariant' => UiComponentResolver::variant(
+                UiComponentResolver::SCREEN_GROUP_SHOW,
+                UiComponentResolver::COMPONENT_GROUP_BALANCE_CARD
+            ),
             'selectedGaugeVariant' => UiComponentResolver::variant(
                 UiComponentResolver::SCREEN_GROUP_SHOW,
                 UiComponentResolver::COMPONENT_GROUP_GAUGE

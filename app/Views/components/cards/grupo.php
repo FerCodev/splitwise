@@ -3,6 +3,7 @@ $variant = $variant ?? 'operational';
 $nombre = $nombre ?? 'Grupo';
 $estado = $estado ?? 'activo';
 $saldo = (float) ($saldo ?? 0);
+$totalGastado = max(0, (float) ($totalGastado ?? 0));
 $ultimoTipo = $ultimoTipo ?? null;
 $ultimoDescripcion = $ultimoDescripcion ?? null;
 $ultimoMonto = isset($ultimoMonto) ? (float) $ultimoMonto : null;
@@ -107,15 +108,16 @@ $saldoTexto = moneda(abs($saldo));
                 <span class="group-card-minimal-description text-muted d-block text-truncate"><?= $ultimoDescripcion ? esc($ultimoDescripcion) : 'Sin movimientos recientes' ?></span>
             </div>
             <div class="group-card-minimal-balance">
-                <span class="group-card-minimal-balance-label">Tu saldo</span>
-                <strong class="financial-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></strong>
+                <span class="group-card-minimal-balance-label">Total gastado</span>
+                <strong class="financial-amount text-primary"><?= moneda($totalGastado) ?></strong>
             </div>
         </a>
-        <?php if ($estado === 'activo' && $gastoUrl): ?>
-            <div class="group-card-minimal-footer">
-                <a class="btn btn-primary btn-sm w-100" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
-            </div>
-        <?php endif; ?>
+        <div class="group-card-minimal-footer">
+            <a class="btn btn-outline-primary btn-sm" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
+            <?php if ($estado === 'activo' && $gastoUrl): ?>
+                <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
+            <?php endif; ?>
+        </div>
     </div>
 <?php elseif ($variant === 'compact'): ?>
     <div class="dash-card">

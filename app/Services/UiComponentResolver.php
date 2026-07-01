@@ -35,6 +35,9 @@ class UiComponentResolver
             'scale_bar' => 'Barra de escala',
             'segmented_donut' => 'Dona segmentada',
         ],
+        self::COMPONENT_GROUP_BALANCE_CARD => [
+            'status_pill' => 'Estado con pill',
+        ],
         self::COMPONENT_GROUP_MOVEMENT_CARD => [
             'feed' => 'Feed',
             'user_color' => 'Por usuario',
@@ -104,6 +107,7 @@ class UiComponentResolver
     public const COMPONENT_HOME_GROUP_CARD = 'home_group_card';
     public const COMPONENT_FILTERED_TOTAL_CARD = 'filtered_total_card';
     public const COMPONENT_PAYMENT_METHOD_CARD = 'payment_method_card';
+    public const COMPONENT_GROUP_BALANCE_CARD = 'group_balance_card';
     public const COMPONENT_GROUP_GAUGE = 'group_gauge';
     public const COMPONENT_GROUP_MOVEMENT_CARD = 'group_movement_card';
     public const COMPONENT_ALERT_SUCCESS = 'alert_success';
@@ -132,6 +136,7 @@ class UiComponentResolver
             self::COMPONENT_PAYMENT_METHOD_CARD => 'bank_card',
         ],
         self::SCREEN_GROUP_SHOW => [
+            self::COMPONENT_GROUP_BALANCE_CARD => 'status_pill',
             self::COMPONENT_GROUP_GAUGE => 'semicircle',
             self::COMPONENT_GROUP_MOVEMENT_CARD => 'feed',
         ],
@@ -183,6 +188,9 @@ class UiComponentResolver
             ],
         ],
         self::SCREEN_GROUP_SHOW => [
+            self::COMPONENT_GROUP_BALANCE_CARD => [
+                'status_pill',
+            ],
             self::COMPONENT_GROUP_GAUGE => [
                 'semicircle',
                 'compact_dial',

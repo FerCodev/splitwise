@@ -19,6 +19,7 @@ return [
     ],
     'grupos' => [
         require __DIR__ . '/Components/grupos/group_movement_card.php',
+        require __DIR__ . '/Components/grupos/group_balance_card.php',
         require __DIR__ . '/Components/grupos/group_gauge.php',
     ],
     'gastos' => [

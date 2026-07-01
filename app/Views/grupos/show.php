@@ -14,6 +14,7 @@
             $miTotalPagado = (float) ($miBalance['total_pagado_gastos'] ?? 0);
             $totalGrupoGauge = max((float) $totalGastado, 0);
             $miPorcentajePagado = $totalGrupoGauge > 0 ? min(100, max(0, ($miTotalPagado / $totalGrupoGauge) * 100)) : 0;
+            $balanceCardVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_balance_card');
             $gaugeVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_gauge');
             $movementCardVariant = \App\Services\UiComponentResolver::variant('grupo_show', 'group_movement_card');
 
@@ -38,34 +39,12 @@
                     </div>
                 </div>
 
-                <?php if ($puedePagarBalance): ?>
-                <button type="button"
-                   class="grupo-balance-card grupo-balance-button d-block card border-0 mb-3 w-100"
-                   style="background: #fef2f2; transition: filter 0.15s;"
-                   data-bs-toggle="modal"
-                   data-bs-target="#pagarBalanceModal">
-                    <div class="card-body py-3 text-center">
-                        <div class="small text-muted mb-1">Tu balance</div>
-                        <div class="fw-bold fs-4 text-danger">
-                            <?= moneda(abs($miSaldo)) ?>
-                            <small class="fw-normal fs-6">debe</small>
-                        </div>
-                    </div>
-                </button>
-                <?php else: ?>
-                <a href="<?= base_url('grupos/' . $grupo['id'] . '/balance') ?>"
-                   class="grupo-balance-card text-decoration-none d-block card border-0 mb-3"
-                   style="background: <?= $miSaldo >= 0 ? '#f0fdf4' : '#fef2f2' ?>; transition: filter 0.15s;">
-                    <div class="card-body py-3 text-center">
-                        <div class="small text-muted mb-1">Tu balance</div>
-                        <div class="fw-bold fs-4 <?= $miSaldo >= 0 ? 'text-success' : 'text-danger' ?>">
-                            <?= moneda(abs($miSaldo)) ?>
-                            <small class="fw-normal fs-6"><?= $miSaldo >= 0 ? 'a favor' : 'debe' ?></small>
-                        </div>
-                    </div>
-                </a>
-                <?php endif; ?>
-
+                <?= view('components/cards/grupo_balance', [
+                    'variant' => $balanceCardVariant,
+                    'saldo' => $miSaldo,
+                    'href' => base_url('grupos/' . $grupo['id'] . '/balance'),
+                    'modalTarget' => $puedePagarBalance ? '#pagarBalanceModal' : null,
+                ]) ?>
                 <?= view('components/widgets/velocimetro_aporte', [
                     'variant' => $gaugeVariant,
                     'porcentaje' => $miPorcentajePagado,

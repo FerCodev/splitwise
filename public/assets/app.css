@@ -2332,14 +2332,67 @@ body {
     border-color: var(--primary);
     box-shadow: 0 1px 4px rgba(13, 110, 253, 0.15);
 }
-.grupo-balance-card:hover {
-    filter: brightness(0.96);
-}
-.grupo-balance-button {
-    padding: 0;
-    text-align: inherit;
+.group-personal-balance-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 126px;
+    margin-bottom: 1rem;
+    padding: 34px 18px 18px;
+    border: 0;
+    border-radius: var(--radius-lg);
+    color: var(--text);
+    font: inherit;
+    text-align: center;
     appearance: none;
     cursor: pointer;
+    transition: filter 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+}
+.group-personal-balance-card.is-positive {
+    background: #f0fdf4;
+}
+.group-personal-balance-card.is-negative {
+    background: #fef2f2;
+}
+.group-personal-balance-card.is-settled {
+    background: #f8fafc;
+}
+.group-personal-balance-card:hover,
+.group-personal-balance-card:focus-visible {
+    color: var(--text);
+    filter: brightness(0.975);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+.group-personal-balance-card:active {
+    transform: translateY(1px);
+}
+.group-personal-balance-pill {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 5px 10px;
+    border: 1px solid rgba(100, 116, 139, 0.2);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.82);
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.group-personal-balance-status {
+    font-size: 1.08rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.group-personal-balance-amount {
+    margin-top: 5px;
+    font-size: 1.55rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
 }
 .pagar-balance-modal .modal-content,
 .pagar-balance-modal {
@@ -3146,40 +3199,41 @@ body {
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 14px;
-    padding: 16px 18px;
+    min-height: 96px;
+    padding: 18px;
     color: var(--text);
     text-decoration: none;
 }
 .group-card-minimal-avatar {
-    width: 44px;
-    height: 44px;
-    font-size: 1rem;
+    width: 46px;
+    height: 46px;
+    font-size: 1.05rem;
 }
 .group-card-minimal-title {
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 800;
     line-height: 1.25;
 }
 .group-card-minimal-description {
-    margin-top: 3px;
-    font-size: 0.82rem;
-    line-height: 1.25;
+    margin-top: 4px;
+    font-size: 0.875rem;
+    line-height: 1.3;
 }
 .group-card-minimal-balance {
     display: grid;
     justify-items: end;
-    gap: 2px;
-    min-width: 92px;
+    gap: 4px;
+    min-width: 106px;
     text-align: right;
 }
 .group-card-minimal-balance-label {
     color: var(--muted);
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 600;
     line-height: 1;
 }
 .group-card-minimal-balance .financial-amount {
-    font-size: 1rem;
+    font-size: 1.05rem;
 }
 .group-card-minimal-link:hover,
 .group-card-minimal-link:focus {
@@ -3187,11 +3241,17 @@ body {
     background: #f8fbff;
 }
 .group-card-minimal-footer {
-    padding: 0 18px 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    padding: 0 18px 18px;
 }
 .group-card-minimal-footer .btn {
-    min-height: 42px;
-    font-size: 0.875rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
     font-weight: 800;
 }
 .catalog-muted-card {
