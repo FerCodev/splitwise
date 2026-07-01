@@ -101,12 +101,15 @@ $saldoTexto = moneda(abs($saldo));
 <?php elseif ($variant === 'minimal_panel'): ?>
     <div class="dash-card group-card-minimal-panel">
         <a href="<?= esc($entrarUrl, 'attr') ?>" class="group-card-minimal-link">
-            <div class="catalog-avatar catalog-avatar-primary catalog-avatar-sm"><?= esc($inicial) ?></div>
+            <div class="catalog-avatar catalog-avatar-primary group-card-minimal-avatar"><?= esc($inicial) ?></div>
             <div class="min-width-0">
-                <strong class="d-block text-truncate"><?= esc($nombre) ?></strong>
-                <span class="text-muted small"><?= $ultimoDescripcion ? esc($ultimoDescripcion) : 'Sin movimientos recientes' ?></span>
+                <strong class="group-card-minimal-title d-block text-truncate"><?= esc($nombre) ?></strong>
+                <span class="group-card-minimal-description text-muted d-block text-truncate"><?= $ultimoDescripcion ? esc($ultimoDescripcion) : 'Sin movimientos recientes' ?></span>
             </div>
-            <strong class="financial-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></strong>
+            <div class="group-card-minimal-balance">
+                <span class="group-card-minimal-balance-label">Tu saldo</span>
+                <strong class="financial-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></strong>
+            </div>
         </a>
         <?php if ($estado === 'activo' && $gastoUrl): ?>
             <div class="group-card-minimal-footer">

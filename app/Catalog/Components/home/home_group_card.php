@@ -42,7 +42,7 @@ return [
         [
             'key' => 'minimal_panel',
             'name' => 'Panel simple',
-            'hint' => 'Compacta con CTA inferior.',
+            'hint' => 'Saldo personal rotulado y CTA inferior.',
             'render' => static fn () => view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoDescripcion' => 'supermercado mensual', 'gastoUrl' => '#']),
         ],
     ],

@@ -3145,10 +3145,41 @@ body {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 12px;
-    padding: 14px 16px;
+    gap: 14px;
+    padding: 16px 18px;
     color: var(--text);
     text-decoration: none;
+}
+.group-card-minimal-avatar {
+    width: 44px;
+    height: 44px;
+    font-size: 1rem;
+}
+.group-card-minimal-title {
+    font-size: 1rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+.group-card-minimal-description {
+    margin-top: 3px;
+    font-size: 0.82rem;
+    line-height: 1.25;
+}
+.group-card-minimal-balance {
+    display: grid;
+    justify-items: end;
+    gap: 2px;
+    min-width: 92px;
+    text-align: right;
+}
+.group-card-minimal-balance-label {
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1;
+}
+.group-card-minimal-balance .financial-amount {
+    font-size: 1rem;
 }
 .group-card-minimal-link:hover,
 .group-card-minimal-link:focus {
@@ -3156,7 +3187,12 @@ body {
     background: #f8fbff;
 }
 .group-card-minimal-footer {
-    padding: 0 16px 14px;
+    padding: 0 18px 16px;
+}
+.group-card-minimal-footer .btn {
+    min-height: 42px;
+    font-size: 0.875rem;
+    font-weight: 800;
 }
 .catalog-muted-card {
     opacity: 0.84;
