@@ -4,6 +4,15 @@
     <div class="container mt-3 mt-md-4">
         <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3 d-none d-lg-inline-flex">&larr; Volver al grupo</a>
 
+        <?php
+            $miUserId = (int) session()->get('userId');
+            $miBalance = current(array_filter($balance, fn($b) => $b['user_id'] == $miUserId));
+            $miSaldo = $miBalance['saldo'] ?? 0;
+            $misDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === $miUserId));
+            $debo = $miSaldo < 0 && $misDeudas !== [];
+            $grupoActivo = $grupo['estado'] === 'activo';
+        ?>
+
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
                 <h3 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h3>
@@ -23,6 +32,12 @@
                 </p>
             </div>
         </div>
+
+        <?php if ($debo && $grupoActivo): ?>
+        <div class="d-grid mb-4">
+            <a href="#transferencias-sugeridas" class="btn btn-success btn-lg">Registrar pago</a>
+        </div>
+        <?php endif; ?>
 
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white">
@@ -185,7 +200,7 @@
             <?php endif; ?>
         </div>
 
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card border-0 shadow-sm mb-4" id="transferencias-sugeridas">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Transferencias sugeridas</h5>
             </div>
