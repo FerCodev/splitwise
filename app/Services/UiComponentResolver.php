@@ -43,6 +43,9 @@ class UiComponentResolver
             'user_color' => 'Por usuario',
             'compact' => 'Compacto',
         ],
+        self::COMPONENT_DEUDA_PENDIENTE_CARD => [
+            'default' => 'Por defecto',
+        ],
         self::COMPONENT_ALERT_SUCCESS => [
             'success_compact' => 'Exito compacto',
             'settled' => 'Liquidado',
@@ -102,6 +105,7 @@ class UiComponentResolver
     public const SCREEN_PAYMENTS_INDEX = 'pagos_index';
     public const SCREEN_PAYMENT_METHODS = 'mis_medios_cobro';
     public const SCREEN_GROUP_SHOW = 'grupo_show';
+    public const SCREEN_GROUP_BALANCE = 'grupo_balance';
     public const SCREEN_SYSTEM_ALERTS = 'system_alerts';
     public const COMPONENT_DEBT_CARD = 'debt_card';
     public const COMPONENT_HOME_GROUP_CARD = 'home_group_card';
@@ -110,6 +114,7 @@ class UiComponentResolver
     public const COMPONENT_GROUP_BALANCE_CARD = 'group_balance_card';
     public const COMPONENT_GROUP_GAUGE = 'group_gauge';
     public const COMPONENT_GROUP_MOVEMENT_CARD = 'group_movement_card';
+    public const COMPONENT_DEUDA_PENDIENTE_CARD = 'deuda_pendiente_card';
     public const COMPONENT_ALERT_SUCCESS = 'alert_success';
     public const COMPONENT_ALERT_ERROR = 'alert_error';
     public const COMPONENT_ALERT_WARNING = 'alert_warning';
@@ -139,6 +144,9 @@ class UiComponentResolver
             self::COMPONENT_GROUP_BALANCE_CARD => 'status_pill',
             self::COMPONENT_GROUP_GAUGE => 'semicircle',
             self::COMPONENT_GROUP_MOVEMENT_CARD => 'feed',
+        ],
+        self::SCREEN_GROUP_BALANCE => [
+            self::COMPONENT_DEUDA_PENDIENTE_CARD => 'default',
         ],
         self::SCREEN_SYSTEM_ALERTS => [
             self::COMPONENT_ALERT_SUCCESS => 'success_compact',
@@ -201,6 +209,11 @@ class UiComponentResolver
                 'feed',
                 'user_color',
                 'compact',
+            ],
+        ],
+        self::SCREEN_GROUP_BALANCE => [
+            self::COMPONENT_DEUDA_PENDIENTE_CARD => [
+                'default',
             ],
         ],
         self::SCREEN_SYSTEM_ALERTS => [

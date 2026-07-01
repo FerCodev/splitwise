@@ -273,6 +273,22 @@ class Pagos extends BaseController
             return redirect()->back()->withInput()->with('errors', ['receptor_id' => 'El receptor no pertenece al grupo.']);
         }
 
+        $origen = $this->request->getPost('origen');
+        if ($origen === 'grupo_balance_detalle') {
+            $gastoModel = new \App\Models\Gasto();
+            $deuda = $gastoModel->getDeudaVigente($grupoId, $pagadorId, $receptorId);
+            if ($deuda === null) {
+                return redirect()->back()->withInput()->with('error', 'Esta deuda ya fue saldada o cambió. Actualizá la página.');
+            }
+            $montoPago = (float) $this->request->getPost('monto');
+            if ($montoPago <= 0) {
+                return redirect()->back()->withInput()->with('error', 'El monto debe ser mayor a cero.');
+            }
+            if ($montoPago > (float) $deuda['monto']) {
+                return redirect()->back()->withInput()->with('error', 'El monto no puede superar la deuda pendiente.');
+            }
+        }
+
         $pagoModel = new Pago();
         $pagoModel->insert([
             'grupo_id' => $grupoId,

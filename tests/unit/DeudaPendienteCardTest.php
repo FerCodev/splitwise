@@ -34,7 +34,7 @@ final class DeudaPendienteCardTest extends CIUnitTestCase
     public function testMuestraPillLeDebes(): void
     {
         $html = $this->render();
-        $this->assertStringContainsString('Le debes', $html);
+        $this->assertStringContainsString('Le debés', $html);
     }
 
     public function testActivoMuestraRegistrarPago(): void
@@ -118,5 +118,29 @@ final class DeudaPendienteCardTest extends CIUnitTestCase
     {
         $html = $this->render(['acreedorId' => 5]);
         $this->assertStringContainsString('name="receptor_id" value="5"', $html);
+    }
+
+    public function testTextosConTildesCorrectas(): void
+    {
+        $html = $this->render(['grupoEstado' => 'cerrado']);
+        $this->assertStringContainsString('Le debés', $html);
+        $this->assertStringContainsString('está cerrado', $html);
+        $this->assertStringContainsString('Saldá', $html);
+
+        $htmlActivo = $this->render(['grupoEstado' => 'activo']);
+        $this->assertStringContainsString('Registrá', $htmlActivo);
+    }
+
+    public function testMuestraLabelMontoConMax(): void
+    {
+        $html = $this->render(['monto' => 1500]);
+        $this->assertStringContainsString('Monto (máx.', $html);
+        $this->assertStringContainsString('$1.500,00)', $html);
+    }
+
+    public function testActivoTieneOrigenBalanceDetalle(): void
+    {
+        $html = $this->render(['grupoEstado' => 'activo']);
+        $this->assertStringContainsString('origen" value="grupo_balance_detalle"', $html);
     }
 }

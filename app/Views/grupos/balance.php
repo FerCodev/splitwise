@@ -10,12 +10,7 @@
             $miSaldo = $miBalance['saldo'] ?? 0;
             $misDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] === $miUserId));
             $debo = $miSaldo < 0 && $misDeudas !== [];
-            $grupoCerrado = $grupo['estado'] === 'cerrado';
-            $grupoActivo = $grupo['estado'] === 'activo';
-            $grupoLiquidado = $grupo['estado'] === 'liquidado';
-            $esAdmin = ($rol ?? '') === 'admin';
-
-            $deudasAjenas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] !== $miUserId));
+            $otrasDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] !== $miUserId));
         ?>
 
         <div class="card border-0 shadow-sm mb-4">
@@ -218,13 +213,13 @@
             <?php endif; ?>
         </div>
 
-        <?php if (!empty($deudasAjenas)): ?>
+        <?php if (!empty($otrasDeudas)): ?>
         <div class="card border-0 shadow-sm mb-4" id="transferencias-sugeridas">
             <div class="card-header bg-white">
                 <h5 class="mb-0 fw-bold">Estado general</h5>
             </div>
             <div class="card-body p-0">
-                <?php foreach ($deudasAjenas as $d): ?>
+                <?php foreach ($otrasDeudas as $d): ?>
                     <?php $acreedorId = (int) $d['acreedor_id']; ?>
                     <div class="mobile-card-item">
                         <div class="d-flex justify-content-between align-items-center">
@@ -314,7 +309,7 @@
                     btn.textContent = textoOriginal;
                 }, 2000);
             } catch (e) {
-                alert('No se pudo copiar al portapapeles. Selecciona y copia manualmente.');
+                alert('No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
             }
             document.body.removeChild(textarea);
         }

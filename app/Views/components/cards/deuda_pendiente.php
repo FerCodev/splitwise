@@ -16,12 +16,12 @@ $formAction = $esCerrado
     ? base_url('grupos/' . $grupoId . '/saldar-deuda')
     : base_url('pagos');
 $contextoTexto = $esCerrado
-    ? 'Este grupo esta cerrado. Salda esta deuda para poder liquidarlo.'
-    : 'Registra un pago para actualizar el balance.';
+    ? 'Este grupo está cerrado. Saldá esta deuda para poder liquidarlo.'
+    : 'Registrá un pago para actualizar el balance.';
 ?>
 <div class="deuda-pendiente-card">
     <div class="deuda-pendiente-header">
-        <span class="deuda-pendiente-pill">Le debes</span>
+        <span class="deuda-pendiente-pill">Le debés</span>
         <strong class="deuda-pendiente-acreedor">a <?= esc($acreedorNombre) ?></strong>
     </div>
     <div class="deuda-pendiente-monto"><?= moneda($monto) ?></div>
@@ -48,7 +48,7 @@ $contextoTexto = $esCerrado
             <input type="hidden" name="receptor_id" value="<?= $acreedorId ?>">
 
             <div class="mb-2">
-                <label class="form-label small mb-1">Monto (max <?= moneda($monto) ?>)</label>
+                <label class="form-label small mb-1">Monto (máx. <?= moneda($monto) ?>)</label>
                 <input type="number" step="0.01" min="0.01" max="<?= esc(number_format($monto, 2, '.', '')) ?>"
                     name="monto" class="form-control"
                     value="<?= esc(number_format($monto, 2, '.', '')) ?>" required>
@@ -58,7 +58,7 @@ $contextoTexto = $esCerrado
                 <input type="date" name="fecha" class="form-control" value="<?= esc($fechaDefault) ?>" required>
             </div>
             <div class="mb-2">
-                <label class="form-label small mb-1">Descripcion</label>
+                <label class="form-label small mb-1">Descripción</label>
                 <input type="text" name="descripcion" class="form-control"
                     value="<?= $esCerrado ? esc('Saldar deuda - ' . $acreedorNombre) : esc('Pago de deuda - ' . $acreedorNombre) ?>"
                     maxlength="255">
