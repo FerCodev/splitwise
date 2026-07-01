@@ -43,6 +43,22 @@ class Dashboard extends BaseController
             $grupo['ultima_actividad'] = $actividades[$gid] ?? $grupo['created_at'];
             $grupo['ultimo_movimiento'] = $ultimosMovs[$gid] ?? null;
 
+            $esAdmin = $grupoModel->getUserRol($gid, $userId) === 'admin';
+            $tieneDeuda = false;
+            $deudaAcreedor = null;
+            foreach ($deudas as $d) {
+                if ((int) $d['deudor_id'] === $userId) {
+                    $tieneDeuda = true;
+                    $deudaAcreedor = $d['acreedor'];
+                    break;
+                }
+            }
+            $grupo['es_admin'] = $esAdmin;
+            $grupo['tiene_deuda'] = $tieneDeuda;
+            $grupo['deuda_acreedor'] = $deudaAcreedor;
+            $grupo['grupo_saldado'] = empty($deudas);
+            $grupo['balance_url'] = base_url('grupos/' . $gid . '/balance');
+
             // Acumular deudas pendientes del usuario desde el mismo calculo
             foreach ($deudas as $d) {
                 if ((int) $d['deudor_id'] === $userId || (int) $d['acreedor_id'] === $userId) {

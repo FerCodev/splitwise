@@ -3,8 +3,8 @@
 $fechaDemo = $catalogDemoData['fechaDemo'];
 
 return [
-    'title' => 'Tarjeta de grupo activo',
-    'description' => 'Define c&oacute;mo se muestran los grupos en la pesta&ntilde;a activa del Home.',
+    'title' => 'Tarjeta de grupo',
+    'description' => 'Define c&oacute;mo se muestran los grupos en el Home. Se adapta seg&uacute;n el estado del grupo.',
     'screen' => 'home',
     'component' => 'home_group_card',
     'selected' => $selectedHomeGroupVariant,
@@ -13,7 +13,12 @@ return [
             'key' => 'operational',
             'name' => 'Operativa',
             'hint' => 'Acciones directas para entrar o cargar gasto.',
-            'render' => static fn () => view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo]),
+            'render' => static fn () => '<div style="display:grid;gap:12px">'
+                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Supermercado', 'ultimoMonto' => 45200, 'ultimoFecha' => $fechaDemo, 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
+                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Junio', 'estado' => 'cerrado', 'saldo' => -8500, 'ultimoTipo' => 'gasto', 'ultimoDescripcion' => 'Cena', 'ultimoMonto' => 12000, 'ultimoFecha' => $fechaDemo, 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => true, 'esAdmin' => false, 'deudaAcreedor' => 'Juan'])
+                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Julio', 'estado' => 'cerrado', 'saldo' => 0, 'ultimoDescripcion' => 'saldado', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => true, 'grupoSaldado' => true])
+                . view('components/cards/grupo', ['variant' => 'operational', 'nombre' => 'Agosto', 'estado' => 'liquidado', 'saldo' => 3200, 'ultimoDescripcion' => 'finalizado', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
+                . '</div>',
         ],
         [
             'key' => 'balance_first',
@@ -42,8 +47,13 @@ return [
         [
             'key' => 'minimal_panel',
             'name' => 'Panel simple',
-            'hint' => 'Total gastado visible, acceso al tocar la tarjeta y bot&oacute;n +Gastito a la derecha.',
-            'render' => static fn () => view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'totalGastado' => 145000, 'ultimoDescripcion' => 'supermercado mensual', 'entrarUrl' => '#', 'gastoUrl' => '#']),
+            'hint' => 'Total gastado visible, acceso al tocar la tarjeta. Botones segun estado: +Gastito, Saldar deuda, Ver balance.',
+            'render' => static fn () => '<div style="display:grid;gap:12px">'
+                . view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Mayo', 'estado' => 'activo', 'saldo' => 12500, 'totalGastado' => 145000, 'ultimoDescripcion' => 'supermercado mensual', 'entrarUrl' => '#', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
+                . view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Junio', 'estado' => 'cerrado', 'saldo' => -8500, 'totalGastado' => 98000, 'ultimoDescripcion' => 'sin movimientos', 'entrarUrl' => '#', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => true, 'esAdmin' => false, 'deudaAcreedor' => 'Juan'])
+                . view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Julio', 'estado' => 'cerrado', 'saldo' => 0, 'totalGastado' => 56000, 'ultimoDescripcion' => 'grupo saldado', 'entrarUrl' => '#', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => true, 'grupoSaldado' => true])
+                . view('components/cards/grupo', ['variant' => 'minimal_panel', 'nombre' => 'Agosto', 'estado' => 'liquidado', 'saldo' => 3200, 'totalGastado' => 72000, 'ultimoDescripcion' => 'grupo finalizado', 'entrarUrl' => '#', 'gastoUrl' => '#', 'balanceUrl' => '#', 'tieneDeuda' => false, 'esAdmin' => false])
+                . '</div>',
         ],
     ],
 ];

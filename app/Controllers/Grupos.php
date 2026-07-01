@@ -239,6 +239,11 @@ class Grupos extends BaseController
             return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
         }
 
+        $estado = $acceso['grupo']['estado'] ?? 'activo';
+        if ($estado !== 'activo') {
+            return redirect()->to("/grupos/{$grupoId}")->with('error', 'No se pueden cambiar colores en un grupo ' . $estado . '.');
+        }
+
         // El target debe ser miembro actual del grupo.
         $grupoModel = new Grupo();
         if (! $grupoModel->isMiembro($grupoId, $targetId)) {
@@ -443,6 +448,123 @@ class Grupos extends BaseController
             'gastosPorCategoria' => $gastosPorCategoria,
             'mediosPorAcreedor' => $mediosPorAcreedor,
         ]);
+    }
+
+    public function saldarDeuda(int $id)
+    {
+        $userId = (int) session()->get('userId');
+
+        $receptorId = (int) ($this->request->getPost('receptor_id') ?? 0);
+        if ($receptorId <= 0) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'El receptor no es valido.');
+        }
+
+        $montoRaw = $this->request->getPost('monto');
+        $montoCentavos = self::montoACentavos($montoRaw);
+        if ($montoCentavos === null || $montoCentavos <= 0) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'El monto debe ser un numero mayor a cero.');
+        }
+
+        $fecha = $this->request->getPost('fecha');
+        if (!self::esFechaValida($fecha)) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'La fecha no tiene un formato valido (YYYY-MM-DD).');
+        }
+
+        $descripcion = trim((string) ($this->request->getPost('descripcion') ?? ''));
+        if (mb_strlen($descripcion) > 255) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'La descripcion no puede superar los 255 caracteres.');
+        }
+        if ($descripcion === '') {
+            $descripcion = 'Saldar deuda';
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        $db->query('SELECT id FROM grupos WHERE id = ? FOR UPDATE', [$id]);
+
+        $grupoModel = new Grupo();
+        $grupo = $grupoModel->find($id);
+        if (!$grupo) {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'Grupo no encontrado.');
+        }
+
+        if ($grupo['estado'] !== 'cerrado') {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'El grupo ya no esta cerrado. La operacion fue cancelada.');
+        }
+
+        if (!$grupoModel->isMiembro($id, $userId)) {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'Ya no perteneces a este grupo.');
+        }
+
+        $gastoModel = new Gasto();
+        $deuda = $gastoModel->getDeudaVigente($id, $userId, $receptorId);
+        if ($deuda === null) {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'Esta deuda ya fue saldada o cambio. Actualiza la pagina.');
+        }
+
+        $deudaCentavos = self::montoACentavos($deuda['monto']);
+        if ($deudaCentavos === null || $montoCentavos > $deudaCentavos) {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'El monto no puede superar la deuda pendiente.');
+        }
+
+        $montoDecimal = round($montoCentavos / 100, 2);
+        $pagoModel = new Pago();
+        $insertId = $pagoModel->insert([
+            'grupo_id'    => $id,
+            'pagador_id'  => $userId,
+            'receptor_id' => $receptorId,
+            'monto'       => $montoDecimal,
+            'fecha'       => $fecha,
+            'descripcion' => $descripcion,
+        ]);
+
+        if (!$insertId) {
+            $db->transRollback();
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'No se pudo registrar el pago. Intenta nuevamente.');
+        }
+
+        $db->transComplete();
+
+        if (!$db->transStatus()) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'No se pudo registrar el pago. Intenta nuevamente.');
+        }
+
+        $deudaRestanteCentavos = $deudaCentavos - $montoCentavos;
+
+        if ($deudaRestanteCentavos > 0) {
+            return redirect()->to('/grupos/' . $id . '/balance')->with('success',
+                'Pago registrado. Tu deuda pendiente es de ' . moneda(round($deudaRestanteCentavos / 100, 2)) . '.');
+        }
+
+        return redirect()->to('/grupos/' . $id . '/balance')->with('success', 'Deuda saldada correctamente.');
+    }
+
+    private static function montoACentavos($valor): ?int
+    {
+        if ($valor === null || $valor === '') {
+            return null;
+        }
+        $limpio = is_string($valor) ? str_replace(',', '.', $valor) : (string) $valor;
+        if (!is_numeric($limpio)) {
+            return null;
+        }
+        $centavos = (int) round((float) $limpio * 100);
+        return $centavos > 0 ? $centavos : null;
+    }
+
+    private static function esFechaValida(?string $fecha): bool
+    {
+        if ($fecha === null || $fecha === '') {
+            return false;
+        }
+        $d = \DateTime::createFromFormat('Y-m-d', $fecha);
+        return $d !== false && $d->format('Y-m-d') === $fecha;
     }
 
     public function cambiarEstado(int $id)

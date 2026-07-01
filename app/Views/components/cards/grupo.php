@@ -10,6 +10,11 @@ $ultimoMonto = isset($ultimoMonto) ? (float) $ultimoMonto : null;
 $ultimoFecha = $ultimoFecha ?? null;
 $entrarUrl = $entrarUrl ?? '#';
 $gastoUrl = $gastoUrl ?? null;
+$balanceUrl = $balanceUrl ?? null;
+$tieneDeuda = $tieneDeuda ?? false;
+$esAdmin = $esAdmin ?? false;
+$deudaAcreedor = $deudaAcreedor ?? null;
+$grupoSaldado = $grupoSaldado ?? false;
 $inicial = mb_strtoupper(mb_substr($nombre, 0, 1));
 $badgeClase = match ($estado) {
     'activo' => 'bg-success',
@@ -19,6 +24,21 @@ $badgeClase = match ($estado) {
 };
 $saldoClase = $saldo > 0 ? 'text-success' : ($saldo < 0 ? 'text-danger' : 'text-muted');
 $saldoTexto = moneda(abs($saldo));
+
+$accionHtml = '';
+if ($estado === 'cerrado' && $tieneDeuda) {
+    $label = 'Saldar deuda';
+    if ($deudaAcreedor) { $label .= ' - a ' . esc($deudaAcreedor); }
+    $accionHtml = '<a class="btn btn-warning btn-sm" href="' . esc($balanceUrl, 'attr') . '">' . $label . '</a>';
+} elseif ($estado === 'cerrado' && $grupoSaldado && $esAdmin) {
+    $accionHtml = '<a class="btn btn-outline-secondary btn-sm" href="' . esc($balanceUrl, 'attr') . '">Liquidar grupo</a>';
+} elseif ($estado === 'cerrado') {
+    $accionHtml = '<a class="btn btn-outline-secondary btn-sm" href="' . esc($balanceUrl, 'attr') . '">Ver balance</a>';
+} elseif ($estado === 'activo' && $gastoUrl) {
+    $accionHtml = '<a class="btn btn-primary btn-sm" href="' . esc($gastoUrl, 'attr') . '">+ Gastito</a>';
+}
+
+$entrarHtml = '<a class="btn btn-outline-primary btn-sm" href="' . esc($entrarUrl, 'attr') . '">Entrar</a>';
 ?>
 
 <?php if ($variant === 'balance_first'): ?>
@@ -28,10 +48,8 @@ $saldoTexto = moneda(abs($saldo));
             <div class="catalog-balance-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></div>
             <div class="small text-muted"><?= $saldo > 0 ? 'a favor' : ($saldo < 0 ? 'debe' : 'saldado') ?></div>
             <div class="catalog-actions justify-content-center mt-3">
-                <a class="btn btn-outline-primary btn-sm" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
-                <?php if ($estado === 'activo' && $gastoUrl): ?>
-                    <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
-                <?php endif; ?>
+                <?= $entrarHtml ?>
+                <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
     </div>
@@ -59,10 +77,8 @@ $saldoTexto = moneda(abs($saldo));
                 </div>
             <?php endif; ?>
             <div class="group-card-big-actions mt-3">
-                <a class="btn btn-outline-primary" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
-                <?php if ($estado === 'activo' && $gastoUrl): ?>
-                    <a class="btn btn-primary" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
-                <?php endif; ?>
+                <?= $entrarHtml ?>
+                <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
     </div>
@@ -92,10 +108,8 @@ $saldoTexto = moneda(abs($saldo));
                 <?php endif; ?>
             </div>
             <div class="catalog-actions mt-3">
-                <a class="btn btn-outline-primary btn-sm" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
-                <?php if ($estado === 'activo' && $gastoUrl): ?>
-                    <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
-                <?php endif; ?>
+                <?= $entrarHtml ?>
+                <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
     </div>
@@ -112,9 +126,9 @@ $saldoTexto = moneda(abs($saldo));
                 <strong class="financial-amount text-primary"><?= moneda($totalGastado) ?></strong>
             </div>
         </a>
-        <?php if ($estado === 'activo' && $gastoUrl): ?>
+        <?php if ($accionHtml): ?>
             <div class="group-card-minimal-footer">
-                <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
+                <?= $accionHtml ?>
             </div>
         <?php endif; ?>
     </div>
@@ -128,9 +142,9 @@ $saldoTexto = moneda(abs($saldo));
             </div>
             <div class="dash-list-item-amount <?= esc($saldoClase) ?>"><?= $saldoTexto ?></div>
         </a>
-        <?php if ($estado === 'activo' && $gastoUrl): ?>
+        <?php if ($accionHtml): ?>
             <div class="dash-card-body pt-0">
-                <a class="btn btn-primary btn-sm w-100" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
+                <?= $accionHtml ?>
             </div>
         <?php endif; ?>
     </div>
@@ -156,10 +170,8 @@ $saldoTexto = moneda(abs($saldo));
                 </div>
             </div>
             <div class="catalog-actions mt-3">
-                <a class="btn btn-outline-primary btn-sm" href="<?= esc($entrarUrl, 'attr') ?>">Entrar</a>
-                <?php if ($estado === 'activo' && $gastoUrl): ?>
-                    <a class="btn btn-primary btn-sm" href="<?= esc($gastoUrl, 'attr') ?>">+ Gastito</a>
-                <?php endif; ?>
+                <?= $entrarHtml ?>
+                <?php if ($accionHtml): ?><?= $accionHtml ?><?php endif; ?>
             </div>
         </div>
     </div>

@@ -310,4 +310,17 @@ class Gasto extends Model
     {
         return self::computeDeudasFromBalance($this->getBalanceByGrupo($grupoId));
     }
+
+    public function getDeudaVigente(int $grupoId, int $deudorId, int $acreedorId): ?array
+    {
+        $deudas = $this->getDeudasByGrupo($grupoId);
+
+        foreach ($deudas as $d) {
+            if ((int) $d['deudor_id'] === $deudorId && (int) $d['acreedor_id'] === $acreedorId) {
+                return $d;
+            }
+        }
+
+        return null;
+    }
 }

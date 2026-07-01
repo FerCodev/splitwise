@@ -161,9 +161,9 @@ final class PermisosGrupoTest extends CIUnitTestCase
         $this->assertTrue($this->blocked('admin', 'cerrado', 'gasto_create'));
     }
 
-    public function testGrupoCerradoPermiteCrearPago(): void
+    public function testGrupoCerradoBloqueaCrearPago(): void
     {
-        $this->assertFalse($this->blocked('admin', 'cerrado', 'pago_create'));
+        $this->assertTrue($this->blocked('admin', 'cerrado', 'pago_create'));
     }
 
     public function testGrupoCerradoBloqueaEditarGasto(): void
