@@ -277,4 +277,67 @@ class Admin extends BaseController
 
         return $base;
     }
+
+    public function storageTest()
+    {
+        $publicHtml = dirname(rtrim(ROOTPATH, DIRECTORY_SEPARATOR));
+        $testFile = $publicHtml
+            . DIRECTORY_SEPARATOR . 'storage'
+            . DIRECTORY_SEPARATOR . 'gastito'
+            . DIRECTORY_SEPARATOR . 'test'
+            . DIRECTORY_SEPARATOR . 'test.txt';
+
+        if (!is_file($testFile)) {
+            return view('admin/storage_test', [
+                'status'      => 'not_found',
+                'statusText'  => 'Archivo no encontrado',
+                'statusHttp'  => 404,
+                'size'        => null,
+                'empty'       => null,
+                'hash'        => null,
+                'preview'     => null,
+            ])->setStatusCode(404);
+        }
+
+        if (!is_readable($testFile)) {
+            return view('admin/storage_test', [
+                'status'      => 'not_readable',
+                'statusText'  => 'El archivo existe pero PHP no puede leerlo',
+                'statusHttp'  => 403,
+                'size'        => null,
+                'empty'       => null,
+                'hash'        => null,
+                'preview'     => null,
+            ])->setStatusCode(403);
+        }
+
+        $contents = @file_get_contents($testFile);
+
+        if ($contents === false) {
+            return view('admin/storage_test', [
+                'status'      => 'read_error',
+                'statusText'  => 'No se pudo leer el archivo',
+                'statusHttp'  => 500,
+                'size'        => null,
+                'empty'       => null,
+                'hash'        => null,
+                'preview'     => null,
+            ])->setStatusCode(500);
+        }
+
+        $size = filesize($testFile);
+        $isEmpty = $size === 0;
+        $hash = hash('sha256', $contents);
+        $preview = mb_substr($contents, 0, 500);
+
+        return view('admin/storage_test', [
+            'status'      => 'ok',
+            'statusText'  => 'Archivo encontrado y legible',
+            'statusHttp'  => 200,
+            'size'        => $size,
+            'empty'       => $isEmpty,
+            'hash'        => $hash,
+            'preview'     => $preview,
+        ])->setStatusCode(200);
+    }
 }
