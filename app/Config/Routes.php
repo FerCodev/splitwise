@@ -90,3 +90,4 @@ $routes->post('/admin/catalogo-tarjetas/decision', 'Admin::guardarDecisionCatalo
 $routes->post('/admin/catalogo-tarjetas/decision/limpiar', 'Admin::limpiarDecisionCatalogo', ['filter' => ['auth', 'admin']]);
 $routes->post('/admin/catalogo-tarjetas/curaduria', 'Admin::guardarCuraduria', ['filter' => ['auth', 'admin']]);
 $routes->post('/admin/catalogo-tarjetas/curaduria/limpiar', 'Admin::limpiarCuraduria', ['filter' => ['auth', 'admin']]);
+$routes->get('/admin/storage-test', 'Admin::storageTest', ['filter' => ['auth', 'admin']]);

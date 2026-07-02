@@ -277,4 +277,70 @@ class Admin extends BaseController
 
         return $base;
     }
+
+    public function storageTest()
+    {
+        $publicHtml = dirname(rtrim(ROOTPATH, DIRECTORY_SEPARATOR));
+        $testFile = $publicHtml
+            . DIRECTORY_SEPARATOR . 'storage'
+            . DIRECTORY_SEPARATOR . 'gastito'
+            . DIRECTORY_SEPARATOR . 'test'
+            . DIRECTORY_SEPARATOR . 'test.txt';
+
+        if (!is_file($testFile)) {
+            return $this->storageTestResponse([
+                'status'     => 'not_found',
+                'statusText' => 'Archivo no encontrado',
+                'size'       => null,
+                'empty'      => null,
+                'hash'       => null,
+                'preview'    => null,
+            ], 404);
+        }
+
+        if (!is_readable($testFile)) {
+            return $this->storageTestResponse([
+                'status'     => 'not_readable',
+                'statusText' => 'El archivo existe pero PHP no puede leerlo',
+                'size'       => null,
+                'empty'      => null,
+                'hash'       => null,
+                'preview'    => null,
+            ], 403);
+        }
+
+        $contents = @file_get_contents($testFile);
+
+        if ($contents === false) {
+            return $this->storageTestResponse([
+                'status'     => 'read_error',
+                'statusText' => 'No se pudo leer el archivo',
+                'size'       => null,
+                'empty'      => null,
+                'hash'       => null,
+                'preview'    => null,
+            ], 500);
+        }
+
+        $size = filesize($testFile);
+        $isEmpty = $size === 0;
+        $hash = hash('sha256', $contents);
+        $preview = mb_substr($contents, 0, 500);
+
+        return $this->storageTestResponse([
+            'status'     => 'ok',
+            'statusText' => 'Archivo encontrado y legible',
+            'size'       => $size,
+            'empty'      => $isEmpty,
+            'hash'       => $hash,
+            'preview'    => $preview,
+        ], 200);
+    }
+
+    private function storageTestResponse(array $data, int $statusCode)
+    {
+        return $this->response
+            ->setStatusCode($statusCode)
+            ->setBody(view('admin/storage_test', $data));
+    }
 }
