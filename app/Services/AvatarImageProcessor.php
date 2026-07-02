@@ -64,7 +64,7 @@ class AvatarImageProcessor
                 if ($path && is_file($path)) {
                     @unlink($path);
                 }
-                throw new RuntimeException('No se pudo guardar la foto. Intent? nuevamente.');
+                throw new RuntimeException('No se pudo guardar la foto. Intent&aacute; nuevamente.');
             }
 
             return $filename;

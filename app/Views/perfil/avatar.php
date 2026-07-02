@@ -22,10 +22,10 @@
                     <img id="avatar-preview" class="avatar-preview" alt="Vista previa de la foto seleccionada">
                 </div>
                 <button type="submit" class="btn btn-success w-100 mt-3 d-none" id="avatar-submit">Guardar foto</button>
-                <div class="text-muted small mt-2">JPG, PNG o WebP. M?ximo 5 MB.</div>
+                <div class="text-muted small mt-2">JPG, PNG o WebP. M&aacute;ximo 5 MB.</div>
             </form>
             <?php if (!empty($user['avatar_filename'])): ?>
-                <form action="<?= base_url('perfil/avatar/eliminar') ?>" method="post" class="mt-3" onsubmit="return confirm('?Eliminar tu foto de perfil?')">
+                <form action="<?= base_url('perfil/avatar/eliminar') ?>" method="post" class="mt-3" onsubmit="return confirm('Eliminar tu foto de perfil?')">
                     <?= csrf_field() ?>
                     <button type="submit" class="btn btn-outline-danger w-100">Eliminar foto</button>
                 </form>
