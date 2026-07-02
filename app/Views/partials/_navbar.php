@@ -51,10 +51,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V3zm1 0v10h12V3H2zm3 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
                 Cat&aacute;logo
             </a>
-            <a href="<?= base_url('admin/storage-test') ?>" class="desktop-sidebar-link <?= tabActive('admin/storage-test', $current) ?>">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
-                Probar storage
-            </a>
         <?php endif; ?>
         <div class="desktop-sidebar-section">Recursos</div>
         <a href="<?= base_url('doc/inicio') ?>" class="desktop-sidebar-link <?= tabActive('doc', $current) ?>">
@@ -150,9 +146,6 @@
                 </a>
                 <a href="<?= base_url('admin/catalogo-tarjetas') ?>" class="mobile-menu-link <?= tabActive('admin', $current) ?>" <?= $current === 'admin' ? 'aria-current="page"' : '' ?>>
                     <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span>Cat&aacute;logo</span>
-                </a>
-                <a href="<?= base_url('admin/storage-test') ?>" class="mobile-menu-link <?= tabActive('admin/storage-test', $current) ?>" <?= $current === 'admin/storage-test' ? 'aria-current="page"' : '' ?>>
-                    <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0 5-5m-5 5-5-5M5 14v5h14v-5"/></svg></span><span>Probar storage</span>
                 </a>
             </div>
         <?php endif; ?>
