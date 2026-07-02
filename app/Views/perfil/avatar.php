@@ -19,8 +19,16 @@
                     <?= !empty($user['avatar_filename']) ? 'Cambiar foto' : 'Subir foto' ?>
                 </label>
                 <div id="avatar-preview-wrap" class="mt-3 d-none">
-                    <img id="avatar-preview" class="avatar-preview" alt="Vista previa de la foto seleccionada">
+                    <div class="avatar-crop-stage mx-auto">
+                        <canvas id="avatar-crop-canvas" width="280" height="280" aria-label="Editor de recorte de foto"></canvas>
+                    </div>
+                    <label for="avatar-zoom" class="form-label mt-3 mb-1">Zoom</label>
+                    <input type="range" class="form-range" id="avatar-zoom" min="1" max="3" step="0.01" value="1">
+                    <div class="text-muted small">Arrastr&aacute; la imagen para elegir el encuadre.</div>
                 </div>
+                <input type="hidden" name="crop_x" id="avatar-crop-x">
+                <input type="hidden" name="crop_y" id="avatar-crop-y">
+                <input type="hidden" name="crop_size" id="avatar-crop-size">
                 <button type="submit" class="btn btn-success w-100 mt-3 d-none" id="avatar-submit">Guardar foto</button>
                 <div class="text-muted small mt-2">JPG, PNG o WebP. M&aacute;ximo 30 MB.</div>
             </form>
@@ -36,12 +44,46 @@
 </div>
 <script>
 (function () {
+    const SIZE = 280;
     const input = document.getElementById('avatar-file');
-    const preview = document.getElementById('avatar-preview');
+    const canvas = document.getElementById('avatar-crop-canvas');
+    const context = canvas ? canvas.getContext('2d') : null;
     const wrap = document.getElementById('avatar-preview-wrap');
+    const zoomInput = document.getElementById('avatar-zoom');
     const submit = document.getElementById('avatar-submit');
     const form = document.getElementById('avatar-upload-form');
-    if (!input) return;
+    const cropX = document.getElementById('avatar-crop-x');
+    const cropY = document.getElementById('avatar-crop-y');
+    const cropSize = document.getElementById('avatar-crop-size');
+    let image = null;
+    let baseScale = 1;
+    let zoom = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    if (!input || !canvas || !context) return;
+
+    function clampOffsets() {
+        const scale = baseScale * zoom;
+        const maxX = Math.max(0, (image.naturalWidth * scale - SIZE) / 2);
+        const maxY = Math.max(0, (image.naturalHeight * scale - SIZE) / 2);
+        offsetX = Math.max(-maxX, Math.min(maxX, offsetX));
+        offsetY = Math.max(-maxY, Math.min(maxY, offsetY));
+    }
+
+    function draw() {
+        if (!image) return;
+        clampOffsets();
+        const scale = baseScale * zoom;
+        const width = image.naturalWidth * scale;
+        const height = image.naturalHeight * scale;
+        context.clearRect(0, 0, SIZE, SIZE);
+        context.drawImage(image, (SIZE - width) / 2 + offsetX, (SIZE - height) / 2 + offsetY, width, height);
+    }
+
     input.addEventListener('change', function () {
         const file = input.files && input.files[0];
         if (!file) return;
@@ -50,11 +92,72 @@
             input.value = '';
             return;
         }
-        preview.src = URL.createObjectURL(file);
-        wrap.classList.remove('d-none');
-        submit.classList.remove('d-none');
+
+        const objectUrl = URL.createObjectURL(file);
+        const selected = new Image();
+        selected.onload = function () {
+            URL.revokeObjectURL(objectUrl);
+            image = selected;
+            baseScale = Math.max(SIZE / image.naturalWidth, SIZE / image.naturalHeight);
+            zoom = 1;
+            offsetX = 0;
+            offsetY = 0;
+            zoomInput.value = '1';
+            draw();
+            wrap.classList.remove('d-none');
+            submit.classList.remove('d-none');
+        };
+        selected.onerror = function () {
+            URL.revokeObjectURL(objectUrl);
+            input.value = '';
+            alert('No se pudo mostrar la imagen seleccionada.');
+        };
+        selected.src = objectUrl;
     });
-    form.addEventListener('submit', function () {
+
+    zoomInput.addEventListener('input', function () {
+        const previous = zoom;
+        zoom = Number(zoomInput.value);
+        if (previous > 0) {
+            offsetX *= zoom / previous;
+            offsetY *= zoom / previous;
+        }
+        draw();
+    });
+
+    canvas.addEventListener('pointerdown', function (event) {
+        if (!image) return;
+        dragging = true;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        canvas.setPointerCapture(event.pointerId);
+    });
+    canvas.addEventListener('pointermove', function (event) {
+        if (!dragging) return;
+        offsetX += event.clientX - lastX;
+        offsetY += event.clientY - lastY;
+        lastX = event.clientX;
+        lastY = event.clientY;
+        draw();
+    });
+    canvas.addEventListener('pointerup', function (event) {
+        dragging = false;
+        canvas.releasePointerCapture(event.pointerId);
+    });
+    canvas.addEventListener('pointercancel', function () {
+        dragging = false;
+    });
+
+    form.addEventListener('submit', function (event) {
+        if (!image) {
+            event.preventDefault();
+            return;
+        }
+        const scale = baseScale * zoom;
+        const side = SIZE / scale;
+        cropX.value = Math.max(0, (image.naturalWidth - side) / 2 - offsetX / scale).toFixed(3);
+        cropY.value = Math.max(0, (image.naturalHeight - side) / 2 - offsetY / scale).toFixed(3);
+        cropSize.value = side.toFixed(3);
         submit.disabled = true;
         submit.textContent = 'Guardando...';
     });
