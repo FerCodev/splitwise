@@ -280,6 +280,12 @@ class Admin extends BaseController
 
     public function storageTest()
     {
+        $data = $this->storageReadData();
+        return $this->storageTestResponse($data['view'], $data['code']);
+    }
+
+    private function storageReadData(): array
+    {
         $publicHtml = dirname(rtrim(ROOTPATH, DIRECTORY_SEPARATOR));
         $testFile = $publicHtml
             . DIRECTORY_SEPARATOR . 'storage'
@@ -287,54 +293,42 @@ class Admin extends BaseController
             . DIRECTORY_SEPARATOR . 'test'
             . DIRECTORY_SEPARATOR . 'test.txt';
 
+        $base = [
+            'status'     => 'not_found',
+            'statusText' => 'Archivo no encontrado',
+            'size'       => null,
+            'empty'      => null,
+            'hash'       => null,
+            'preview'    => null,
+        ];
+        $code = 404;
+
         if (!is_file($testFile)) {
-            return $this->storageTestResponse([
-                'status'     => 'not_found',
-                'statusText' => 'Archivo no encontrado',
-                'size'       => null,
-                'empty'      => null,
-                'hash'       => null,
-                'preview'    => null,
-            ], 404);
+            return ['view' => $base, 'code' => $code];
         }
 
         if (!is_readable($testFile)) {
-            return $this->storageTestResponse([
-                'status'     => 'not_readable',
-                'statusText' => 'El archivo existe pero PHP no puede leerlo',
-                'size'       => null,
-                'empty'      => null,
-                'hash'       => null,
-                'preview'    => null,
-            ], 403);
+            $base['status'] = 'not_readable';
+            $base['statusText'] = 'El archivo existe pero PHP no puede leerlo';
+            return ['view' => $base, 'code' => 403];
         }
 
         $contents = @file_get_contents($testFile);
 
         if ($contents === false) {
-            return $this->storageTestResponse([
-                'status'     => 'read_error',
-                'statusText' => 'No se pudo leer el archivo',
-                'size'       => null,
-                'empty'      => null,
-                'hash'       => null,
-                'preview'    => null,
-            ], 500);
+            $base['status'] = 'read_error';
+            $base['statusText'] = 'No se pudo leer el archivo';
+            return ['view' => $base, 'code' => 500];
         }
 
-        $size = filesize($testFile);
-        $isEmpty = $size === 0;
-        $hash = hash('sha256', $contents);
-        $preview = mb_substr($contents, 0, 500);
+        $base['status'] = 'ok';
+        $base['statusText'] = 'Archivo encontrado y legible';
+        $base['size'] = filesize($testFile);
+        $base['empty'] = $base['size'] === 0;
+        $base['hash'] = hash('sha256', $contents);
+        $base['preview'] = mb_substr($contents, 0, 500);
 
-        return $this->storageTestResponse([
-            'status'     => 'ok',
-            'statusText' => 'Archivo encontrado y legible',
-            'size'       => $size,
-            'empty'      => $isEmpty,
-            'hash'       => $hash,
-            'preview'    => $preview,
-        ], 200);
+        return ['view' => $base, 'code' => 200];
     }
 
     private function storageTestResponse(array $data, int $statusCode)
@@ -355,109 +349,100 @@ class Admin extends BaseController
 
     public function storageWriteTest()
     {
+        $readData = $this->storageReadData();
         $dir = $this->storageWriteDir();
 
         if (!is_dir($dir)) {
-            return $this->response
-                ->setStatusCode(404)
-                ->setBody(view('admin/storage_test', [
-                    'writeResult' => [
-                        'dirFound'      => false,
-                        'dirWritable'   => false,
-                        'fileCreated'   => false,
-                        'writeOk'       => false,
-                        'readOk'        => false,
-                        'hashMatch'     => false,
-                        'fileDeleted'   => false,
-                        'residue'       => false,
-                        'sizeWritten'   => null,
-                        'statusText'    => 'El directorio no existe.',
-                    ],
-                ]));
+            $readData['view']['writeResult'] = $this->writeResultArray(false, false, false, false, false, false, false, null, null, 'El directorio no existe.');
+            return $this->storageTestResponse($readData['view'], 404);
         }
 
         if (!is_writable($dir)) {
-            return $this->response
-                ->setStatusCode(403)
-                ->setBody(view('admin/storage_test', [
-                    'writeResult' => [
-                        'dirFound'      => true,
-                        'dirWritable'   => false,
-                        'fileCreated'   => false,
-                        'writeOk'       => false,
-                        'readOk'        => false,
-                        'hashMatch'     => false,
-                        'fileDeleted'   => false,
-                        'residue'       => false,
-                        'sizeWritten'   => null,
-                        'statusText'    => 'No se pudo escribir en el directorio.',
-                    ],
-                ]));
+            $readData['view']['writeResult'] = $this->writeResultArray(true, false, false, false, false, false, false, null, null, 'No se pudo escribir en el directorio.');
+            return $this->storageTestResponse($readData['view'], 403);
         }
 
+        $result = $this->runStorageWriteProbe($dir);
+        $readData['view']['writeResult'] = $result;
+
+        $allOk = $result['dirFound'] && $result['dirWritable']
+            && $result['fileCreated'] && $result['writeOk']
+            && $result['readOk'] && $result['hashMatch']
+            && $result['fileDeleted'] && ($result['residue'] === false);
+
+        return $this->storageTestResponse($readData['view'], $allOk ? 200 : 500);
+    }
+
+    protected function runStorageWriteProbe(string $directory): array
+    {
+        if (!is_dir($directory)) {
+            return $this->writeResultArray(false, false, false, false, false, false, false, null, null, 'El directorio no existe.');
+        }
+
+        if (!is_writable($directory)) {
+            return $this->writeResultArray(true, false, false, false, false, false, false, null, null, 'No se pudo escribir en el directorio.');
+        }
         $token = bin2hex(random_bytes(16));
         $filename = 'gastito-write-test-' . $token . '.tmp';
-        $path = $dir . DIRECTORY_SEPARATOR . $filename;
+        $path = $directory . DIRECTORY_SEPARATOR . $filename;
         $content = 'gastito-storage-write-' . $token;
-        $sizeWritten = null;
+
         $fileCreated = false;
+        $handle = null;
+        $sizeWritten = null;
+        $writeOk = false;
+        $readOk = false;
+        $hashMatch = false;
         $fileDeleted = false;
         $residue = null;
 
         try {
             $handle = @fopen($path, 'x');
             if (!$handle) {
-                return $this->response
-                    ->setStatusCode(500)
-                    ->setBody(view('admin/storage_test', [
-                        'writeResult' => [
-                            'dirFound'      => true,
-                            'dirWritable'   => true,
-                            'fileCreated'   => false,
-                            'writeOk'       => false,
-                            'readOk'        => false,
-                            'hashMatch'     => false,
-                            'fileDeleted'   => false,
-                            'residue'       => false,
-                            'sizeWritten'   => null,
-                            'statusText'    => 'No se pudo crear el archivo temporal.',
-                        ],
-                    ]));
+                return $this->writeResultArray(true, true, false, false, false, false, false, null, null, 'No se pudo crear el archivo temporal.');
             }
             $fileCreated = true;
 
             $sizeWritten = @fwrite($handle, $content);
             @fclose($handle);
+            $handle = null;
+            $writeOk = $sizeWritten === strlen($content);
+
+            if (!$writeOk) {
+                return $this->writeResultArray(true, true, true, false, false, false, false, $sizeWritten, null, 'Error controlado.');
+            }
 
             $readBack = @file_get_contents($path);
             $readOk = $readBack === $content;
-            $hashMatch = $readOk && hash('sha256', $readBack) === hash('sha256', $content);
+            $hashMatch = $readOk && hash('sha256', (string) $readBack) === hash('sha256', $content);
 
-            $fileDeleted = @unlink($path);
-            $residue = @file_exists($path);
-
-            return $this->response
-                ->setStatusCode(200)
-                ->setBody(view('admin/storage_test', [
-                    'writeResult' => [
-                        'dirFound'      => true,
-                        'dirWritable'   => true,
-                        'fileCreated'   => true,
-                        'writeOk'       => $sizeWritten !== false && $sizeWritten === strlen($content),
-                        'readOk'        => $readOk,
-                        'hashMatch'     => $hashMatch,
-                        'fileDeleted'   => $fileDeleted,
-                        'residue'       => $residue,
-                        'sizeWritten'   => $sizeWritten !== false ? $sizeWritten : null,
-                        'statusText'    => ($fileDeleted && $residue === false)
-                            ? 'Prueba completada correctamente.'
-                            : ($readOk ? 'No se pudo eliminar el archivo.' : 'La lectura no coincide.'),
-                    ],
-                ]));
         } finally {
-            if ($fileCreated && !$fileDeleted) {
-                @unlink($path);
+            if ($handle) {
+                @fclose($handle);
+            }
+            if ($fileCreated && is_file($path)) {
+                $fileDeleted = @unlink($path);
             }
         }
+
+        $residue = @file_exists($path);
+        $statusText = ($fileDeleted && $residue === false)
+            ? 'Prueba completada correctamente.'
+            : ($readOk && !$fileDeleted ? 'No se pudo eliminar el archivo.' : 'Error controlado.');
+
+        return $this->writeResultArray(true, true, true, $writeOk, $readOk, $hashMatch, $fileDeleted, $sizeWritten, $residue, $statusText);
+    }
+
+    private function writeResultArray(
+        bool $dirFound, bool $dirWritable, bool $fileCreated,
+        bool $writeOk, bool $readOk, bool $hashMatch,
+        bool $fileDeleted, ?int $sizeWritten, ?bool $residue,
+        string $statusText
+    ): array {
+        return compact(
+            'dirFound', 'dirWritable', 'fileCreated',
+            'writeOk', 'readOk', 'hashMatch',
+            'fileDeleted', 'sizeWritten', 'residue', 'statusText'
+        );
     }
 }

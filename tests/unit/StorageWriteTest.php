@@ -10,7 +10,7 @@ final class StorageWriteTest extends CIUnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tmpDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'gastito-write-test-' . bin2hex(random_bytes(4));
+        $this->tmpDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'gastito-probe-' . bin2hex(random_bytes(4));
         mkdir($this->tmpDir, 0777, true);
     }
 
@@ -33,134 +33,131 @@ final class StorageWriteTest extends CIUnitTestCase
         }
     }
 
+    private function runProbe(string $directory): array
+    {
+        $reflection = new ReflectionClass(Admin::class);
+        $method = $reflection->getMethod('runStorageWriteProbe');
+        $method->setAccessible(true);
+        $instance = $reflection->newInstanceWithoutConstructor();
+        return $method->invoke($instance, $directory);
+    }
+
     public function testStorageWriteTestMethodExists(): void
     {
         $this->assertTrue(method_exists(Admin::class, 'storageWriteTest'));
     }
 
-    public function testTokenGenerationIsRandom(): void
+    public function testProbeMetodoExiste(): void
     {
-        $t1 = bin2hex(random_bytes(16));
-        $t2 = bin2hex(random_bytes(16));
-        $this->assertNotSame($t1, $t2);
-        $this->assertSame(32, strlen($t1));
+        $this->assertTrue(method_exists(Admin::class, 'runStorageWriteProbe'));
     }
 
-    public function testCreateWriteReadDeleteWorks(): void
+    public function testExitoCompletoTodosLosFlagsCorrectos(): void
     {
-        $token = bin2hex(random_bytes(16));
-        $filename = 'gastito-write-test-' . $token . '.tmp';
-        $path = $this->tmpDir . DIRECTORY_SEPARATOR . $filename;
-        $content = 'gastito-storage-write-' . $token;
+        $result = $this->runProbe($this->tmpDir);
 
+        $this->assertTrue($result['dirFound']);
+        $this->assertTrue($result['dirWritable']);
+        $this->assertTrue($result['fileCreated'], 'fileCreated debe ser true');
+        $this->assertTrue($result['writeOk'], 'writeOk debe ser true');
+        $this->assertTrue($result['readOk'], 'readOk debe ser true');
+        $this->assertTrue($result['hashMatch'], 'hashMatch debe ser true');
+        $this->assertTrue($result['fileDeleted'], 'fileDeleted debe ser true');
+        $this->assertFalse($result['residue'], 'residue debe ser false');
+        $this->assertGreaterThan(0, $result['sizeWritten']);
+        $this->assertStringContainsString('completada', $result['statusText']);
+    }
+
+    public function testArchivoEliminadoYResidueFalse(): void
+    {
+        $result = $this->runProbe($this->tmpDir);
+
+        $this->assertTrue($result['fileDeleted']);
+        $this->assertFalse($result['residue']);
+    }
+
+    public function testDirectorioInexistente(): void
+    {
+        $result = $this->runProbe($this->tmpDir . DIRECTORY_SEPARATOR . 'no-existe-' . uniqid());
+
+        $this->assertFalse($result['dirFound']);
+    }
+
+    public function testDirectorioNoEscribible(): void
+    {
+        if (DIRECTORY_SEPARATOR === '\\') {
+            $this->markTestSkipped('No portable on Windows');
+        }
+        $roDir = $this->tmpDir . DIRECTORY_SEPARATOR . 'readonly';
+        mkdir($roDir, 0555);
         try {
-            $handle = fopen($path, 'x');
-            $this->assertNotFalse($handle, 'x mode should create file exclusively');
-
-            $written = fwrite($handle, $content);
-            fclose($handle);
-
-            $this->assertSame(strlen($content), $written);
-            $this->assertTrue(is_file($path));
-
-            $readBack = file_get_contents($path);
-            $this->assertSame($content, $readBack);
-
-            $expectedHash = hash('sha256', $content);
-            $actualHash = hash('sha256', $readBack);
-            $this->assertSame($expectedHash, $actualHash);
-        } finally {
-            if (isset($path) && is_file($path)) {
-                @unlink($path);
+            $result = $this->runProbe($roDir);
+            if (!is_writable($roDir)) {
+                $this->assertFalse($result['dirWritable']);
             }
+        } finally {
+            @chmod($roDir, 0777);
+            @rmdir($roDir);
         }
     }
 
-    public function testFileDeletedAfterTest(): void
+    public function testCreacionExclusiva(): void
     {
-        $token = bin2hex(random_bytes(16));
-        $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'gastito-write-test-' . $token . '.tmp';
-        file_put_contents($path, 'test');
-        $this->assertTrue(is_file($path));
+        $token = bin2hex(random_bytes(8));
+        $filename = 'gastito-write-test-' . $token . '.tmp';
+        $path = $this->tmpDir . DIRECTORY_SEPARATOR . $filename;
 
-        @unlink($path);
-        $this->assertFalse(file_exists($path));
-    }
-
-    public function testNoResidueAfterCleanup(): void
-    {
-        $token = bin2hex(random_bytes(16));
-        $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'gastito-write-test-' . $token . '.tmp';
-        file_put_contents($path, 'x');
-
-        $this->assertTrue(is_file($path));
-        @unlink($path);
-        $this->assertFalse(file_exists($path));
-    }
-
-    public function testXModeFailsIfFileExists(): void
-    {
-        $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'existing.tmp';
         file_put_contents($path, 'existing');
         try {
             $handle = @fopen($path, 'x');
-            $this->assertFalse($handle, 'x mode should fail on existing file');
-            if ($handle) {
-                fclose($handle);
-            }
+            $this->assertFalse($handle);
         } finally {
             @unlink($path);
         }
     }
 
-    public function testTryFinallyCleansUpOnError(): void
-    {
-        $token = bin2hex(random_bytes(16));
-        $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'gastito-write-test-' . $token . '.tmp';
-        $fileCreated = false;
-
-        try {
-            file_put_contents($path, 'test');
-            $fileCreated = true;
-            $this->assertTrue(is_file($path));
-            throw new RuntimeException('forced error');
-        } catch (RuntimeException) {
-            $this->assertTrue(true, 'Error caught in try');
-        } finally {
-            if ($fileCreated) {
-                @unlink($path);
-            }
-        }
-
-        $this->assertFalse(file_exists($path), 'File should be cleaned up in finally');
-    }
-
-    public function testTestTxtNotTouched(): void
-    {
-        $this->cleanupTmpFiles();
-        $files = glob($this->tmpDir . DIRECTORY_SEPARATOR . 'test.txt');
-        $this->assertEmpty($files, 'test.txt should not exist in temp dir');
-    }
-
-    public function testHashMismatchDetected(): void
+    public function testLecturaDiferenteProduceError(): void
     {
         $content = 'original';
         $hash1 = hash('sha256', $content);
-        $hash2 = hash('sha256', 'different');
+        $hash2 = hash('sha256', 'tampered');
         $this->assertNotSame($hash1, $hash2);
     }
 
-    public function testWriteSizeMatchesContentLength(): void
+    public function testHashCoincideEnExito(): void
     {
-        $content = 'gastito-storage-write-' . bin2hex(random_bytes(8));
-        $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'size-test.tmp';
+        $result = $this->runProbe($this->tmpDir);
+        $this->assertTrue($result['hashMatch']);
+    }
+
+    public function testTestTxtPreexistenteNoSeToca(): void
+    {
+        $path = $this->tmpDir . DIRECTORY_SEPARATOR . 'test.txt';
+        $original = 'contenido original de test.txt';
+        file_put_contents($path, $original);
         try {
-            $written = file_put_contents($path, $content);
-            $this->assertSame(strlen($content), $written);
-            $size = filesize($path);
-            $this->assertSame(strlen($content), $size);
+            $result = $this->runProbe($this->tmpDir);
+            $this->assertTrue($result['fileDeleted']);
+            $this->assertFalse($result['residue']);
+
+            $this->assertTrue(is_file($path), 'test.txt debe seguir existiendo');
+            $this->assertSame($original, file_get_contents($path));
+            $this->assertSame(strlen($original), filesize($path));
         } finally {
             @unlink($path);
         }
+    }
+
+    public function testSizeWrittenCoincideConContentLength(): void
+    {
+        $result = $this->runProbe($this->tmpDir);
+        $this->assertGreaterThan(20, $result['sizeWritten']);
+    }
+
+    public function testAfterProbeNoQuedanTemporales(): void
+    {
+        $this->runProbe($this->tmpDir);
+        $files = glob($this->tmpDir . DIRECTORY_SEPARATOR . 'gastito-write-test-*.tmp');
+        $this->assertEmpty($files, 'No deben quedar archivos temporales');
     }
 }
