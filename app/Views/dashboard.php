@@ -131,6 +131,9 @@
                                         'wrap' => false,
                                         'modo' => $esDeudor ? 'debes' : 'te_deben',
                                         'persona' => $esDeudor ? $d['acreedor'] : $d['deudor'],
+                                        'userId' => $esDeudor ? $d['acreedor_id'] : $d['deudor_id'],
+                                        'avatarFilename' => $esDeudor ? ($d['acreedor_avatar_filename'] ?? null) : ($d['deudor_avatar_filename'] ?? null),
+                                        'avatarUpdatedAt' => $esDeudor ? ($d['acreedor_avatar_updated_at'] ?? null) : ($d['deudor_avatar_updated_at'] ?? null),
                                         'grupo' => $d['grupo_nombre'],
                                         'monto' => $d['monto'],
                                     ]) ?>
@@ -308,6 +311,9 @@
                                         'wrap' => false,
                                         'modo' => $esDeudor ? 'debes' : 'te_deben',
                                         'persona' => $esDeudor ? $d['acreedor'] : $d['deudor'],
+                                        'userId' => $esDeudor ? $d['acreedor_id'] : $d['deudor_id'],
+                                        'avatarFilename' => $esDeudor ? ($d['acreedor_avatar_filename'] ?? null) : ($d['deudor_avatar_filename'] ?? null),
+                                        'avatarUpdatedAt' => $esDeudor ? ($d['acreedor_avatar_updated_at'] ?? null) : ($d['deudor_avatar_updated_at'] ?? null),
                                         'grupo' => $d['grupo_nombre'],
                                         'monto' => $d['monto'],
                                     ]) ?>

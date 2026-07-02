@@ -43,7 +43,7 @@ class Grupo extends Model
     public function getMiembros(int $grupoId): array
     {
         return $this->db->table('grupo_miembros')
-            ->select('grupo_miembros.*, users.name, users.email')
+            ->select('grupo_miembros.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at')
             ->join('users', 'users.id = grupo_miembros.user_id')
             ->where('grupo_miembros.grupo_id', $grupoId)
             ->orderBy('grupo_miembros.created_at', 'ASC')
@@ -324,7 +324,7 @@ class Grupo extends Model
 
     public function getUsuariosDisponibles(int $grupoId): array
     {
-        $sql = 'SELECT id, name, email FROM users WHERE role != ? AND id NOT IN (
+        $sql = 'SELECT id, name, email, avatar_filename, avatar_updated_at FROM users WHERE role != ? AND id NOT IN (
                     SELECT user_id FROM grupo_miembros WHERE grupo_id = ?
                 ) ORDER BY name ASC';
 

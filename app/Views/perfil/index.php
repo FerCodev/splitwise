@@ -15,6 +15,15 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title mb-3">Informaci&oacute;n de la cuenta</h5>
+                <div class="text-center mb-4">
+                    <?= view('components/avatar', [
+                        'userId' => $user['id'], 'name' => $user['name'],
+                        'avatarFilename' => $user['avatar_filename'] ?? null,
+                        'avatarUpdatedAt' => $user['avatar_updated_at'] ?? null,
+                        'size' => 112,
+                    ]) ?>
+                    <div class="mt-3"><a href="<?= base_url('perfil/avatar') ?>" class="btn btn-outline-primary"><?= !empty($user['avatar_filename']) ? 'Cambiar foto' : 'Subir foto' ?></a></div>
+                </div>
                 <div class="d-grid gap-3 mb-4">
                     <div>
                         <div class="fw-semibold">Nombre</div>

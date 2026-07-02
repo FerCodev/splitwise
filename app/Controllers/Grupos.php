@@ -51,7 +51,7 @@ class Grupos extends BaseController
     public function new()
     {
         $userModel = new \App\Models\User();
-        $usuarios = $userModel->select('id, name, email')->where('id !=', session()->get('userId'))->where('role !=', 'admin')->orderBy('name', 'ASC')->findAll();
+        $usuarios = $userModel->select('id, name, email, avatar_filename, avatar_updated_at')->where('id !=', session()->get('userId'))->where('role !=', 'admin')->orderBy('name', 'ASC')->findAll();
 
         return view('grupos/form', ['usuarios' => $usuarios]);
     }
@@ -358,6 +358,8 @@ class Grupos extends BaseController
                 'monto' => $g['monto'],
                 'persona' => $g['pagador_nombre'],
                 'persona_id' => (int) $g['pagador_id'],
+                'avatar_filename' => $g['pagador_avatar_filename'] ?? null,
+                'avatar_updated_at' => $g['pagador_avatar_updated_at'] ?? null,
                 'id' => $g['id'],
                 'categoria_id' => (int) ($g['categoria_id'] ?? 0),
                 'categoria_nombre' => $g['categoria_nombre'] ?? null,
@@ -373,6 +375,8 @@ class Grupos extends BaseController
                 'monto' => $p['monto'],
                 'persona' => $p['pagador_nombre'] . ' pagó a ' . $p['receptor_nombre'],
                 'persona_id' => (int) $p['pagador_id'],
+                'avatar_filename' => $p['pagador_avatar_filename'] ?? null,
+                'avatar_updated_at' => $p['pagador_avatar_updated_at'] ?? null,
                 'id' => $p['id'],
                 'categoria_id' => null,
                 'categoria_nombre' => null,

@@ -7,6 +7,9 @@ $descripcion = $descripcion ?? ($tipo === 'pago' ? 'Pago' : 'Gastito');
 $monto = (float) ($monto ?? 0);
 $fecha = $fecha ?? date('Y-m-d');
 $persona = $persona ?? 'Usuario';
+$userId = (int) ($userId ?? 0);
+$avatarFilename = $avatarFilename ?? null;
+$avatarUpdatedAt = $avatarUpdatedAt ?? null;
 $url = $url ?? null;
 $categoria = isset($categoria) && (is_string($categoria) || is_numeric($categoria))
     ? trim((string) $categoria)
@@ -38,7 +41,6 @@ if ($esGasto && $colorInfo !== null) {
     $text   = $reserved['text'];
 }
 
-$inicialPersona = mb_strtoupper(mb_substr($persona, 0, 1));
 
 $cardContent = '';
 if ($variant === 'user_color'):
@@ -46,7 +48,12 @@ if ($variant === 'user_color'):
     <div class="report-movement-card group-movement-user-card" style="background: <?= esc($bg) ?>; border-left: 3px solid <?= esc($border) ?>;">
         <div class="catalog-card-top">
             <div class="catalog-row min-width-0">
-                <div class="group-movement-avatar"><?= esc($inicialPersona) ?></div>
+                <?= view('components/avatar', [
+                    'userId' => $userId, 'name' => $persona,
+                    'avatarFilename' => $avatarFilename,
+                    'avatarUpdatedAt' => $avatarUpdatedAt,
+                    'size' => 40,
+                ]) ?>
                 <div class="min-width-0">
                     <div>
                         <span class="badge me-1" style="background: <?= esc($solid) ?>; color: #fff;"><?= $esGasto ? 'Gastito' : 'Pago' ?></span>

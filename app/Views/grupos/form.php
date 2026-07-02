@@ -42,14 +42,16 @@
                             <?php if (!empty($usuarios)): ?>
                                 <div class="initial-member-list">
                                     <?php foreach ($usuarios as $u): ?>
-                                        <?php
-                                            $nombre = trim($u['name'] ?? '');
-                                            $inicial = strtoupper(substr($nombre !== '' ? $nombre : ($u['email'] ?? '?'), 0, 1));
-                                        ?>
                                         <label class="initial-member-option" for="miembro_<?= $u['id'] ?>">
                                             <input class="form-check-input" type="checkbox" name="miembros[]"
                                                    value="<?= $u['id'] ?>" id="miembro_<?= $u['id'] ?>">
-                                            <span class="initial-member-avatar" aria-hidden="true"><?= esc($inicial) ?></span>
+                                            <?= view('components/avatar', [
+                                                'userId' => $u['id'],
+                                                'name' => $u['name'],
+                                                'avatarFilename' => $u['avatar_filename'] ?? null,
+                                                'avatarUpdatedAt' => $u['avatar_updated_at'] ?? null,
+                                                'size' => 40,
+                                            ]) ?>
                                             <span class="initial-member-copy">
                                                 <span class="initial-member-name"><?= esc($u['name']) ?></span>
                                                 <span class="initial-member-email"><?= esc($u['email']) ?></span>
@@ -175,7 +177,16 @@
                             <tbody>
                                 <?php foreach ($miembros as $m): ?>
                                 <tr>
-                                    <td class="fw-medium"><?= esc($m['name']) ?></td>
+                                    <td class="fw-medium">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <?= view('components/avatar', [
+                                                'userId' => $m['user_id'], 'name' => $m['name'],
+                                                'avatarFilename' => $m['avatar_filename'] ?? null,
+                                                'avatarUpdatedAt' => $m['avatar_updated_at'] ?? null, 'size' => 36,
+                                            ]) ?>
+                                            <span><?= esc($m['name']) ?></span>
+                                        </div>
+                                    </td>
                                     <td>
                                         <span class="badge bg-<?= $m['rol'] === 'admin' ? 'warning' : 'secondary' ?>">
                                             <?= $m['rol'] === 'admin' ? 'Admin' : 'Miembro' ?>

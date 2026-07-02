@@ -14,6 +14,7 @@ class Gasto extends Model
     public function getGastosByGrupo(int $grupoId): array
     {
         return $this->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre,
+                users.avatar_filename as pagador_avatar_filename, users.avatar_updated_at as pagador_avatar_updated_at,
                 (SELECT COUNT(*) FROM gasto_participantes WHERE gasto_id = gastos.id) as total_participantes')
             ->join('users', 'users.id = gastos.pagador_id')
             ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
@@ -116,7 +117,7 @@ class Gasto extends Model
     {
         $db = $this->db;
         $miembros = model(GrupoMiembro::class)
-            ->select('grupo_miembros.*, users.name, users.email')
+            ->select('grupo_miembros.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at')
             ->join('users', 'users.id = grupo_miembros.user_id')
             ->where('grupo_miembros.grupo_id', $grupoId)
             ->findAll();
@@ -294,8 +295,12 @@ class Gasto extends Model
                 $deudas[] = [
                     'deudor' => $d['name'],
                     'deudor_id' => $d['user_id'],
+                    'deudor_avatar_filename' => $d['avatar_filename'] ?? null,
+                    'deudor_avatar_updated_at' => $d['avatar_updated_at'] ?? null,
                     'acreedor' => $a['name'],
                     'acreedor_id' => $a['user_id'],
+                    'acreedor_avatar_filename' => $a['avatar_filename'] ?? null,
+                    'acreedor_avatar_updated_at' => $a['avatar_updated_at'] ?? null,
                     'monto' => round($monto, 2),
                 ];
                 $restante -= $monto;

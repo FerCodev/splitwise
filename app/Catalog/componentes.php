@@ -34,4 +34,7 @@ return [
     'medios' => [
         require __DIR__ . '/Components/medios/payment_method_card.php',
     ],
+    'perfil' => [
+        require __DIR__ . '/Components/perfil/avatar.php',
+    ],
 ];

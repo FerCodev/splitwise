@@ -83,7 +83,16 @@
                                         $badgeText = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? 'Debe' : 'Saldado');
                                     ?>
                                     <tr>
-                                        <td class="fw-medium"><?= esc($b['name']) ?></td>
+                                        <td class="fw-medium">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <?= view('components/avatar', [
+                                                    'userId' => $b['user_id'], 'name' => $b['name'],
+                                                    'avatarFilename' => $b['avatar_filename'] ?? null,
+                                                    'avatarUpdatedAt' => $b['avatar_updated_at'] ?? null, 'size' => 36,
+                                                ]) ?>
+                                                <span><?= esc($b['name']) ?></span>
+                                            </div>
+                                        </td>
                                         <td class="text-end"><?= moneda($b['total_pagado_gastos']) ?></td>
                                         <td class="text-end"><?= moneda($b['total_consumido']) ?></td>
                                         <td class="text-end"><?= moneda($b['pagos_enviados']) ?></td>
@@ -100,15 +109,8 @@
                 </div>
                 <!-- Mobile: cards con avatar, progreso y detalle expandible -->
                 <div class="d-md-none">
-                    <?php
-                        $avatarColors = ['#0d6efd','#198754','#dc3545','#fd7e14','#6f42c1','#20c997','#e83e8c','#6610f2'];
-                        $colorIdx = 0;
-                    ?>
                     <?php foreach ($balance as $b): ?>
                         <?php
-                            $inicial = mb_strtoupper(mb_substr(trim($b['name']), 0, 1));
-                            $avaColor = $avatarColors[$colorIdx % count($avatarColors)];
-                            $colorIdx++;
                             $saldoClase = $b['saldo'] >= 0 ? 'text-success' : 'text-danger';
                             $total = max($b['total_pagado_gastos'], $b['total_consumido'], 1);
                             $pagadoPct = min(round($b['total_pagado_gastos'] / $total * 100), 100);
@@ -117,7 +119,13 @@
                         ?>
                         <div class="mobile-card-item">
                             <div class="d-flex align-items-center gap-3 mb-2">
-                                <div class="avatar-circle" style="background:<?= $avaColor ?>"><?= $inicial ?></div>
+                                <?= view('components/avatar', [
+                                    'userId' => $b['user_id'],
+                                    'name' => $b['name'],
+                                    'avatarFilename' => $b['avatar_filename'] ?? null,
+                                    'avatarUpdatedAt' => $b['avatar_updated_at'] ?? null,
+                                    'size' => 44,
+                                ]) ?>
                                 <div class="flex-grow-1">
                                     <div class="fw-medium"><?= esc($b['name']) ?></div>
                                     <div class="fw-bold fs-5 <?= $saldoClase ?>">
