@@ -14,6 +14,10 @@ $routes->post('/password/reset/(:any)', 'PasswordResetController::cambiarPasswor
 $routes->get('/perfil', 'Perfil::index', ['filter' => 'auth']);
 $routes->get('/perfil/editar', 'Perfil::editar', ['filter' => 'auth']);
 $routes->post('/perfil/editar', 'Perfil::actualizar', ['filter' => 'auth']);
+$routes->get('/perfil/avatar', 'Perfil::avatarForm', ['filter' => 'auth']);
+$routes->post('/perfil/avatar', 'Perfil::avatarUpload', ['filter' => 'auth']);
+$routes->post('/perfil/avatar/eliminar', 'Perfil::avatarDelete', ['filter' => 'auth']);
+$routes->get('/usuarios/(:num)/avatar', 'Perfil::avatar/$1', ['filter' => 'auth']);
 $routes->get('/perfil/cambiar-password', 'Perfil::password', ['filter' => 'auth']);
 $routes->post('/perfil/cambiar-password', 'Perfil::cambiarPassword', ['filter' => 'auth']);
 $routes->get('/dashboard', 'Dashboard::index', ['filter' => 'auth']);

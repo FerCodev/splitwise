@@ -60,7 +60,13 @@
     </nav>
     <div class="desktop-sidebar-footer">
         <div class="desktop-sidebar-user">
-            <div class="avatar" style="background:var(--primary);width:36px;height:36px;font-size:14px;"><?= esc(strtoupper(substr((string) session()->get('userName'), 0, 1))) ?></div>
+            <?= view('components/avatar', [
+                'userId' => session()->get('userId'),
+                'name' => session()->get('userName'),
+                'avatarFilename' => session()->get('avatarFilename'),
+                'avatarUpdatedAt' => session()->get('avatarUpdatedAt'),
+                'size' => 36,
+            ]) ?>
             <div class="desktop-sidebar-user-info">
                 <div class="desktop-sidebar-user-name"><?= esc(session()->get('userName')) ?></div>
                 <div class="desktop-sidebar-user-email"><?= esc(session()->get('userEmail')) ?></div>
@@ -101,7 +107,13 @@
     </div>
     <div class="offcanvas-body mobile-menu-body">
         <div class="mobile-menu-user">
-            <div class="mobile-menu-avatar" aria-hidden="true"><?= esc(strtoupper(substr((string) session()->get('userName'), 0, 1))) ?></div>
+            <?= view('components/avatar', [
+                'userId' => session()->get('userId'),
+                'name' => session()->get('userName'),
+                'avatarFilename' => session()->get('avatarFilename'),
+                'avatarUpdatedAt' => session()->get('avatarUpdatedAt'),
+                'size' => 48,
+            ]) ?>
             <div class="mobile-menu-user-copy">
                 <div class="mobile-menu-name"><?= esc(session()->get('userName')) ?></div>
                 <div class="mobile-menu-email"><?= esc(session()->get('userEmail')) ?></div>

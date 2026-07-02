@@ -56,14 +56,16 @@
 
         <div class="d-md-none user-card-list">
             <?php foreach ($users as $user): ?>
-                <?php
-                    $nombre = trim($user['name'] ?? '');
-                    $inicial = strtoupper(substr($nombre !== '' ? $nombre : ($user['email'] ?? '?'), 0, 1));
-                ?>
                 <div class="card border-0 shadow-sm user-card">
                     <div class="card-body">
                         <div class="user-card-main">
-                            <div class="user-card-avatar" aria-hidden="true"><?= esc($inicial) ?></div>
+                            <?= view('components/avatar', [
+                                'userId' => $user['id'],
+                                'name' => $user['name'],
+                                'avatarFilename' => $user['avatar_filename'] ?? null,
+                                'avatarUpdatedAt' => $user['avatar_updated_at'] ?? null,
+                                'size' => 48,
+                            ]) ?>
                             <div class="user-card-copy">
                                 <div class="user-card-name"><?= esc($user['name']) ?></div>
                                 <div class="user-card-email"><?= esc($user['email']) ?></div>

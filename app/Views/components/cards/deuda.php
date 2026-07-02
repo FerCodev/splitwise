@@ -2,6 +2,9 @@
 $variant = $variant ?? 'soft';
 $modo = $modo ?? 'debes';
 $persona = $persona ?? 'Persona';
+$userId = (int) ($userId ?? 0);
+$avatarFilename = $avatarFilename ?? null;
+$avatarUpdatedAt = $avatarUpdatedAt ?? null;
 $grupo = $grupo ?? 'Grupo';
 $monto = (float) ($monto ?? 0);
 $wrap = $wrap ?? true;
@@ -11,7 +14,6 @@ $cardClase = $esDeudaPropia ? 'home-debt-card-owes' : 'home-debt-card-owed';
 $montoClase = $esDeudaPropia ? 'text-danger' : 'text-success';
 $badge = $esDeudaPropia ? 'Deb&eacute;s' : 'Te deben';
 $detalle = $esDeudaPropia ? 'Pago pendiente' : 'Cobro pendiente';
-$avatar = mb_strtoupper(mb_substr($persona, 0, 1));
 ?>
 
 <?php if ($wrap): ?>
@@ -33,7 +35,12 @@ $avatar = mb_strtoupper(mb_substr($persona, 0, 1));
     </div>
 <?php elseif ($variant === 'person_summary'): ?>
     <div class="home-debt-person-card <?= esc($cardClase) ?>">
-        <div class="home-debt-avatar"><?= esc($avatar) ?></div>
+        <?= view('components/avatar', [
+            'userId' => $userId, 'name' => $persona,
+            'avatarFilename' => $avatarFilename,
+            'avatarUpdatedAt' => $avatarUpdatedAt,
+            'size' => 48,
+        ]) ?>
         <div class="min-width-0">
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="badge"><?= $badge ?></span>

@@ -13,7 +13,7 @@ class Pago extends Model
 
     public function getPagosByGrupo(int $grupoId): array
     {
-        return $this->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre')
+        return $this->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, pagador.avatar_filename as pagador_avatar_filename, pagador.avatar_updated_at as pagador_avatar_updated_at')
             ->join('users as pagador', 'pagador.id = pagos.pagador_id')
             ->join('users as receptor', 'receptor.id = pagos.receptor_id')
             ->where('pagos.grupo_id', $grupoId)

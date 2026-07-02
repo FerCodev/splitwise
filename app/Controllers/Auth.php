@@ -29,6 +29,8 @@ class Auth extends BaseController
                 'userId'     => $user['id'],
                 'userName'   => $user['name'],
                 'userEmail'  => $user['email'],
+                'avatarFilename' => $user['avatar_filename'] ?? null,
+                'avatarUpdatedAt' => $user['avatar_updated_at'] ?? null,
                 'userRole'   => $user['role'] ?? 'user',
             ]);
             return redirect()->to('/dashboard');
