@@ -3199,8 +3199,8 @@ body {
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 18px;
-    min-height: 112px;
-    padding: 24px;
+    min-height: 88px;
+    padding: 18px 24px;
     color: var(--text);
     text-decoration: none;
 }
@@ -3213,11 +3213,6 @@ body {
     font-size: 1.05rem;
     font-weight: 800;
     line-height: 1.25;
-}
-.group-card-minimal-description {
-    margin-top: 5px;
-    font-size: 0.875rem;
-    line-height: 1.35;
 }
 .group-card-minimal-balance {
     display: grid;
@@ -3243,7 +3238,7 @@ body {
 .group-card-minimal-footer {
     display: flex;
     justify-content: flex-end;
-    padding: 0 24px 20px;
+    padding: 0 24px 16px;
 }
 .group-card-minimal-footer .btn {
     min-height: 38px;

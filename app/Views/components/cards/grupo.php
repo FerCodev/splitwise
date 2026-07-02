@@ -119,7 +119,6 @@ $entrarHtml = '<a class="btn btn-outline-primary btn-sm" href="' . esc($entrarUr
             <div class="catalog-avatar catalog-avatar-primary group-card-minimal-avatar"><?= esc($inicial) ?></div>
             <div class="min-width-0">
                 <strong class="group-card-minimal-title d-block text-truncate"><?= esc($nombre) ?></strong>
-                <span class="group-card-minimal-description text-muted d-block text-truncate"><?= $ultimoDescripcion ? esc($ultimoDescripcion) : 'Sin movimientos recientes' ?></span>
             </div>
             <div class="group-card-minimal-balance">
                 <span class="group-card-minimal-balance-label">Total gastado</span>
