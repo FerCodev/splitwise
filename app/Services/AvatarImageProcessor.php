@@ -19,7 +19,7 @@ class AvatarImageProcessor
         $this->storage ??= new AvatarStorage($this->config);
     }
 
-    public function process(string $source, int $size): string
+    public function process(string $source, int $size, ?array $crop = null): string
     {
         if ($size <= 0 || $size > $this->config->maxBytes) {
             throw new RuntimeException('La imagen no puede superar 30 MB.');
@@ -51,7 +51,7 @@ class AvatarImageProcessor
                 $width = imagesx($image);
                 $height = imagesy($image);
             }
-            $output = $this->cropSquare($image, $width, $height);
+            $output = $this->cropSquare($image, $width, $height, $crop);
             $extension = function_exists('imagewebp') ? 'webp' : 'jpg';
             $this->storage->ensureDirectory();
             $filename = $this->storage->randomFilename($extension);
@@ -73,16 +73,27 @@ class AvatarImageProcessor
         }
     }
 
-    private function cropSquare($image, int $width, int $height)
+    private function cropSquare($image, int $width, int $height, ?array $crop = null)
     {
-        $side = min($width, $height);
-        $sourceX = (int) floor(($width - $side) / 2);
-        $sourceY = (int) floor(($height - $side) / 2);
+        if ($crop === null) {
+            $side = min($width, $height);
+            $sourceX = (float) (($width - $side) / 2);
+            $sourceY = (float) (($height - $side) / 2);
+        } else {
+            $sourceX = (float) ($crop['x'] ?? -1);
+            $sourceY = (float) ($crop['y'] ?? -1);
+            $side = (float) ($crop['size'] ?? 0);
+            if (!is_finite($sourceX) || !is_finite($sourceY) || !is_finite($side)
+                || $sourceX < 0 || $sourceY < 0 || $side < 1
+                || $sourceX + $side > $width + 0.5 || $sourceY + $side > $height + 0.5) {
+                throw new RuntimeException('El recorte seleccionado no es v&aacute;lido.');
+            }
+        }
         $size = $this->config->outputSize;
         $output = imagecreatetruecolor($size, $size);
         $white = imagecolorallocate($output, 255, 255, 255);
         imagefill($output, 0, 0, $white);
-        imagecopyresampled($output, $image, 0, 0, $sourceX, $sourceY, $size, $size, $side, $side);
+        imagecopyresampled($output, $image, 0, 0, (int) round($sourceX), (int) round($sourceY), $size, $size, (int) round($side), (int) round($side));
 
         return $output;
     }

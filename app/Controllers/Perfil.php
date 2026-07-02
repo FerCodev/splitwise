@@ -104,7 +104,8 @@ class Perfil extends BaseController
 
         $storage = new AvatarStorage();
         try {
-            $filename = (new AvatarImageProcessor($storage))->process($file->getTempName(), $file->getSize());
+            $crop = $this->avatarCropData();
+            $filename = (new AvatarImageProcessor($storage))->process($file->getTempName(), $file->getSize(), $crop);
             $now = date('Y-m-d H:i:s');
             $model = new User();
             $db = db_connect();
@@ -203,6 +204,25 @@ class Perfil extends BaseController
             ->where('viewer.user_id', $viewerId)
             ->where('target.user_id', $targetId)
             ->countAllResults() > 0;
+    }
+
+    private function avatarCropData(): ?array
+    {
+        $values = [
+            'x' => $this->request->getPost('crop_x'),
+            'y' => $this->request->getPost('crop_y'),
+            'size' => $this->request->getPost('crop_size'),
+        ];
+        if (in_array(null, $values, true) || in_array('', $values, true)) {
+            return null;
+        }
+        foreach ($values as $value) {
+            if (!is_numeric($value)) {
+                throw new RuntimeException('El recorte seleccionado no es v&aacute;lido.');
+            }
+        }
+
+        return array_map('floatval', $values);
     }
 
     private function avatarFallback(string $name)

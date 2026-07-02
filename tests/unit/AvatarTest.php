@@ -115,6 +115,45 @@ final class AvatarTest extends CIUnitTestCase
         }
     }
 
+    public function testCustomCropUsesRequestedSourceArea(): void
+    {
+        if (!extension_loaded('gd')) {
+            $this->markTestSkipped('GD no esta habilitado en este proceso.');
+        }
+        $source = $this->makeImage('jpeg', 400, 200);
+        try {
+            $filename = (new AvatarImageProcessor($this->storage, $this->config))
+                ->process($source, filesize($source), ['x' => 200, 'y' => 0, 'size' => 200]);
+            $output = imagecreatefromstring(file_get_contents($this->storage->pathFor($filename)));
+            $color = imagecolorat($output, 128, 128);
+            $rgb = imagecolorsforindex($output, $color);
+            imagedestroy($output);
+
+            $this->assertGreaterThan(170, $rgb['red']);
+            $this->assertLessThan(80, $rgb['blue']);
+        } finally {
+            @unlink($source);
+        }
+    }
+
+    public function testInvalidCustomCropIsRejectedWithoutResidue(): void
+    {
+        if (!extension_loaded('gd')) {
+            $this->markTestSkipped('GD no esta habilitado en este proceso.');
+        }
+        $source = $this->makeImage('jpeg', 400, 200);
+        try {
+            (new AvatarImageProcessor($this->storage, $this->config))
+                ->process($source, filesize($source), ['x' => 300, 'y' => 0, 'size' => 200]);
+            $this->fail('El recorte fuera de rango debio rechazarse.');
+        } catch (RuntimeException $e) {
+            $this->assertStringContainsString('recorte', $e->getMessage());
+            $this->assertSame([], glob($this->directory . DIRECTORY_SEPARATOR . '*') ?: []);
+        } finally {
+            @unlink($source);
+        }
+    }
+
     public function testOversizedFileIsRejectedBeforeDecode(): void
     {
         $path = tempnam(sys_get_temp_dir(), 'avatar-');
