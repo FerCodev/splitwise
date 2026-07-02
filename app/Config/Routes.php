@@ -91,4 +91,3 @@ $routes->post('/admin/catalogo-tarjetas/decision/limpiar', 'Admin::limpiarDecisi
 $routes->post('/admin/catalogo-tarjetas/curaduria', 'Admin::guardarCuraduria', ['filter' => ['auth', 'admin']]);
 $routes->post('/admin/catalogo-tarjetas/curaduria/limpiar', 'Admin::limpiarCuraduria', ['filter' => ['auth', 'admin']]);
 $routes->get('/admin/storage-test', 'Admin::storageTest', ['filter' => ['auth', 'admin']]);
-$routes->post('/admin/storage-test/write', 'Admin::storageWriteTest', ['filter' => ['auth', 'admin']]);
