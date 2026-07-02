@@ -15,8 +15,10 @@ final class ExternalStorageReadTest extends CIUnitTestCase
         $publicHtml = dirname(rtrim(ROOTPATH, DIRECTORY_SEPARATOR));
         $testFile = $publicHtml . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'gastito' . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'test.txt';
 
-        $this->assertStringEndsWith('test.txt', $testFile);
-        $this->assertStringNotContainsString('/public_html', $testFile);
+        $expectedSuffix = implode(DIRECTORY_SEPARATOR, ['storage', 'gastito', 'test', 'test.txt']);
+        $this->assertStringEndsWith($expectedSuffix, $testFile);
+
+        $this->assertStringStartsWith($publicHtml, $testFile);
     }
 
     public function testEmptyFileIsConsideredReadable(): void
