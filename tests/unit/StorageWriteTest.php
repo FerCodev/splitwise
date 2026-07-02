@@ -160,4 +160,27 @@ final class StorageWriteTest extends CIUnitTestCase
         $files = glob($this->tmpDir . DIRECTORY_SEPARATOR . 'gastito-write-test-*.tmp');
         $this->assertEmpty($files, 'No deben quedar archivos temporales');
     }
+    public function testEscrituraParcialReportaLimpiezaFinalReal(): void
+    {
+        $probe = new class extends Admin {
+            protected function writeStorageProbeContent($handle, string $content): int|false
+            {
+                return fwrite($handle, substr($content, 0, 1));
+            }
+
+            public function runProbe(string $directory): array
+            {
+                return $this->runStorageWriteProbe($directory);
+            }
+        };
+
+        $result = $probe->runProbe($this->tmpDir);
+
+        $this->assertTrue($result['fileCreated']);
+        $this->assertFalse($result['writeOk']);
+        $this->assertTrue($result['fileDeleted']);
+        $this->assertFalse($result['residue']);
+        $this->assertStringContainsString('escribir', $result['statusText']);
+        $this->assertEmpty(glob($this->tmpDir . DIRECTORY_SEPARATOR . 'gastito-write-test-*.tmp'));
+    }
 }

@@ -398,24 +398,19 @@ class Admin extends BaseController
 
         try {
             $handle = @fopen($path, 'x');
-            if (!$handle) {
-                return $this->writeResultArray(true, true, false, false, false, false, false, null, null, 'No se pudo crear el archivo temporal.');
+            if ($handle) {
+                $fileCreated = true;
+                $sizeWritten = $this->writeStorageProbeContent($handle, $content);
+                @fclose($handle);
+                $handle = null;
+                $writeOk = $sizeWritten === strlen($content);
+
+                if ($writeOk) {
+                    $readBack = @file_get_contents($path);
+                    $readOk = $readBack === $content;
+                    $hashMatch = $readOk && hash('sha256', (string) $readBack) === hash('sha256', $content);
+                }
             }
-            $fileCreated = true;
-
-            $sizeWritten = @fwrite($handle, $content);
-            @fclose($handle);
-            $handle = null;
-            $writeOk = $sizeWritten === strlen($content);
-
-            if (!$writeOk) {
-                return $this->writeResultArray(true, true, true, false, false, false, false, $sizeWritten, null, 'Error controlado.');
-            }
-
-            $readBack = @file_get_contents($path);
-            $readOk = $readBack === $content;
-            $hashMatch = $readOk && hash('sha256', (string) $readBack) === hash('sha256', $content);
-
         } finally {
             if ($handle) {
                 @fclose($handle);
@@ -426,11 +421,23 @@ class Admin extends BaseController
         }
 
         $residue = @file_exists($path);
-        $statusText = ($fileDeleted && $residue === false)
-            ? 'Prueba completada correctamente.'
-            : ($readOk && !$fileDeleted ? 'No se pudo eliminar el archivo.' : 'Error controlado.');
+        $allOk = $fileCreated && $writeOk && $readOk && $hashMatch && $fileDeleted && $residue === false;
+        $statusText = match (true) {
+            $allOk => 'Prueba completada correctamente.',
+            !$fileCreated => 'No se pudo crear el archivo temporal.',
+            !$writeOk => 'No se pudo escribir el archivo completo.',
+            !$readOk => 'La lectura no coincide.',
+            !$hashMatch => 'El hash no coincide.',
+            !$fileDeleted || $residue => 'No se pudo eliminar el archivo.',
+            default => 'Error controlado.',
+        };
 
-        return $this->writeResultArray(true, true, true, $writeOk, $readOk, $hashMatch, $fileDeleted, $sizeWritten, $residue, $statusText);
+        return $this->writeResultArray(true, true, $fileCreated, $writeOk, $readOk, $hashMatch, $fileDeleted, $sizeWritten, $residue, $statusText);
+    }
+
+    protected function writeStorageProbeContent($handle, string $content): int|false
+    {
+        return @fwrite($handle, $content);
     }
 
     private function writeResultArray(
