@@ -97,7 +97,7 @@ class Perfil extends BaseController
         $file = $this->request->getFile('avatar');
         if (!$file || $file->getError() !== UPLOAD_ERR_OK || !$file->isValid()) {
             $message = $file && $file->getError() === UPLOAD_ERR_INI_SIZE
-                ? 'La imagen no puede superar 5 MB.'
+                ? 'La imagen no puede superar 30 MB.'
                 : 'No se pudo recibir la imagen.';
             return redirect()->back()->with('error', $message);
         }

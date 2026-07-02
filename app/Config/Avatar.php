@@ -7,7 +7,7 @@ use CodeIgniter\Config\BaseConfig;
 class Avatar extends BaseConfig
 {
     public string $directory;
-    public int $maxBytes = 5242880;
+    public int $maxBytes = 30 * 1024 * 1024;
     public int $maxDimension = 8000;
     public int $maxPixels = 40000000;
     public int $outputSize = 256;

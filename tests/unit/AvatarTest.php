@@ -120,7 +120,7 @@ final class AvatarTest extends CIUnitTestCase
         $path = tempnam(sys_get_temp_dir(), 'avatar-');
         file_put_contents($path, 'x');
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('5 MB');
+        $this->expectExceptionMessage('30 MB');
         try {
             (new AvatarImageProcessor($this->storage, $this->config))->process($path, $this->config->maxBytes + 1);
         } finally {

@@ -22,7 +22,7 @@ class AvatarImageProcessor
     public function process(string $source, int $size): string
     {
         if ($size <= 0 || $size > $this->config->maxBytes) {
-            throw new RuntimeException('La imagen no puede superar 5 MB.');
+            throw new RuntimeException('La imagen no puede superar 30 MB.');
         }
         if (!extension_loaded('gd')) {
             throw new RuntimeException('No se pudo procesar la imagen.');

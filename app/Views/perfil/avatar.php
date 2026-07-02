@@ -22,7 +22,7 @@
                     <img id="avatar-preview" class="avatar-preview" alt="Vista previa de la foto seleccionada">
                 </div>
                 <button type="submit" class="btn btn-success w-100 mt-3 d-none" id="avatar-submit">Guardar foto</button>
-                <div class="text-muted small mt-2">JPG, PNG o WebP. M&aacute;ximo 5 MB.</div>
+                <div class="text-muted small mt-2">JPG, PNG o WebP. M&aacute;ximo 30 MB.</div>
             </form>
             <?php if (!empty($user['avatar_filename'])): ?>
                 <form action="<?= base_url('perfil/avatar/eliminar') ?>" method="post" class="mt-3" onsubmit="return confirm('Eliminar tu foto de perfil?')">
@@ -45,8 +45,8 @@
     input.addEventListener('change', function () {
         const file = input.files && input.files[0];
         if (!file) return;
-        if (file.size > 5 * 1024 * 1024) {
-            alert('La imagen no puede superar 5 MB.');
+        if (file.size > 30 * 1024 * 1024) {
+            alert('La imagen no puede superar 30 MB.');
             input.value = '';
             return;
         }
