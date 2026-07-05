@@ -19,7 +19,7 @@ class NotificationOutbox extends Model
     const STATUS_RETRY = 'retry';
     const STATUS_FAILED = 'failed';
 
-    const MAX_ATTEMPTS = 5;
+    const MAX_ATTEMPTS = 100;
     const ORPHAN_TIMEOUT_MINUTES = 10;
 
     public function getPendingJobs(int $limit = 50): array
@@ -85,6 +85,15 @@ class NotificationOutbox extends Model
 
         return $this->update($id, [
             'status' => $status,
+            'available_at' => $availableAt,
+            'last_error' => mb_substr($errorCode, 0, 500),
+        ]);
+    }
+
+    public function scheduleRetry(int $id, string $errorCode, string $availableAt): bool
+    {
+        return $this->update($id, [
+            'status' => self::STATUS_RETRY,
             'available_at' => $availableAt,
             'last_error' => mb_substr($errorCode, 0, 500),
         ]);

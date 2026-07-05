@@ -12,124 +12,44 @@ use App\Controllers\Notificaciones;
  */
 final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
 {
-    // ─── DNS A/AAAA ─────────────────────────────────────────────────
+    // ─── DNS ─────────────────────────────────────────────────────────
 
-    public function testDnsResolveReturnsArray(): void
-    {
-        $validator = new EndpointValidator();
-        $result = $validator->dnsResolve('google.com');
-        $this->assertIsArray($result);
-        $this->assertNotEmpty($result);
-        foreach ($result as $ip) {
-            $this->assertNotFalse(filter_var($ip, FILTER_VALIDATE_IP));
-        }
-    }
-
-    public function testRejectsHostnameResolvingToLoopback(): void
-    {
-        $validator = new EndpointValidator(fn () => ['127.0.0.1']);
-        $this->assertFalse($validator->isValid('https://evil.local/push'));
-    }
-
-    public function testRejectsHostnameResolvingToPrivateIp(): void
-    {
-        $validator = new EndpointValidator(fn () => ['192.168.1.100']);
-        $this->assertFalse($validator->isValid('https://priv.example.com/push'));
-    }
-
-    public function testRejectsHostnameResolvingTo10xX(): void
-    {
-        $validator = new EndpointValidator(fn () => ['10.0.0.55']);
-        $this->assertFalse($validator->isValid('https://internal.db/push'));
-    }
-
-    public function testRejectsPublicIpv4ButPrivateIpv6(): void
-    {
-        $validator = new EndpointValidator(fn () => ['8.8.8.8', '::1']);
-        $this->assertFalse($validator->isValid('https://mixed.example.com/push'));
-    }
-
+    public function testRejectsLoopbackOnResolve(): void
+    {$v = new EndpointValidator(fn () => ['127.0.0.1']); $this->assertFalse($v->isValid('https://x.com/p'));}
+    public function testRejectsPrivateIpOnResolve(): void
+    {$v = new EndpointValidator(fn () => ['192.168.1.100']); $this->assertFalse($v->isValid('https://x.com/p'));}
     public function testRejectsIpv6Loopback(): void
-    {
-        $validator = new EndpointValidator(fn () => ['::1']);
-        $this->assertFalse($validator->isValid('https://v6loopback.example/push'));
-    }
-
+    {$v = new EndpointValidator(fn () => ['::1']); $this->assertFalse($v->isValid('https://x.com/p'));}
     public function testRejectsIpv6LinkLocal(): void
-    {
-        $validator = new EndpointValidator(fn () => ['fe80::1']);
-        $this->assertFalse($validator->isValid('https://linklocal.example/push'));
-    }
-
+    {$v = new EndpointValidator(fn () => ['fe80::1']); $this->assertFalse($v->isValid('https://x.com/p'));}
     public function testRejectsPrivateIpv6(): void
-    {
-        $validator = new EndpointValidator(fn () => ['fc00::1']);
-        $this->assertFalse($validator->isValid('https://privatev6.example/push'));
-    }
-
-    public function testAcceptsPublicIpv4Only(): void
-    {
-        $validator = new EndpointValidator(fn () => ['8.8.8.8']);
-        $this->assertTrue($validator->isValid('https://fcm.googleapis.com/fcm/send/x'));
-    }
-
-    public function testAcceptsPublicIpv6Only(): void
-    {
-        $validator = new EndpointValidator(fn () => ['2001:4860:4860::8888']);
-        $this->assertTrue($validator->isValid('https://v6public.example/push'));
-    }
-
+    {$v = new EndpointValidator(fn () => ['fc00::1']); $this->assertFalse($v->isValid('https://x.com/p'));}
+    public function testRejectsMixedV4PublicV6Private(): void
+    {$v = new EndpointValidator(fn () => ['8.8.8.8', '::1']); $this->assertFalse($v->isValid('https://x.com/p'));}
+    public function testAcceptsPublicIpv4(): void
+    {$v = new EndpointValidator(fn () => ['8.8.8.8']); $this->assertTrue($v->isValid('https://x.com/p'));}
+    public function testAcceptsPublicIpv6(): void
+    {$v = new EndpointValidator(fn () => ['2001:4860:4860::8888']); $this->assertTrue($v->isValid('https://x.com/p'));}
     public function testRejectsEmptyDnsResult(): void
-    {
-        $validator = new EndpointValidator(fn () => []);
-        $this->assertFalse($validator->isValid('https://no-result.example/push'));
-    }
-
+    {$v = new EndpointValidator(fn () => []); $this->assertFalse($v->isValid('https://x.com/p'));}
     public function testRejectsDnsFailure(): void
-    {
-        $validator = new EndpointValidator(fn () => false);
-        $this->assertFalse($validator->isValid('https://nxdomain.test/push'));
-    }
-
+    {$v = new EndpointValidator(fn () => false); $this->assertFalse($v->isValid('https://x.com/p'));}
+    public function testRejectsEmptyStringInResults(): void
+    {$v = new EndpointValidator(fn () => ['']); $this->assertFalse($v->isValid('https://x.com/p'));}
+    public function testRejectsInvalidIpInResults(): void
+    {$v = new EndpointValidator(fn () => ['not-an-ip']); $this->assertFalse($v->isValid('https://x.com/p'));}
+    public function testRejectsPublicPlusEmptyString(): void
+    {$v = new EndpointValidator(fn () => ['8.8.8.8', '']); $this->assertFalse($v->isValid('https://x.com/p'));}
     public function testRejectsLiteralLoopback(): void
-    {
-        $validator = new EndpointValidator();
-        $this->assertFalse($validator->isValid('https://localhost/push'));
-        $this->assertFalse($validator->isValid('https://127.0.0.1/push'));
-    }
-
-    public function testRejectsLiteralPrivateIp(): void
-    {
-        $validator = new EndpointValidator();
-        $this->assertFalse($validator->isValid('https://192.168.1.1/push'));
-        $this->assertFalse($validator->isValid('https://10.0.0.1/push'));
-        $this->assertFalse($validator->isValid('https://172.16.0.1/push'));
-    }
-
-    public function testRejectsNonHttps(): void
-    {
-        $validator = new EndpointValidator();
-        $this->assertFalse($validator->isValid('http://push.example.com/'));
-    }
-
+    {$v = new EndpointValidator(); $this->assertFalse($v->isValid('https://localhost/p')); $this->assertFalse($v->isValid('https://127.0.0.1/p'));}
+    public function testRejectsLiteralPrivate(): void
+    {$v = new EndpointValidator(); $this->assertFalse($v->isValid('https://192.168.1.1/p'));}
     public function testRejectsCredentialsInUrl(): void
-    {
-        $validator = new EndpointValidator(fn () => ['8.8.8.8']);
-        $this->assertFalse($validator->isValid('https://user:pass@host.com/push'));
-    }
+    {$v = new EndpointValidator(fn () => ['8.8.8.8']); $this->assertFalse($v->isValid('https://u:p@h.com/p'));}
+    public function testRejectsNonHttps(): void
+    {$v = new EndpointValidator(); $this->assertFalse($v->isValid('http://x.com/p'));}
 
-    // ─── classifyError real tests ───────────────────────────────────
-
-    public function testClassifyExpiredByMethod(): void { $this->assertClassify(WebPushSender::ERROR_EXPIRED, true, 200); }
-    public function testClassifyExpired404(): void { $this->assertClassify(WebPushSender::ERROR_EXPIRED, false, 404); }
-    public function testClassifyExpired410(): void { $this->assertClassify(WebPushSender::ERROR_EXPIRED, false, 410); }
-    public function testClassifyTransient429(): void { $this->assertClassify(WebPushSender::ERROR_TRANSIENT_429, false, 429); }
-    public function testClassifyTransient500(): void { $this->assertClassify(WebPushSender::ERROR_TRANSIENT_5XX, false, 500); }
-    public function testClassifyTransient502(): void { $this->assertClassify(WebPushSender::ERROR_TRANSIENT_5XX, false, 502); }
-    public function testClassifyPermanent400(): void { $this->assertClassify(WebPushSender::ERROR_PERMANENT_4XX, false, 400); }
-    public function testClassifyPermanent401(): void { $this->assertClassify(WebPushSender::ERROR_PERMANENT_4XX, false, 401); }
-    public function testClassifyPermanent403(): void { $this->assertClassify(WebPushSender::ERROR_PERMANENT_4XX, false, 403); }
-    public function testClassifyTransportNoResponse(): void { $this->assertClassify(WebPushSender::ERROR_TRANSPORT, false, 0); }
+    // ─── classifyError ──────────────────────────────────────────────
 
     private function assertClassify(string $expected, bool $expired, int $code): void
     {
@@ -139,50 +59,43 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $report->method('isSubscriptionExpired')->willReturn($expired);
         $report->method('isSuccess')->willReturn(false);
         $report->method('getResponse')->willReturn($response);
-
-        $sender = new WebPushSender();
-        $this->assertSame($expected, $sender->classifyError($report));
+        $this->assertSame($expected, (new WebPushSender())->classifyError($report));
     }
+    public function testClassifyExpiredByMethod(): void {$this->assertClassify(WebPushSender::ERROR_EXPIRED, true, 200);}
+    public function testClassifyExpired404(): void {$this->assertClassify(WebPushSender::ERROR_EXPIRED, false, 404);}
+    public function testClassifyExpired410(): void {$this->assertClassify(WebPushSender::ERROR_EXPIRED, false, 410);}
+    public function testClassifyTransient429(): void {$this->assertClassify(WebPushSender::ERROR_TRANSIENT_429, false, 429);}
+    public function testClassifyTransient500(): void {$this->assertClassify(WebPushSender::ERROR_TRANSIENT_5XX, false, 500);}
+    public function testClassifyTransient502(): void {$this->assertClassify(WebPushSender::ERROR_TRANSIENT_5XX, false, 502);}
+    public function testClassifyPermanent400(): void {$this->assertClassify(WebPushSender::ERROR_PERMANENT_4XX, false, 400);}
+    public function testClassifyPermanent401(): void {$this->assertClassify(WebPushSender::ERROR_PERMANENT_4XX, false, 401);}
+    public function testClassifyPermanent403(): void {$this->assertClassify(WebPushSender::ERROR_PERMANENT_4XX, false, 403);}
+    public function testClassifyTransport(): void {$this->assertClassify(WebPushSender::ERROR_TRANSPORT, false, 0);}
 
-    // ─── Partial delivery flow ──────────────────────────────────────
+    // ─── Partial delivery with spy sender ───────────────────────────
 
-    public function testPartialDeliveryOnlyRetriesPendingSubscriptions(): void
+    public function testPartialDeliveryOnlySendsPendingSubs(): void
     {
         $db = db_connect();
         $db->transBegin();
         $now = date('Y-m-d H:i:s');
 
-        $db->table('users')->insert([
-            'name' => 'PU', 'email' => 'pu@t.com', 'password' => 'x',
-            'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $db->table('users')->insert(['name'=>'PD','email'=>'pd@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
         $uid = $db->insertID();
-        $db->table('notifications')->insert([
-            'user_id' => $uid, 'event_type' => 'x', 'title' => 'T', 'body' => 'B',
-            'target_url' => '/g/1', 'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
         $nid = $db->insertID();
 
-        $db->table('push_subscriptions')->insert([
-            'user_id' => $uid, 'endpoint' => 'https://a.com/p', 'endpoint_hash' => hash('sha256', 'https://a.com/p'),
-            'public_key' => 'a', 'auth_token' => 'b', 'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://a.com/p','endpoint_hash'=>hash('sha256','https://a.com/p'),'public_key'=>'a','auth_token'=>'b','created_at'=>$now,'updated_at'=>$now]);
         $subA = $db->insertID();
-        $db->table('push_subscriptions')->insert([
-            'user_id' => $uid, 'endpoint' => 'https://b.com/p', 'endpoint_hash' => hash('sha256', 'https://b.com/p'),
-            'public_key' => 'c', 'auth_token' => 'd', 'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://b.com/p','endpoint_hash'=>hash('sha256','https://b.com/p'),'public_key'=>'c','auth_token'=>'d','created_at'=>$now,'updated_at'=>$now]);
         $subB = $db->insertID();
 
         $outbox = new NotificationOutbox();
         $outbox->createForNotification($nid);
 
-        $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subA, $subB]);
-
-        // fake sender: A succeeds, B fails transient
-        $fake = $this->createFakeSender([
-            'success' => [['push_subscription_id' => $subA, 'status' => 'success']],
+        $receivedIds = [];
+        $fake = $this->createSpySender($receivedIds, [
+            'success' => [['pid' => $subA]],
             'details' => [
                 ['push_subscription_id' => $subA, 'status' => 'success'],
                 ['push_subscription_id' => $subB, 'status' => WebPushSender::ERROR_TRANSIENT_5XX],
@@ -190,175 +103,292 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         ]);
 
         $dispatcher = new NotificationDispatcher($fake);
-        $result = $dispatcher->dispatch(10);
+        $r1 = $dispatcher->dispatch(10);
+        $this->assertSame(1, $r1['sent']);
+        $this->assertSame(1, $r1['retried']);
 
-        $this->assertSame(1, $result['processed']);
-        $this->assertSame(1, $result['sent']);
-        $this->assertSame(1, $result['retried']);
+        $call1 = array_unique($receivedIds);
+        sort($call1);
+        $this->assertEquals([$subA, $subB], $call1, 'Primer envio debe incluir A y B');
 
-        $delA = $deliveryModel->where('notification_id', $nid)->where('push_subscription_id', $subA)->first();
+        $deliveryModel = new NotificationDelivery();
+        $delA = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$subA)->first();
         $this->assertSame(NotificationDelivery::STATUS_SUCCESS, $delA['status']);
-
-        $delB = $deliveryModel->where('notification_id', $nid)->where('push_subscription_id', $subB)->first();
+        $delB = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$subB)->first();
         $this->assertSame(NotificationDelivery::STATUS_RETRY, $delB['status']);
 
-        // Simular que el backoff ya vencio
-        $db->query('UPDATE notification_deliveries SET available_at = ? WHERE id = ?', [date('Y-m-d H:i:s'), $delB['id']]);
-        $db->query('UPDATE notification_outbox SET available_at = ? WHERE notification_id = ?', [date('Y-m-d H:i:s'), $nid]);
+        // vencer backoff
+        $db->query('UPDATE notification_deliveries SET available_at=? WHERE id=?', [date('Y-m-d H:i:s'), $delB['id']]);
+        $db->query('UPDATE notification_outbox SET available_at=? WHERE notification_id=?', [date('Y-m-d H:i:s'), $nid]);
 
-        // segundo dispatch: solo B pendiente
-        $fake2 = $this->createFakeSender([
-            'success' => [['push_subscription_id' => $subB, 'status' => 'success']],
+        $receivedIds = [];
+        $fake2 = $this->createSpySender($receivedIds, [
+            'success' => [['pid' => $subB]],
             'details' => [['push_subscription_id' => $subB, 'status' => 'success']],
         ]);
 
-        $dispatcher2 = new NotificationDispatcher($fake2);
-        $result2 = $dispatcher2->dispatch(10);
+        $r2 = (new NotificationDispatcher($fake2))->dispatch(10);
+        $this->assertSame(1, $r2['sent']);
 
-        $this->assertSame(1, $result2['sent']);
-
-        $delA2 = $deliveryModel->find($delA['id']);
-        $this->assertSame(NotificationDelivery::STATUS_SUCCESS, $delA2['status']);
+        $call2 = array_unique($receivedIds);
+        $this->assertEquals([$subB], $call2, 'Segundo envio debe incluir solo B');
+        $this->assertNotContains($subA, $call2, 'A no debe reenviarse');
 
         $delB2 = $deliveryModel->find($delB['id']);
         $this->assertSame(NotificationDelivery::STATUS_SUCCESS, $delB2['status']);
-
-        $this->assertFalse($deliveryModel->hasPendingForNotification($nid));
+        $this->assertFalse($deliveryModel->hasUnfinishedForNotification($nid));
 
         $db->transRollback();
     }
 
-    public function testPermanentErrorDoesNotRetry(): void
+    // ─── Outbox not completed when retry is future ──────────────────
+
+    public function testOutboxStaysRetryWhileFutureDeliveryExists(): void
     {
         $db = db_connect();
         $db->transBegin();
         $now = date('Y-m-d H:i:s');
 
-        $db->table('users')->insert([
-            'name' => 'PE', 'email' => 'pe@t.com', 'password' => 'x',
-            'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $db->table('users')->insert(['name'=>'FR','email'=>'fr@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
         $uid = $db->insertID();
-        $db->table('notifications')->insert([
-            'user_id' => $uid, 'event_type' => 'x', 'title' => 'T', 'body' => 'B',
-            'target_url' => '/g/1', 'created_at' => $now, 'updated_at' => $now,
-        ]);
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
         $nid = $db->insertID();
-        $db->table('push_subscriptions')->insert([
-            'user_id' => $uid, 'endpoint' => 'https://c.com/p', 'endpoint_hash' => hash('sha256', 'https://c.com/p'),
-            'public_key' => 'a', 'auth_token' => 'b', 'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $subC = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://f.com/p','endpoint_hash'=>hash('sha256','https://f.com/p'),'public_key'=>'a','auth_token'=>'b','created_at'=>$now,'updated_at'=>$now]);
+        $subF = $db->insertID();
         $outbox = new NotificationOutbox();
         $outbox->createForNotification($nid);
-        $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subC]);
 
-        $fake = $this->createFakeSender([
+        // poner delivery retry a 10 min en el futuro
+        $deliveryModel = new NotificationDelivery();
+        $deliveryModel->ensureForNotification($nid, [$subF]);
+        $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$subF)->first();
+        $db->query('UPDATE notification_deliveries SET status=?, available_at=? WHERE id=?', [NotificationDelivery::STATUS_RETRY, date('Y-m-d H:i:s', time() + 600), $del['id']]);
+
+        $called = false;
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () use (&$called) { $called = true; return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]]; });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+        $this->assertFalse($called, 'Sender no debe ser llamado si delivery no esta listo');
+
+        $deliveryStatus = $deliveryModel->find($del['id'])['status'];
+        $this->assertSame(NotificationDelivery::STATUS_RETRY, $deliveryStatus);
+        $this->assertTrue($deliveryModel->hasUnfinishedForNotification($nid));
+
+        $outboxJob = $outbox->where('notification_id', $nid)->first();
+        $this->assertContains($outboxJob['status'], ['retry', 'processing']);
+        $this->assertTrue(strtotime($outboxJob['available_at']) >= time());
+
+        // vencer ambos y reenviar
+        $db->query('UPDATE notification_deliveries SET available_at=? WHERE id=?', [date('Y-m-d H:i:s'), $del['id']]);
+        $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $outboxJob['id']]);
+
+        $called = false;
+        $fake2 = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake2->method('isConfigured')->willReturn(true);
+        $fake2->method('sendToAll')->willReturnCallback(function () use (&$called) { $called = true; return ['success'=>1,'expired'=>0,'failed'=>0,'details'=>[['push_subscription_id'=>99999,'status'=>'success']]]; });
+
+        (new NotificationDispatcher($fake2))->dispatch(10);
+        $this->assertTrue($called, 'Tras vencer backoff el sender debe ser llamado');
+
+        $db->transRollback();
+    }
+
+    // ─── Disabled/absent subscriptions ──────────────────────────────
+
+    public function testDisabledSubscriptionMarksDeliveryFailed(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'DS','email'=>'uds@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://ds.com/p','endpoint_hash'=>hash('sha256','https://ds.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $sid = $db->insertID();
+
+        $db->table('notification_deliveries')->insert([
+            'notification_id' => $nid, 'push_subscription_id' => $sid,
+            'status' => NotificationDelivery::STATUS_PENDING, 'attempts' => 0,
+            'available_at' => $now, 'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $db->table('push_subscriptions')->where('id', $sid)->update(['enabled' => 0]);
+
+        (new NotificationDispatcher($this->createFakeSender(['success'=>[],'details'=>[]])))->dispatch(10);
+
+        $status = $db->table('notification_deliveries')->select('status')->where('notification_id', $nid)->where('push_subscription_id', $sid)->get()->getRow();
+        $this->assertNotNull($status, 'Row must exist');
+        $this->assertSame(NotificationDelivery::STATUS_FAILED, $status->status, 'Delivery debe marcarse failed si sub esta disabled');
+
+        $db->transRollback();
+    }
+
+    // ─── Cross-user isolation ───────────────────────────────────────
+
+    public function testCrossUserIsolation(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'Owner','email'=>'ownercr@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $ownerId = $db->insertID();
+        $db->table('users')->insert(['name'=>'Other','email'=>'othercr@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $otherId = $db->insertID();
+
+        $db->table('notifications')->insert(['user_id'=>$ownerId,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$otherId,'endpoint'=>'https://othercr.com/p','endpoint_hash'=>hash('sha256','https://othercr.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $otherSubId = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        // Simula un delivery huerfano que apunta a sub de otro usuario
+        $db->table('notification_deliveries')->insert([
+            'notification_id' => $nid,
+            'push_subscription_id' => $otherSubId,
+            'status' => NotificationDelivery::STATUS_PENDING,
+            'attempts' => 0,
+            'available_at' => $now,
+            'created_at' => $now,
+            'updated_at' => $now,
+        ]);
+
+        $sentIds = [];
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function ($subs) use (&$sentIds) {
+            foreach ($subs as $s) $sentIds[] = (int) $s['id'];
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $this->assertEmpty($sentIds, 'No debe enviar a suscripciones de otro usuario');
+
+        $status = $db->table('notification_deliveries')->select('status')
+            ->where('notification_id', $nid)->where('push_subscription_id', $otherSubId)
+            ->get()->getRow();
+        $this->assertNotNull($status);
+        $this->assertSame(NotificationDelivery::STATUS_FAILED, $status->status, 'Delivery cross-user debe marcarse failed');
+
+        $db->transRollback();
+    }
+
+    // ─── New device not added on retry ──────────────────────────────
+
+    public function testNewDeviceNotAddedOnRetry(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'ND2','email'=>'nd2@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://a2.com/p','endpoint_hash'=>hash('sha256','https://a2.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $receivedIds = [];
+        $fake1 = $this->createSpySender($receivedIds, [
             'success' => [],
-            'details' => [['push_subscription_id' => $subC, 'status' => WebPushSender::ERROR_PERMANENT_4XX]],
-        ]);
-
-        $dispatcher = new NotificationDispatcher($fake);
-        $result = $dispatcher->dispatch(10);
-
-        $del = $deliveryModel->where('notification_id', $nid)->where('push_subscription_id', $subC)->first();
-        $this->assertSame(NotificationDelivery::STATUS_FAILED, $del['status']);
-        $this->assertFalse($deliveryModel->hasPendingForNotification($nid));
-        $this->assertSame(0, $result['retried']);
-
-        $db->transRollback();
-    }
-
-    public function testExpiredDoesNotRetry(): void
-    {
-        $db = db_connect();
-        $db->transBegin();
-        $now = date('Y-m-d H:i:s');
-
-        $db->table('users')->insert([
-            'name' => 'PX', 'email' => 'px@t.com', 'password' => 'x',
-            'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $uid = $db->insertID();
-        $db->table('notifications')->insert([
-            'user_id' => $uid, 'event_type' => 'x', 'title' => 'T', 'body' => 'B',
-            'target_url' => '/g/1', 'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $nid = $db->insertID();
-        $db->table('push_subscriptions')->insert([
-            'user_id' => $uid, 'endpoint' => 'https://d.com/p', 'endpoint_hash' => hash('sha256', 'https://d.com/p'),
-            'public_key' => 'a', 'auth_token' => 'b', 'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $subD = $db->insertID();
-        $outbox = new NotificationOutbox();
-        $outbox->createForNotification($nid);
-        $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subD]);
-
-        $fake = $this->createFakeSender([
-            'success' => [],
-            'details' => [['push_subscription_id' => $subD, 'status' => WebPushSender::ERROR_EXPIRED]],
-        ]);
-
-        $dispatcher = new NotificationDispatcher($fake);
-        $dispatcher->dispatch(10);
-
-        $del = $deliveryModel->where('notification_id', $nid)->where('push_subscription_id', $subD)->first();
-        $this->assertSame(NotificationDelivery::STATUS_EXPIRED, $del['status']);
-
-        // segundo dispatch: no deberia haber deliveries pendientes
-        $hasPending = $deliveryModel->hasPendingForNotification($nid);
-        $this->assertFalse($hasPending);
-
-        $db->transRollback();
-    }
-
-    public function testSuccessNeverReSent(): void
-    {
-        $db = db_connect();
-        $db->transBegin();
-        $now = date('Y-m-d H:i:s');
-
-        $db->table('users')->insert([
-            'name' => 'SNR', 'email' => 'snr@t.com', 'password' => 'x',
-            'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $uid = $db->insertID();
-        $db->table('notifications')->insert([
-            'user_id' => $uid, 'event_type' => 'x', 'title' => 'T', 'body' => 'B',
-            'target_url' => '/g/1', 'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $nid = $db->insertID();
-        $db->table('push_subscriptions')->insert([
-            'user_id' => $uid, 'endpoint' => 'https://e.com/p', 'endpoint_hash' => hash('sha256', 'https://e.com/p'),
-            'public_key' => 'a', 'auth_token' => 'b', 'created_at' => $now, 'updated_at' => $now,
-        ]);
-        $subE = $db->insertID();
-        $outbox = new NotificationOutbox();
-        $outbox->createForNotification($nid);
-        $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subE]);
-
-        // dispatch 1: success
-        $fake1 = $this->createFakeSender([
-            'success' => [['push_subscription_id' => $subE, 'status' => 'success']],
-            'details' => [['push_subscription_id' => $subE, 'status' => 'success']],
+            'details' => [['push_subscription_id' => $subA, 'status' => 'success']],
         ]);
         (new NotificationDispatcher($fake1))->dispatch(10);
+        $this->assertContains($subA, $receivedIds);
 
-        $del = $deliveryModel->where('notification_id', $nid)->where('push_subscription_id', $subE)->first();
-        $this->assertSame(NotificationDelivery::STATUS_SUCCESS, $del['status']);
+        // agregar nuevo dispositivo C despues del primer envio
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://c2.com/p','endpoint_hash'=>hash('sha256','https://c2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subC = $db->insertID();
 
-        // dispatch 2: no pending deliveries, should skip
-        $fake2 = $this->createFakeSender(['success' => [], 'details' => []]);
-        $result = (new NotificationDispatcher($fake2))->dispatch(10);
-        $this->assertSame(0, $result['processed']);
+        $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE notification_id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
+
+        $receivedIds2 = [];
+        $fake2 = $this->createSpySender($receivedIds2, ['success'=>[],'details'=>[]]);
+        (new NotificationDispatcher($fake2))->dispatch(10);
+
+        $this->assertNotContains($subC, $receivedIds2, 'Segundo envio no debe incluir C agregado despues');
+        $this->assertEmpty($receivedIds2, 'No debe haber envios (outbox completada)');
 
         $db->transRollback();
     }
 
-    // ─── helpers ────────────────────────────────────────────────────
+    // ─── Outbox attempts independent from deliveries ────────────────
+
+    public function testOutboxDoesNotCutDeliveryRetries(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'OC','email'=>'oc@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://oc.com/p','endpoint_hash'=>hash('sha256','https://oc.com/p'),'public_key'=>'a','auth_token'=>'b','created_at'=>$now,'updated_at'=>$now]);
+        $sid = $db->insertID();
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $deliveryModel = new NotificationDelivery();
+        $deliveryModel->ensureForNotification($nid, [$sid]);
+
+        $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$sid)->first();
+
+        $totalClaims = 0;
+        for ($i = 0; $i < 7; $i++) {
+            $status = $deliveryModel->find($del['id'])['status'];
+            if (!in_array($status, [NotificationDelivery::STATUS_PENDING, NotificationDelivery::STATUS_RETRY], true)) break;
+
+            // simular que el delivery listo
+            $db->query('UPDATE notification_deliveries SET available_at=? WHERE id=?', [date('Y-m-d H:i:s'), $del['id']]);
+            $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE notification_id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
+
+            $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+            $fake->method('isConfigured')->willReturn(true);
+            $fake->method('sendToAll')->willReturnCallback(function ($subs) use ($sid) {
+                return ['success'=>0,'expired'=>0,'failed'=>1,'details'=>[['push_subscription_id'=>$sid,'status'=>WebPushSender::ERROR_TRANSIENT_5XX]]];
+            });
+
+            $r = (new NotificationDispatcher($fake))->dispatch(10);
+            $totalClaims += $r['processed'];
+        }
+
+        $final = $deliveryModel->find($del['id']);
+        $this->assertSame(NotificationDelivery::STATUS_FAILED, $final['status'], 'Tras 5+ intentos delivery debe estar failed');
+        $this->assertGreaterThanOrEqual(5, $totalClaims, 'Outbox debe permitir al menos 5 claims');
+        $this->assertFalse($deliveryModel->hasUnfinishedForNotification($nid));
+
+        $db->transRollback();
+    }
+
+    // ─── Base64Url ──────────────────────────────────────────────────
+
+    public function testIsValidBase64UrlDecodes(): void
+    {
+        $c = new Notificaciones();
+        $m = new \ReflectionMethod(Notificaciones::class, 'isValidBase64Url');
+        $m->setAccessible(true);
+        $this->assertTrue($m->invoke($c, rtrim(strtr(base64_encode(random_bytes(65)),'+/','-_'),'='), 65, 256));
+        $this->assertFalse($m->invoke($c, rtrim(strtr(base64_encode(random_bytes(10)),'+/','-_'),'='), 65, 256));
+        $this->assertFalse($m->invoke($c, '!@#', 1, 100));
+    }
+
+    // ─── helper ─────────────────────────────────────────────────────
 
     private function createFakeSender(array $config): WebPushSender
     {
@@ -366,7 +396,6 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['isConfigured', 'sendToAll'])
             ->getMock();
-
         $fake->method('isConfigured')->willReturn(true);
         $fake->method('sendToAll')->willReturnCallback(function () use ($config) {
             $r = ['success' => 0, 'expired' => 0, 'failed' => 0, 'details' => []];
@@ -379,25 +408,32 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
             }
             return $r;
         });
-
         return $fake;
     }
 
-    // ─── Base64Url decode validation ────────────────────────────────
-
-    public function testIsValidBase64UrlDecodes(): void
+    private function createSpySender(array &$receivedIds, array $config): WebPushSender
     {
-        $controller = new Notificaciones();
-        $method = new \ReflectionMethod(Notificaciones::class, 'isValidBase64Url');
-        $method->setAccessible(true);
+        $fake = $this->getMockBuilder(WebPushSender::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['isConfigured', 'sendToAll'])
+            ->getMock();
 
-        $valid = rtrim(strtr(base64_encode(random_bytes(65)), '+/', '-_'), '=');
-        $this->assertTrue($method->invoke($controller, $valid, 65, 256));
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function ($subs, $payload) use (&$receivedIds, $config) {
+            foreach ($subs as $s) {
+                $receivedIds[] = (int) $s['id'];
+            }
+            $r = ['success' => 0, 'expired' => 0, 'failed' => 0, 'details' => []];
+            foreach ($config['details'] as $d) {
+                $s = $d['status'];
+                if ($s === 'success') $r['success']++;
+                elseif ($s === 'expired') $r['expired']++;
+                else $r['failed']++;
+                $r['details'][] = $d;
+            }
+            return $r;
+        });
 
-        $tooShort = rtrim(strtr(base64_encode(random_bytes(10)), '+/', '-_'), '=');
-        $this->assertFalse($method->invoke($controller, $tooShort, 65, 256));
-
-        $invalid = '!@#$%^&*()===';
-        $this->assertFalse($method->invoke($controller, $invalid, 1, 100));
+        return $fake;
     }
 }

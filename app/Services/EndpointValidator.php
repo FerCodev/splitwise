@@ -113,17 +113,19 @@ class EndpointValidator
             return false;
         }
 
+        $found = false;
         foreach ($ips as $ip) {
             $ip = trim((string) $ip);
             if ($ip === '') {
-                continue;
+                return false;
             }
 
             if (!$this->isPublicIp($ip)) {
                 return false;
             }
+            $found = true;
         }
 
-        return true;
+        return $found;
     }
 }

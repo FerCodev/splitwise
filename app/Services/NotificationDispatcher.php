@@ -51,97 +51,17 @@ class NotificationDispatcher
                 continue;
             }
 
+            $userId = (int) $notification['user_id'];
+
             try {
-                $prefs = (new NotificationPreference())->getForUser($notification['user_id']);
+                $prefs = (new NotificationPreference())->getForUser($userId);
 
                 if (empty($prefs['push_enabled'])) {
                     $outboxModel->markCompleted($job['id']);
                     continue;
                 }
 
-                $subsModel = new PushSubscription();
-                $allSubs = $subsModel->findEnabledByUser($notification['user_id']);
-                $allSubIds = array_column($allSubs, 'id');
-
-                if (empty($allSubs)) {
-                    $outboxModel->markCompleted($job['id']);
-                    continue;
-                }
-
-                $deliveryModel = new NotificationDelivery();
-                $deliveryModel->ensureForNotification($notification['id'], $allSubIds);
-
-                $pendingDeliveries = $deliveryModel->getPendingForNotification($notification['id']);
-                if (empty($pendingDeliveries)) {
-                    $outboxModel->markCompleted($job['id']);
-                    continue;
-                }
-
-                $pendingSubIds = array_column($pendingDeliveries, 'push_subscription_id');
-                $pendingSubs = $subsModel->findByIds($pendingSubIds);
-
-                $subById = [];
-                foreach ($pendingSubs as $s) {
-                    $subById[(int) $s['id']] = $s;
-                }
-
-                $payload = [
-                    'title' => $notification['title'],
-                    'body' => $notification['body'],
-                    'url' => $notification['target_url'],
-                    'icon' => base_url('assets/pwa/icon-192.png'),
-                    'badge' => base_url('assets/pwa/icon-192.png'),
-                    'tag' => 'notif-' . $notification['id'],
-                ];
-
-                $sendResult = $this->sender->sendToAll($pendingSubs, $payload);
-
-                foreach ($sendResult['details'] as $detail) {
-                    $subId = $detail['push_subscription_id'] ?? null;
-                    $status = $detail['status'];
-                    if (!$subId) continue;
-
-                    $delivery = null;
-                    foreach ($pendingDeliveries as $pd) {
-                        if ((int) $pd['push_subscription_id'] === (int) $subId) {
-                            $delivery = $pd;
-                            break;
-                        }
-                    }
-                    if (!$delivery) continue;
-
-                    switch ($status) {
-                        case WebPushSender::STATUS_SUCCESS:
-                            $deliveryModel->markSuccess($delivery['id']);
-                            $result['sent']++;
-                            break;
-                        case WebPushSender::ERROR_EXPIRED:
-                            $deliveryModel->markExpired($delivery['id']);
-                            $result['expired']++;
-                            break;
-                        case WebPushSender::ERROR_INVALID_ENDPOINT:
-                        case WebPushSender::ERROR_PERMANENT_4XX:
-                            $deliveryModel->markFailed($delivery['id'], $status);
-                            $result['failed']++;
-                            break;
-                        case WebPushSender::ERROR_TRANSIENT_429:
-                        case WebPushSender::ERROR_TRANSIENT_5XX:
-                        case WebPushSender::ERROR_TRANSPORT:
-                            $deliveryModel->markRetry($delivery['id'], $status);
-                            $result['retried']++;
-                            break;
-                        default:
-                            $deliveryModel->markFailed($delivery['id'], $status);
-                            $result['failed']++;
-                            break;
-                    }
-                }
-
-                if ($deliveryModel->hasPendingForNotification($notification['id'])) {
-                    $outboxModel->markRetry($job['id'], 'partial_delivery');
-                } else {
-                    $outboxModel->markCompleted($job['id']);
-                }
+                $this->processNotificationDeliveries($notification, $userId, $outboxModel, $job, $result);
             } catch (\Exception $e) {
                 $outboxModel->markRetry($job['id'], WebPushSender::ERROR_TRANSPORT);
                 $result['retried']++;
@@ -149,5 +69,142 @@ class NotificationDispatcher
         }
 
         return $result;
+    }
+
+    private function processNotificationDeliveries(
+        array $notification, int $userId,
+        NotificationOutbox $outboxModel, array $job, array &$result
+    ): void {
+        $notificationId = (int) $notification['id'];
+        $subsModel = new PushSubscription();
+        $allSubs = $subsModel->findEnabledByUser($userId);
+        $allSubIds = array_column($allSubs, 'id');
+
+        if (empty($allSubs)) {
+            $orphanCleanup = new NotificationDelivery();
+            $orphans = $orphanCleanup->where('notification_id', $notificationId)
+                ->whereIn('status', [NotificationDelivery::STATUS_PENDING, NotificationDelivery::STATUS_RETRY])
+                ->findAll();
+            foreach ($orphans as $orphan) {
+                $orphanCleanup->markFailed((int) $orphan['id'], 'subscription_gone');
+                $result['failed']++;
+            }
+            unset($orphanCleanup);
+            $outboxModel->markCompleted($job['id']);
+            return;
+        }
+
+        $ensureModel = new NotificationDelivery();
+        $ensureModel->ensureForNotification($notificationId, $allSubIds);
+        unset($ensureModel);
+
+        $readModel = new NotificationDelivery();
+        $pendingDeliveries = $readModel->getReadyForNotification($notificationId);
+
+        if (empty($pendingDeliveries)) {
+            if ($readModel->hasUnfinishedForNotification($notificationId)) {
+                $nextAt = $readModel->nextAvailableAtForNotification($notificationId);
+                $outboxModel->scheduleRetry($job['id'], 'pending_future', $nextAt ?? date('Y-m-d H:i:s'));
+            } else {
+                $outboxModel->markCompleted($job['id']);
+            }
+            return;
+        }
+
+        $pendingSubIds = array_column($pendingDeliveries, 'push_subscription_id');
+        $pendingSubs = $subsModel->findEnabledByUserAndIds($userId, $pendingSubIds);
+
+        $subById = [];
+        foreach ($pendingSubs as $s) {
+            $subById[(int) $s['id']] = $s;
+        }
+
+        $writeModel = new NotificationDelivery();
+        foreach ($pendingDeliveries as $delivery) {
+            $did = (int) $delivery['id'];
+            $sid = (int) $delivery['push_subscription_id'];
+            if (!isset($subById[$sid])) {
+                $writeModel->markFailed($did, 'subscription_gone');
+                $result['failed']++;
+            }
+        }
+        unset($writeModel);
+
+        $toSend = [];
+        $deliveryById = [];
+        foreach ($pendingDeliveries as $pd) {
+            $sid = (int) $pd['push_subscription_id'];
+            if (isset($subById[$sid])) {
+                $toSend[] = $subById[$sid];
+                $deliveryById[$sid] = $pd;
+            }
+        }
+
+        if (empty($toSend)) {
+            $finalRead = new NotificationDelivery();
+            if ($finalRead->hasUnfinishedForNotification($notificationId)) {
+                $nextAt = $finalRead->nextAvailableAtForNotification($notificationId);
+                $outboxModel->scheduleRetry($job['id'], 'pending_future', $nextAt ?? date('Y-m-d H:i:s'));
+            } else {
+                $outboxModel->markCompleted($job['id']);
+            }
+            return;
+        }
+
+        $payload = [
+            'title' => (string) ($notification['title'] ?? ''),
+            'body' => (string) ($notification['body'] ?? ''),
+            'url' => (string) ($notification['target_url'] ?? ''),
+            'icon' => base_url('assets/pwa/icon-192.png'),
+            'badge' => base_url('assets/pwa/icon-192.png'),
+            'tag' => 'notif-' . $notificationId,
+        ];
+
+        $sendResult = $this->sender->sendToAll($toSend, $payload);
+
+        $writeModel2 = new NotificationDelivery();
+        foreach ($sendResult['details'] as $detail) {
+            $subId = $detail['push_subscription_id'] ?? null;
+            $status = $detail['status'];
+            if (!$subId || !isset($deliveryById[(int) $subId])) continue;
+
+            $delivery = $deliveryById[(int) $subId];
+            $did = (int) $delivery['id'];
+
+            switch ($status) {
+                case WebPushSender::STATUS_SUCCESS:
+                    $writeModel2->markSuccess($did);
+                    $result['sent']++;
+                    break;
+                case WebPushSender::ERROR_EXPIRED:
+                    $writeModel2->markExpired($did);
+                    $result['expired']++;
+                    break;
+                case WebPushSender::ERROR_INVALID_ENDPOINT:
+                case WebPushSender::ERROR_PERMANENT_4XX:
+                    $writeModel2->markFailed($did, $status);
+                    $result['failed']++;
+                    break;
+                case WebPushSender::ERROR_TRANSIENT_429:
+                case WebPushSender::ERROR_TRANSIENT_5XX:
+                case WebPushSender::ERROR_TRANSPORT:
+                    $writeModel2->markRetry($did, $status);
+                    $result['retried']++;
+                    break;
+                default:
+                    $writeModel2->markFailed($did, $status);
+                    $result['failed']++;
+                    break;
+            }
+        }
+        unset($writeModel2);
+
+        $finalRead = new NotificationDelivery();
+        if ($finalRead->hasUnfinishedForNotification($notificationId)) {
+            $nextAt = $finalRead->nextAvailableAtForNotification($notificationId);
+            $outboxModel->scheduleRetry($job['id'], 'partial_delivery', $nextAt ?? date('Y-m-d H:i:s', time() + 60));
+        } else {
+            $outboxModel->markCompleted($job['id']);
+        }
     }
 }

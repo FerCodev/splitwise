@@ -27,25 +27,25 @@ class NotificationDelivery extends Model
             return;
         }
 
+        $hasAny = $this->where('notification_id', $notificationId)->countAllResults() > 0;
+
+        if ($hasAny) {
+            return;
+        }
+
         $now = date('Y-m-d H:i:s');
         foreach ($subscriptionIds as $subId) {
-            $exists = $this->where('notification_id', $notificationId)
-                ->where('push_subscription_id', $subId)
-                ->first();
-
-            if (!$exists) {
-                $this->insert([
-                    'notification_id' => $notificationId,
-                    'push_subscription_id' => $subId,
-                    'status' => self::STATUS_PENDING,
-                    'attempts' => 0,
-                    'available_at' => $now,
-                ]);
-            }
+            $this->insert([
+                'notification_id' => $notificationId,
+                'push_subscription_id' => $subId,
+                'status' => self::STATUS_PENDING,
+                'attempts' => 0,
+                'available_at' => $now,
+            ]);
         }
     }
 
-    public function getPendingForNotification(int $notificationId, int $limit = 20): array
+    public function getReadyForNotification(int $notificationId, int $limit = 20): array
     {
         return $this->where('notification_id', $notificationId)
             ->whereIn('status', [self::STATUS_PENDING, self::STATUS_RETRY])
@@ -55,29 +55,53 @@ class NotificationDelivery extends Model
             ->findAll($limit);
     }
 
+    public function hasUnfinishedForNotification(int $notificationId): bool
+    {
+        return $this->where('notification_id', $notificationId)
+            ->whereIn('status', [self::STATUS_PENDING, self::STATUS_RETRY])
+            ->countAllResults() > 0;
+    }
+
+    public function nextAvailableAtForNotification(int $notificationId): ?string
+    {
+        $row = $this->select('available_at')
+            ->where('notification_id', $notificationId)
+            ->whereIn('status', [self::STATUS_PENDING, self::STATUS_RETRY])
+            ->orderBy('available_at', 'ASC')
+            ->first();
+
+        return $row ? $row['available_at'] : null;
+    }
+
     public function markSuccess(int $deliveryId): void
     {
-        $this->update($deliveryId, [
-            'status' => self::STATUS_SUCCESS,
-            'processed_at' => date('Y-m-d H:i:s'),
-        ]);
+        $this->db->table($this->table)
+            ->where('id', $deliveryId)
+            ->update([
+                'status' => self::STATUS_SUCCESS,
+                'processed_at' => date('Y-m-d H:i:s'),
+            ]);
     }
 
     public function markExpired(int $deliveryId): void
     {
-        $this->update($deliveryId, [
-            'status' => self::STATUS_EXPIRED,
-            'processed_at' => date('Y-m-d H:i:s'),
-        ]);
+        $this->db->table($this->table)
+            ->where('id', $deliveryId)
+            ->update([
+                'status' => self::STATUS_EXPIRED,
+                'processed_at' => date('Y-m-d H:i:s'),
+            ]);
     }
 
     public function markFailed(int $deliveryId, string $errorCode): void
     {
-        $this->update($deliveryId, [
-            'status' => self::STATUS_FAILED,
-            'processed_at' => date('Y-m-d H:i:s'),
-            'last_error' => $errorCode,
-        ]);
+        $this->db->table($this->table)
+            ->where('id', $deliveryId)
+            ->update([
+                'status' => self::STATUS_FAILED,
+                'processed_at' => date('Y-m-d H:i:s'),
+                'last_error' => $errorCode,
+            ]);
     }
 
     public function markRetry(int $deliveryId, string $errorCode): void
@@ -91,18 +115,13 @@ class NotificationDelivery extends Model
         $status = $attempts >= self::MAX_ATTEMPTS ? self::STATUS_FAILED : self::STATUS_RETRY;
         $backoff = min(60 * (2 ** max($attempts - 1, 0)), 3600);
 
-        $this->update($deliveryId, [
-            'status' => $status,
-            'attempts' => $attempts,
-            'available_at' => date('Y-m-d H:i:s', time() + $backoff),
-            'last_error' => $errorCode,
-        ]);
-    }
-
-    public function hasPendingForNotification(int $notificationId): bool
-    {
-        return $this->where('notification_id', $notificationId)
-            ->whereIn('status', [self::STATUS_PENDING, self::STATUS_RETRY])
-            ->countAllResults() > 0;
+        $this->db->table($this->table)
+            ->where('id', $deliveryId)
+            ->update([
+                'status' => $status,
+                'attempts' => $attempts,
+                'available_at' => date('Y-m-d H:i:s', time() + $backoff),
+                'last_error' => $errorCode,
+            ]);
     }
 }

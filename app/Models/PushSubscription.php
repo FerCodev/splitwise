@@ -59,6 +59,14 @@ class PushSubscription extends Model
         return $this->whereIn('id', $ids)->where('enabled', 1)->findAll();
     }
 
+    public function findEnabledByUserAndIds(int $userId, array $ids): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+        return $this->where('user_id', $userId)->whereIn('id', $ids)->where('enabled', 1)->findAll();
+    }
+
     public function disable(int $id, int $userId): bool
     {
         return $this->where('id', $id)->where('user_id', $userId)->set('enabled', 0)->update();
