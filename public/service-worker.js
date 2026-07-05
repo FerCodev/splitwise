@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splitwise-pwa-v11';
+const CACHE_NAME = 'splitwise-pwa-v12';
 const SCOPE_URL = new URL(self.registration.scope);
 const SCOPE_ORIGIN = SCOPE_URL.origin;
 
@@ -11,6 +11,15 @@ const CORE_ASSETS = [
 ];
 
 const DEFAULT_ICON = assetUrl('assets/pwa/icon-192.png');
+
+function isValidScopeUrl(url) {
+  try {
+    const resolved = new URL(url, SCOPE_URL);
+    return resolved.origin === SCOPE_ORIGIN && resolved.pathname.startsWith(SCOPE_URL.pathname);
+  } catch (_) {
+    return false;
+  }
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -27,9 +36,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') {
-    return;
-  }
+  if (event.request.method !== 'GET') return;
 
   event.respondWith(
     fetch(event.request)
@@ -45,89 +52,86 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let payload = { title: 'Gastito', body: 'Tenés una nueva notificación.' };
+  let title = 'Gastito';
+  let body = 'Tenés una nueva notificación.';
+  let icon = DEFAULT_ICON;
+  let badge = DEFAULT_ICON;
+  let tag = '';
+  let data = {};
 
   if (event.data) {
     try {
       const parsed = event.data.json();
       if (parsed && typeof parsed === 'object') {
-        payload.title = parsed.title || 'Gastito';
-        payload.body = parsed.body || 'Tenés una nueva notificación.';
-        payload.icon = parsed.icon || DEFAULT_ICON;
-        payload.badge = parsed.badge || DEFAULT_ICON;
-        payload.tag = parsed.tag || '';
-        payload.data = payload.data || {};
+        title = parsed.title || 'Gastito';
+        body = parsed.body || 'Tenés una nueva notificación.';
+        icon = parsed.icon || DEFAULT_ICON;
+        badge = parsed.badge || DEFAULT_ICON;
+        tag = parsed.tag || '';
 
         const rawUrl = parsed.url || '';
         if (typeof rawUrl === 'string' && rawUrl.length > 0) {
-          try {
+          if (isValidScopeUrl(rawUrl)) {
             const resolved = new URL(rawUrl, SCOPE_URL);
-            if (resolved.origin === SCOPE_ORIGIN) {
-              payload.data.url = resolved.pathname + resolved.search;
-            }
-          } catch (_) { /* ignore invalid urls */ }
+            data.url = resolved.pathname + resolved.search;
+          }
         }
       }
     } catch (_) {
-      payload.body = event.data.text() || 'Tenés una nueva notificación.';
+      body = event.data.text() || 'Tenés una nueva notificación.';
     }
   }
 
-  const options = {
-    body: payload.body,
-    icon: payload.icon || DEFAULT_ICON,
-    badge: payload.badge || DEFAULT_ICON,
-    tag: payload.tag || '',
-    data: payload.data || {},
+  event.waitUntil(self.registration.showNotification(title, {
+    body: body,
+    icon: icon,
+    badge: badge,
+    tag: tag,
+    data: data,
     vibrate: [200, 100, 200],
     requireInteraction: false,
-  };
-
-  event.waitUntil(self.registration.showNotification(payload.title, options));
+  }));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/';
+  const targetUrl = (event.notification.data && event.notification.data.url) ? event.notification.data.url : SCOPE_URL.pathname;
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
-      for (let i = 0; i < windowClients.length; i++) {
-        const client = windowClients[i];
+      for (const client of windowClients) {
         try {
           const clientUrl = new URL(client.url);
           if (clientUrl.origin === SCOPE_ORIGIN) {
+            if (targetUrl && targetUrl !== '/' && typeof client.navigate === 'function') {
+              return client.navigate(targetUrl).then((navigated) => navigated ? navigated.focus() : client.focus());
+            }
             client.postMessage({ type: 'notificationclick', url: targetUrl });
             return client.focus();
           }
         } catch (_) { /* skip */ }
       }
 
-      try {
-        const dest = new URL(targetUrl, SCOPE_URL);
-        if (dest.origin === SCOPE_ORIGIN) {
-          return clients.openWindow(dest.toString());
-        }
-      } catch (_) { /* skip */ }
+      if (targetUrl && isValidScopeUrl(targetUrl)) {
+        return clients.openWindow(targetUrl);
+      }
 
-      return clients.openWindow('/');
+      return clients.openWindow(SCOPE_URL.pathname);
     })
   );
 });
 
+// pushsubscriptionchange: la renovación automática requiere sesión y CSRF.
+// En lugar de un flujo parcial que falla silenciosamente, delegamos a la
+// pantalla de Perfil/Configuración donde el usuario puede re-suscribirse.
+// Documentado en la vista de configuración de notificaciones.
 self.addEventListener('pushsubscriptionchange', (event) => {
   event.waitUntil(
     self.registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: event.oldSubscription ? event.oldSubscription.options.applicationServerKey : null
-    }).then(function (newSubscription) {
-      return fetch('/notificaciones/suscripciones', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSubscription.toJSON())
-      }).catch(function () { /* No session, will be repaired from profile page */ });
-    }).catch(function () { /* Silently fail; profile page can repair */ })
+    }).catch(function () { /* la pantalla de Perfil repara la suscripción */ })
   );
 });
 

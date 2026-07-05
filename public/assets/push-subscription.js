@@ -14,11 +14,21 @@
         return { name: name, value: value };
     }
 
-    function updateCsrf(newHash) {
+    function updateCsrf(token, hash) {
         var meta = document.querySelector('meta[name="csrf-token"]');
         if (meta) {
-            meta.setAttribute('content', newHash);
+            if (hash) meta.setAttribute('content', hash);
+            if (token) meta.setAttribute('data-name', token);
         }
+    }
+
+    function handleResponse(r, resultEl) {
+        return r.json().then(function (data) {
+            if (data.csrfToken || data.csrfHash) {
+                updateCsrf(data.csrfToken, data.csrfHash);
+            }
+            return data;
+        });
     }
 
     function urlBase64ToUint8Array(base64String) {
@@ -54,14 +64,12 @@
         if (activate) activate.classList.remove('d-none');
         if (deactivate) deactivate.classList.remove('d-none');
         if (test) test.classList.remove('d-none');
-
         checkCurrentSubscription();
         return true;
     }
 
     function checkCurrentSubscription() {
         if (!navigator.serviceWorker || !navigator.serviceWorker.ready) return;
-
         navigator.serviceWorker.ready.then(function (registration) {
             return registration.pushManager.getSubscription();
         }).then(function (subscription) {
@@ -119,24 +127,22 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest' },
                 body: body
             });
-        }).then(function (r) { return r.json(); }).then(function (data) {
+        }).then(function (r) { return handleResponse(r, resultEl); }).then(function (data) {
             if (data.success) {
                 showResult(resultEl, 'Dispositivo activado correctamente.', 'success');
-                if (data.csrfHash) {
-                    updateCsrf(data.csrfHash);
-                }
                 checkCurrentSubscription();
             } else {
                 showResult(resultEl, (data.error || 'Error al activar.'), 'danger');
             }
         }).catch(function (err) {
-            showResult(resultEl, err.message || 'Error al activar las notificaciones.', 'danger');
+            showResult(resultEl, err.message || 'Error al activar.', 'danger');
         });
     }
 
     function unsubscribeFromPush() {
         var resultEl = document.getElementById('push-result');
         var csrf = getCsrfData();
+        var storedEndpoint = null;
 
         navigator.serviceWorker.ready.then(function (registration) {
             return registration.pushManager.getSubscription();
@@ -145,25 +151,35 @@
                 showResult(resultEl, 'No hay suscripción activa.', 'warning');
                 return Promise.reject('no-sub');
             }
+            storedEndpoint = subscription.toJSON().endpoint;
+            return subscription;
+        }).then(function (subscription) {
+            var body = new FormData();
+            body.append(csrf.name, csrf.value);
+            body.append('endpoint', storedEndpoint);
 
-            var subJson = subscription.toJSON();
-
-            return subscription.unsubscribe().then(function () {
-                var body = new FormData();
-                body.append(csrf.name, csrf.value);
-                body.append('endpoint', subJson.endpoint);
-                return fetch(BASE_URL + '/notificaciones/suscripciones/eliminar', {
-                    method: 'POST',
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                    body: body
-                });
+            return fetch(BASE_URL + '/notificaciones/suscripciones/eliminar', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: body
+            });
+        }).then(function (r) { return handleResponse(r, resultEl); }).then(function (data) {
+            if (!data.success) {
+                showResult(resultEl, data.error || 'Error al desactivar.', 'danger');
+                return Promise.reject('backend-fail');
+            }
+            return navigator.serviceWorker.ready.then(function (registration) {
+                return registration.pushManager.getSubscription();
+            }).then(function (s) {
+                if (s) return s.unsubscribe();
             });
         }).then(function () {
             showResult(resultEl, 'Dispositivo desactivado.', 'success');
             checkCurrentSubscription();
         }).catch(function (err) {
+            if (err === 'backend-fail') return;
             if (err !== 'no-sub') {
-                showResult(resultEl, 'Error al desactivar.', 'danger');
+                showResult(resultEl, 'Error al desactivar. Reintentá.', 'danger');
             }
         });
     }
@@ -179,18 +195,11 @@
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             body: body
-        }).then(function (r) { return r.json(); }).then(function (data) {
+        }).then(function (r) { return handleResponse(r, resultEl); }).then(function (data) {
             if (data.error) {
                 showResult(resultEl, data.error, 'warning');
             } else {
                 showResult(resultEl, 'Prueba enviada (éxito: ' + (data.success || 0) + ').', data.success > 0 ? 'success' : 'warning');
-            }
-            if (data.csrfHash) {
-                updateCsrf(data.csrfHash);
-            }
-            if (data.csrfToken) {
-                var meta = document.querySelector('meta[name="csrf-token"]');
-                if (meta) meta.setAttribute('data-name', data.csrfToken);
             }
         }).catch(function () {
             showResult(resultEl, 'Error al enviar prueba.', 'danger');
@@ -202,17 +211,15 @@
             subscribeToPush();
             return;
         }
-
         if (Notification.permission === 'denied') {
-            showResult(document.getElementById('push-result'), 'El permiso de notificaciones fue denegado. Revisá la configuración del navegador.', 'warning');
+            showResult(document.getElementById('push-result'), 'El permiso de notificaciones fue denegado.', 'warning');
             return;
         }
-
         Notification.requestPermission().then(function (permission) {
             if (permission === 'granted') {
                 subscribeToPush();
             } else {
-                showResult(document.getElementById('push-result'), 'Permiso denegado. No se pueden activar las notificaciones.', 'warning');
+                showResult(document.getElementById('push-result'), 'Permiso denegado.', 'warning');
             }
         });
     }
@@ -224,12 +231,10 @@
             e.preventDefault();
             requestPermissionAndSubscribe();
         });
-
         document.getElementById('btn-deactivate-push').addEventListener('click', function (e) {
             e.preventDefault();
             unsubscribeFromPush();
         });
-
         var testBtn = document.getElementById('btn-test-push');
         if (testBtn) {
             testBtn.addEventListener('click', function (e) {

@@ -10,13 +10,11 @@ class NotificationService
 {
     private Notification $notificationModel;
     private NotificationRecipientResolver $resolver;
-    private PushPayloadFactory $payloadFactory;
 
     public function __construct()
     {
         $this->notificationModel = new Notification();
         $this->resolver = new NotificationRecipientResolver();
-        $this->payloadFactory = new PushPayloadFactory();
     }
 
     public function notifyExpenseCreated(
@@ -35,6 +33,7 @@ class NotificationService
         }
 
         $prefModel = new NotificationPreference();
+        $outboxModel = new NotificationOutbox();
 
         foreach ($recipientIds as $recipientId) {
             $prefs = $prefModel->getForUser($recipientId);
@@ -51,7 +50,7 @@ class NotificationService
                 $body = "{$actorName} registró \"{$expenseDescription}\"";
             }
 
-            $targetUrl = "/gastos/{$expenseId}";
+            $targetUrl = base_url("gastos/{$expenseId}");
 
             $notificationId = $this->notificationModel->insert([
                 'user_id' => $recipientId,
@@ -61,9 +60,12 @@ class NotificationService
                 'target_url' => $targetUrl,
             ]);
 
-            if ($notificationId) {
-                $outboxModel = new NotificationOutbox();
-                $outboxModel->createForNotification($notificationId);
+            if (!$notificationId) {
+                throw new \RuntimeException('Error al crear la notificación.');
+            }
+
+            if (!$outboxModel->createForNotification($notificationId)) {
+                throw new \RuntimeException('Error al crear el registro de outbox.');
             }
         }
     }

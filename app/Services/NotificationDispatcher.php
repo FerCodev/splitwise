@@ -20,24 +20,20 @@ class NotificationDispatcher
     {
         if (!$this->sender->isConfigured()) {
             return [
-                'processed' => 0,
-                'sent' => 0,
-                'expired' => 0,
-                'retried' => 0,
-                'failed' => 0,
-                'error' => 'Web Push no está configurado. Verificá push.vapidSubject, push.vapidPublicKey y push.vapidPrivateKey.',
+                'processed' => 0, 'sent' => 0, 'expired' => 0,
+                'retried' => 0, 'failed' => 0,
+                'error' => 'Web Push no está configurado.',
             ];
         }
 
         $outboxModel = new NotificationOutbox();
+        $outboxModel->recoverOrphanJobs();
+
         $jobs = $outboxModel->getPendingJobs($limit);
 
         $result = [
-            'processed' => 0,
-            'sent' => 0,
-            'expired' => 0,
-            'retried' => 0,
-            'failed' => 0,
+            'processed' => 0, 'sent' => 0, 'expired' => 0,
+            'retried' => 0, 'failed' => 0,
         ];
 
         foreach ($jobs as $job) {
@@ -49,7 +45,7 @@ class NotificationDispatcher
 
             $notification = (new Notification())->find($job['notification_id']);
             if (!$notification) {
-                $outboxModel->markRetry($job['id'], 'Notification not found');
+                $outboxModel->markFailed($job['id'], 'notification_not_found');
                 $result['failed']++;
                 continue;
             }
@@ -74,8 +70,8 @@ class NotificationDispatcher
                     'title' => $notification['title'],
                     'body' => $notification['body'],
                     'url' => $notification['target_url'],
-                    'icon' => '/assets/pwa/icon-192.png',
-                    'badge' => '/assets/pwa/icon-192.png',
+                    'icon' => base_url('assets/pwa/icon-192.png'),
+                    'badge' => base_url('assets/pwa/icon-192.png'),
                     'tag' => 'notif-' . $notification['id'],
                 ];
 
@@ -84,16 +80,29 @@ class NotificationDispatcher
                 $result['sent'] += $sendResult['success'];
                 $result['expired'] += $sendResult['expired'];
 
-                if ($sendResult['failed'] > 0 || !empty($sendResult['errors'])) {
-                    $errorMsg = implode('; ', $sendResult['errors']);
-                    $outboxModel->markRetry($job['id'], $errorMsg);
-                    $result['retried'] += ($sendResult['failed'] > 0) ? $sendResult['failed'] : 1;
+                $hasFailed = false;
+                $errorClasses = [];
+                foreach ($sendResult['details'] as $detail) {
+                    $s = $detail['status'] ?? '';
+                    if ($s !== 'success' && $s !== 'expired') {
+                        $hasFailed = true;
+                        $errorClasses[] = $s;
+                    }
+                }
+
+                if ($hasFailed && $job['attempts'] >= NotificationOutbox::MAX_ATTEMPTS - 1) {
+                    $outboxModel->markFailed($job['id'], implode(',', array_unique($errorClasses)));
+                    $result['failed']++;
+                } elseif ($hasFailed) {
+                    $outboxModel->markRetry($job['id'], implode(',', array_unique($errorClasses)));
+                    $result['retried']++;
                 } else {
                     $outboxModel->markCompleted($job['id']);
                 }
             } catch (\Exception $e) {
-                $outboxModel->markRetry($job['id'], get_class($e) . ': ' . $e->getMessage());
-                $result['failed']++;
+                $errorCode = WebPushSender::ERROR_TRANSPORT;
+                $outboxModel->markRetry($job['id'], $errorCode);
+                $result['retried']++;
             }
         }
 

@@ -144,7 +144,7 @@ final class NotificationConsistencyTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame('Nuevo gasto en Julio', $nR1['title']);
         $this->assertStringContainsString('Actor', $nR1['body']);
         $this->assertStringContainsString('Verdulería', $nR1['body']);
-        $this->assertSame('/gastos/500', $nR1['target_url']);
+        $this->assertStringEndsWith('/gastos/500', $nR1['target_url']);
         $this->assertSame('expense.created', $nR1['event_type']);
     }
 

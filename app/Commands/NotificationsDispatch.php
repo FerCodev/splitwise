@@ -17,6 +17,11 @@ class NotificationsDispatch extends BaseCommand
     {
         $limit = (int) ($params[0] ?? 50);
 
+        if ($limit < 1 || $limit > 500) {
+            CLI::error('El límite debe estar entre 1 y 500.');
+            return self::ERROR;
+        }
+
         $dispatcher = new NotificationDispatcher();
         $result = $dispatcher->dispatch($limit);
 
