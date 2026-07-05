@@ -76,28 +76,20 @@ class NotificationDispatcher
         NotificationOutbox $outboxModel, array $job, array &$result
     ): void {
         $notificationId = (int) $notification['id'];
-        $subsModel = new PushSubscription();
-        $allSubs = $subsModel->findEnabledByUser($userId);
-        $allSubIds = array_column($allSubs, 'id');
 
-        if (empty($allSubs)) {
-            $orphanCleanup = new NotificationDelivery();
-            $orphans = $orphanCleanup->where('notification_id', $notificationId)
-                ->whereIn('status', [NotificationDelivery::STATUS_PENDING, NotificationDelivery::STATUS_RETRY])
-                ->findAll();
-            foreach ($orphans as $orphan) {
-                $orphanCleanup->markFailed((int) $orphan['id'], 'subscription_gone');
-                $result['failed']++;
-            }
-            unset($orphanCleanup);
-            $outboxModel->markCompleted($job['id']);
+        $freshJob = $outboxModel->find($job['id']);
+        if (!$freshJob) {
             return;
         }
 
-        $ensureModel = new NotificationDelivery();
-        $ensureModel->ensureForNotification($notificationId, $allSubIds);
-        unset($ensureModel);
+        if (!$outboxModel->isDeliveriesInitialized($freshJob)) {
+            $initialized = $this->initializeDeliverySnapshot($notificationId, $userId, $outboxModel, $freshJob);
+            if (!$initialized) {
+                return;
+            }
+        }
 
+        $subsModel = new PushSubscription();
         $readModel = new NotificationDelivery();
         $pendingDeliveries = $readModel->getReadyForNotification($notificationId);
 
@@ -221,6 +213,57 @@ class NotificationDispatcher
             $outboxModel->scheduleRetry($job['id'], 'partial_delivery', $nextAt ?? date('Y-m-d H:i:s', time() + 60));
         } else {
             $outboxModel->markCompleted($job['id']);
+        }
+    }
+
+    private function initializeDeliverySnapshot(
+        int $notificationId, int $userId,
+        NotificationOutbox $outboxModel, array $job
+    ): bool {
+        $subsModel = new PushSubscription();
+        $allSubs = $subsModel->findEnabledByUser($userId);
+        $allSubIds = array_column($allSubs, 'id');
+
+        $db = $outboxModel->db;
+        $db->transBegin();
+
+        try {
+            if (empty($allSubIds)) {
+                $outboxModel->markDeliveriesInitialized($job['id']);
+                $db->transCommit();
+                $outboxModel->markCompleted($job['id']);
+                return false;
+            }
+
+            $deliveryModel = new NotificationDelivery();
+
+            $existingCount = $deliveryModel->where('notification_id', $notificationId)->countAllResults();
+            if ($existingCount > 0) {
+                $deliveryModel->cleanupPartialSnapshot($notificationId);
+            }
+
+            $inserted = $deliveryModel->insertSnapshot($notificationId, $allSubIds);
+
+            if ($inserted !== count($allSubIds)) {
+                $db->transRollback();
+                $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                return false;
+            }
+
+            $outboxModel->markDeliveriesInitialized($job['id']);
+            $db->transCommit();
+            return true;
+        } catch (\Throwable $e) {
+            $db->transRollback();
+
+            try {
+                $cleanupModel = new NotificationDelivery();
+                $cleanupModel->cleanupPartialSnapshot($notificationId);
+            } catch (\Throwable $cleanupError) {
+            }
+
+            $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+            return false;
         }
     }
 }

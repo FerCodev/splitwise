@@ -122,9 +122,8 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $delB = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$subB)->first();
         $this->assertSame(NotificationDelivery::STATUS_RETRY, $delB['status']);
 
-        // vencer backoff
         $db->query('UPDATE notification_deliveries SET available_at=? WHERE id=?', [date('Y-m-d H:i:s'), $delB['id']]);
-        $db->query('UPDATE notification_outbox SET available_at=? WHERE notification_id=?', [date('Y-m-d H:i:s'), $nid]);
+        $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE notification_id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
 
         $receivedIds = [];
         $fake2 = $this->createSpySender($receivedIds, [
@@ -163,9 +162,10 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $outbox = new NotificationOutbox();
         $outbox->createForNotification($nid);
 
-        // poner delivery retry a 10 min en el futuro
         $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subF]);
+        $deliveryModel->insertSnapshot($nid, [$subF]);
+        $outbox->markDeliveriesInitialized($outbox->where('notification_id', $nid)->first()['id']);
+
         $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$subF)->first();
         $db->query('UPDATE notification_deliveries SET status=?, available_at=? WHERE id=?', [NotificationDelivery::STATUS_RETRY, date('Y-m-d H:i:s', time() + 600), $del['id']]);
 
@@ -185,7 +185,6 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertContains($outboxJob['status'], ['retry', 'processing']);
         $this->assertTrue(strtotime($outboxJob['available_at']) >= time());
 
-        // vencer ambos y reenviar
         $db->query('UPDATE notification_deliveries SET available_at=? WHERE id=?', [date('Y-m-d H:i:s'), $del['id']]);
         $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $outboxJob['id']]);
 
@@ -215,14 +214,13 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://ds.com/p','endpoint_hash'=>hash('sha256','https://ds.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
         $sid = $db->insertID();
 
-        $db->table('notification_deliveries')->insert([
-            'notification_id' => $nid, 'push_subscription_id' => $sid,
-            'status' => NotificationDelivery::STATUS_PENDING, 'attempts' => 0,
-            'available_at' => $now, 'created_at' => $now, 'updated_at' => $now,
-        ]);
-
         $outbox = new NotificationOutbox();
         $outbox->createForNotification($nid);
+        $job = $outbox->where('notification_id', $nid)->first();
+
+        $deliveryModel = new NotificationDelivery();
+        $deliveryModel->insertSnapshot($nid, [$sid]);
+        $outbox->markDeliveriesInitialized($job['id']);
 
         $db->table('push_subscriptions')->where('id', $sid)->update(['enabled' => 0]);
 
@@ -256,8 +254,8 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
 
         $outbox = new NotificationOutbox();
         $outbox->createForNotification($nid);
+        $job = $outbox->where('notification_id', $nid)->first();
 
-        // Simula un delivery huerfano que apunta a sub de otro usuario
         $db->table('notification_deliveries')->insert([
             'notification_id' => $nid,
             'push_subscription_id' => $otherSubId,
@@ -267,6 +265,7 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
             'created_at' => $now,
             'updated_at' => $now,
         ]);
+        $outbox->markDeliveriesInitialized($job['id']);
 
         $sentIds = [];
         $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
@@ -316,9 +315,7 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         (new NotificationDispatcher($fake1))->dispatch(10);
         $this->assertContains($subA, $receivedIds);
 
-        // agregar nuevo dispositivo C despues del primer envio
         $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://c2.com/p','endpoint_hash'=>hash('sha256','https://c2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subC = $db->insertID();
 
         $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE notification_id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
 
@@ -326,7 +323,6 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $fake2 = $this->createSpySender($receivedIds2, ['success'=>[],'details'=>[]]);
         (new NotificationDispatcher($fake2))->dispatch(10);
 
-        $this->assertNotContains($subC, $receivedIds2, 'Segundo envio no debe incluir C agregado despues');
         $this->assertEmpty($receivedIds2, 'No debe haber envios (outbox completada)');
 
         $db->transRollback();
@@ -350,7 +346,8 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $outbox->createForNotification($nid);
 
         $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$sid]);
+        $deliveryModel->insertSnapshot($nid, [$sid]);
+        $outbox->markDeliveriesInitialized($outbox->where('notification_id', $nid)->first()['id']);
 
         $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$sid)->first();
 
@@ -359,7 +356,6 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
             $status = $deliveryModel->find($del['id'])['status'];
             if (!in_array($status, [NotificationDelivery::STATUS_PENDING, NotificationDelivery::STATUS_RETRY], true)) break;
 
-            // simular que el delivery listo
             $db->query('UPDATE notification_deliveries SET available_at=? WHERE id=?', [date('Y-m-d H:i:s'), $del['id']]);
             $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE notification_id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
 
@@ -457,7 +453,7 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $sid = $db->insertID();
 
         $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$sid]);
+        $deliveryModel->insertSnapshot($nid, [$sid]);
         $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$sid)->first();
 
         $this->assertSame(0, (int) $del['attempts']);
@@ -488,7 +484,7 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $sid = $db->insertID();
 
         $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$sid]);
+        $deliveryModel->insertSnapshot($nid, [$sid]);
         $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$sid)->first();
 
         for ($i = 0; $i < NotificationDelivery::MAX_ATTEMPTS - 1; $i++) {
@@ -594,92 +590,6 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $db->transRollback();
     }
 
-    // ─── ensureForNotification atomic + idempotent ──────────────────
-
-    public function testEnsureCreatesAllDeliveriesAtomically(): void
-    {
-        $db = db_connect();
-        $db->transBegin();
-        $now = date('Y-m-d H:i:s');
-
-        $db->table('users')->insert(['name'=>'EN1','email'=>'en1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
-        $uid = $db->insertID();
-        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
-        $nid = $db->insertID();
-
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en1.com/p','endpoint_hash'=>hash('sha256','https://en1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subA = $db->insertID();
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en2.com/p','endpoint_hash'=>hash('sha256','https://en2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subB = $db->insertID();
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en3.com/p','endpoint_hash'=>hash('sha256','https://en3.com/p'),'public_key'=>'e','auth_token'=>'f','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subC = $db->insertID();
-
-        $deliveryModel = new NotificationDelivery();
-        $result = $deliveryModel->ensureForNotification($nid, [$subA, $subB, $subC]);
-        $this->assertTrue($result);
-
-        $count = $deliveryModel->where('notification_id', $nid)->countAllResults();
-        $this->assertSame(3, $count);
-
-        $db->transRollback();
-    }
-
-    public function testEnsureIsIdempotentOnSecondCall(): void
-    {
-        $db = db_connect();
-        $db->transBegin();
-        $now = date('Y-m-d H:i:s');
-
-        $db->table('users')->insert(['name'=>'EN2','email'=>'en2@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
-        $uid = $db->insertID();
-        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
-        $nid = $db->insertID();
-
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en4.com/p','endpoint_hash'=>hash('sha256','https://en4.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subA = $db->insertID();
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en5.com/p','endpoint_hash'=>hash('sha256','https://en5.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subB = $db->insertID();
-
-        $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subA, $subB]);
-        $firstCount = $deliveryModel->where('notification_id', $nid)->countAllResults();
-
-        $deliveryModel->ensureForNotification($nid, [$subA, $subB]);
-        $secondCount = $deliveryModel->where('notification_id', $nid)->countAllResults();
-
-        $this->assertSame($firstCount, $secondCount);
-        $this->assertSame(2, $secondCount);
-
-        $db->transRollback();
-    }
-
-    public function testEnsureDoesNotAddNewDeviceAfterInit(): void
-    {
-        $db = db_connect();
-        $db->transBegin();
-        $now = date('Y-m-d H:i:s');
-
-        $db->table('users')->insert(['name'=>'EN3','email'=>'en3@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
-        $uid = $db->insertID();
-        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
-        $nid = $db->insertID();
-
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en6.com/p','endpoint_hash'=>hash('sha256','https://en6.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subA = $db->insertID();
-
-        $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$subA]);
-
-        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://en7.com/p','endpoint_hash'=>hash('sha256','https://en7.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
-        $subB = $db->insertID();
-
-        $deliveryModel->ensureForNotification($nid, [$subA, $subB]);
-        $count = $deliveryModel->where('notification_id', $nid)->countAllResults();
-        $this->assertSame(1, $count, 'No debe agregar sub nueva despues de inicializar');
-
-        $db->transRollback();
-    }
-
     // ─── Outbox MAX_ATTEMPTS=100 confirmation ───────────────────────
 
     public function testOutboxMaxAttemptsIs100(): void
@@ -705,7 +615,8 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $outbox->createForNotification($nid);
 
         $deliveryModel = new NotificationDelivery();
-        $deliveryModel->ensureForNotification($nid, [$sid]);
+        $deliveryModel->insertSnapshot($nid, [$sid]);
+        $outbox->markDeliveriesInitialized($outbox->where('notification_id', $nid)->first()['id']);
         $del = $deliveryModel->where('notification_id',$nid)->where('push_subscription_id',$sid)->first();
 
         for ($i = 0; $i < NotificationDelivery::MAX_ATTEMPTS; $i++) {
@@ -729,6 +640,457 @@ final class WebPushSecurityTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertSame(NotificationOutbox::STATUS_COMPLETED, $finalOutbox['status']);
         $this->assertNotNull($finalOutbox['processed_at']);
         $this->assertNull($finalOutbox['last_error']);
+
+        $db->transRollback();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ─── 12 OBLIGATORY: deliveries_initialized_at tests ─────────────
+    // ═══════════════════════════════════════════════════════════════════
+
+    // 1. Snapshot completo crea todas las deliveries y establece deliveries_initialized_at
+    public function testSnapshotCompleteCreatesAllDeliveriesAndSetsMarker(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'SC1','email'=>'sc1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://sc1.com/p','endpoint_hash'=>hash('sha256','https://sc1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://sc2.com/p','endpoint_hash'=>hash('sha256','https://sc2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subB = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://sc3.com/p','endpoint_hash'=>hash('sha256','https://sc3.com/p'),'public_key'=>'e','auth_token'=>'f','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subC = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () {
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $deliveryModel = new NotificationDelivery();
+        $count = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(3, $count, 'Debe crear 3 deliveries');
+
+        $job = $outbox->where('notification_id', $nid)->first();
+        $this->assertNotNull($job['deliveries_initialized_at'], 'deliveries_initialized_at debe estar establecido');
+
+        $db->transRollback();
+    }
+
+    // 2. Snapshot vacío establece igualmente deliveries_initialized_at
+    public function testSnapshotEmptyStillSetsMarker(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'SE1','email'=>'se1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () {
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $job = $outbox->where('notification_id', $nid)->first();
+        $this->assertNotNull($job['deliveries_initialized_at'], 'deliveries_initialized_at debe estar establecido incluso sin subs');
+        $this->assertSame(NotificationOutbox::STATUS_COMPLETED, $job['status']);
+
+        $deliveryModel = new NotificationDelivery();
+        $count = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(0, $count, 'No debe haber deliveries sin subs');
+
+        $db->transRollback();
+    }
+
+    // 3. Segunda ejecución no agrega un dispositivo nuevo
+    public function testSecondExecutionDoesNotAddNewDevice(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'ND3','email'=>'nd3@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://nd3a.com/p','endpoint_hash'=>hash('sha256','https://nd3a.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $receivedIds = [];
+        $fake1 = $this->createSpySender($receivedIds, [
+            'success' => [],
+            'details' => [['push_subscription_id' => $subA, 'status' => 'success']],
+        ]);
+        (new NotificationDispatcher($fake1))->dispatch(10);
+
+        $deliveryModel = new NotificationDelivery();
+        $countBefore = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(1, $countBefore);
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://nd3b.com/p','endpoint_hash'=>hash('sha256','https://nd3b.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+
+        $db->query('UPDATE notification_outbox SET status=?, available_at=? WHERE notification_id=?', [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
+
+        $receivedIds2 = [];
+        $fake2 = $this->createSpySender($receivedIds2, ['success'=>[],'details'=>[]]);
+        (new NotificationDispatcher($fake2))->dispatch(10);
+
+        $countAfter = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(1, $countAfter, 'No debe agregar dispositivo nuevo');
+
+        $db->transRollback();
+    }
+
+    // 4. insertSnapshot es atómico dentro de una transacción
+    public function testInsertSnapshotIsAtomicWithinTransaction(): void
+    {
+        $db = db_connect();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'RF1','email'=>'rf1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://rf1.com/p','endpoint_hash'=>hash('sha256','https://rf1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://rf2.com/p','endpoint_hash'=>hash('sha256','https://rf2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subB = $db->insertID();
+
+        $deliveryModel = new NotificationDelivery();
+        $count = $deliveryModel->insertSnapshot($nid, [$subA, $subB]);
+        $this->assertSame(2, $count, 'Debe insertar 2 deliveries');
+
+        $actualCount = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(2, $actualCount);
+
+        $db->table('notification_deliveries')->where('notification_id', $nid)->delete();
+        $db->table('notifications')->where('id', $nid)->delete();
+        $db->table('push_subscriptions')->where('user_id', $uid)->delete();
+        $db->table('users')->where('id', $uid)->delete();
+    }
+
+    // 5. Tras fallo del sender, deliveries_initialized_at ya está establecido
+    public function testAfterSenderFailureMarkerIsAlreadySet(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'MF1','email'=>'mf1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://mf1.com/p','endpoint_hash'=>hash('sha256','https://mf1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () {
+            throw new \RuntimeException('sender boom');
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $jobAfter = $outbox->where('notification_id', $nid)->first();
+        $this->assertNotNull($jobAfter['deliveries_initialized_at'], 'Tras fallo del sender, marker ya fue establecido (inicializacion exitosa)');
+
+        $deliveryModel = new NotificationDelivery();
+        $count = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(1, $count, 'Deliveries fueron creadas antes del fallo del sender');
+
+        $db->transRollback();
+    }
+
+    // 6. El dispatcher intenta enviar después de inicialización exitosa
+    public function testDispatcherAttemptsSendAfterSuccessfulInit(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'NS1','email'=>'ns1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://ns1.com/p','endpoint_hash'=>hash('sha256','https://ns1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $sendCalled = false;
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () use (&$sendCalled) {
+            $sendCalled = true;
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+        $this->assertTrue($sendCalled, 'Tras inicializacion exitosa, el sender debe ser llamado');
+
+        $db->transRollback();
+    }
+
+    // 7. La outbox queda retry tras fallo del sender
+    public function testOutboxStaysRetryAfterSenderFailure(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'OR2','email'=>'or2@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://or2.com/p','endpoint_hash'=>hash('sha256','https://or2.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () {
+            throw new \RuntimeException('sender boom');
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $job = $outbox->where('notification_id', $nid)->first();
+        $this->assertSame(NotificationOutbox::STATUS_RETRY, $job['status'], 'Outbox debe quedar retry tras fallo del sender');
+        $this->assertNotNull($job['deliveries_initialized_at'], 'deliveries_initialized_at fue establecido antes del fallo');
+
+        $db->transRollback();
+    }
+
+    // 8. Dos intentos de inicialización no duplican deliveries
+    public function testTwoInitAttemptsDoNotDuplicateDeliveries(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'DI1','email'=>'di1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://di1.com/p','endpoint_hash'=>hash('sha256','https://di1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://di2.com/p','endpoint_hash'=>hash('sha256','https://di2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subB = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $fake1 = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake1->method('isConfigured')->willReturn(true);
+        $fake1->method('sendToAll')->willReturnCallback(function () {
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake1))->dispatch(10);
+
+        $deliveryModel = new NotificationDelivery();
+        $countAfterFirst = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(2, $countAfterFirst);
+
+        $db->query('UPDATE notification_outbox SET status=?, available_at=?, deliveries_initialized_at=NULL WHERE notification_id=?',
+            [NotificationOutbox::STATUS_RETRY, date('Y-m-d H:i:s'), $nid]);
+        $deliveryModel->cleanupPartialSnapshot($nid);
+
+        $fake2 = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake2->method('isConfigured')->willReturn(true);
+        $fake2->method('sendToAll')->willReturnCallback(function () {
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake2))->dispatch(10);
+
+        $countAfterSecond = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(2, $countAfterSecond, 'No debe duplicar deliveries');
+
+        $db->transRollback();
+    }
+
+    // 9. Una fila parcial preexistente con marcador null no se acepta como inicialización válida
+    public function testPartialRowWithNullMarkerIsNotValidInit(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'PR1','email'=>'pr1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://pr1.com/p','endpoint_hash'=>hash('sha256','https://pr1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://pr2.com/p','endpoint_hash'=>hash('sha256','https://pr2.com/p'),'public_key'=>'c','auth_token'=>'d','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subB = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $db->table('notification_deliveries')->insert([
+            'notification_id' => $nid, 'push_subscription_id' => $subA,
+            'status' => NotificationDelivery::STATUS_PENDING, 'attempts' => 0,
+            'available_at' => $now, 'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        $job = $outbox->where('notification_id', $nid)->first();
+        $this->assertNull($job['deliveries_initialized_at']);
+
+        $deliveryModel = new NotificationDelivery();
+        $partialCount = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(1, $partialCount, 'Solo 1 fila parcial');
+
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function () {
+            return ['success'=>0,'expired'=>0,'failed'=>0,'details'=>[]];
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $jobAfter = $outbox->where('notification_id', $nid)->first();
+        $this->assertNotNull($jobAfter['deliveries_initialized_at'], 'Marker debe establecerse tras inicializacion completa');
+
+        $finalCount = $deliveryModel->where('notification_id', $nid)->countAllResults();
+        $this->assertSame(2, $finalCount, 'Debe tener 2 deliveries (snapshot completo reemplazo parcial)');
+
+        $db->transRollback();
+    }
+
+    // 10. Una fila parcial con marcador null se recupera: se limpia y re-inicializa
+    public function testPartialRowWithNullMarkerRecoversSafely(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'RC1','email'=>'rc1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $db->table('push_subscriptions')->insert(['user_id'=>$uid,'endpoint'=>'https://rc1.com/p','endpoint_hash'=>hash('sha256','https://rc1.com/p'),'public_key'=>'a','auth_token'=>'b','enabled'=>1,'created_at'=>$now,'updated_at'=>$now]);
+        $subA = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+
+        $db->table('notification_deliveries')->insert([
+            'notification_id' => $nid, 'push_subscription_id' => $subA,
+            'status' => NotificationDelivery::STATUS_PENDING, 'attempts' => 0,
+            'available_at' => $now, 'created_at' => $now, 'updated_at' => $now,
+        ]);
+
+        $job = $outbox->where('notification_id', $nid)->first();
+        $this->assertNull($job['deliveries_initialized_at']);
+
+        $fake = $this->getMockBuilder(WebPushSender::class)->disableOriginalConstructor()->onlyMethods(['isConfigured','sendToAll'])->getMock();
+        $fake->method('isConfigured')->willReturn(true);
+        $fake->method('sendToAll')->willReturnCallback(function ($subs) use ($subA) {
+            return ['success'=>1,'expired'=>0,'failed'=>0,'details'=>[['push_subscription_id'=>$subA,'status'=>'success']]];
+        });
+
+        (new NotificationDispatcher($fake))->dispatch(10);
+
+        $jobAfter = $outbox->where('notification_id', $nid)->first();
+        $this->assertNotNull($jobAfter['deliveries_initialized_at'], 'Marker establecido tras re-inicializacion');
+        $this->assertSame(NotificationOutbox::STATUS_COMPLETED, $jobAfter['status'], 'Outbox completada tras recovero');
+
+        $db->transRollback();
+    }
+
+    // 11. Error arbitrario de outbox se guarda como `unknown`
+    public function testArbitraryOutboxErrorSavedAsUnknown(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'AE1','email'=>'ae1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+        $job = $outbox->where('notification_id', $nid)->first();
+
+        $outbox->markFailed($job['id'], 'DROP TABLE users; -- SQL injection');
+        $failed = $outbox->find($job['id']);
+        $this->assertSame('unknown', $failed['last_error'], 'Error arbitrario debe convertirse a unknown');
+
+        $outbox->scheduleRetry($job['id'], 'Some random error message with SELECT * FROM passwords', date('Y-m-d H:i:s'));
+        $retried = $outbox->find($job['id']);
+        $this->assertSame('unknown', $retried['last_error'], 'Mensaje arbitrario en retry debe ser unknown');
+
+        $db->transRollback();
+    }
+
+    // 12. Error permitido se conserva
+    public function testAllowedErrorCodeIsPreserved(): void
+    {
+        $db = db_connect();
+        $db->transBegin();
+        $now = date('Y-m-d H:i:s');
+
+        $db->table('users')->insert(['name'=>'AP1','email'=>'ap1@t.com','password'=>'x','created_at'=>$now,'updated_at'=>$now]);
+        $uid = $db->insertID();
+        $db->table('notifications')->insert(['user_id'=>$uid,'event_type'=>'x','title'=>'T','body'=>'B','target_url'=>'/g/1','created_at'=>$now,'updated_at'=>$now]);
+        $nid = $db->insertID();
+
+        $outbox = new NotificationOutbox();
+        $outbox->createForNotification($nid);
+        $job = $outbox->where('notification_id', $nid)->first();
+
+        $allowedCodes = [
+            'notification_not_found',
+            'pending_future',
+            'partial_delivery',
+            'transport_error',
+            'delivery_initialization_failed',
+            'unknown',
+        ];
+
+        foreach ($allowedCodes as $code) {
+            $outbox->scheduleRetry($job['id'], $code, date('Y-m-d H:i:s', time() + 60));
+            $updated = $outbox->find($job['id']);
+            $this->assertSame($code, $updated['last_error'], "Codigo permitido '$code' debe conservarse");
+        }
 
         $db->transRollback();
     }

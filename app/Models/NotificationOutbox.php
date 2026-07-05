@@ -8,7 +8,7 @@ class NotificationOutbox extends Model
 {
     protected $table = 'notification_outbox';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['notification_id', 'status', 'attempts', 'available_at', 'processed_at', 'last_error'];
+    protected $allowedFields = ['notification_id', 'status', 'attempts', 'available_at', 'processed_at', 'last_error', 'deliveries_initialized_at'];
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
     protected $returnType = 'array';
@@ -21,6 +21,15 @@ class NotificationOutbox extends Model
 
     const MAX_ATTEMPTS = 100;
     const ORPHAN_TIMEOUT_MINUTES = 10;
+
+    const ALLOWED_ERROR_CODES = [
+        'notification_not_found',
+        'pending_future',
+        'partial_delivery',
+        'transport_error',
+        'delivery_initialization_failed',
+        'unknown',
+    ];
 
     public function getPendingJobs(int $limit = 50): array
     {
@@ -117,9 +126,25 @@ class NotificationOutbox extends Model
         ]);
     }
 
+    public function markDeliveriesInitialized(int $id): bool
+    {
+        return $this->update($id, [
+            'deliveries_initialized_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    public function isDeliveriesInitialized(array $job): bool
+    {
+        return !empty($job['deliveries_initialized_at']);
+    }
+
     private function sanitizeErrorCode(string $code): string
     {
-        return mb_substr(trim($code), 0, 500);
+        $code = trim($code);
+        if (!in_array($code, self::ALLOWED_ERROR_CODES, true)) {
+            $code = 'unknown';
+        }
+        return mb_substr($code, 0, 500);
     }
 
     public function createForNotification(int $notificationId, string $status = self::STATUS_PENDING): bool

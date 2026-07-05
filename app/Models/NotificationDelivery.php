@@ -33,15 +33,10 @@ class NotificationDelivery extends Model
         'partial_delivery',
     ];
 
-    public function ensureForNotification(int $notificationId, array $subscriptionIds): bool
+    public function insertSnapshot(int $notificationId, array $subscriptionIds): int
     {
         if (empty($subscriptionIds)) {
-            return true;
-        }
-
-        $existing = $this->where('notification_id', $notificationId)->countAllResults();
-        if ($existing > 0) {
-            return true;
+            return 0;
         }
 
         $now = date('Y-m-d H:i:s');
@@ -58,37 +53,16 @@ class NotificationDelivery extends Model
             ];
         }
 
-        $this->db->transStart();
+        $this->db->table($this->table)->insertBatch($rows);
 
-        $afterCheck = $this->where('notification_id', $notificationId)->countAllResults();
-        if ($afterCheck > 0) {
-            $this->db->transComplete();
-            return true;
-        }
+        return count($rows);
+    }
 
-        $inserted = 0;
-        foreach ($rows as $row) {
-            try {
-                $this->db->table($this->table)->insert($row);
-                $inserted++;
-            } catch (\Throwable $e) {
-                if (stripos($e->getMessage(), 'Duplicate') !== false
-                    || stripos($e->getMessage(), '1062') !== false) {
-                    continue;
-                }
-                $this->db->transComplete();
-                return false;
-            }
-        }
-
-        $this->db->transComplete();
-
-        if ($inserted === 0) {
-            $afterAll = $this->where('notification_id', $notificationId)->countAllResults();
-            return $afterAll > 0;
-        }
-
-        return true;
+    public function cleanupPartialSnapshot(int $notificationId): void
+    {
+        $this->db->table($this->table)
+            ->where('notification_id', $notificationId)
+            ->delete();
     }
 
     public function getReadyForNotification(int $notificationId, int $limit = 20): array
