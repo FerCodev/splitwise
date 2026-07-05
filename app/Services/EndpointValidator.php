@@ -107,7 +107,11 @@ class EndpointValidator
 
     private function resolvesToPublicIp(string $host): bool
     {
-        $ips = ($this->dnsResolver)($host);
+        try {
+            $ips = ($this->dnsResolver)($host);
+        } catch (\Throwable $e) {
+            return false;
+        }
 
         if (!is_array($ips) || empty($ips)) {
             return false;

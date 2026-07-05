@@ -67,6 +67,7 @@ class NotificationOutbox extends Model
         return $this->update($id, [
             'status' => self::STATUS_COMPLETED,
             'processed_at' => date('Y-m-d H:i:s'),
+            'last_error' => null,
         ]);
     }
 
@@ -83,11 +84,18 @@ class NotificationOutbox extends Model
         $backoff = min(60 * (2 ** ($attempts - 1)), 3600);
         $availableAt = date('Y-m-d H:i:s', time() + max($backoff, 0));
 
-        return $this->update($id, [
+        $data = [
             'status' => $status,
             'available_at' => $availableAt,
-            'last_error' => mb_substr($errorCode, 0, 500),
-        ]);
+            'processed_at' => null,
+            'last_error' => $this->sanitizeErrorCode($errorCode),
+        ];
+
+        if ($status === self::STATUS_FAILED) {
+            $data['processed_at'] = date('Y-m-d H:i:s');
+        }
+
+        return $this->update($id, $data);
     }
 
     public function scheduleRetry(int $id, string $errorCode, string $availableAt): bool
@@ -95,7 +103,8 @@ class NotificationOutbox extends Model
         return $this->update($id, [
             'status' => self::STATUS_RETRY,
             'available_at' => $availableAt,
-            'last_error' => mb_substr($errorCode, 0, 500),
+            'processed_at' => null,
+            'last_error' => $this->sanitizeErrorCode($errorCode),
         ]);
     }
 
@@ -104,8 +113,13 @@ class NotificationOutbox extends Model
         return $this->update($id, [
             'status' => self::STATUS_FAILED,
             'processed_at' => date('Y-m-d H:i:s'),
-            'last_error' => mb_substr($errorCode, 0, 500),
+            'last_error' => $this->sanitizeErrorCode($errorCode),
         ]);
+    }
+
+    private function sanitizeErrorCode(string $code): string
+    {
+        return mb_substr(trim($code), 0, 500);
     }
 
     public function createForNotification(int $notificationId, string $status = self::STATUS_PENDING): bool

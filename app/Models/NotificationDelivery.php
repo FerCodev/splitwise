@@ -21,28 +21,74 @@ class NotificationDelivery extends Model
 
     const MAX_ATTEMPTS = 5;
 
-    public function ensureForNotification(int $notificationId, array $subscriptionIds): void
+    const ALLOWED_ERROR_CODES = [
+        'expired',
+        'transient_http_429',
+        'transient_http_5xx',
+        'permanent_http_4xx',
+        'invalid_endpoint',
+        'transport_error',
+        'subscription_gone',
+        'pending_future',
+        'partial_delivery',
+    ];
+
+    public function ensureForNotification(int $notificationId, array $subscriptionIds): bool
     {
         if (empty($subscriptionIds)) {
-            return;
+            return true;
         }
 
-        $hasAny = $this->where('notification_id', $notificationId)->countAllResults() > 0;
-
-        if ($hasAny) {
-            return;
+        $existing = $this->where('notification_id', $notificationId)->countAllResults();
+        if ($existing > 0) {
+            return true;
         }
 
         $now = date('Y-m-d H:i:s');
+        $rows = [];
         foreach ($subscriptionIds as $subId) {
-            $this->insert([
+            $rows[] = [
                 'notification_id' => $notificationId,
-                'push_subscription_id' => $subId,
+                'push_subscription_id' => (int) $subId,
                 'status' => self::STATUS_PENDING,
                 'attempts' => 0,
                 'available_at' => $now,
-            ]);
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
         }
+
+        $this->db->transStart();
+
+        $afterCheck = $this->where('notification_id', $notificationId)->countAllResults();
+        if ($afterCheck > 0) {
+            $this->db->transComplete();
+            return true;
+        }
+
+        $inserted = 0;
+        foreach ($rows as $row) {
+            try {
+                $this->db->table($this->table)->insert($row);
+                $inserted++;
+            } catch (\Throwable $e) {
+                if (stripos($e->getMessage(), 'Duplicate') !== false
+                    || stripos($e->getMessage(), '1062') !== false) {
+                    continue;
+                }
+                $this->db->transComplete();
+                return false;
+            }
+        }
+
+        $this->db->transComplete();
+
+        if ($inserted === 0) {
+            $afterAll = $this->where('notification_id', $notificationId)->countAllResults();
+            return $afterAll > 0;
+        }
+
+        return true;
     }
 
     public function getReadyForNotification(int $notificationId, int $limit = 20): array
@@ -100,7 +146,7 @@ class NotificationDelivery extends Model
             ->update([
                 'status' => self::STATUS_FAILED,
                 'processed_at' => date('Y-m-d H:i:s'),
-                'last_error' => $errorCode,
+                'last_error' => $this->sanitizeErrorCode($errorCode),
             ]);
     }
 
@@ -112,16 +158,36 @@ class NotificationDelivery extends Model
         }
 
         $attempts = (int) ($delivery['attempts'] ?? 0) + 1;
-        $status = $attempts >= self::MAX_ATTEMPTS ? self::STATUS_FAILED : self::STATUS_RETRY;
         $backoff = min(60 * (2 ** max($attempts - 1, 0)), 3600);
 
-        $this->db->table($this->table)
-            ->where('id', $deliveryId)
-            ->update([
-                'status' => $status,
-                'attempts' => $attempts,
-                'available_at' => date('Y-m-d H:i:s', time() + $backoff),
-                'last_error' => $errorCode,
-            ]);
+        if ($attempts >= self::MAX_ATTEMPTS) {
+            $this->db->table($this->table)
+                ->where('id', $deliveryId)
+                ->update([
+                    'status' => self::STATUS_FAILED,
+                    'attempts' => $attempts,
+                    'processed_at' => date('Y-m-d H:i:s'),
+                    'last_error' => $this->sanitizeErrorCode($errorCode),
+                ]);
+        } else {
+            $this->db->table($this->table)
+                ->where('id', $deliveryId)
+                ->update([
+                    'status' => self::STATUS_RETRY,
+                    'attempts' => $attempts,
+                    'available_at' => date('Y-m-d H:i:s', time() + $backoff),
+                    'processed_at' => null,
+                    'last_error' => $this->sanitizeErrorCode($errorCode),
+                ]);
+        }
+    }
+
+    private function sanitizeErrorCode(string $code): string
+    {
+        $code = trim($code);
+        if (!in_array($code, self::ALLOWED_ERROR_CODES, true)) {
+            $code = 'unknown';
+        }
+        return mb_substr($code, 0, 50);
     }
 }

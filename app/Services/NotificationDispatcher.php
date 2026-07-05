@@ -162,12 +162,20 @@ class NotificationDispatcher
 
         $sendResult = $this->sender->sendToAll($toSend, $payload);
 
+        $sentSubIds = [];
+        foreach ($toSend as $s) {
+            $sentSubIds[(int) $s['id']] = true;
+        }
+
+        $detailSubIds = [];
+
         $writeModel2 = new NotificationDelivery();
         foreach ($sendResult['details'] as $detail) {
             $subId = $detail['push_subscription_id'] ?? null;
             $status = $detail['status'];
-            if (!$subId || !isset($deliveryById[(int) $subId])) continue;
+            if (!$subId || !isset($deliveryById[(int) $subId]) || !isset($sentSubIds[(int) $subId])) continue;
 
+            $detailSubIds[(int) $subId] = true;
             $delivery = $deliveryById[(int) $subId];
             $did = (int) $delivery['id'];
 
@@ -195,6 +203,14 @@ class NotificationDispatcher
                     $writeModel2->markFailed($did, $status);
                     $result['failed']++;
                     break;
+            }
+        }
+
+        foreach ($sentSubIds as $sid => $_) {
+            if (!isset($detailSubIds[$sid]) && isset($deliveryById[$sid])) {
+                $did = (int) $deliveryById[$sid]['id'];
+                $writeModel2->markRetry($did, WebPushSender::ERROR_TRANSPORT);
+                $result['retried']++;
             }
         }
         unset($writeModel2);
