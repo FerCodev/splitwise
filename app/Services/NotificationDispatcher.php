@@ -12,9 +12,9 @@ class NotificationDispatcher
 {
     private WebPushSender $sender;
 
-    public function __construct()
+    public function __construct(?WebPushSender $sender = null)
     {
-        $this->sender = new WebPushSender();
+        $this->sender = $sender ?? new WebPushSender();
     }
 
     public function dispatch(int $limit = 50): array
@@ -60,16 +60,30 @@ class NotificationDispatcher
                 }
 
                 $subsModel = new PushSubscription();
-                $subscriptions = $subsModel->findEnabledByUser($notification['user_id']);
+                $allSubs = $subsModel->findEnabledByUser($notification['user_id']);
+                $allSubIds = array_column($allSubs, 'id');
 
-                if (empty($subscriptions)) {
+                if (empty($allSubs)) {
                     $outboxModel->markCompleted($job['id']);
                     continue;
                 }
 
                 $deliveryModel = new NotificationDelivery();
-                $subIds = array_column($subscriptions, 'id');
-                $deliveryModel->ensureForNotification($notification['id'], $subIds);
+                $deliveryModel->ensureForNotification($notification['id'], $allSubIds);
+
+                $pendingDeliveries = $deliveryModel->getPendingForNotification($notification['id']);
+                if (empty($pendingDeliveries)) {
+                    $outboxModel->markCompleted($job['id']);
+                    continue;
+                }
+
+                $pendingSubIds = array_column($pendingDeliveries, 'push_subscription_id');
+                $pendingSubs = $subsModel->findByIds($pendingSubIds);
+
+                $subById = [];
+                foreach ($pendingSubs as $s) {
+                    $subById[(int) $s['id']] = $s;
+                }
 
                 $payload = [
                     'title' => $notification['title'],
@@ -80,23 +94,21 @@ class NotificationDispatcher
                     'tag' => 'notif-' . $notification['id'],
                 ];
 
-                $sendResult = $this->sender->sendToAll($subscriptions, $payload);
+                $sendResult = $this->sender->sendToAll($pendingSubs, $payload);
 
                 foreach ($sendResult['details'] as $detail) {
                     $subId = $detail['push_subscription_id'] ?? null;
                     $status = $detail['status'];
+                    if (!$subId) continue;
 
                     $delivery = null;
-                    if ($subId) {
-                        $delivery = $deliveryModel
-                            ->where('notification_id', $notification['id'])
-                            ->where('push_subscription_id', $subId)
-                            ->first();
+                    foreach ($pendingDeliveries as $pd) {
+                        if ((int) $pd['push_subscription_id'] === (int) $subId) {
+                            $delivery = $pd;
+                            break;
+                        }
                     }
-
-                    if (!$delivery) {
-                        continue;
-                    }
+                    if (!$delivery) continue;
 
                     switch ($status) {
                         case WebPushSender::STATUS_SUCCESS:

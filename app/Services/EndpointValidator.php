@@ -8,7 +8,32 @@ class EndpointValidator
 
     public function __construct(?callable $dnsResolver = null)
     {
-        $this->dnsResolver = $dnsResolver ?? 'gethostbyname';
+        $this->dnsResolver = $dnsResolver ?? [$this, 'dnsResolve'];
+    }
+
+    public function dnsResolve(string $host): array
+    {
+        $ips = [];
+
+        $aRecords = @dns_get_record($host, DNS_A);
+        if (is_array($aRecords)) {
+            foreach ($aRecords as $r) {
+                if (!empty($r['ip'])) {
+                    $ips[] = $r['ip'];
+                }
+            }
+        }
+
+        $aaaaRecords = @dns_get_record($host, DNS_AAAA);
+        if (is_array($aaaaRecords)) {
+            foreach ($aaaaRecords as $r) {
+                if (!empty($r['ipv6'])) {
+                    $ips[] = $r['ipv6'];
+                }
+            }
+        }
+
+        return $ips;
     }
 
     public function isValid(string $endpoint): bool
@@ -58,18 +83,35 @@ class EndpointValidator
 
     private function isPublicIp(string $ip): bool
     {
-        return (bool) filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            return false;
+        }
+
+        $packed = @inet_pton($ip);
+        if ($packed === false) {
+            return false;
+        }
+
+        if (strlen($packed) === 16) {
+            $first = ord($packed[0]);
+            if (($first & 0xfe) === 0xfc) {
+                return false;
+            }
+            if ($first === 0xfe && (ord($packed[1]) & 0xc0) === 0x80) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function resolvesToPublicIp(string $host): bool
     {
-        $resolved = ($this->dnsResolver)($host);
+        $ips = ($this->dnsResolver)($host);
 
-        if ($resolved === false || $resolved === $host || $resolved === '') {
+        if (!is_array($ips) || empty($ips)) {
             return false;
         }
-
-        $ips = is_array($resolved) ? $resolved : [$resolved];
 
         foreach ($ips as $ip) {
             $ip = trim((string) $ip);
