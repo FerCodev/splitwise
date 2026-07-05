@@ -192,11 +192,19 @@ class Database extends Config
     {
         parent::__construct();
 
-        // Ensure that we always set the database group to 'tests' if
-        // we are currently running an automated test suite, so that
-        // we don't overwrite live data on accident.
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
+            self::assertTestDatabaseName($this->tests['database'] ?? '');
+        }
+    }
+
+    public static function assertTestDatabaseName(string $database): void
+    {
+        if (!str_ends_with($database, '_test')) {
+            throw new \RuntimeException(
+                "PHPUnit requiere una base de test con nombre terminado en '_test'. "
+                . "Recibido: '{$database}'. Configurá database.tests.database en phpunit.dist.xml."
+            );
         }
     }
 }

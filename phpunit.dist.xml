@@ -51,9 +51,10 @@
         <const name="CONFIGPATH" value="./app/Config/"/>
         <!-- Directory containing the front controller (index.php) -->
         <const name="PUBLICPATH" value="./public/"/>
-        <!-- Database configuration -->
+        <!-- Database configuration: uses env vars, falls back to splitwise_test -->
+        <!-- Override via system env: database.tests.hostname, database.tests.username, database.tests.password -->
         <env name="database.tests.hostname" value="localhost"/>
-        <env name="database.tests.database" value="splitwise"/>
+        <env name="database.tests.database" value="splitwise_test"/>
         <env name="database.tests.username" value="root"/>
         <env name="database.tests.password" value=""/>
         <env name="database.tests.DBDriver" value="MySQLi"/>
