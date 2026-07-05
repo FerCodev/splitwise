@@ -122,18 +122,13 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-// pushsubscriptionchange: la renovación automática requiere sesión y CSRF.
-// En lugar de un flujo parcial que falla silenciosamente, delegamos a la
-// pantalla de Perfil/Configuración donde el usuario puede re-suscribirse.
-// Documentado en la vista de configuración de notificaciones.
-self.addEventListener('pushsubscriptionchange', (event) => {
-  event.waitUntil(
-    self.registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: event.oldSubscription ? event.oldSubscription.options.applicationServerKey : null
-    }).catch(function () { /* la pantalla de Perfil repara la suscripción */ })
-  );
-});
+// pushsubscriptionchange: la suscripcion push del navegador expiro o fue revocada.
+// No intentamos re-suscribir automaticamente porque el nuevo endpoint debe
+// sincronizarse con el backend usando sesion y CSRF del usuario autenticado.
+// El listener hace un catch vacio para evitar errores silenciosos en consola.
+// La reparacion ocurre cuando el usuario abre Perfil > Configuracion de
+// notificaciones y toca "Activar notificaciones en este dispositivo".
+self.addEventListener('pushsubscriptionchange', () => {});
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {

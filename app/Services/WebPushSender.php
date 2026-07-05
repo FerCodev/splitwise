@@ -10,6 +10,7 @@ use Minishlink\WebPush\Subscription;
 class WebPushSender
 {
     private Push $config;
+    private EndpointValidator $validator;
 
     const ERROR_EXPIRED = 'expired';
     const ERROR_TRANSIENT_429 = 'transient_http_429';
@@ -18,9 +19,12 @@ class WebPushSender
     const ERROR_INVALID_ENDPOINT = 'invalid_endpoint';
     const ERROR_TRANSPORT = 'transport_error';
 
-    public function __construct()
+    const STATUS_SUCCESS = 'success';
+
+    public function __construct(?EndpointValidator $validator = null)
     {
         $this->config = config(Push::class);
+        $this->validator = $validator ?? new EndpointValidator();
     }
 
     public function isConfigured(): bool
@@ -31,39 +35,6 @@ class WebPushSender
     public function getPublicKey(): string
     {
         return $this->config->publicKey;
-    }
-
-    public function isEndpointValid(string $endpoint): bool
-    {
-        $url = filter_var($endpoint, FILTER_VALIDATE_URL);
-        if (!$url) {
-            return false;
-        }
-
-        $scheme = parse_url($url, PHP_URL_SCHEME);
-        if ($scheme !== 'https') {
-            return false;
-        }
-
-        $host = parse_url($url, PHP_URL_HOST);
-        if (!$host || $host === '') {
-            return false;
-        }
-
-        $hostLower = strtolower($host);
-
-        if (in_array($hostLower, ['localhost', '127.0.0.1', '::1', '0.0.0.0'], true)) {
-            return false;
-        }
-
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            $ip = $host;
-            if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     public function classifyError(\Minishlink\WebPush\MessageSentReport $report): string
@@ -79,8 +50,12 @@ class WebPushSender
             return self::ERROR_EXPIRED;
         }
 
-        if ($statusCode === 429 || ($statusCode >= 500 && $statusCode < 600)) {
-            return ($statusCode === 429) ? self::ERROR_TRANSIENT_429 : self::ERROR_TRANSIENT_5XX;
+        if ($statusCode === 429) {
+            return self::ERROR_TRANSIENT_429;
+        }
+
+        if ($statusCode >= 500 && $statusCode < 600) {
+            return self::ERROR_TRANSIENT_5XX;
         }
 
         if ($statusCode >= 400 && $statusCode < 500) {
@@ -93,11 +68,11 @@ class WebPushSender
     public function sendToAll(array $subscriptions, array $payload): array
     {
         if (!$this->isConfigured()) {
-            return ['success' => 0, 'expired' => 0, 'failed' => 0, 'errors' => []];
+            return ['success' => 0, 'expired' => 0, 'failed' => 0, 'details' => []];
         }
 
         if (empty($subscriptions)) {
-            return ['success' => 0, 'expired' => 0, 'failed' => 0, 'errors' => []];
+            return ['success' => 0, 'expired' => 0, 'failed' => 0, 'details' => []];
         }
 
         $auth = [
@@ -115,9 +90,15 @@ class WebPushSender
         $payloadJson = json_encode($payload);
 
         $subscriptionMap = [];
+        $allDetails = [];
+
         foreach ($subscriptions as $sub) {
-            if (!$this->isEndpointValid($sub['endpoint'])) {
+            if (!$this->validator->isValid($sub['endpoint'])) {
                 $subsModel->disable($sub['id'], $sub['user_id']);
+                $allDetails[] = [
+                    'push_subscription_id' => (int) $sub['id'],
+                    'status' => self::ERROR_INVALID_ENDPOINT,
+                ];
                 continue;
             }
 
@@ -131,17 +112,14 @@ class WebPushSender
                 $webPush->queueNotification($subscriptionObj, $payloadJson);
                 $subscriptionMap[] = $sub;
             } catch (\Exception $e) {
-                $subsModel->disable($sub['id'], $sub['user_id']);
+                $allDetails[] = [
+                    'push_subscription_id' => (int) $sub['id'],
+                    'status' => self::ERROR_INVALID_ENDPOINT,
+                ];
             }
         }
 
-        $result = [
-            'success' => 0,
-            'expired' => 0,
-            'failed' => 0,
-            'errors' => [],
-            'details' => [],
-        ];
+        $result = ['success' => 0, 'expired' => 0, 'failed' => 0, 'details' => $allDetails];
 
         $i = 0;
         foreach ($webPush->flush() as $report) {
@@ -152,32 +130,43 @@ class WebPushSender
                 $result['success']++;
                 if ($sub) {
                     $subsModel->recordSuccess($sub['id']);
-                    $result['details'][] = ['id' => $sub['id'], 'status' => 'success'];
                 }
+                $result['details'][] = [
+                    'push_subscription_id' => $sub ? (int) $sub['id'] : null,
+                    'status' => self::STATUS_SUCCESS,
+                ];
                 continue;
             }
 
             $errorClass = $this->classifyError($report);
 
-            if ($errorClass === self::ERROR_EXPIRED) {
-                $result['expired']++;
-                if ($sub) {
-                    $subsModel->disable($sub['id'], $sub['user_id']);
-                }
-                $result['details'][] = ['id' => $sub['id'] ?? null, 'status' => 'expired'];
-            } elseif (in_array($errorClass, [self::ERROR_TRANSIENT_429, self::ERROR_TRANSIENT_5XX, self::ERROR_TRANSPORT], true)) {
-                $result['failed']++;
-                if ($sub) {
-                    $subsModel->recordFailure($sub['id']);
-                }
-                $result['details'][] = ['id' => $sub['id'] ?? null, 'status' => $errorClass];
-            } else {
-                $result['failed']++;
-                if ($sub) {
-                    $subsModel->disable($sub['id'], $sub['user_id']);
-                }
-                $result['details'][] = ['id' => $sub['id'] ?? null, 'status' => $errorClass];
+            switch ($errorClass) {
+                case self::ERROR_EXPIRED:
+                    $result['expired']++;
+                    if ($sub) {
+                        $subsModel->disable($sub['id'], $sub['user_id']);
+                    }
+                    break;
+                case self::ERROR_TRANSIENT_429:
+                case self::ERROR_TRANSIENT_5XX:
+                case self::ERROR_TRANSPORT:
+                    $result['failed']++;
+                    if ($sub) {
+                        $subsModel->recordFailure($sub['id']);
+                    }
+                    break;
+                default:
+                    $result['failed']++;
+                    if ($sub) {
+                        $subsModel->disable($sub['id'], $sub['user_id']);
+                    }
+                    break;
             }
+
+            $result['details'][] = [
+                'push_subscription_id' => $sub ? (int) $sub['id'] : null,
+                'status' => $errorClass,
+            ];
         }
 
         return $result;

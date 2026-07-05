@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\NotificationOutbox;
+use App\Models\NotificationDelivery;
 use App\Models\PushSubscription;
 use App\Models\NotificationPreference;
 
@@ -66,6 +67,10 @@ class NotificationDispatcher
                     continue;
                 }
 
+                $deliveryModel = new NotificationDelivery();
+                $subIds = array_column($subscriptions, 'id');
+                $deliveryModel->ensureForNotification($notification['id'], $subIds);
+
                 $payload = [
                     'title' => $notification['title'],
                     'body' => $notification['body'],
@@ -77,31 +82,56 @@ class NotificationDispatcher
 
                 $sendResult = $this->sender->sendToAll($subscriptions, $payload);
 
-                $result['sent'] += $sendResult['success'];
-                $result['expired'] += $sendResult['expired'];
-
-                $hasFailed = false;
-                $errorClasses = [];
                 foreach ($sendResult['details'] as $detail) {
-                    $s = $detail['status'] ?? '';
-                    if ($s !== 'success' && $s !== 'expired') {
-                        $hasFailed = true;
-                        $errorClasses[] = $s;
+                    $subId = $detail['push_subscription_id'] ?? null;
+                    $status = $detail['status'];
+
+                    $delivery = null;
+                    if ($subId) {
+                        $delivery = $deliveryModel
+                            ->where('notification_id', $notification['id'])
+                            ->where('push_subscription_id', $subId)
+                            ->first();
+                    }
+
+                    if (!$delivery) {
+                        continue;
+                    }
+
+                    switch ($status) {
+                        case WebPushSender::STATUS_SUCCESS:
+                            $deliveryModel->markSuccess($delivery['id']);
+                            $result['sent']++;
+                            break;
+                        case WebPushSender::ERROR_EXPIRED:
+                            $deliveryModel->markExpired($delivery['id']);
+                            $result['expired']++;
+                            break;
+                        case WebPushSender::ERROR_INVALID_ENDPOINT:
+                        case WebPushSender::ERROR_PERMANENT_4XX:
+                            $deliveryModel->markFailed($delivery['id'], $status);
+                            $result['failed']++;
+                            break;
+                        case WebPushSender::ERROR_TRANSIENT_429:
+                        case WebPushSender::ERROR_TRANSIENT_5XX:
+                        case WebPushSender::ERROR_TRANSPORT:
+                            $deliveryModel->markRetry($delivery['id'], $status);
+                            $result['retried']++;
+                            break;
+                        default:
+                            $deliveryModel->markFailed($delivery['id'], $status);
+                            $result['failed']++;
+                            break;
                     }
                 }
 
-                if ($hasFailed && $job['attempts'] >= NotificationOutbox::MAX_ATTEMPTS - 1) {
-                    $outboxModel->markFailed($job['id'], implode(',', array_unique($errorClasses)));
-                    $result['failed']++;
-                } elseif ($hasFailed) {
-                    $outboxModel->markRetry($job['id'], implode(',', array_unique($errorClasses)));
-                    $result['retried']++;
+                if ($deliveryModel->hasPendingForNotification($notification['id'])) {
+                    $outboxModel->markRetry($job['id'], 'partial_delivery');
                 } else {
                     $outboxModel->markCompleted($job['id']);
                 }
             } catch (\Exception $e) {
-                $errorCode = WebPushSender::ERROR_TRANSPORT;
-                $outboxModel->markRetry($job['id'], $errorCode);
+                $outboxModel->markRetry($job['id'], WebPushSender::ERROR_TRANSPORT);
                 $result['retried']++;
             }
         }

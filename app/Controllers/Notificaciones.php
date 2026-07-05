@@ -6,6 +6,7 @@ use App\Models\Notification;
 use App\Models\NotificationPreference;
 use App\Models\PushSubscription;
 use App\Services\WebPushSender;
+use App\Services\EndpointValidator;
 
 class Notificaciones extends BaseController
 {
@@ -98,64 +99,60 @@ class Notificaciones extends BaseController
         ]);
     }
 
-    private function isValidSubscriptionEndpoint(string $endpoint): bool
+    private function isValidBase64Url(string $value, int $minDecodedLen, int $maxDecodedLen): bool
     {
-        $url = filter_var($endpoint, FILTER_VALIDATE_URL);
-        if (!$url) {
+        if (!preg_match('/^[A-Za-z0-9\-_]+$/', $value)) {
             return false;
         }
-
-        if (parse_url($url, PHP_URL_SCHEME) !== 'https') {
+        $decoded = base64_decode(strtr($value, '-_', '+/'), true);
+        if ($decoded === false) {
             return false;
         }
-
-        $host = parse_url($url, PHP_URL_HOST);
-        if (!$host || $host === '') {
-            return false;
-        }
-
-        $hostLower = strtolower($host);
-
-        if (in_array($hostLower, ['localhost', '127.0.0.1', '::1'], true)) {
-            return false;
-        }
-
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            if (!filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private function isValidBase64Url(string $value, int $minLen, int $maxLen): bool
-    {
-        $len = strlen($value);
-        if ($len < $minLen || $len > $maxLen) {
-            return false;
-        }
-        return (bool) preg_match('/^[A-Za-z0-9\-_]+$/', $value);
+        $len = strlen($decoded);
+        return $len >= $minDecodedLen && $len <= $maxDecodedLen;
     }
 
     public function suscribir()
     {
         $userId = (int) session()->get('userId');
 
-        $endpoint = trim((string) ($this->request->getPost('endpoint') ?? ''));
-        $p256dh = trim((string) ($this->request->getPost('keys')['p256dh'] ?? ''));
-        $auth = trim((string) ($this->request->getPost('keys')['auth'] ?? ''));
+        $endpoint = $this->request->getPost('endpoint');
+        $keys = $this->request->getPost('keys');
+
+        if (!is_string($endpoint) || !is_array($keys)) {
+            return $this->jsonResponse(['error' => 'Datos de suscripción inválidos.'], 400);
+        }
+
+        $endpoint = trim($endpoint);
+        $p256dh = $keys['p256dh'] ?? null;
+        $auth = $keys['auth'] ?? null;
+
+        if (!is_string($p256dh) || !is_string($auth)) {
+            return $this->jsonResponse(['error' => 'Claves de suscripción inválidas.'], 400);
+        }
+
+        $p256dh = trim($p256dh);
+        $auth = trim($auth);
 
         if ($endpoint === '' || $p256dh === '' || $auth === '') {
-            return $this->jsonResponse(['error' => 'Datos de suscripción inválidos.'], 400);
+            return $this->jsonResponse(['error' => 'Datos de suscripción incompletos.'], 400);
         }
 
         if (strlen($endpoint) > 1024) {
             return $this->jsonResponse(['error' => 'Endpoint demasiado largo.'], 400);
         }
 
-        if (!$this->isValidSubscriptionEndpoint($endpoint)) {
+        $validator = new EndpointValidator();
+        if (!$validator->isValid($endpoint)) {
             return $this->jsonResponse(['error' => 'Endpoint inválido o no permitido.'], 400);
+        }
+
+        if (!$this->isValidBase64Url($p256dh, 65, 256)) {
+            return $this->jsonResponse(['error' => 'Clave p256dh inválida.'], 400);
+        }
+
+        if (!$this->isValidBase64Url($auth, 16, 64)) {
+            return $this->jsonResponse(['error' => 'Token auth inválido.'], 400);
         }
 
         if (!$this->isValidBase64Url($p256dh, 44, 255)) {
