@@ -94,3 +94,14 @@ $routes->post('/admin/catalogo-tarjetas/decision', 'Admin::guardarDecisionCatalo
 $routes->post('/admin/catalogo-tarjetas/decision/limpiar', 'Admin::limpiarDecisionCatalogo', ['filter' => ['auth', 'admin']]);
 $routes->post('/admin/catalogo-tarjetas/curaduria', 'Admin::guardarCuraduria', ['filter' => ['auth', 'admin']]);
 $routes->post('/admin/catalogo-tarjetas/curaduria/limpiar', 'Admin::limpiarCuraduria', ['filter' => ['auth', 'admin']]);
+
+$routes->get('/notificaciones', 'Notificaciones::index', ['filter' => 'auth']);
+$routes->get('/notificaciones/(:num)/abrir', 'Notificaciones::abrir/$1', ['filter' => 'auth']);
+$routes->post('/notificaciones/marcar-todas-leidas', 'Notificaciones::marcarTodasLeidas', ['filter' => 'auth']);
+$routes->get('/notificaciones/configuracion', 'Notificaciones::configuracion', ['filter' => 'auth']);
+$routes->post('/notificaciones/configuracion', 'Notificaciones::configuracion', ['filter' => 'auth']);
+$routes->get('/notificaciones/clave-publica', 'Notificaciones::clavePublica', ['filter' => 'auth']);
+$routes->post('/notificaciones/suscripciones', 'Notificaciones::suscribir', ['filter' => 'auth']);
+$routes->post('/notificaciones/suscripciones/eliminar', 'Notificaciones::eliminarSuscripcion', ['filter' => 'auth']);
+$routes->post('/notificaciones/prueba', 'Notificaciones::prueba', ['filter' => 'auth']);
+$routes->get('/notificaciones/contador', 'Notificaciones::contador', ['filter' => 'auth']);

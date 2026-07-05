@@ -57,10 +57,11 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">Accesos r&aacute;pidos</h5>
                 <a href="<?= base_url('mis-medios-de-cobro') ?>" class="btn btn-primary">Mis medios de cobro</a>
+                <a href="<?= base_url('notificaciones/configuracion') ?>" class="btn btn-outline-primary ms-2">Notificaciones</a>
             </div>
         </div>
     </div>

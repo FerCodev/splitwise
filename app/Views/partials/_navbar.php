@@ -32,12 +32,17 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h7l.793.793a.5.5 0 0 1 .353.146L11.5 2.5h3A1.5 1.5 0 0 1 16 4v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5zM1.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5h-3.5l-1-1H1.5z"/></svg>
             Reportes
         </a>
-        <a href="<?= base_url('mis-medios-de-cobro') ?>" class="desktop-sidebar-link <?= tabActive('mis-medios-de-cobro', $current) ?>">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Z"/></svg>
-            Medios de cobro
-        </a>
+    <a href="<?= base_url('mis-medios-de-cobro') ?>" class="desktop-sidebar-link <?= tabActive('mis-medios-de-cobro', $current) ?>">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Z"/></svg>
+        Medios de cobro
+    </a>
+    <a href="<?= base_url('notificaciones') ?>" class="desktop-sidebar-link <?= tabActive('notificaciones', $current) ?>">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/></svg>
+        Notificaciones
+        <span class="badge bg-danger ms-1 d-none" id="desktop-notif-badge" aria-label="Notificaciones sin leer">0</span>
+    </a>
 
-        <?php if ($isAdmin): ?>
+    <?php if ($isAdmin): ?>
             <div class="desktop-sidebar-section">Administraci&oacute;n</div>
             <a href="<?= base_url('categorias') ?>" class="desktop-sidebar-link <?= tabActive('categorias', $current) ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.828c.885-.37 2.154-.769 3.388-.893 1.33-.134 2.458.063 3.112.752v9.746c-.393-.13-.803-.264-1.186-.406-1.078-.401-1.868-.465-2.604-.138v-6.972c0-.507-.133-.954-.4-1.358a1.2 1.2 0 0 0-.479-.458c-.295-.166-.651-.19-1.078-.093-.47.106-.896.336-1.356.628V2.828z"/></svg>
@@ -147,6 +152,12 @@
             <?php endif; ?>
         </div>
 
+        <a href="<?= base_url('notificaciones') ?>" class="mobile-menu-link <?= tabActive('notificaciones', $current) ?>" <?= $current === 'notificaciones' ? 'aria-current="page"' : '' ?>>
+            <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm7-5v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C8.64 5.36 7 7.93 7 11v5l-2 2v1h14v-1l-2-2z"/></svg></span>
+            <span>Notificaciones</span>
+            <span class="badge bg-danger ms-1 d-none" id="mobile-notif-badge" aria-label="Notificaciones sin leer">0</span>
+        </a>
+
         <?php if ($isAdmin): ?>
             <div class="mobile-menu-section">
                 <div class="mobile-menu-section-title">Administraci&oacute;n</div>
@@ -200,3 +211,32 @@
 </nav>
 
 <div class="desktop-main">
+
+<script>
+(function() {
+    var userId = '<?= session()->get('userId') ?>';
+    if (!userId) return;
+
+    fetch('<?= base_url('notificaciones/contador') ?>')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var desktopBadge = document.getElementById('desktop-notif-badge');
+            var mobileBadge = document.getElementById('mobile-notif-badge');
+            var count = parseInt(data.count) || 0;
+
+            if (desktopBadge) {
+                desktopBadge.textContent = count;
+                if (count > 0) {
+                    desktopBadge.classList.remove('d-none');
+                }
+            }
+            if (mobileBadge) {
+                mobileBadge.textContent = count;
+                if (count > 0) {
+                    mobileBadge.classList.remove('d-none');
+                }
+            }
+        })
+        .catch(function() { /* tabla quizás no existe aún */ });
+})();
+</script>

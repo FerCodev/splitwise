@@ -9,6 +9,7 @@ use App\Models\GastoParticipante;
 use App\Models\Categoria;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
+use App\Services\NotificationService;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
 
@@ -441,6 +442,23 @@ class Gastos extends BaseController
             }
 
             $db->transCommit();
+
+            try {
+                $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+                $actorName = session()->get('userName') ?? 'Usuario';
+                $notificationService = new NotificationService();
+                $notificationService->notifyExpenseCreated(
+                    $grupoId,
+                    $grupoNombre,
+                    (int) $userId,
+                    $actorName,
+                    $gastoId,
+                    $descripcion,
+                    $monto
+                );
+            } catch (\Exception $e) {
+                log_message('error', 'Notification creation failed: ' . $e->getMessage());
+            }
         } catch (\Exception $e) {
             $db->transRollback();
             return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gastito. Intentalo de nuevo.'], 'Error al crear el gastito. Intentalo de nuevo.'));
