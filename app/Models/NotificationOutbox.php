@@ -28,7 +28,6 @@ class NotificationOutbox extends Model
         'partial_delivery',
         'transport_error',
         'delivery_initialization_failed',
-        'unknown',
     ];
 
     public function getPendingJobs(int $limit = 50): array
@@ -138,13 +137,34 @@ class NotificationOutbox extends Model
         return !empty($job['deliveries_initialized_at']);
     }
 
+    public function lockAndGetJob(int $id): ?array
+    {
+        $result = $this->db->query(
+            'SELECT * FROM notification_outbox WHERE id = ? FOR UPDATE',
+            [$id]
+        );
+        
+        if (!$result) {
+            return null;
+        }
+        
+        $row = $result->getRowArray();
+        return $row ?: null;
+    }
+
+    public function verifyMarkerSet(int $id): bool
+    {
+        $job = $this->find($id);
+        return $job && !empty($job['deliveries_initialized_at']);
+    }
+
     private function sanitizeErrorCode(string $code): string
     {
         $code = trim($code);
         if (!in_array($code, self::ALLOWED_ERROR_CODES, true)) {
-            $code = 'unknown';
+            return 'delivery_initialization_failed';
         }
-        return mb_substr($code, 0, 500);
+        return $code;
     }
 
     public function createForNotification(int $notificationId, string $status = self::STATUS_PENDING): bool

@@ -228,30 +228,55 @@ class NotificationDispatcher
         $db->transBegin();
 
         try {
-            if (empty($allSubIds)) {
-                $outboxModel->markDeliveriesInitialized($job['id']);
-                $db->transCommit();
-                $outboxModel->markCompleted($job['id']);
-                return false;
-            }
-
-            $deliveryModel = new NotificationDelivery();
-
-            $existingCount = $deliveryModel->where('notification_id', $notificationId)->countAllResults();
-            if ($existingCount > 0) {
-                $deliveryModel->cleanupPartialSnapshot($notificationId);
-            }
-
-            $inserted = $deliveryModel->insertSnapshot($notificationId, $allSubIds);
-
-            if ($inserted !== count($allSubIds)) {
+            $lockedJob = $outboxModel->lockAndGetJob($job['id']);
+            if (!$lockedJob) {
                 $db->transRollback();
                 $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
                 return false;
             }
 
-            $outboxModel->markDeliveriesInitialized($job['id']);
+            if ($outboxModel->isDeliveriesInitialized($lockedJob)) {
+                $db->transCommit();
+                return true;
+            }
+
+            $deliveryModel = new NotificationDelivery();
+
+            if (!empty($allSubIds)) {
+                $existingCount = $deliveryModel->where('notification_id', $notificationId)->countAllResults();
+                if ($existingCount > 0) {
+                    $deliveryModel->cleanupPartialSnapshot($notificationId);
+                }
+
+                $inserted = $deliveryModel->insertSnapshot($notificationId, $allSubIds);
+
+                if ($inserted !== count($allSubIds)) {
+                    $db->transRollback();
+                    $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                    return false;
+                }
+            }
+
+            $markerResult = $outboxModel->markDeliveriesInitialized($job['id']);
+            if (!$markerResult) {
+                $db->transRollback();
+                $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                return false;
+            }
+
+            if (!$outboxModel->verifyMarkerSet($job['id'])) {
+                $db->transRollback();
+                $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                return false;
+            }
+
             $db->transCommit();
+            
+            if (empty($allSubIds)) {
+                $outboxModel->markCompleted($job['id']);
+                return false;
+            }
+            
             return true;
         } catch (\Throwable $e) {
             $db->transRollback();

@@ -53,9 +53,18 @@ class NotificationDelivery extends Model
             ];
         }
 
-        $this->db->table($this->table)->insertBatch($rows);
+        $result = $this->db->table($this->table)->insertBatch($rows);
+        
+        if ($result === false) {
+            throw new \RuntimeException('Snapshot insertion failed');
+        }
 
-        return count($rows);
+        $affectedRows = $this->db->affectedRows();
+        if ($affectedRows !== count($rows)) {
+            throw new \RuntimeException('Snapshot insertion count mismatch');
+        }
+
+        return $affectedRows;
     }
 
     public function cleanupPartialSnapshot(int $notificationId): void
