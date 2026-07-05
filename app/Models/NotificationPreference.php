@@ -8,7 +8,7 @@ class NotificationPreference extends Model
 {
     protected $table = 'notification_preferences';
     protected $primaryKey = 'user_id';
-    protected $allowedFields = ['push_enabled', 'expense_created', 'show_amounts'];
+    protected $allowedFields = ['user_id', 'push_enabled', 'expense_created', 'show_amounts'];
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
     protected $returnType = 'array';

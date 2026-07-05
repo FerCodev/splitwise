@@ -441,24 +441,20 @@ class Gastos extends BaseController
                 }
             }
 
-            $db->transCommit();
+            $notificationService = new NotificationService();
+            $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+            $actorName = session()->get('userName') ?? 'Usuario';
+            $notificationService->notifyExpenseCreated(
+                $grupoId,
+                $grupoNombre,
+                (int) $userId,
+                $actorName,
+                $gastoId,
+                $descripcion,
+                $monto
+            );
 
-            try {
-                $grupoNombre = $grupo['nombre'] ?? 'Grupo';
-                $actorName = session()->get('userName') ?? 'Usuario';
-                $notificationService = new NotificationService();
-                $notificationService->notifyExpenseCreated(
-                    $grupoId,
-                    $grupoNombre,
-                    (int) $userId,
-                    $actorName,
-                    $gastoId,
-                    $descripcion,
-                    $monto
-                );
-            } catch (\Exception $e) {
-                log_message('error', 'Notification creation failed: ' . $e->getMessage());
-            }
+            $db->transCommit();
         } catch (\Exception $e) {
             $db->transRollback();
             return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gastito. Intentalo de nuevo.'], 'Error al crear el gastito. Intentalo de nuevo.'));

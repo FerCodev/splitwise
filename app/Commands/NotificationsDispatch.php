@@ -22,7 +22,7 @@ class NotificationsDispatch extends BaseCommand
 
         if (isset($result['error'])) {
             CLI::write(CLI::color($result['error'], 'yellow'));
-            return;
+            return self::ERROR;
         }
 
         CLI::write('Resumen de despacho:', 'bold');
@@ -31,5 +31,7 @@ class NotificationsDispatch extends BaseCommand
         CLI::write("  Vencidas:   " . ($result['expired'] > 0 ? CLI::color((string) $result['expired'], 'red') : (string) $result['expired']));
         CLI::write("  Reintentadas: " . ($result['retried'] > 0 ? CLI::color((string) $result['retried'], 'yellow') : (string) $result['retried']));
         CLI::write("  Fallidas:   " . ($result['failed'] > 0 ? CLI::color((string) $result['failed'], 'red') : (string) $result['failed']));
+
+        return self::SUCCESS;
     }
 }

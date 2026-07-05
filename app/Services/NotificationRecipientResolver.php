@@ -14,9 +14,11 @@ class NotificationRecipientResolver
         $grupoModel = new Grupo();
         $miembros = $grupoModel->getMiembros($groupId);
 
-        return array_filter(
+        $recipients = array_filter(
             array_column($miembros, 'user_id'),
             static fn(int $uid) => $uid !== $excludeUserId
         );
+
+        return array_map('intval', array_values($recipients));
     }
 }
