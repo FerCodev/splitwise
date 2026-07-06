@@ -91,7 +91,7 @@ class Gasto extends Model
     public function getParticipantes(int $gastoId): array
     {
         return $this->db->table('gasto_participantes')
-            ->select('gasto_participantes.*, users.name, users.email')
+            ->select('gasto_participantes.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at')
             ->join('users', 'users.id = gasto_participantes.user_id')
             ->where('gasto_participantes.gasto_id', $gastoId)
             ->get()

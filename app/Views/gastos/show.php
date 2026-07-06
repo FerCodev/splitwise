@@ -53,102 +53,113 @@
         </div>
         <?php endif; ?>
 
+        <?php $totalParticipantes = array_sum(array_column($participantes, 'monto_asignado')); ?>
+
         <!-- Participantes -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Participantes</h5>
-            </div>
-            <div class="card-body p-0 d-none d-md-block">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Email</th>
-                                <th class="text-end">Monto asignado</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($participantes as $p): ?>
-                                <tr>
-                                    <td><?= esc($p['name']) ?>
-                                        <?php if ($p['user_id'] == $gasto['pagador_id']): ?>
-                                            <span class="badge bg-info ms-1">Pag&oacute;</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= esc($p['email']) ?></td>
-                                    <td class="text-end fw-medium"><?= moneda($p['monto_asignado']) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                        <tfoot class="table-light">
-                            <tr>
-                                <th colspan="2">Total</th>
-                                <th class="text-end"><?= moneda(array_sum(array_column($participantes, 'monto_asignado'))) ?></th>
-                            </tr>
-                        </tfoot>
-                    </table>
+        <div class="card border-0 shadow-sm mb-4 expense-people-card">
+            <div class="card-header bg-white expense-section-header">
+                <div>
+                    <h5 class="mb-0 fw-bold">Participantes</h5>
+                    <span class="text-muted small"><?= count($participantes) ?> personas</span>
                 </div>
-            </div>
-            <div class="d-md-none">
-                <div class="d-flex flex-wrap gap-2 p-3">
-                    <?php foreach ($participantes as $p): ?>
-                        <span class="badge bg-light text-dark border d-inline-flex align-items-center gap-2 py-2 px-3" style="font-size:14px">
-                            <?= esc($p['name']) ?>
-                            <?php if ($p['user_id'] == $gasto['pagador_id']): ?>
-                                <span class="badge bg-info">Pag&oacute;</span>
-                            <?php endif; ?>
-                            <span class="fw-bold"><?= moneda($p['monto_asignado']) ?></span>
-                        </span>
+                <div class="expense-avatar-stack" aria-hidden="true">
+                    <?php foreach (array_slice($participantes, 0, 4) as $p): ?>
+                        <?= view('components/avatar', [
+                            'userId' => $p['user_id'],
+                            'name' => $p['name'],
+                            'avatarFilename' => $p['avatar_filename'] ?? null,
+                            'avatarUpdatedAt' => $p['avatar_updated_at'] ?? null,
+                            'size' => 32,
+                            'classes' => 'expense-stack-avatar',
+                        ]) ?>
                     <?php endforeach; ?>
+                    <?php if (count($participantes) > 4): ?>
+                        <span class="expense-stack-more">+<?= count($participantes) - 4 ?></span>
+                    <?php endif; ?>
                 </div>
-                <div class="px-3 pb-3 text-end fw-bold">
-                    Total: <?= moneda(array_sum(array_column($participantes, 'monto_asignado'))) ?>
-                </div>
+            </div>
+            <div class="expense-people-list">
+                <?php foreach ($participantes as $p): ?>
+                    <div class="expense-person-row">
+                        <?= view('components/avatar', [
+                            'userId' => $p['user_id'],
+                            'name' => $p['name'],
+                            'avatarFilename' => $p['avatar_filename'] ?? null,
+                            'avatarUpdatedAt' => $p['avatar_updated_at'] ?? null,
+                            'size' => 44,
+                        ]) ?>
+                        <div class="expense-person-copy">
+                            <div class="expense-person-name">
+                                <?= esc($p['name']) ?>
+                                <?php if ((int) $p['user_id'] === (int) $gasto['pagador_id']): ?>
+                                    <span class="expense-payer-badge">Pagó</span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="expense-person-email"><?= esc($p['email']) ?></div>
+                        </div>
+                        <div class="expense-person-amount">
+                            <span>Parte asignada</span>
+                            <strong><?= moneda($p['monto_asignado']) ?></strong>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="expense-people-total">
+                <span>Total distribuido</span>
+                <strong><?= moneda($totalParticipantes) ?></strong>
             </div>
         </div>
 
         <!-- Resumen -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white">
-                <h5 class="mb-0 fw-bold">Resumen</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-muted">
-                    <strong><?= esc($gasto['pagador_nombre']) ?></strong> pag&oacute; <strong><?= moneda($gasto['monto']) ?></strong>
-                    y debe recibir de los dem&aacute;s participantes.
-                </p>
-                <div class="d-none d-md-block">
-                    <table class="table table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Debe</th>
-                                <th>A</th>
-                                <th class="text-end">Monto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($participantes as $p): ?>
-                                <?php if ($p['user_id'] != $gasto['pagador_id']): ?>
-                                    <tr>
-                                        <td><?= esc($p['name']) ?></td>
-                                        <td><?= esc($gasto['pagador_nombre']) ?></td>
-                                        <td class="text-end fw-medium"><?= moneda($p['monto_asignado']) ?></td>
-                                    </tr>
-                                <?php endif; ?>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
+        <div class="card border-0 shadow-sm expense-summary-card">
+            <div class="card-header bg-white expense-section-header">
+                <div>
+                    <h5 class="mb-0 fw-bold">Resumen</h5>
+                    <span class="text-muted small">Quién le debe a quién</span>
                 </div>
-                <div class="d-md-none">
+            </div>
+            <div class="card-body p-0">
+                <div class="expense-payer-summary">
+                    <?= view('components/avatar', [
+                        'userId' => $gasto['pagador_id'],
+                        'name' => $gasto['pagador_nombre'],
+                        'avatarFilename' => $gasto['pagador_avatar_filename'] ?? null,
+                        'avatarUpdatedAt' => $gasto['pagador_avatar_updated_at'] ?? null,
+                        'size' => 48,
+                    ]) ?>
+                    <div>
+                        <span class="text-muted small">Pagado por</span>
+                        <div class="fw-bold"><?= esc($gasto['pagador_nombre']) ?></div>
+                    </div>
+                    <strong class="expense-payer-total"><?= moneda($gasto['monto']) ?></strong>
+                </div>
+
+                <div class="expense-transfer-list">
+                    <?php $hayTransferencias = false; ?>
                     <?php foreach ($participantes as $p): ?>
-                        <?php if ($p['user_id'] != $gasto['pagador_id']): ?>
-                            <div class="d-flex justify-content-between py-2 border-bottom">
-                                <span><?= esc($p['name']) ?> debe a <?= esc($gasto['pagador_nombre']) ?></span>
-                                <span class="fw-bold"><?= moneda($p['monto_asignado']) ?></span>
+                        <?php if ((int) $p['user_id'] !== (int) $gasto['pagador_id']): ?>
+                            <?php $hayTransferencias = true; ?>
+                            <div class="expense-transfer-row">
+                                <div class="expense-transfer-person">
+                                    <?= view('components/avatar', [
+                                        'userId' => $p['user_id'],
+                                        'name' => $p['name'],
+                                        'avatarFilename' => $p['avatar_filename'] ?? null,
+                                        'avatarUpdatedAt' => $p['avatar_updated_at'] ?? null,
+                                        'size' => 36,
+                                    ]) ?>
+                                    <div>
+                                        <strong><?= esc($p['name']) ?></strong>
+                                        <span>debe a <?= esc($gasto['pagador_nombre']) ?></span>
+                                    </div>
+                                </div>
+                                <div class="expense-transfer-amount"><?= moneda($p['monto_asignado']) ?></div>
                             </div>
                         <?php endif; ?>
                     <?php endforeach; ?>
+                    <?php if (!$hayTransferencias): ?>
+                        <div class="expense-summary-empty">No hay importes pendientes entre participantes.</div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

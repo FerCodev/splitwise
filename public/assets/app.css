@@ -4936,3 +4936,191 @@ body {
     width: 100%;
     height: 100%;
 }
+
+/* Expense detail: people-first participant and debt summaries. */
+.expense-section-header {
+    display: flex;
+    min-height: 68px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+}
+.expense-avatar-stack {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+.expense-avatar-stack .expense-stack-avatar,
+.expense-stack-more {
+    margin-left: -10px;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, .12);
+}
+.expense-stack-more {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+}
+.expense-people-list,
+.expense-transfer-list {
+    padding: 0 18px;
+}
+.expense-person-row {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid #edf1f5;
+}
+.expense-person-row:last-child,
+.expense-transfer-row:last-child {
+    border-bottom: 0;
+}
+.expense-person-copy {
+    min-width: 0;
+    flex: 1;
+}
+.expense-person-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #172033;
+    font-weight: 700;
+}
+.expense-person-email {
+    overflow: hidden;
+    color: #64748b;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.expense-payer-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 7px;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.expense-person-amount {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.expense-person-amount span {
+    color: #64748b;
+    font-size: 11px;
+}
+.expense-person-amount strong,
+.expense-transfer-amount,
+.expense-payer-total,
+.expense-people-total strong {
+    color: #172033;
+    font-variant-numeric: tabular-nums;
+}
+.expense-people-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+.expense-people-total span {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+.expense-payer-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px;
+    padding: 14px;
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #eff6ff, #f8fafc);
+}
+.expense-payer-total {
+    margin-left: auto;
+    color: var(--primary);
+    font-size: 17px;
+}
+.expense-transfer-list {
+    padding-bottom: 8px;
+}
+.expense-transfer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 0;
+    border-bottom: 1px solid #edf1f5;
+}
+.expense-transfer-person {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 10px;
+}
+.expense-transfer-person > div:last-child {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+}
+.expense-transfer-person span {
+    overflow: hidden;
+    color: #64748b;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.expense-transfer-amount {
+    flex: 0 0 auto;
+    font-weight: 800;
+}
+.expense-summary-empty {
+    padding: 18px 0 22px;
+    color: #64748b;
+    font-size: 14px;
+    text-align: center;
+}
+@media (max-width: 575.98px) {
+    .expense-section-header,
+    .expense-people-list,
+    .expense-transfer-list {
+        padding-right: 16px;
+        padding-left: 16px;
+    }
+    .expense-person-row {
+        gap: 10px;
+    }
+    .expense-person-email,
+    .expense-person-amount span {
+        display: none;
+    }
+    .expense-person-amount strong,
+    .expense-transfer-amount {
+        font-size: 14px;
+    }
+    .expense-payer-summary {
+        margin: 16px;
+        padding: 12px;
+    }
+    .expense-payer-total {
+        font-size: 15px;
+    }
+}

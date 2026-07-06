@@ -469,7 +469,7 @@ class Gastos extends BaseController
     public function show(int $id)
     {
         $gastoModel = new Gasto();
-        $gasto = $gastoModel->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre')
+        $gasto = $gastoModel->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, users.avatar_filename as pagador_avatar_filename, users.avatar_updated_at as pagador_avatar_updated_at, grupos.nombre as grupo_nombre')
             ->join('users', 'users.id = gastos.pagador_id')
             ->join('grupos', 'grupos.id = gastos.grupo_id')
             ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
