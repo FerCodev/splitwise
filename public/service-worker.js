@@ -82,15 +82,27 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  event.waitUntil(self.registration.showNotification(title, {
-    body: body,
-    icon: icon,
-    badge: badge,
-    tag: tag,
-    data: data,
-    vibrate: [200, 100, 200],
-    requireInteraction: false,
-  }));
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: body,
+      icon: icon,
+      badge: badge,
+      tag: tag,
+      data: data,
+      vibrate: [200, 100, 200],
+      requireInteraction: false,
+    }).then(() => {
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+        for (const client of windowClients) {
+          try {
+            if (new URL(client.url).origin === SCOPE_ORIGIN) {
+              client.postMessage({ type: 'NOTIFICATION_RECEIVED' });
+            }
+          } catch (_) {}
+        }
+      });
+    })
+  );
 });
 
 self.addEventListener('notificationclick', (event) => {

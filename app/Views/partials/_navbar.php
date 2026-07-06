@@ -98,9 +98,15 @@
         </button>
         <?php endif; ?>
         <span class="mobile-page-title"><?= esc($mobileTitle) ?></span>
-        <?php if ($mobileTopbarActions): ?>
-            <div class="mobile-topbar-actions"><?= $mobileTopbarActions ?></div>
-        <?php endif; ?>
+        <div class="mobile-topbar-actions">
+            <a href="<?= base_url('notificaciones') ?>" class="mobile-topbar-action mobile-topbar-notif-bell" aria-label="Notificaciones">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/></svg>
+                <span class="topbar-notif-badge d-none" id="topbar-notif-badge" aria-hidden="true">0</span>
+            </a>
+<?php if ($mobileTopbarActions): ?>
+            <?= $mobileTopbarActions ?>
+<?php endif; ?>
+        </div>
     </div>
 </nav>
 
@@ -217,26 +223,57 @@
     var userId = '<?= session()->get('userId') ?>';
     if (!userId) return;
 
-    fetch('<?= base_url('notificaciones/contador') ?>')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            var desktopBadge = document.getElementById('desktop-notif-badge');
-            var mobileBadge = document.getElementById('mobile-notif-badge');
-            var count = parseInt(data.count) || 0;
+    var counterUrl = '<?= base_url('notificaciones/contador') ?>';
+    var fetching = false;
 
-            if (desktopBadge) {
-                desktopBadge.textContent = count;
-                if (count > 0) {
-                    desktopBadge.classList.remove('d-none');
-                }
+    function formatCount(n) {
+        return n > 99 ? '99+' : String(n);
+    }
+
+    function applyBadge(el, count) {
+        if (!el) return;
+        if (count > 0) {
+            el.textContent = formatCount(count);
+            el.setAttribute('aria-label', count + ' notificaciones sin leer');
+            el.classList.remove('d-none');
+        } else {
+            el.textContent = '0';
+            el.setAttribute('aria-label', 'Notificaciones sin leer');
+            el.classList.add('d-none');
+        }
+    }
+
+    function refreshNotificationCount() {
+        if (fetching) return;
+        fetching = true;
+        fetch(counterUrl, { credentials: 'same-origin' })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var count = parseInt(data.count, 10) || 0;
+                applyBadge(document.getElementById('desktop-notif-badge'), count);
+                applyBadge(document.getElementById('mobile-notif-badge'), count);
+                applyBadge(document.getElementById('topbar-notif-badge'), count);
+            })
+            .catch(function() {})
+            .then(function() { fetching = false; });
+    }
+
+    refreshNotificationCount();
+
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) refreshNotificationCount();
+    });
+
+    window.addEventListener('focus', refreshNotificationCount);
+
+    setInterval(refreshNotificationCount, 60000);
+
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'NOTIFICATION_RECEIVED') {
+                refreshNotificationCount();
             }
-            if (mobileBadge) {
-                mobileBadge.textContent = count;
-                if (count > 0) {
-                    mobileBadge.classList.remove('d-none');
-                }
-            }
-        })
-        .catch(function() { /* tabla quizás no existe aún */ });
+        });
+    }
 })();
 </script>
