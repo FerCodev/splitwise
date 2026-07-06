@@ -36,8 +36,8 @@
             </a>
             <?php endforeach; ?>
         </div>
-        <?php if (!empty($pager)): ?>
-        <div class="mt-3">
+        <?php if (isset($pager) && $pager->getPageCount() > 1): ?>
+        <div class="pagination-wrap mt-3">
             <?= $pager->links() ?>
         </div>
         <?php endif; ?>
