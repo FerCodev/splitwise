@@ -5098,6 +5098,24 @@ body {
     font-size: 14px;
     text-align: center;
 }
+.profile-quick-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+}
+.profile-quick-actions .btn {
+    display: inline-flex;
+    width: 100%;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    white-space: normal;
+}
+@media (min-width: 576px) {
+    .profile-quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
 @media (max-width: 575.98px) {
     .expense-section-header,
     .expense-people-list,
