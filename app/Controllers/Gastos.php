@@ -491,12 +491,14 @@ class Gastos extends BaseController
         $permisos = GroupPermission::getAll($rol, $grupo['estado'], $userId, (int) $gasto['pagador_id']);
 
         $participantes = $gastoModel->getParticipantes($id);
+        $deleteReturnTo = $this->resolveDeleteReturnContext((int) $gasto['grupo_id']);
 
         return view('gastos/show', [
             'gasto' => $gasto,
             'rol' => $rol,
             'permisos' => $permisos,
             'participantes' => $participantes,
+            'deleteReturnTo' => $deleteReturnTo,
             'categorias' => model(Categoria::class)->getActivas(),
         ]);
     }
@@ -788,7 +790,34 @@ class Gastos extends BaseController
             );
         });
 
-        return redirect()->to('/gastos')->with('success', UiFeedbackResolver::message('expenses.delete.completed', [], 'Gastito eliminado correctamente.'));
+        $returnTo = match ((string) $this->request->getPost('return_to')) {
+            'grupo' => '/grupos/' . $grupoId,
+            'notificaciones' => '/notificaciones',
+            default => '/dashboard',
+        };
+
+        return redirect()->to($returnTo)->with('success', UiFeedbackResolver::message('expenses.delete.completed', [], 'Gastito eliminado correctamente.'));
+    }
+
+    private function resolveDeleteReturnContext(int $grupoId): string
+    {
+        $explicit = (string) $this->request->getGet('return_to');
+        if (in_array($explicit, ['grupo', 'notificaciones', 'home'], true)) {
+            return $explicit;
+        }
+
+        $referer = (string) $this->request->getServer('HTTP_REFERER');
+        $path = (string) (parse_url($referer, PHP_URL_PATH) ?? '');
+
+        if ($path !== '' && str_contains($path, '/notificaciones')) {
+            return 'notificaciones';
+        }
+
+        if ($path !== '' && preg_match('#/grupos/' . preg_quote((string) $grupoId, '#') . '(?:/|$)#', $path)) {
+            return 'grupo';
+        }
+
+        return 'home';
     }
 
     private function verificarAccesoGrupo(int $grupoId): ?array

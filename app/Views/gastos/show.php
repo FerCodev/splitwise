@@ -186,6 +186,7 @@
                         'confirmTitle' => 'Eliminar gastito',
                         'confirmMsg' => 'Se eliminará este gastito del grupo y el balance se recalculará. Esta acción no se puede deshacer.',
                         'confirmBtn' => 'Eliminar gastito',
+                        'hiddenFields' => ['return_to' => $deleteReturnTo ?? 'home'],
                     ]) ?>
                 <?php endif; ?>
             </div>

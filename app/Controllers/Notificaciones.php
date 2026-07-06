@@ -51,6 +51,8 @@ class Notificaciones extends BaseController
             return redirect()->to('/notificaciones');
         }
 
+        $targetUrl .= str_contains($targetUrl, '?') ? '&return_to=notificaciones' : '?return_to=notificaciones';
+
         return redirect()->to($targetUrl);
     }
 
