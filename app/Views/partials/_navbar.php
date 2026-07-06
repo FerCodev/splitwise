@@ -86,7 +86,7 @@
 
 <!-- Mobile top bar -->
 <nav class="navbar navbar-dark d-lg-none" style="background:var(--primary);">
-    <div class="container mobile-topbar">
+    <div class="container mobile-topbar<?= $mobileTopbarActions ? ' mobile-topbar--multiple-actions' : '' ?>">
         <?php if ($current !== 'dashboard'): ?>
         <button type="button" class="mobile-back-button"
                 data-fallback="<?= base_url('dashboard') ?>"

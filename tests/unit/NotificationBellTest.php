@@ -167,4 +167,57 @@ final class NotificationBellTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertStringContainsString('id="topbar-notif-link"', $navbarContent);
         $this->assertStringContainsString('mobile-topbar-notif-bell', $navbarContent);
     }
+
+    public function testMultipleActionsClassOnContainer(): void
+    {
+        $navbarContent = file_get_contents(APPPATH . 'Views/partials/_navbar.php');
+
+        $this->assertStringContainsString('mobile-topbar--multiple-actions', $navbarContent);
+        $this->assertMatchesRegularExpression(
+            '/mobile-topbar.*mobile-topbar--multiple-actions.*mobileTopbarActions/s',
+            $navbarContent,
+            'Class mobile-topbar--multiple-actions must be on container, conditional on mobileTopbarActions'
+        );
+    }
+
+    public function testCSSUsesDescendantSelectorNotSibling(): void
+    {
+        $css = file_get_contents(FCPATH . 'assets/app.css');
+
+        $this->assertStringContainsString('.mobile-topbar--multiple-actions .mobile-page-title', $css);
+        $this->assertStringNotContainsString('.mobile-topbar-actions--multiple ~ .mobile-page-title', $css);
+    }
+
+    public function testCSSTitleHasSymmetricSpacing(): void
+    {
+        $css = file_get_contents(FCPATH . 'assets/app.css');
+
+        $this->assertMatchesRegularExpression(
+            '/\.mobile-topbar--multiple-actions \.mobile-page-title \{[^}]*left:\s*(\d+)px;[^}]*right:\s*\1px;/s',
+            $css,
+            'Title must have equal left and right values for symmetric centering'
+        );
+    }
+
+    public function testHomeWithoutActionsHasNoMultipleClass(): void
+    {
+        $navbarContent = file_get_contents(APPPATH . 'Views/partials/_navbar.php');
+
+        $this->assertMatchesRegularExpression(
+            '/mobile-topbar.*mobileTopbarActions.*mobile-topbar--multiple-actions/s',
+            $navbarContent,
+            'Class must be conditional on mobileTopbarActions variable'
+        );
+    }
+
+    public function testReportesWithActionsHasMultipleClass(): void
+    {
+        $navbarContent = file_get_contents(APPPATH . 'Views/partials/_navbar.php');
+
+        $this->assertStringContainsString('mobile-topbar--multiple-actions', $navbarContent);
+        $this->assertMatchesRegularExpression(
+            '/container mobile-topbar.*mobileTopbarActions/s',
+            $navbarContent
+        );
+    }
 }

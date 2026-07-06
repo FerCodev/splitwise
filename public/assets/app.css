@@ -546,8 +546,9 @@ body {
     align-items: center;
     gap: 4px;
 }
-.mobile-topbar-actions--multiple ~ .mobile-page-title {
-    right: 92px;
+.mobile-topbar--multiple-actions .mobile-page-title {
+    left: 100px;
+    right: 100px;
 }
 .mobile-topbar-action {
     display: inline-flex;
