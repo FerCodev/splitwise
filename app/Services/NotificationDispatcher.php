@@ -148,7 +148,7 @@ class NotificationDispatcher
             'body' => (string) ($notification['body'] ?? ''),
             'url' => (string) ($notification['target_url'] ?? ''),
             'icon' => base_url('assets/pwa/icon-192.png'),
-            'badge' => base_url('assets/pwa/icon-192.png'),
+            'badge' => base_url('assets/pwa/notification-badge.png'),
             'tag' => 'notif-' . $notificationId,
         ];
 

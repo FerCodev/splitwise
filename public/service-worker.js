@@ -1,4 +1,4 @@
-const CACHE_NAME = 'splitwise-pwa-v12';
+const CACHE_NAME = 'splitwise-pwa-v13';
 const SCOPE_URL = new URL(self.registration.scope);
 const SCOPE_ORIGIN = SCOPE_URL.origin;
 
@@ -7,10 +7,12 @@ const CORE_ASSETS = [
   assetUrl('assets/app.css'),
   assetUrl('manifest.webmanifest'),
   assetUrl('assets/pwa/icon-192.png'),
-  assetUrl('assets/pwa/icon-512.png')
+  assetUrl('assets/pwa/icon-512.png'),
+  assetUrl('assets/pwa/notification-badge.png')
 ];
 
 const DEFAULT_ICON = assetUrl('assets/pwa/icon-192.png');
+const DEFAULT_BADGE = assetUrl('assets/pwa/notification-badge.png');
 
 function setAppBadge(count) {
   if (!self.navigator || typeof self.navigator.setAppBadge !== 'function') return Promise.resolve();
@@ -67,7 +69,7 @@ self.addEventListener('push', (event) => {
   let title = 'Gastito';
   let body = 'Tenés una nueva notificación.';
   let icon = DEFAULT_ICON;
-  let badge = DEFAULT_ICON;
+  let badge = DEFAULT_BADGE;
   let tag = '';
   let data = {};
 
@@ -78,7 +80,7 @@ self.addEventListener('push', (event) => {
         title = parsed.title || 'Gastito';
         body = parsed.body || 'Tenés una nueva notificación.';
         icon = parsed.icon || DEFAULT_ICON;
-        badge = parsed.badge || DEFAULT_ICON;
+        badge = parsed.badge || DEFAULT_BADGE;
         tag = parsed.tag || '';
 
         const rawUrl = parsed.url || '';

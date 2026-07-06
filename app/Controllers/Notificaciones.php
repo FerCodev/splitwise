@@ -227,7 +227,7 @@ class Notificaciones extends BaseController
             'body' => 'Notificación de prueba. Todo funciona correctamente.',
             'url' => base_url('notificaciones'),
             'icon' => base_url('assets/pwa/icon-192.png'),
-            'badge' => base_url('assets/pwa/icon-192.png'),
+            'badge' => base_url('assets/pwa/notification-badge.png'),
             'tag' => 'test-' . time(),
         ];
 

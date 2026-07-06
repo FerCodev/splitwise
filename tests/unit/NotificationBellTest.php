@@ -115,6 +115,15 @@ final class NotificationBellTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertStringContainsString('setAppBadge(1)', $sw);
     }
 
+    public function testServiceWorkerUsesDedicatedMonochromeNotificationBadge(): void
+    {
+        $sw = file_get_contents(FCPATH . 'service-worker.js');
+
+        $this->assertStringContainsString('notification-badge.png', $sw);
+        $this->assertFileExists(FCPATH . 'assets/pwa/notification-badge.png');
+        $this->assertSame([96, 96], array_slice(getimagesize(FCPATH . 'assets/pwa/notification-badge.png'), 0, 2));
+    }
+
     public function testBellVisibleOnAllScreens(): void
     {
         $this->assertStringContainsString('mobile-topbar-notif-bell', $this->navbar);
