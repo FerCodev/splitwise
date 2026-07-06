@@ -292,7 +292,82 @@ final class NotificationConsistencyTest extends \CodeIgniter\Test\CIUnitTestCase
         $prefs = (new NotificationPreference())->getForUser(99999);
         $this->assertTrue($prefs['push_enabled']);
         $this->assertTrue($prefs['expense_created']);
+        $this->assertTrue($prefs['payment_events']);
+        $this->assertTrue($prefs['group_events']);
         $this->assertTrue($prefs['show_amounts']);
         $this->assertSame(99999, $prefs['user_id']);
+    }
+
+    public function testPaymentNotificationOnlyTargetsCounterparty(): void
+    {
+        $payer = 9101;
+        $receiver = 9102;
+        $this->seedUsers([
+            ['id' => $payer, 'name' => 'Payer', 'email' => 'payer9101@t.com', 'password' => 'x'],
+            ['id' => $receiver, 'name' => 'Receiver', 'email' => 'receiver9102@t.com', 'password' => 'x'],
+        ]);
+
+        (new NotificationService())->notifyPaymentCreated(
+            'Viaje', $payer, 'Payer', 44, $payer, $receiver, 2500.0
+        );
+
+        $notification = (new Notification())->where('user_id', $receiver)->first();
+        $this->assertNotNull($notification);
+        $this->assertSame('payment.created', $notification['event_type']);
+        $this->assertStringEndsWith('/pagos/44', $notification['target_url']);
+        $this->assertNull((new Notification())->where('user_id', $payer)->first());
+    }
+
+    public function testExpenseUpdateOnlyTargetsAffectedUsers(): void
+    {
+        $actor = 9201;
+        $affected = 9202;
+        $unaffected = 9203;
+        $this->seedUsers([
+            ['id' => $actor, 'name' => 'Actor', 'email' => 'actor9201@t.com', 'password' => 'x'],
+            ['id' => $affected, 'name' => 'Affected', 'email' => 'affected9202@t.com', 'password' => 'x'],
+            ['id' => $unaffected, 'name' => 'Unaffected', 'email' => 'unaffected9203@t.com', 'password' => 'x'],
+        ]);
+
+        (new NotificationService())->notifyExpenseUpdated(
+            'Casa', $actor, 'Actor', 55, 'Supermercado', 3200.0, [$actor, $affected]
+        );
+
+        $this->assertNotNull((new Notification())->where('user_id', $affected)->first());
+        $this->assertNull((new Notification())->where('user_id', $actor)->first());
+        $this->assertNull((new Notification())->where('user_id', $unaffected)->first());
+    }
+
+    public function testClosedGroupGivesDebtorActionableMessage(): void
+    {
+        $actor = 9301;
+        $debtor = 9302;
+        $creditor = 9303;
+        $this->seedUsers([
+            ['id' => $actor, 'name' => 'Actor', 'email' => 'actor9301@t.com', 'password' => 'x'],
+            ['id' => $debtor, 'name' => 'Debtor', 'email' => 'debtor9302@t.com', 'password' => 'x'],
+            ['id' => $creditor, 'name' => 'Creditor', 'email' => 'creditor9303@t.com', 'password' => 'x'],
+        ]);
+        $groupId = 9304;
+        $this->seedGrupo($groupId, 'Vacaciones', $actor);
+        $this->seedMiembros($groupId, [
+            ['user_id' => $actor, 'rol' => 'admin'],
+            ['user_id' => $debtor],
+            ['user_id' => $creditor],
+        ]);
+
+        (new NotificationService())->notifyGroupStateChanged(
+            $groupId, 'Vacaciones', $actor, 'Actor', 'cerrado', [[
+                'deudor_id' => $debtor,
+                'acreedor_id' => $creditor,
+                'monto' => 1800.0,
+            ]]
+        );
+
+        $debtorNotification = (new Notification())->where('user_id', $debtor)->first();
+        $this->assertStringContainsString('pagos pendientes', $debtorNotification['body']);
+        $this->assertStringEndsWith("/grupos/{$groupId}/balance", $debtorNotification['target_url']);
+        $this->assertNotNull((new Notification())->where('user_id', $creditor)->first());
+        $this->assertNotNull((new Notification())->where('user_id', $actor)->first());
     }
 }

@@ -8,7 +8,7 @@ class NotificationPreference extends Model
 {
     protected $table = 'notification_preferences';
     protected $primaryKey = 'user_id';
-    protected $allowedFields = ['user_id', 'push_enabled', 'expense_created', 'show_amounts'];
+    protected $allowedFields = ['user_id', 'push_enabled', 'expense_created', 'payment_events', 'group_events', 'show_amounts'];
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
     protected $returnType = 'array';
@@ -22,6 +22,8 @@ class NotificationPreference extends Model
                 'user_id' => $userId,
                 'push_enabled' => true,
                 'expense_created' => true,
+                'payment_events' => true,
+                'group_events' => true,
                 'show_amounts' => true,
             ];
         }
@@ -33,7 +35,7 @@ class NotificationPreference extends Model
     {
         $exists = $this->find($userId);
 
-        $allowed = ['push_enabled', 'expense_created', 'show_amounts'];
+        $allowed = ['push_enabled', 'expense_created', 'payment_events', 'group_events', 'show_amounts'];
         $filtered = [];
         foreach ($allowed as $key) {
             if (array_key_exists($key, $data)) {

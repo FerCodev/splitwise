@@ -23,4 +23,18 @@ abstract class BaseController extends Controller
      */
 
     // protected $session;
+
+    protected function queueNotifications(?callable $queue = null): void
+    {
+        try {
+            if ($queue !== null) {
+                $queue(new \App\Services\NotificationService());
+            }
+            (new \App\Services\NotificationDispatcher())->dispatch();
+        } catch (\Throwable $e) {
+            log_message('error', 'No se pudo procesar una notificación: {message}', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
 }

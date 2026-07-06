@@ -21,7 +21,15 @@
                 </div>
                 <div class="mb-3 form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="expense_created" name="expense_created" value="1" <?= !empty($prefs['expense_created']) ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="expense_created">Notificar nuevos gastitos</label>
+                    <label class="form-check-label" for="expense_created">Actividad de gastitos</label>
+                </div>
+                <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="payment_events" name="payment_events" value="1" <?= !empty($prefs['payment_events']) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="payment_events">Pagos registrados</label>
+                </div>
+                <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="group_events" name="group_events" value="1" <?= !empty($prefs['group_events']) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="group_events">Miembros y estado de grupos</label>
                 </div>
                 <div class="mb-3 form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="show_amounts" name="show_amounts" value="1" <?= !empty($prefs['show_amounts']) ? 'checked' : '' ?>>

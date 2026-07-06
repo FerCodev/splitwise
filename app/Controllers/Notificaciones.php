@@ -76,6 +76,8 @@ class Notificaciones extends BaseController
             $prefModel->saveForUser($userId, [
                 'push_enabled' => $this->request->getPost('push_enabled') ? true : false,
                 'expense_created' => $this->request->getPost('expense_created') ? true : false,
+                'payment_events' => $this->request->getPost('payment_events') ? true : false,
+                'group_events' => $this->request->getPost('group_events') ? true : false,
                 'show_amounts' => $this->request->getPost('show_amounts') ? true : false,
             ]);
 

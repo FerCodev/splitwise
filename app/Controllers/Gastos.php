@@ -9,7 +9,6 @@ use App\Models\GastoParticipante;
 use App\Models\Categoria;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
-use App\Services\NotificationDispatcher;
 use App\Services\NotificationService;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
@@ -461,15 +460,8 @@ class Gastos extends BaseController
             return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gastito. Intentalo de nuevo.'], 'Error al crear el gastito. Intentalo de nuevo.'));
         }
 
-        // Best-effort immediate delivery. The outbox keeps failed attempts available
-        // for the scheduled notifications:dispatch command to retry later.
-        try {
-            (new NotificationDispatcher())->dispatch();
-        } catch (\Throwable $e) {
-            log_message('error', 'No se pudo despachar Web Push inmediatamente: {message}', [
-                'message' => $e->getMessage(),
-            ]);
-        }
+        // La notificación del alta ya se encoló dentro de la transacción.
+        $this->queueNotifications();
 
         return redirect()->to('/grupos/' . $grupoId)->with('success', UiFeedbackResolver::message('expenses.create.completed', [], 'Gastito creado correctamente.'));
     }
@@ -568,6 +560,11 @@ class Gastos extends BaseController
         if (!$gastoExistente) {
             return redirect()->to('/gastos')->with('error', 'Gastito no encontrado.');
         }
+
+        $participantesAnteriores = array_map(
+            'intval',
+            array_column($gastoModel->getParticipantes($id), 'user_id')
+        );
 
         $rules = [
             'descripcion' => 'permit_empty|max_length[255]',
@@ -718,6 +715,23 @@ class Gastos extends BaseController
             return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.update.failed', ['reason' => 'Error al actualizar el gastito. Intentalo de nuevo.'], 'Error al actualizar el gastito. Intentalo de nuevo.'));
         }
 
+
+        $afectados = array_values(array_unique(array_merge(
+            $participantesAnteriores,
+            $participantesIds,
+            [(int) $gastoExistente['pagador_id'], $pagadorId]
+        )));
+        $actorId = (int) session()->get('userId');
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $grupoNombre, $actorId, $actorName, $id, $descripcion, $monto, $afectados
+        ): void {
+            $notifications->notifyExpenseUpdated(
+                $grupoNombre, $actorId, $actorName, $id, $descripcion, $monto, $afectados
+            );
+        });
+
         return redirect()->to('/grupos/' . $grupoIdOriginal)->with('success', UiFeedbackResolver::message('expenses.update.completed', [], 'Gastito actualizado correctamente.'));
     }
 
@@ -744,6 +758,12 @@ class Gastos extends BaseController
             return redirect()->to('/gastos')->with('error', $errorPermiso);
         }
 
+
+        $afectados = array_values(array_unique(array_merge(
+            array_map('intval', array_column($gastoModel->getParticipantes($id), 'user_id')),
+            [(int) $gasto['pagador_id']]
+        )));
+
         // Eliminar archivo de recibo si existe
         if (!empty($gasto['recibo_path'])) {
             $path = WRITEPATH . $gasto['recibo_path'];
@@ -753,6 +773,20 @@ class Gastos extends BaseController
         }
 
         $gastoModel->delete($id);
+
+        $actorId = (int) session()->get('userId');
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+        $descripcion = (string) ($gasto['descripcion'] ?? 'Gasto');
+        $monto = (float) $gasto['monto'];
+        $grupoId = (int) $gasto['grupo_id'];
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $grupoId, $grupoNombre, $actorId, $actorName, $descripcion, $monto, $afectados
+        ): void {
+            $notifications->notifyExpenseDeleted(
+                $grupoId, $grupoNombre, $actorId, $actorName, $descripcion, $monto, $afectados
+            );
+        });
 
         return redirect()->to('/gastos')->with('success', UiFeedbackResolver::message('expenses.delete.completed', [], 'Gastito eliminado correctamente.'));
     }

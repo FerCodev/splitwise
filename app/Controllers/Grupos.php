@@ -11,6 +11,7 @@ use App\Models\UserPaymentMethod;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
 use App\Services\DebtPaymentValidator;
+use App\Services\NotificationService;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
 
@@ -118,6 +119,19 @@ class Grupos extends BaseController
                 ]);
             }
         }
+
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $miembrosNotificados = array_values(array_filter(
+            array_map('intval', $miembrosValidos),
+            static fn(int $memberId): bool => $memberId !== (int) $userId
+        ));
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $grupoId, $nombre, $miembrosNotificados, $actorName
+        ): void {
+            foreach ($miembrosNotificados as $memberId) {
+                $notifications->notifyMemberAdded((int) $grupoId, $nombre, $memberId, $actorName);
+            }
+        });
 
         return redirect()->to('/grupos')->with('success', UiFeedbackResolver::message('groups.create.completed', ['group_name' => $nombre], 'Grupo creado correctamente.'));
     }
@@ -540,6 +554,17 @@ class Grupos extends BaseController
             return redirect()->to('/grupos/' . $id . '/balance')->with('error', 'No se pudo registrar el pago. Intenta nuevamente.');
         }
 
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $grupoNombre, $userId, $actorName, $insertId, $receptorId, $montoDecimal
+        ): void {
+            $notifications->notifyPaymentCreated(
+                $grupoNombre, $userId, $actorName, (int) $insertId,
+                $userId, $receptorId, $montoDecimal
+            );
+        });
+
         $deudaRestanteCentavos = $deudaCentavos - $montoCentavos;
 
         if ($deudaRestanteCentavos > 0) {
@@ -594,6 +619,18 @@ class Grupos extends BaseController
 
         $grupoModel = new Grupo();
         $grupoModel->update($id, ['estado' => $nuevoEstado]);
+
+        $actorId = (int) session()->get('userId');
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $acceso['grupo']['nombre'] ?? 'Grupo';
+        $deudasEstado = $nuevoEstado === 'cerrado' ? (new Gasto())->getDeudasByGrupo($id) : [];
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $id, $grupoNombre, $actorId, $actorName, $nuevoEstado, $deudasEstado
+        ): void {
+            $notifications->notifyGroupStateChanged(
+                $id, $grupoNombre, $actorId, $actorName, $nuevoEstado, $deudasEstado
+            );
+        });
 
         $actionKey = match ($nuevoEstado) {
             'cerrado' => 'groups.close.completed',
@@ -745,6 +782,14 @@ class Grupos extends BaseController
             'rol' => 'member',
         ]);
 
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $acceso['grupo']['nombre'] ?? 'Grupo';
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $id, $grupoNombre, $userId, $actorName
+        ): void {
+            $notifications->notifyMemberAdded($id, $grupoNombre, $userId, $actorName);
+        });
+
         return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message('groups.member.add.completed', [], 'Miembro agregado correctamente.'));
     }
 
@@ -820,6 +865,14 @@ class Grupos extends BaseController
         $miembroModel->where('grupo_id', $id)
             ->where('user_id', $userId)
             ->delete();
+
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $acceso['grupo']['nombre'] ?? 'Grupo';
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $grupoNombre, $userId, $actorName
+        ): void {
+            $notifications->notifyMemberRemoved($grupoNombre, $userId, $actorName);
+        });
 
         return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message('groups.member.remove.completed', [], 'Miembro quitado correctamente.'));
     }

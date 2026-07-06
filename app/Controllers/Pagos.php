@@ -6,6 +6,7 @@ use App\Models\Pago;
 use App\Models\Grupo;
 use App\Services\GroupPermission;
 use App\Services\DebtPaymentValidator;
+use App\Services\NotificationService;
 use App\Services\UiFeedbackResolver;
 
 class Pagos extends BaseController
@@ -319,12 +320,25 @@ class Pagos extends BaseController
                 return redirect()->back()->withInput()->with('error', 'No se pudo registrar el pago. Intentá nuevamente.');
             }
 
+            $actorId = (int) session()->get('userId');
+            $actorName = session()->get('userName') ?? 'Usuario';
+            $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+            $this->queueNotifications(static function (NotificationService $notifications) use (
+                $grupoNombre, $actorId, $actorName, $insertId, $pagadorId, $receptorId, $montoCentavos
+            ): void {
+                $notifications->notifyPaymentCreated(
+                    $grupoNombre, $actorId, $actorName, (int) $insertId,
+                    (int) $pagadorId, $receptorId,
+                    DebtPaymentValidator::centsToDecimal($montoCentavos)
+                );
+            });
+
             $successMessage = UiFeedbackResolver::message('payments.create.completed', [], 'Pago registrado correctamente.');
             return redirect()->to('/grupos/' . $grupoId . '/balance')->with('success', $successMessage);
         }
 
         $pagoModel = new Pago();
-        $pagoModel->insert([
+        $insertId = $pagoModel->insert([
             'grupo_id' => $grupoId,
             'pagador_id' => $pagadorId,
             'receptor_id' => $receptorId,
@@ -332,6 +346,23 @@ class Pagos extends BaseController
             'fecha' => $this->request->getPost('fecha'),
             'descripcion' => $this->request->getPost('descripcion'),
         ]);
+
+        if (!$insertId) {
+            return redirect()->back()->withInput()->with('error', 'No se pudo registrar el pago. Intentá nuevamente.');
+        }
+
+        $actorId = (int) session()->get('userId');
+        $actorName = session()->get('userName') ?? 'Usuario';
+        $grupoNombre = $grupo['nombre'] ?? 'Grupo';
+        $monto = (float) $this->request->getPost('monto');
+        $this->queueNotifications(static function (NotificationService $notifications) use (
+            $grupoNombre, $actorId, $actorName, $insertId, $pagadorId, $receptorId, $monto
+        ): void {
+            $notifications->notifyPaymentCreated(
+                $grupoNombre, $actorId, $actorName, (int) $insertId,
+                (int) $pagadorId, $receptorId, $monto
+            );
+        });
 
         $successMessage = UiFeedbackResolver::message('payments.create.completed', [], 'Pago registrado correctamente.');
 
