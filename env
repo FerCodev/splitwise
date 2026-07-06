@@ -61,6 +61,7 @@
 
 # session.driver = 'CodeIgniter\Session\Handlers\FileHandler'
 # session.savePath = null
+# session.expiration = 2592000
 
 #--------------------------------------------------------------------
 # LOGGER

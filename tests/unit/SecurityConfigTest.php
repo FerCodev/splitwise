@@ -1,6 +1,7 @@
 <?php
 
 use Config\Security;
+use Config\Session as SessionConfig;
 
 /**
  * @internal
@@ -34,5 +35,12 @@ final class SecurityConfigTest extends \CodeIgniter\Test\CIUnitTestCase
         $config = new Security();
 
         $this->assertTrue($config->regenerate);
+    }
+
+    public function testAuthenticatedSessionLastsThirtyDays(): void
+    {
+        $config = new SessionConfig();
+
+        $this->assertSame(30 * DAY, $config->expiration);
     }
 }

@@ -188,6 +188,7 @@ php vendor/bin/phpunit --no-coverage
 | Enlace recuperación | Se muestra en pantalla (`dev_reset_link`) | Solo por email si SMTP configurado |
 | `encryption.key` | Opcional | Requerido |
 | Contraseña mínima | 8 caracteres | 8 caracteres |
+| Duración de sesión | 30 días | 30 días |
 | Sesión `regenerateDestroy` | `true` | `true` |
 | Timezone | `America/Argentina/Buenos_Aires` | `America/Argentina/Buenos_Aires` |
 | Locale | `es` | `es` |
