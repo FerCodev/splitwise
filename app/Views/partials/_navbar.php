@@ -249,6 +249,14 @@
         }
     }
 
+    function applyAppBadge(count) {
+        if (count > 0 && typeof navigator.setAppBadge === 'function') {
+            navigator.setAppBadge(count).catch(function() {});
+        } else if (count === 0 && typeof navigator.clearAppBadge === 'function') {
+            navigator.clearAppBadge().catch(function() {});
+        }
+    }
+
     function refreshNotificationCount() {
         if (fetching) return;
         fetching = true;
@@ -261,6 +269,7 @@
                 applyBadge(document.getElementById('desktop-notif-badge'), count);
                 applyBadge(document.getElementById('mobile-notif-badge'), count);
                 applyBadge(document.getElementById('topbar-notif-badge'), count);
+                applyAppBadge(count);
 
                 var topbarLink = document.getElementById('topbar-notif-link');
                 if (topbarLink) {

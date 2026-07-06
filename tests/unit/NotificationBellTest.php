@@ -102,6 +102,19 @@ final class NotificationBellTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertStringContainsString('clients.matchAll', $sw);
     }
 
+    public function testUnreadCountUpdatesInstalledAppBadge(): void
+    {
+        $this->assertStringContainsString('navigator.setAppBadge(count)', $this->navbar);
+        $this->assertStringContainsString('navigator.clearAppBadge()', $this->navbar);
+    }
+
+    public function testPushSetsBackgroundAppBadge(): void
+    {
+        $sw = file_get_contents(FCPATH . 'service-worker.js');
+        $this->assertStringContainsString('self.navigator.setAppBadge(count)', $sw);
+        $this->assertStringContainsString('setAppBadge(1)', $sw);
+    }
+
     public function testBellVisibleOnAllScreens(): void
     {
         $this->assertStringContainsString('mobile-topbar-notif-bell', $this->navbar);

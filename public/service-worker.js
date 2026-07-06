@@ -12,6 +12,18 @@ const CORE_ASSETS = [
 
 const DEFAULT_ICON = assetUrl('assets/pwa/icon-192.png');
 
+function setAppBadge(count) {
+  if (!self.navigator || typeof self.navigator.setAppBadge !== 'function') return Promise.resolve();
+
+  try {
+    return count > 0
+      ? self.navigator.setAppBadge(count)
+      : self.navigator.clearAppBadge();
+  } catch (_) {
+    return Promise.resolve();
+  }
+}
+
 function isValidScopeUrl(url) {
   try {
     const resolved = new URL(url, SCOPE_URL);
@@ -83,15 +95,18 @@ self.addEventListener('push', (event) => {
   }
 
   event.waitUntil(
-    self.registration.showNotification(title, {
-      body: body,
-      icon: icon,
-      badge: badge,
-      tag: tag,
-      data: data,
-      vibrate: [200, 100, 200],
-      requireInteraction: false,
-    }).then(() => {
+    Promise.all([
+      self.registration.showNotification(title, {
+        body: body,
+        icon: icon,
+        badge: badge,
+        tag: tag,
+        data: data,
+        vibrate: [200, 100, 200],
+        requireInteraction: false,
+      }),
+      setAppBadge(1),
+    ]).then(() => {
       return clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
         for (const client of windowClients) {
           try {

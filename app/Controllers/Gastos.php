@@ -9,6 +9,7 @@ use App\Models\GastoParticipante;
 use App\Models\Categoria;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
+use App\Services\NotificationDispatcher;
 use App\Services\NotificationService;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
@@ -458,6 +459,16 @@ class Gastos extends BaseController
         } catch (\Exception $e) {
             $db->transRollback();
             return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('expenses.create.failed', ['reason' => 'Error al crear el gastito. Intentalo de nuevo.'], 'Error al crear el gastito. Intentalo de nuevo.'));
+        }
+
+        // Best-effort immediate delivery. The outbox keeps failed attempts available
+        // for the scheduled notifications:dispatch command to retry later.
+        try {
+            (new NotificationDispatcher())->dispatch();
+        } catch (\Throwable $e) {
+            log_message('error', 'No se pudo despachar Web Push inmediatamente: {message}', [
+                'message' => $e->getMessage(),
+            ]);
         }
 
         return redirect()->to('/grupos/' . $grupoId)->with('success', UiFeedbackResolver::message('expenses.create.completed', [], 'Gastito creado correctamente.'));
