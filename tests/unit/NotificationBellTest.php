@@ -36,6 +36,14 @@ final class NotificationBellTest extends \CodeIgniter\Test\CIUnitTestCase
         $this->assertStringContainsString('id="mobile-notif-badge"', $this->navbar);
     }
 
+    public function testMobileMenuBadgeKeepsItsOwnGridColumn(): void
+    {
+        $css = file_get_contents(FCPATH . 'assets/app.css');
+
+        $this->assertStringContainsString('mobile-menu-link--with-badge', $this->navbar);
+        $this->assertStringContainsString('grid-template-columns: 22px minmax(0, 1fr) auto', $css);
+    }
+
     public function testBellHasAriaLabel(): void
     {
         $this->assertMatchesRegularExpression(

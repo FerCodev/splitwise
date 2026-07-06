@@ -808,6 +808,16 @@ body {
 .mobile-menu-link-button {
     font: inherit;
 }
+.mobile-menu-link--with-badge {
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+}
+.mobile-menu-link--with-badge .badge {
+    min-width: 22px;
+    justify-self: end;
+    border-radius: 999px;
+    line-height: 1.25;
+    text-align: center;
+}
 .mobile-menu-session {
     margin-top: auto;
     padding: 12px 0 0;
