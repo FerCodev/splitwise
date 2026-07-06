@@ -98,8 +98,8 @@
         </button>
         <?php endif; ?>
         <span class="mobile-page-title"><?= esc($mobileTitle) ?></span>
-        <div class="mobile-topbar-actions">
-            <a href="<?= base_url('notificaciones') ?>" class="mobile-topbar-action mobile-topbar-notif-bell" aria-label="Notificaciones">
+        <div class="mobile-topbar-actions<?= $mobileTopbarActions ? ' mobile-topbar-actions--multiple' : '' ?>">
+            <a href="<?= base_url('notificaciones') ?>" id="topbar-notif-link" class="mobile-topbar-action mobile-topbar-notif-bell" aria-label="Notificaciones, ninguna sin leer">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zm.995-14.901a1 1 0 1 0-1.99 0A5.002 5.002 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901z"/></svg>
                 <span class="topbar-notif-badge d-none" id="topbar-notif-badge" aria-hidden="true">0</span>
             </a>
@@ -230,15 +230,19 @@
         return n > 99 ? '99+' : String(n);
     }
 
+    function getAccessibilityLabel(count) {
+        if (count === 0) return 'Notificaciones, ninguna sin leer';
+        if (count === 1) return 'Notificaciones, 1 sin leer';
+        return 'Notificaciones, ' + count + ' sin leer';
+    }
+
     function applyBadge(el, count) {
         if (!el) return;
         if (count > 0) {
             el.textContent = formatCount(count);
-            el.setAttribute('aria-label', count + ' notificaciones sin leer');
             el.classList.remove('d-none');
         } else {
             el.textContent = '0';
-            el.setAttribute('aria-label', 'Notificaciones sin leer');
             el.classList.add('d-none');
         }
     }
@@ -250,9 +254,16 @@
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var count = parseInt(data.count, 10) || 0;
+                var label = getAccessibilityLabel(count);
+
                 applyBadge(document.getElementById('desktop-notif-badge'), count);
                 applyBadge(document.getElementById('mobile-notif-badge'), count);
                 applyBadge(document.getElementById('topbar-notif-badge'), count);
+
+                var topbarLink = document.getElementById('topbar-notif-link');
+                if (topbarLink) {
+                    topbarLink.setAttribute('aria-label', label);
+                }
             })
             .catch(function() {})
             .then(function() { fetching = false; });

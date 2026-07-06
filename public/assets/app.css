@@ -542,6 +542,12 @@ body {
     right: 4px;
     z-index: 2;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.mobile-topbar-actions--multiple ~ .mobile-page-title {
+    right: 92px;
 }
 .mobile-topbar-action {
     display: inline-flex;

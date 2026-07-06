@@ -92,7 +92,7 @@ self.addEventListener('push', (event) => {
       vibrate: [200, 100, 200],
       requireInteraction: false,
     }).then(() => {
-      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+      return clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
         for (const client of windowClients) {
           try {
             if (new URL(client.url).origin === SCOPE_ORIGIN) {
