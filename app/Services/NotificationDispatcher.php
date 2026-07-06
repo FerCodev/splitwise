@@ -220,10 +220,6 @@ class NotificationDispatcher
         int $notificationId, int $userId,
         NotificationOutbox $outboxModel, array $job
     ): bool {
-        $subsModel = new PushSubscription();
-        $allSubs = $subsModel->findEnabledByUser($userId);
-        $allSubIds = array_column($allSubs, 'id');
-
         $db = $outboxModel->db;
         $db->transBegin();
 
@@ -239,6 +235,10 @@ class NotificationDispatcher
                 $db->transCommit();
                 return true;
             }
+
+            $subsModel = new PushSubscription();
+            $allSubs = $subsModel->findEnabledByUser($userId);
+            $allSubIds = array_column($allSubs, 'id');
 
             $deliveryModel = new NotificationDelivery();
 
@@ -270,23 +270,33 @@ class NotificationDispatcher
                 return false;
             }
 
-            $db->transCommit();
-            
+            $finalDeliveryCount = $deliveryModel->where('notification_id', $notificationId)->countAllResults();
+            if ($finalDeliveryCount !== count($allSubIds)) {
+                $db->transRollback();
+                $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                return false;
+            }
+
+            if (!$db->transStatus()) {
+                $db->transRollback();
+                $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                return false;
+            }
+
+            $commitResult = $db->transCommit();
+            if (!$commitResult) {
+                $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
+                return false;
+            }
+
             if (empty($allSubIds)) {
                 $outboxModel->markCompleted($job['id']);
                 return false;
             }
-            
+
             return true;
         } catch (\Throwable $e) {
             $db->transRollback();
-
-            try {
-                $cleanupModel = new NotificationDelivery();
-                $cleanupModel->cleanupPartialSnapshot($notificationId);
-            } catch (\Throwable $cleanupError) {
-            }
-
             $outboxModel->scheduleRetry($job['id'], 'delivery_initialization_failed', date('Y-m-d H:i:s', time() + 60));
             return false;
         }

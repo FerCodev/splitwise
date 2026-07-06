@@ -143,11 +143,11 @@ class NotificationOutbox extends Model
             'SELECT * FROM notification_outbox WHERE id = ? FOR UPDATE',
             [$id]
         );
-        
+
         if (!$result) {
             return null;
         }
-        
+
         $row = $result->getRowArray();
         return $row ?: null;
     }

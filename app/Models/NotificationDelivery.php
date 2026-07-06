@@ -54,7 +54,7 @@ class NotificationDelivery extends Model
         }
 
         $result = $this->db->table($this->table)->insertBatch($rows);
-        
+
         if ($result === false) {
             throw new \RuntimeException('Snapshot insertion failed');
         }
