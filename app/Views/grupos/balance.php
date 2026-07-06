@@ -13,9 +13,13 @@
             $otrasDeudas = array_values(array_filter($deudas, fn($d) => (int) $d['deudor_id'] !== $miUserId));
         ?>
 
-        <div class="card border-0 shadow-sm mb-4">
+        <div class="card border-0 shadow-sm mb-4 balance-overview-card">
             <div class="card-body">
-                <h3 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h3>
+                <div class="balance-overview-heading">
+                    <div>
+                        <span class="balance-overview-eyebrow">Balance del grupo</span>
+                        <h3 class="fw-bold mb-1"><?= esc($grupo['nombre']) ?></h3>
+                    </div>
                 <?php
                     $badgeEstado = [
                         'activo' => 'bg-success',
@@ -24,12 +28,24 @@
                     ];
                     $claseEstado = $badgeEstado[$grupo['estado']] ?? 'bg-secondary';
                 ?>
-                <span class="badge <?= $claseEstado ?> mb-2"><?= ucfirst($grupo['estado']) ?></span>
-                <p class="text-muted small mb-0">
-                    <?= count($miembros) ?> miembro(s) &middot;
-                    Total gastado: <strong><?= moneda($totalGastado) ?></strong> &middot;
-                    Total pagos: <strong><?= moneda($totalPagado) ?></strong>
-                </p>
+                    <span class="badge <?= $claseEstado ?>"><?= ucfirst($grupo['estado']) ?></span>
+                </div>
+
+                <?php
+                    $miSaldoClase = $miSaldo > 0 ? 'is-positive' : ($miSaldo < 0 ? 'is-negative' : 'is-settled');
+                    $miSaldoTexto = $miSaldo > 0 ? 'a favor' : ($miSaldo < 0 ? 'debés' : 'saldado');
+                ?>
+                <div class="balance-overview-personal <?= $miSaldoClase ?>">
+                    <span>Tu balance</span>
+                    <strong><?= moneda(abs($miSaldo)) ?></strong>
+                    <small><?= $miSaldoTexto ?></small>
+                </div>
+
+                <div class="balance-overview-stats">
+                    <div><span>Integrantes</span><strong><?= count($miembros) ?></strong></div>
+                    <div><span>Total gastado</span><strong><?= moneda($totalGastado) ?></strong></div>
+                    <div><span>Pagos</span><strong><?= moneda($totalPagado) ?></strong></div>
+                </div>
             </div>
         </div>
 
@@ -107,18 +123,17 @@
                         </table>
                     </div>
                 </div>
-                <!-- Mobile: cards con avatar, progreso y detalle expandible -->
-                <div class="d-md-none">
+                <!-- Mobile: tarjetas de saldo con detalle progresivo -->
+                <div class="d-md-none balance-member-list">
                     <?php foreach ($balance as $b): ?>
                         <?php
-                            $saldoClase = $b['saldo'] >= 0 ? 'text-success' : 'text-danger';
-                            $total = max($b['total_pagado_gastos'], $b['total_consumido'], 1);
-                            $pagadoPct = min(round($b['total_pagado_gastos'] / $total * 100), 100);
-                            $consumidoPct = min(round($b['total_consumido'] / $total * 100), 100);
+                            $saldoClase = $b['saldo'] > 0 ? 'is-positive' : ($b['saldo'] < 0 ? 'is-negative' : 'is-settled');
+                            $saldoTexto = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? 'Debe' : 'Saldado');
                             $collapseId = 'detalle-' . $b['user_id'];
                         ?>
-                        <div class="mobile-card-item">
-                            <div class="d-flex align-items-center gap-3 mb-2">
+                        <article class="balance-member-card <?= $saldoClase ?>">
+                            <div class="balance-member-heading">
+                                <div class="balance-member-person">
                                 <?= view('components/avatar', [
                                     'userId' => $b['user_id'],
                                     'name' => $b['name'],
@@ -126,51 +141,51 @@
                                     'avatarUpdatedAt' => $b['avatar_updated_at'] ?? null,
                                     'size' => 44,
                                 ]) ?>
-                                <div class="flex-grow-1">
-                                    <div class="fw-medium"><?= esc($b['name']) ?></div>
-                                    <div class="fw-bold fs-5 <?= $saldoClase ?>">
-                                        <?= moneda(abs($b['saldo'])) ?>
-                                        <small class="fw-normal text-muted fs-6"><?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?></small>
+                                    <div>
+                                        <strong><?= esc($b['name']) ?></strong>
+                                        <?php if ((int) $b['user_id'] === $miUserId): ?><span>Vos</span><?php endif; ?>
                                     </div>
                                 </div>
+                                <div class="balance-member-result">
+                                    <span><?= $saldoTexto ?></span>
+                                    <strong><?= moneda(abs($b['saldo'])) ?></strong>
+                                </div>
                             </div>
-                            <div class="small text-muted mb-1 d-flex justify-content-between">
-                                <span>Pag&oacute;: <?= moneda($b['total_pagado_gastos']) ?></span>
-                                <span>Consumi&oacute;: <?= moneda($b['total_consumido']) ?></span>
+
+                            <div class="balance-member-metrics">
+                                <div><span>Pagó en gastos</span><strong><?= moneda($b['total_pagado_gastos']) ?></strong></div>
+                                <div><span>Consumió</span><strong><?= moneda($b['total_consumido']) ?></strong></div>
                             </div>
-                            <div class="progress mb-2" style="height:8px">
-                                <div class="progress-bar bg-primary" style="width:<?= $pagadoPct ?>%" title="Pag&oacute;"></div>
-                                <div class="progress-bar bg-warning" style="width:<?= $consumidoPct ?>%" title="Consumi&oacute;"></div>
-                            </div>
-                            <button class="btn btn-sm btn-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#<?= $collapseId ?>" aria-expanded="false">
-                                Ver detalle
+
+                            <button class="balance-member-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#<?= $collapseId ?>" aria-expanded="false" aria-controls="<?= $collapseId ?>">
+                                <span>Ver desglose</span>
+                                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
                             </button>
-                            <div class="collapse mt-2" id="<?= $collapseId ?>">
-                                <div class="card card-body py-2 px-3">
-                                    <div class="d-flex justify-content-between small">
+                            <div class="collapse" id="<?= $collapseId ?>">
+                                <div class="balance-member-breakdown">
+                                    <div>
                                         <span class="text-muted">Pag&oacute; en gastos:</span>
                                         <span><?= moneda($b['total_pagado_gastos']) ?></span>
                                     </div>
-                                    <div class="d-flex justify-content-between small">
+                                    <div>
                                         <span class="text-muted">Consumi&oacute;:</span>
                                         <span><?= moneda($b['total_consumido']) ?></span>
                                     </div>
-                                    <div class="d-flex justify-content-between small">
+                                    <div>
                                         <span class="text-muted">Pagos enviados:</span>
                                         <span><?= moneda($b['pagos_enviados']) ?></span>
                                     </div>
-                                    <div class="d-flex justify-content-between small">
+                                    <div>
                                         <span class="text-muted">Pagos recibidos:</span>
                                         <span><?= moneda($b['pagos_recibidos']) ?></span>
                                     </div>
-                                    <hr class="my-1">
-                                    <div class="d-flex justify-content-between small fw-bold <?= $saldoClase ?>">
+                                    <div class="balance-member-net">
                                         <span>Saldo neto:</span>
-                                        <span><?= moneda(abs($b['saldo'])) ?> (<?= $b['saldo'] >= 0 ? 'a favor' : 'debe' ?>)</span>
+                                        <strong><?= moneda(abs($b['saldo'])) ?> · <?= mb_strtolower($saldoTexto) ?></strong>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </article>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
