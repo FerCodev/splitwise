@@ -27,7 +27,7 @@
                class="list-group-item list-group-item-action d-flex justify-content-between align-items-start <?= $n['read_at'] === null ? 'list-group-item-primary' : '' ?>">
                 <div class="ms-2 me-auto">
                     <div class="fw-bold <?= $n['read_at'] === null ? '' : 'fw-normal' ?>"><?= esc($n['title']) ?></div>
-                    <div class="text-muted small"><?= esc($n['body']) ?></div>
+                    <div class="text-muted small"><?= esc(html_entity_decode($n['body'], ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?></div>
                     <div class="text-muted small mt-1"><?= esc(date('d/m/Y H:i', strtotime($n['created_at']))) ?></div>
                 </div>
                 <?php if ($n['read_at'] === null): ?>

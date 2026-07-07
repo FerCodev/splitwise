@@ -26,11 +26,11 @@ class Friendship extends Model
     public function request(int $from, int $to): void
     {
         if ($from <= 0 || $to <= 0 || $from === $to) {
-            throw new RuntimeException('No pod&eacute;s enviarte una solicitud a vos mismo.');
+            throw new RuntimeException('No podés enviarte una solicitud a vos mismo.');
         }
         $users = (new User())->whereIn('id', [$from, $to])->where('role !=', 'admin')->findAll();
         if (count($users) !== 2) {
-            throw new RuntimeException('El usuario no est&aacute; disponible para solicitudes.');
+            throw new RuntimeException('El usuario no está disponible para solicitudes.');
         }
         [$low, $high] = $this->pair($from, $to);
         $existing = $this->between($from, $to);
@@ -51,7 +51,7 @@ class Friendship extends Model
         $row = $this->find($id);
         if (!$row || $row['status'] !== 'pending' || (int) $row['requested_by_id'] === $userId
             || !in_array($userId, [(int) $row['user_low_id'], (int) $row['user_high_id']], true)) {
-            throw new RuntimeException('La solicitud ya no est&aacute; disponible.');
+            throw new RuntimeException('La solicitud ya no está disponible.');
         }
         $status = $accept ? 'accepted' : 'rejected';
         if (!$this->update($id, ['status' => $status, 'responded_at' => date('Y-m-d H:i:s')])) {

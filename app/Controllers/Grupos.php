@@ -8,6 +8,8 @@ use App\Models\Grupo;
 use App\Models\Categoria;
 use App\Models\GrupoMiembro;
 use App\Models\Friendship;
+use App\Models\GroupInvitation;
+use App\Models\PasswordReset;
 use App\Models\UserPaymentMethod;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
@@ -166,6 +168,9 @@ class Grupos extends BaseController
         $usuariosDisponibles = $permisos['puede_agregar_miembro']
             ? $grupoModel->getUsuariosDisponibles($id, (int) $acceso['userId'])
             : [];
+        $invitacionesPendientes = $permisos['puede_agregar_miembro']
+            ? (new GroupInvitation())->pendingForGroup($id)
+            : [];
 
         $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, $movimientos);
 
@@ -184,6 +189,7 @@ class Grupos extends BaseController
             'categorias' => $categorias,
             'totalPagado' => $totalPagado,
             'usuariosDisponibles' => $usuariosDisponibles,
+            'invitacionesPendientes' => $invitacionesPendientes,
             'colorMap' => $colorMap,
         ]);
     }
@@ -670,6 +676,9 @@ class Grupos extends BaseController
         $usuariosDisponibles = $permisos['puede_agregar_miembro']
             ? $grupoModel->getUsuariosDisponibles($id, (int) $acceso['userId'])
             : [];
+        $invitacionesPendientes = $permisos['puede_agregar_miembro']
+            ? (new GroupInvitation())->pendingForGroup($id)
+            : [];
 
         $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, []);
 
@@ -680,6 +689,7 @@ class Grupos extends BaseController
             'miembros' => $miembros,
             'permisos' => $permisos,
             'usuariosDisponibles' => $usuariosDisponibles,
+            'invitacionesPendientes' => $invitacionesPendientes,
             'colorMap' => $colorMap,
             'colorPalette' => UserColor::PALETTE,
         ]);
@@ -780,8 +790,8 @@ class Grupos extends BaseController
         if (!$friendship || $friendship['status'] !== 'accepted') {
             return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message(
                 'groups.member.add.failed',
-                ['reason' => 'Solo pod&eacute;s agregar amigos aceptados al grupo.'],
-                'Solo pod&eacute;s agregar amigos aceptados al grupo.'
+                ['reason' => 'Solo podés agregar amigos aceptados al grupo.'],
+                'Solo podés agregar amigos aceptados al grupo.'
             ));
         }
 
@@ -801,6 +811,62 @@ class Grupos extends BaseController
         });
 
         return redirect()->to("/grupos/$id/editar")->with('success', UiFeedbackResolver::message('groups.member.add.completed', [], 'Miembro agregado correctamente.'));
+    }
+
+    public function invitarPorEmail(int $id)
+    {
+        $acceso = $this->verificarAcceso($id);
+        if ($acceso === null) return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        $error = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_create');
+        if ($error) return redirect()->to("/grupos/$id/editar")->with('error', $error);
+        try {
+            $invite = (new GroupInvitation())->createInvitation($id, (int) $acceso['userId'], (string) $this->request->getPost('email'));
+            $link = base_url('invitaciones/registro/' . $invite['token']);
+            $sent = $this->sendGroupInvitation($invite['email'], $acceso['grupo']['nombre'], (string) session()->get('userName'), $link);
+            $response = redirect()->to("/grupos/$id/editar")->with($sent ? 'success' : 'error', $sent
+                ? 'Invitación enviada. Vence en 7 días.'
+                : 'La invitación se creó, pero no se pudo enviar el email. Podés reenviarla.');
+            if (ENVIRONMENT === 'development') $response->with('dev_invitation_link', $link);
+            return $response;
+        } catch (\RuntimeException $e) {
+            return redirect()->to("/grupos/$id/editar")->with('error', $e->getMessage());
+        }
+    }
+
+    public function reenviarInvitacion(int $id, int $invitationId)
+    {
+        $acceso = $this->verificarAcceso($id);
+        if ($acceso === null) return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        $error = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_create');
+        if ($error) return redirect()->to("/grupos/$id/editar")->with('error', $error);
+        try {
+            $invite = (new GroupInvitation())->renew($invitationId, $id);
+            $link = base_url('invitaciones/registro/' . $invite['token']);
+            $sent = $this->sendGroupInvitation($invite['email'], $acceso['grupo']['nombre'], (string) session()->get('userName'), $link);
+            $response = redirect()->to("/grupos/$id/editar")->with($sent ? 'success' : 'error', $sent ? 'Invitación reenviada.' : 'No se pudo enviar el email.');
+            if (ENVIRONMENT === 'development') $response->with('dev_invitation_link', $link);
+            return $response;
+        } catch (\RuntimeException $e) {
+            return redirect()->to("/grupos/$id/editar")->with('error', $e->getMessage());
+        }
+    }
+
+    public function cancelarInvitacion(int $id, int $invitationId)
+    {
+        $acceso = $this->verificarAcceso($id);
+        if ($acceso === null) return redirect()->to('/grupos')->with('error', 'Grupo no encontrado o no tenés acceso.');
+        $error = GroupPermission::check($acceso['rol'], $acceso['grupo']['estado'], 'miembro_create');
+        if ($error) return redirect()->to("/grupos/$id/editar")->with('error', $error);
+        $ok = (new GroupInvitation())->cancelInvitation($invitationId, $id);
+        return redirect()->to("/grupos/$id/editar")->with($ok ? 'success' : 'error', $ok ? 'Invitación cancelada.' : 'La invitación ya no está disponible.');
+    }
+
+    private function sendGroupInvitation(string $email, string $groupName, string $inviterName, string $link): bool
+    {
+        return PasswordReset::enviarEmail($email, "Invitación a {$groupName} - Gastito",
+            "Hola,\n\n{$inviterName} te invitó a participar del grupo {$groupName} en Gastito.\n\n"
+            . "Creá tu cuenta y aceptá la invitación desde este enlace:\n{$link}\n\n"
+            . "El enlace vence en 7 días y solo puede usarse una vez.\n\nSi no esperabas esta invitación, ignorá este mensaje.\n\n— Gastito");
     }
 
     public function cambiarRol(int $id, int $userId)

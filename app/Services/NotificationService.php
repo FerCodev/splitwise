@@ -111,7 +111,7 @@ class NotificationService
     public function notifyFriendAccepted(int $recipientId, int $actorId, string $actorName): void
     {
         $this->notifyUsers([$recipientId], 'friend_events', 'friend.accepted', 'Solicitud de amistad aceptada',
-            static fn(array $prefs): string => "{$actorName} acept&oacute; tu solicitud de amistad",
+            static fn(array $prefs): string => "{$actorName} aceptó tu solicitud de amistad",
             base_url("usuarios/{$actorId}/perfil"));
     }
 

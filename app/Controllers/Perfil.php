@@ -29,7 +29,7 @@ class Perfil extends BaseController
         $isAdmin = session()->get('userRole') === 'admin';
         $hasRelationship = $friendship && in_array($friendship['status'], ['pending', 'accepted'], true);
         if (!$sharesGroup && !$hasRelationship && !$isAdmin) {
-            return redirect()->to('/dashboard')->with('error', 'No ten&eacute;s acceso a este perfil.');
+            return redirect()->to('/dashboard')->with('error', 'No tenés acceso a este perfil.');
         }
         $sharedGroups = [];
         if ($isFriend) {

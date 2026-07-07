@@ -81,4 +81,13 @@ final class FriendshipTest extends CIUnitTestCase
             $this->db->table('grupos')->where('id', $groupId)->delete();
         }
     }
+
+    public function testFriendNotificationUsesUtf8AndLegacyBodiesAreDecoded(): void
+    {
+        $service = file_get_contents(APPPATH . 'Services/NotificationService.php');
+        $view = file_get_contents(APPPATH . 'Views/notificaciones/index.php');
+        $this->assertStringContainsString('aceptó tu solicitud de amistad', $service);
+        $this->assertStringNotContainsString('acept&oacute; tu solicitud de amistad', $service);
+        $this->assertStringContainsString('html_entity_decode', $view);
+    }
 }

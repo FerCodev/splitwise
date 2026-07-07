@@ -147,7 +147,7 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0 fw-bold">Miembros (<?= count($miembros) ?>)</h5>
                 </div>
-                <?php if (!empty($usuariosDisponibles)): ?>
+                <?php if ($permisos['puede_agregar_miembro'] ?? false): ?>
                 <div class="card-body border-bottom">
                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
                         <?= csrf_field() ?>
@@ -166,6 +166,30 @@
                             <div class="col-12"><span class="text-muted small">Primero agreg&aacute; y acept&aacute; una amistad desde <a href="<?= base_url('amigos') ?>">Amigos</a>.</span></div>
                         <?php endif; ?>
                     </form>
+                    <hr>
+                    <form action="<?= base_url('grupos/' . $grupo['id'] . '/invitaciones') ?>" method="post" class="row g-2 align-items-end">
+                        <?= csrf_field() ?>
+                        <div class="col-8 col-md-10">
+                            <label for="invitation-email" class="form-label small fw-bold">Invitar a alguien que no usa Gastito</label>
+                            <input type="email" id="invitation-email" name="email" class="form-control" required placeholder="persona@ejemplo.com">
+                        </div>
+                        <div class="col-4 col-md-2"><button type="submit" class="btn btn-outline-primary w-100">Invitar</button></div>
+                    </form>
+                    <?php if ($devLink = session()->getFlashdata('dev_invitation_link')): ?>
+                        <div class="alert alert-info mt-3 mb-0"><strong>Enlace de desarrollo:</strong> <a href="<?= esc($devLink) ?>"><?= esc($devLink) ?></a></div>
+                    <?php endif; ?>
+                    <?php if (!empty($invitacionesPendientes)): ?>
+                        <div class="mt-3"><div class="small fw-bold mb-2">Invitaciones pendientes</div>
+                        <?php foreach ($invitacionesPendientes as $invite): ?>
+                            <div class="group-invitation-row">
+                                <div><strong><?= esc($invite['email']) ?></strong><small>Vence <?= date('d/m/Y H:i', strtotime($invite['expires_at'])) ?></small></div>
+                                <div class="d-flex gap-1">
+                                    <form method="post" action="<?= base_url('grupos/'.$grupo['id'].'/invitaciones/'.$invite['id'].'/reenviar') ?>"><?= csrf_field() ?><button class="btn btn-sm btn-outline-primary">Reenviar</button></form>
+                                    <form method="post" action="<?= base_url('grupos/'.$grupo['id'].'/invitaciones/'.$invite['id'].'/cancelar') ?>"><?= csrf_field() ?><button class="btn btn-sm btn-outline-danger">Cancelar</button></form>
+                                </div>
+                            </div>
+                        <?php endforeach; ?></div>
+                    <?php endif; ?>
                 </div>
                 <?php endif; ?>
                 <div class="card-body p-0">
