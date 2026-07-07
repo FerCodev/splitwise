@@ -380,7 +380,7 @@ class Pagos extends BaseController
     public function show(int $id)
     {
         $pagoModel = new Pago();
-        $pago = $pagoModel->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, grupos.nombre as grupo_nombre')
+        $pago = $pagoModel->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, pagador.avatar_filename as pagador_avatar_filename, pagador.avatar_updated_at as pagador_avatar_updated_at, receptor.avatar_filename as receptor_avatar_filename, receptor.avatar_updated_at as receptor_avatar_updated_at, grupos.nombre as grupo_nombre')
             ->join('users as pagador', 'pagador.id = pagos.pagador_id')
             ->join('users as receptor', 'receptor.id = pagos.receptor_id')
             ->join('grupos', 'grupos.id = pagos.grupo_id')

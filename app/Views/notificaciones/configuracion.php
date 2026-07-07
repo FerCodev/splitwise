@@ -16,6 +16,10 @@
             <form method="post" action="<?= base_url('notificaciones/configuracion') ?>">
                 <?= csrf_field() ?>
                 <div class="mb-3 form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="friend_events" name="friend_events" value="1" <?= !empty($prefs['friend_events']) ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="friend_events">Solicitudes y amistades</label>
+                </div>
+                <div class="mb-3 form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" id="push_enabled" name="push_enabled" value="1" <?= !empty($prefs['push_enabled']) ? 'checked' : '' ?>>
                     <label class="form-check-label" for="push_enabled">Notificaciones push</label>
                 </div>

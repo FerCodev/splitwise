@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Models\Friendship;
 use App\Services\AvatarImageProcessor;
 use App\Services\AvatarPersistence;
 use App\Services\AvatarStorage;
@@ -13,6 +14,32 @@ use Throwable;
 
 class Perfil extends BaseController
 {
+    public function visitante(int $id)
+    {
+        $viewerId = (int) session()->get('userId');
+        if ($id === $viewerId) return redirect()->to('/perfil');
+        $user = (new User())->find($id);
+        if (!$user) return redirect()->to('/dashboard')->with('error', 'Usuario no encontrado.');
+
+        $friendship = (new Friendship())->between($viewerId, $id);
+        $isFriend = $friendship && $friendship['status'] === 'accepted';
+        $sharesGroup = db_connect()->table('grupo_miembros viewer')
+            ->join('grupo_miembros target', 'target.grupo_id = viewer.grupo_id')
+            ->where('viewer.user_id', $viewerId)->where('target.user_id', $id)->countAllResults() > 0;
+        $isAdmin = session()->get('userRole') === 'admin';
+        $hasRelationship = $friendship && in_array($friendship['status'], ['pending', 'accepted'], true);
+        if (!$sharesGroup && !$hasRelationship && !$isAdmin) {
+            return redirect()->to('/dashboard')->with('error', 'No ten&eacute;s acceso a este perfil.');
+        }
+        $sharedGroups = [];
+        if ($isFriend) {
+            $sharedGroups = db_connect()->table('grupos')
+                ->select('grupos.id, grupos.nombre')->join('grupo_miembros mine', 'mine.grupo_id = grupos.id')
+                ->join('grupo_miembros theirs', 'theirs.grupo_id = grupos.id')
+                ->where('mine.user_id', $viewerId)->where('theirs.user_id', $id)->orderBy('grupos.nombre')->get()->getResultArray();
+        }
+        return view('perfil/visitante', compact('user', 'friendship', 'isFriend', 'sharedGroups'));
+    }
     public function index()
     {
         $user = $this->currentUser();
@@ -196,6 +223,12 @@ class Perfil extends BaseController
     private function canViewAvatar(int $viewerId, int $targetId): bool
     {
         if ($viewerId === $targetId || session()->get('userRole') === 'admin') {
+            return true;
+        }
+
+        $friendship = (new Friendship())->between($viewerId, $targetId);
+        if (($friendship && in_array($friendship['status'], ['pending', 'accepted'], true))
+            || (int) session()->get('friendSearchPreviewId') === $targetId) {
             return true;
         }
 

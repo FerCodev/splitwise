@@ -32,6 +32,10 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M0 1.5A1.5 1.5 0 0 1 1.5 0h7l.793.793a.5.5 0 0 1 .353.146L11.5 2.5h3A1.5 1.5 0 0 1 16 4v10.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5zM1.5 1a.5.5 0 0 0-.5.5v13a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5h-3.5l-1-1H1.5z"/></svg>
             Reportes
         </a>
+        <?php if (!$isAdmin): ?><a href="<?= base_url('amigos') ?>" class="desktop-sidebar-link <?= tabActive('amigos', $current) ?>">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M5 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm6.5-1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM0 14s0-4 5-4 5 4 5 4H0Zm9.5 0c0-1.4-.46-2.7-1.35-3.7.87-.2 1.62-.3 2.35-.3 4.5 0 4.5 4 4.5 4H9.5Z"/></svg>
+            Amigos
+        </a><?php endif; ?>
     <a href="<?= base_url('mis-medios-de-cobro') ?>" class="desktop-sidebar-link <?= tabActive('mis-medios-de-cobro', $current) ?>">
         <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.5h14V4a1 1 0 0 0-1-1H2Zm13 3.5H1v5.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5Z"/></svg>
         Medios de cobro
@@ -141,6 +145,9 @@
             <a href="<?= base_url('grupos') ?>" class="mobile-menu-link <?= tabActive('grupos', $current) ?>" <?= $current === 'grupos' ? 'aria-current="page"' : '' ?>>
                 <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span>Grupos</span>
             </a>
+            <?php if (!$isAdmin): ?><a href="<?= base_url('amigos') ?>" class="mobile-menu-link <?= tabActive('amigos', $current) ?>" <?= $current === 'amigos' ? 'aria-current="page"' : '' ?>>
+                <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M8.5 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M20 8v6M23 11h-6"/></svg></span><span>Amigos</span>
+            </a><?php endif; ?>
             <a href="<?= base_url('gastos') ?>" class="mobile-menu-link <?= tabActive('gastos', $current) ?>" <?= $current === 'gastos' ? 'aria-current="page"' : '' ?>>
                 <span class="mobile-menu-link-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2ZM9 7h6M9 11h6M9 15h3"/></svg></span><span>Gastitos</span>
             </a>

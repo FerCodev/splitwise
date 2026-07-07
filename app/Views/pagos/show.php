@@ -76,6 +76,7 @@
                 <div class="row g-3 text-center">
                     <div class="col-4">
                         <p class="text-muted small mb-1">Pag&oacute;</p>
+                        <?= view('components/avatar', ['userId' => $pago['pagador_id'], 'name' => $pago['pagador_nombre'], 'avatarFilename' => $pago['pagador_avatar_filename'] ?? null, 'avatarUpdatedAt' => $pago['pagador_avatar_updated_at'] ?? null, 'size' => 52]) ?>
                         <h5 class="text-success mb-0"><?= esc($pago['pagador_nombre']) ?></h5>
                     </div>
                     <div class="col-4">
@@ -84,6 +85,7 @@
                     </div>
                     <div class="col-4">
                         <p class="text-muted small mb-1">Recibi&oacute;</p>
+                        <?= view('components/avatar', ['userId' => $pago['receptor_id'], 'name' => $pago['receptor_nombre'], 'avatarFilename' => $pago['receptor_avatar_filename'] ?? null, 'avatarUpdatedAt' => $pago['receptor_avatar_updated_at'] ?? null, 'size' => 52]) ?>
                         <h5 class="text-danger mb-0"><?= esc($pago['receptor_nombre']) ?></h5>
                     </div>
                 </div>

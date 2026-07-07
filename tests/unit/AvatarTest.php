@@ -222,6 +222,9 @@ final class AvatarTest extends CIUnitTestCase
         $this->assertStringContainsString('?v=', $image);
         $this->assertStringNotContainsString('<Admin>', $image);
         $this->assertStringContainsString('user-avatar-fallback', $fallback);
+        $this->assertStringContainsString('data-profile-url', $image);
+        $static = view('components/avatar', ['userId' => 7, 'name' => 'Admin', 'interactive' => false]);
+        $this->assertStringNotContainsString('data-profile-url', $static);
         $this->assertStringContainsString('&lt;', $fallback);
         $this->assertStringNotContainsString($this->directory, $image . $fallback);
     }

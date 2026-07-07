@@ -101,6 +101,20 @@ class NotificationService
         );
     }
 
+    public function notifyFriendRequest(int $recipientId, int $actorId, string $actorName): void
+    {
+        $this->notifyUsers([$recipientId], 'friend_events', 'friend.requested', 'Nueva solicitud de amistad',
+            static fn(array $prefs): string => "{$actorName} quiere agregarte como amigo",
+            base_url('amigos'));
+    }
+
+    public function notifyFriendAccepted(int $recipientId, int $actorId, string $actorName): void
+    {
+        $this->notifyUsers([$recipientId], 'friend_events', 'friend.accepted', 'Solicitud de amistad aceptada',
+            static fn(array $prefs): string => "{$actorName} acept&oacute; tu solicitud de amistad",
+            base_url("usuarios/{$actorId}/perfil"));
+    }
+
     public function notifyGroupStateChanged(
         int $groupId, string $groupName, int $actorId, string $actorName,
         string $state, array $debts = []

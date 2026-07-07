@@ -46,6 +46,7 @@
                                             <input class="form-check-input" type="checkbox" name="miembros[]"
                                                    value="<?= $u['id'] ?>" id="miembro_<?= $u['id'] ?>">
                                             <?= view('components/avatar', [
+                                                'interactive' => false,
                                                 'userId' => $u['id'],
                                                 'name' => $u['name'],
                                                 'avatarFilename' => $u['avatar_filename'] ?? null,
@@ -180,6 +181,7 @@
                                     <td class="fw-medium">
                                         <div class="d-flex align-items-center gap-2">
                                             <?= view('components/avatar', [
+                                                'interactive' => false,
                                                 'userId' => $m['user_id'], 'name' => $m['name'],
                                                 'avatarFilename' => $m['avatar_filename'] ?? null,
                                                 'avatarUpdatedAt' => $m['avatar_updated_at'] ?? null, 'size' => 36,
