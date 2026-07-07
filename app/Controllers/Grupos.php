@@ -7,6 +7,7 @@ use App\Models\Pago;
 use App\Models\Grupo;
 use App\Models\Categoria;
 use App\Models\GrupoMiembro;
+use App\Models\Friendship;
 use App\Models\UserPaymentMethod;
 use App\Models\UserGroupColorOverride;
 use App\Services\GroupPermission;
@@ -163,7 +164,7 @@ class Grupos extends BaseController
         $permisos = GroupPermission::getAll($acceso['rol'], $acceso['grupo']['estado'], $acceso['userId']);
 
         $usuariosDisponibles = $permisos['puede_agregar_miembro']
-            ? $grupoModel->getUsuariosDisponibles($id)
+            ? $grupoModel->getUsuariosDisponibles($id, (int) $acceso['userId'])
             : [];
 
         $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, $movimientos);
@@ -667,7 +668,7 @@ class Grupos extends BaseController
         $miembros = $grupoModel->getMiembros($id);
         $permisos = GroupPermission::getAll($acceso['rol'], $acceso['grupo']['estado'], $acceso['userId']);
         $usuariosDisponibles = $permisos['puede_agregar_miembro']
-            ? $grupoModel->getUsuariosDisponibles($id)
+            ? $grupoModel->getUsuariosDisponibles($id, (int) $acceso['userId'])
             : [];
 
         $colorMap = $this->buildColorMapForGrupo($acceso['userId'], $id, $miembros, []);
@@ -773,6 +774,15 @@ class Grupos extends BaseController
         $grupoModel = new Grupo();
         if ($grupoModel->isMiembro($id, $userId)) {
             return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message('groups.member.add.failed', ['reason' => 'El usuario ya pertenece al grupo.'], 'El usuario ya pertenece al grupo.'));
+        }
+
+        $friendship = (new Friendship())->between((int) $acceso['userId'], $userId);
+        if (!$friendship || $friendship['status'] !== 'accepted') {
+            return redirect()->to("/grupos/$id/editar")->with('error', UiFeedbackResolver::message(
+                'groups.member.add.failed',
+                ['reason' => 'Solo pod&eacute;s agregar amigos aceptados al grupo.'],
+                'Solo pod&eacute;s agregar amigos aceptados al grupo.'
+            ));
         }
 
         $miembroModel = new GrupoMiembro();

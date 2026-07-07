@@ -322,13 +322,19 @@ class Grupo extends Model
         return $result;
     }
 
-    public function getUsuariosDisponibles(int $grupoId): array
+    public function getUsuariosDisponibles(int $grupoId, int $viewerId): array
     {
-        $sql = 'SELECT id, name, email, avatar_filename, avatar_updated_at FROM users WHERE role != ? AND id NOT IN (
+        $sql = 'SELECT users.id, users.name, users.email, users.avatar_filename, users.avatar_updated_at
+                FROM users
+                INNER JOIN friendships ON friendships.status = ? AND (
+                    (friendships.user_low_id = ? AND friendships.user_high_id = users.id)
+                    OR (friendships.user_high_id = ? AND friendships.user_low_id = users.id)
+                )
+                WHERE users.role != ? AND users.id NOT IN (
                     SELECT user_id FROM grupo_miembros WHERE grupo_id = ?
                 ) ORDER BY name ASC';
 
-        return $this->db->query($sql, ['admin', $grupoId])->getResultArray();
+        return $this->db->query($sql, ['accepted', $viewerId, $viewerId, 'admin', $grupoId])->getResultArray();
     }
 
     // ---------------------------------------------------------------

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Friendship;
+use App\Models\Grupo;
 use CodeIgniter\Test\CIUnitTestCase;
 
 final class FriendshipTest extends CIUnitTestCase
@@ -60,5 +61,24 @@ final class FriendshipTest extends CIUnitTestCase
         $this->assertCount(1, $model->dashboard($this->ids[0])['friends']);
         $this->assertCount(1, (new Friendship())->dashboard($this->ids[1])['friends']);
         $this->assertTrue((new Friendship())->unfriend((int) $row['id'], $this->ids[0]));
+    }
+
+    public function testOnlyAcceptedFriendsAreAvailableToAddToGroup(): void
+    {
+        $friendships = new Friendship();
+        $friendships->request($this->ids[0], $this->ids[1]);
+        $row = $friendships->between($this->ids[0], $this->ids[1]);
+        $friendships->respond((int) $row['id'], $this->ids[1], true);
+
+        $this->db->table('grupos')->insert(['nombre' => 'Grupo amigos', 'created_by' => $this->ids[0]]);
+        $groupId = (int) $this->db->insertID();
+        $this->db->table('grupo_miembros')->insert(['grupo_id' => $groupId, 'user_id' => $this->ids[0], 'rol' => 'admin']);
+        try {
+            $available = (new Grupo())->getUsuariosDisponibles($groupId, $this->ids[0]);
+            $this->assertSame([$this->ids[1]], array_map('intval', array_column($available, 'id')));
+        } finally {
+            $this->db->table('grupo_miembros')->where('grupo_id', $groupId)->delete();
+            $this->db->table('grupos')->where('id', $groupId)->delete();
+        }
     }
 }

@@ -152,16 +152,19 @@
                     <form action="<?= base_url('grupos/' . $grupo['id'] . '/miembros') ?>" method="post" class="row g-2 align-items-end">
                         <?= csrf_field() ?>
                         <div class="col-8 col-md-10">
-                            <select name="user_id" class="form-select" required>
-                                <option value="">Agregar miembro...</option>
+                            <select name="user_id" class="form-select" required <?= empty($usuariosDisponibles) ? 'disabled' : '' ?>>
+                                <option value=""><?= empty($usuariosDisponibles) ? 'No hay amigos disponibles' : 'Agregar amigo...' ?></option>
                                 <?php foreach ($usuariosDisponibles as $u): ?>
                                     <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="col-4 col-md-2">
-                            <button type="submit" class="btn btn-primary w-100">Agregar</button>
+                            <button type="submit" class="btn btn-primary w-100" <?= empty($usuariosDisponibles) ? 'disabled' : '' ?>>Agregar</button>
                         </div>
+                        <?php if (empty($usuariosDisponibles)): ?>
+                            <div class="col-12"><span class="text-muted small">Primero agreg&aacute; y acept&aacute; una amistad desde <a href="<?= base_url('amigos') ?>">Amigos</a>.</span></div>
+                        <?php endif; ?>
                     </form>
                 </div>
                 <?php endif; ?>
