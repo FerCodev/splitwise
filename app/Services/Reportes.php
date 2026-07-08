@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Support\DateInput;
+
 class Reportes
 {
     public static function resumenGlobal(int $userId): array
@@ -334,8 +336,7 @@ class Reportes
 
     private static function esFechaValida(string $fecha): bool
     {
-        $d = \DateTime::createFromFormat('Y-m-d', $fecha);
-        return $d !== false && $d->format('Y-m-d') === $fecha;
+        return DateInput::isYmd($fecha);
     }
 
     public static function deudasPendientes(int $userId, int $limit = 5, array $filters = []): array

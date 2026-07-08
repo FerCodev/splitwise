@@ -36,7 +36,7 @@ class Gastos extends BaseController
         $filters = $this->getFilters();
 
         $gastos = $gastoModel->getGastosWithFilters($filters, 10);
-        $totalFiltrado = $this->getTotalFiltrado($filters);
+        $totalFiltrado = $this->sumMonto($this->getGastosParaExportar($filters));
         $pager = $gastoModel->pager;
 
         $colorMap = $this->buildColorMapForMovimientos($userId, $gastos);
@@ -159,11 +159,6 @@ class Gastos extends BaseController
         }
 
         return $filters;
-    }
-
-    private function getTotalFiltrado(array $filters): float
-    {
-        return array_sum(array_map(static fn($gasto) => (float) $gasto['monto'], $this->getGastosParaExportar($filters)));
     }
 
     private function getGastosParaExportar(array $filters): array

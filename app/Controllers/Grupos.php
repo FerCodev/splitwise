@@ -17,6 +17,7 @@ use App\Services\DebtPaymentValidator;
 use App\Services\NotificationService;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
+use App\Support\DateInput;
 
 class Grupos extends BaseController
 {
@@ -589,11 +590,7 @@ class Grupos extends BaseController
 
     private static function esFechaValida(?string $fecha): bool
     {
-        if ($fecha === null || $fecha === '') {
-            return false;
-        }
-        $d = \DateTime::createFromFormat('Y-m-d', $fecha);
-        return $d !== false && $d->format('Y-m-d') === $fecha;
+        return DateInput::isYmd($fecha);
     }
 
     public function cambiarEstado(int $id)

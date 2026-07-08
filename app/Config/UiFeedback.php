@@ -38,7 +38,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'Email o contraseña incorrectos.',
             'params' => [],
-            'active' => true,
         ],
         'profile.update.completed' => [
             'slot' => 'feedback.success',
@@ -46,7 +45,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Perfil actualizado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'profile.update.failed' => [
             'slot' => 'feedback.error',
@@ -54,7 +52,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'Error al actualizar el perfil. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'profile.password.change.completed' => [
             'slot' => 'feedback.success',
@@ -62,7 +59,6 @@ class UiFeedback
             'variant' => 'synced',
             'template' => 'Contraseña actualizada correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'profile.password.change.failed' => [
             'slot' => 'feedback.error',
@@ -70,7 +66,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo cambiar la contraseña. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.create.completed' => [
             'slot' => 'feedback.success',
@@ -78,7 +73,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Grupo "{group_name}" creado correctamente.',
             'params' => ['group_name'],
-            'active' => true,
         ],
         'groups.create.failed' => [
             'slot' => 'feedback.error',
@@ -86,7 +80,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo crear el grupo. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.update.completed' => [
             'slot' => 'feedback.success',
@@ -94,7 +87,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Grupo "{group_name}" actualizado correctamente.',
             'params' => ['group_name'],
-            'active' => true,
         ],
         'groups.update.failed' => [
             'slot' => 'feedback.error',
@@ -102,7 +94,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo actualizar el grupo. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.delete.completed' => [
             'slot' => 'feedback.success',
@@ -110,7 +101,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Grupo eliminado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'groups.delete.failed' => [
             'slot' => 'feedback.error',
@@ -118,7 +108,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo eliminar el grupo. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.close.completed' => [
             'slot' => 'feedback.success',
@@ -126,7 +115,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Grupo cerrado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'groups.close.failed' => [
             'slot' => 'feedback.error',
@@ -134,7 +122,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo cerrar el grupo. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.reopen.completed' => [
             'slot' => 'feedback.success',
@@ -142,7 +129,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Grupo reabierto correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'groups.reopen.failed' => [
             'slot' => 'feedback.error',
@@ -150,7 +136,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo reabrir el grupo. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.liquidate.completed' => [
             'slot' => 'feedback.success',
@@ -158,7 +143,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Grupo liquidado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'groups.liquidate.failed' => [
             'slot' => 'feedback.warning',
@@ -166,7 +150,6 @@ class UiFeedback
             'variant' => 'warning_debt',
             'template' => 'No se puede liquidar el grupo porque hay deudas pendientes.',
             'params' => [],
-            'active' => true,
         ],
         'groups.member.add.completed' => [
             'slot' => 'feedback.success',
@@ -174,7 +157,6 @@ class UiFeedback
             'variant' => 'member_added',
             'template' => 'Miembro agregado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'groups.member.add.failed' => [
             'slot' => 'feedback.error',
@@ -182,7 +164,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo agregar el miembro. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'groups.member.remove.completed' => [
             'slot' => 'feedback.success',
@@ -190,7 +171,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Miembro quitado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'groups.member.remove.failed' => [
             'slot' => 'feedback.error',
@@ -198,7 +178,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo quitar el miembro. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'expenses.create.completed' => [
             'slot' => 'feedback.success',
@@ -206,7 +185,6 @@ class UiFeedback
             'variant' => 'success_compact',
             'template' => 'Gastito creado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'expenses.create.failed' => [
             'slot' => 'feedback.error',
@@ -214,7 +192,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo crear el gasto. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'expenses.update.completed' => [
             'slot' => 'feedback.success',
@@ -222,7 +199,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Gasto actualizado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'expenses.update.failed' => [
             'slot' => 'feedback.error',
@@ -230,7 +206,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo actualizar el gasto. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'expenses.delete.completed' => [
             'slot' => 'feedback.success',
@@ -238,7 +213,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Gasto eliminado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'expenses.delete.failed' => [
             'slot' => 'feedback.error',
@@ -246,7 +220,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo eliminar el gasto. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'expenses.receipt.delete.completed' => [
             'slot' => 'feedback.success',
@@ -254,7 +227,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Recibo eliminado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'expenses.receipt.delete.failed' => [
             'slot' => 'feedback.error',
@@ -262,7 +234,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo eliminar el recibo. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'payments.create.completed' => [
             'slot' => 'feedback.success',
@@ -270,7 +241,6 @@ class UiFeedback
             'variant' => 'import_ready',
             'template' => 'Pago registrado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'payments.create.failed' => [
             'slot' => 'feedback.error',
@@ -278,7 +248,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo registrar el pago. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'payments.update.completed' => [
             'slot' => 'feedback.success',
@@ -286,7 +255,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Pago actualizado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'payments.update.failed' => [
             'slot' => 'feedback.error',
@@ -294,7 +262,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo actualizar el pago. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
         'payments.delete.completed' => [
             'slot' => 'feedback.success',
@@ -302,7 +269,6 @@ class UiFeedback
             'variant' => 'settled',
             'template' => 'Pago eliminado correctamente.',
             'params' => [],
-            'active' => true,
         ],
         'payments.delete.failed' => [
             'slot' => 'feedback.error',
@@ -310,7 +276,6 @@ class UiFeedback
             'variant' => 'error_action',
             'template' => 'No se pudo eliminar el pago. {reason}',
             'params' => ['reason'],
-            'active' => true,
         ],
     ];
 }

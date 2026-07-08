@@ -53,15 +53,9 @@ class Categorias extends BaseController
 
     public function edit(int $id)
     {
-        $model = new Categoria();
-        $categoria = $model->find($id);
-
-        if (!$categoria) {
-            return redirect()->to('/categorias')->with('error', 'Categoría no encontrada.');
-        }
-
-        if (Categoria::isProtegida($categoria['nombre'])) {
-            return redirect()->to('/categorias')->with('error', 'No se puede editar la categoría "Otros".');
+        $categoria = $this->getEditableCategoriaOrRedirect($id, 'editar');
+        if (!is_array($categoria)) {
+            return $categoria;
         }
 
         return view('categorias/form', ['categoria' => $categoria]);
@@ -70,14 +64,9 @@ class Categorias extends BaseController
     public function update(int $id)
     {
         $model = new Categoria();
-        $categoria = $model->find($id);
-
-        if (!$categoria) {
-            return redirect()->to('/categorias')->with('error', 'Categoría no encontrada.');
-        }
-
-        if (Categoria::isProtegida($categoria['nombre'])) {
-            return redirect()->to('/categorias')->with('error', 'No se puede editar la categoría "Otros".');
+        $categoria = $this->getEditableCategoriaOrRedirect($id, 'editar');
+        if (!is_array($categoria)) {
+            return $categoria;
         }
 
         $rules = [
@@ -96,14 +85,9 @@ class Categorias extends BaseController
     public function toggle(int $id)
     {
         $model = new Categoria();
-        $categoria = $model->find($id);
-
-        if (!$categoria) {
-            return redirect()->to('/categorias')->with('error', 'Categoría no encontrada.');
-        }
-
-        if (Categoria::isProtegida($categoria['nombre'])) {
-            return redirect()->to('/categorias')->with('error', 'No se puede desactivar la categoría "Otros".');
+        $categoria = $this->getEditableCategoriaOrRedirect($id, 'desactivar');
+        if (!is_array($categoria)) {
+            return $categoria;
         }
 
         $nuevoEstado = (int) $categoria['activa'] ? 0 : 1;
@@ -119,14 +103,9 @@ class Categorias extends BaseController
     public function delete(int $id)
     {
         $model = new Categoria();
-        $categoria = $model->find($id);
-
-        if (!$categoria) {
-            return redirect()->to('/categorias')->with('error', 'Categoría no encontrada.');
-        }
-
-        if (Categoria::isProtegida($categoria['nombre'])) {
-            return redirect()->to('/categorias')->with('error', 'No se puede eliminar la categoría "Otros".');
+        $categoria = $this->getEditableCategoriaOrRedirect($id, 'eliminar');
+        if (!is_array($categoria)) {
+            return $categoria;
         }
 
         if ($model->esUsadaPorGastos($id)) {
@@ -136,5 +115,20 @@ class Categorias extends BaseController
         $model->delete($id);
 
         return redirect()->to('/categorias')->with('success', 'Categoría eliminada correctamente.');
+    }
+
+    private function getEditableCategoriaOrRedirect(int $id, string $accion)
+    {
+        $categoria = (new Categoria())->find($id);
+
+        if (!$categoria) {
+            return redirect()->to('/categorias')->with('error', 'Categoría no encontrada.');
+        }
+
+        if (Categoria::isProtegida($categoria['nombre'])) {
+            return redirect()->to('/categorias')->with('error', 'No se puede ' . $accion . ' la categoría "Otros".');
+        }
+
+        return $categoria;
     }
 }

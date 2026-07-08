@@ -4,6 +4,11 @@ namespace App\Controllers\Traits;
 
 trait ExportResponses
 {
+    private function sumMonto(array $rows): float
+    {
+        return array_sum(array_map(static fn(array $row): float => (float) ($row['monto'] ?? 0), $rows));
+    }
+
     private function streamPdf(string $view, array $data, string $filenamePrefix): void
     {
         $html = view($view, $data);

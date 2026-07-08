@@ -31,7 +31,7 @@ class Pagos extends BaseController
         $filters = $this->getFilters();
 
         $pagos = $pagoModel->getPagosWithFilters($filters, 10);
-        $totalFiltrado = $this->getTotalFiltrado($filters);
+        $totalFiltrado = $this->sumMonto($this->getPagosParaExportar($filters));
         $pager = $pagoModel->pager;
 
         if ($this->request->getGet('partial')) {
@@ -83,11 +83,6 @@ class Pagos extends BaseController
     private function getFilters(): array
     {
         return $this->getBaseFilters(['receptor_id']);
-    }
-
-    private function getTotalFiltrado(array $filters): float
-    {
-        return array_sum(array_map(static fn($pago) => (float) $pago['monto'], $this->getPagosParaExportar($filters)));
     }
 
     private function getPagosParaExportar(array $filters): array
