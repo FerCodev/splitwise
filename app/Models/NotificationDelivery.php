@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\SanitizesNotificationErrorCode;
 use CodeIgniter\Model;
 
 class NotificationDelivery extends Model
 {
+    use SanitizesNotificationErrorCode;
+
     protected $table = 'notification_deliveries';
     protected $primaryKey = 'id';
     protected $allowedFields = ['notification_id', 'push_subscription_id', 'status', 'attempts', 'available_at', 'processed_at', 'last_error'];
@@ -129,7 +132,7 @@ class NotificationDelivery extends Model
             ->update([
                 'status' => self::STATUS_FAILED,
                 'processed_at' => date('Y-m-d H:i:s'),
-                'last_error' => $this->sanitizeErrorCode($errorCode),
+                'last_error' => $this->sanitizeErrorCode($errorCode, 'unknown', 50),
             ]);
     }
 
@@ -150,7 +153,7 @@ class NotificationDelivery extends Model
                     'status' => self::STATUS_FAILED,
                     'attempts' => $attempts,
                     'processed_at' => date('Y-m-d H:i:s'),
-                    'last_error' => $this->sanitizeErrorCode($errorCode),
+                    'last_error' => $this->sanitizeErrorCode($errorCode, 'unknown', 50),
                 ]);
         } else {
             $this->db->table($this->table)
@@ -160,17 +163,9 @@ class NotificationDelivery extends Model
                     'attempts' => $attempts,
                     'available_at' => date('Y-m-d H:i:s', time() + $backoff),
                     'processed_at' => null,
-                    'last_error' => $this->sanitizeErrorCode($errorCode),
+                    'last_error' => $this->sanitizeErrorCode($errorCode, 'unknown', 50),
                 ]);
         }
     }
 
-    private function sanitizeErrorCode(string $code): string
-    {
-        $code = trim($code);
-        if (!in_array($code, self::ALLOWED_ERROR_CODES, true)) {
-            $code = 'unknown';
-        }
-        return mb_substr($code, 0, 50);
-    }
 }

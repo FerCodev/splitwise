@@ -2,6 +2,10 @@
 
 namespace App\Controllers;
 
+use App\Controllers\Traits\BuildsListFilters;
+use App\Controllers\Traits\ExportResponses;
+use App\Controllers\Traits\GroupAccess;
+use App\Controllers\Traits\NormalizesAmountInput;
 use App\Models\Pago;
 use App\Models\Grupo;
 use App\Services\GroupPermission;
@@ -11,6 +15,13 @@ use App\Services\UiFeedbackResolver;
 
 class Pagos extends BaseController
 {
+    use BuildsListFilters {
+        getFilters as getBaseFilters;
+    }
+    use ExportResponses;
+    use GroupAccess;
+    use NormalizesAmountInput;
+
     public function index()
     {
         $grupoModel = new Grupo();
@@ -49,18 +60,11 @@ class Pagos extends BaseController
         $filters = $this->getFilters();
         $pagos = $this->getPagosParaExportar($filters);
         $total = array_sum(array_map(static fn($pago) => (float) $pago['monto'], $pagos));
-        $html = view('pagos/pdf', [
+        $this->streamPdf('pagos/pdf', [
             'pagos' => $pagos,
             'total' => $total,
             'fecha' => date('d/m/Y H:i'),
-        ]);
-
-        $dompdf = new \Dompdf\Dompdf();
-        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        $dompdf->stream('pagos_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);
-        exit;
+        ], 'pagos');
     }
 
     public function exportarExcel()
@@ -68,46 +72,17 @@ class Pagos extends BaseController
         $filters = $this->getFilters();
         $pagos = $this->getPagosParaExportar($filters);
         $total = array_sum(array_map(static fn($pago) => (float) $pago['monto'], $pagos));
-        $filename = 'pagos_' . date('Y-m-d') . '.xls';
 
-        $this->response->setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
-        $this->response->setHeader('Cache-Control', 'max-age=0');
-
-        echo view('pagos/excel', [
+        $this->streamExcel('pagos/excel', [
             'pagos' => $pagos,
             'total' => $total,
             'fecha' => date('d/m/Y H:i'),
-        ]);
-        exit;
+        ], 'pagos');
     }
 
     private function getFilters(): array
     {
-        $filters = [];
-
-        if ($this->request->getGet('grupo_id')) {
-            $filters['grupo_id'] = (int) $this->request->getGet('grupo_id');
-        }
-        if ($this->request->getGet('pagador_id')) {
-            $filters['pagador_id'] = (int) $this->request->getGet('pagador_id');
-        }
-        if ($this->request->getGet('receptor_id')) {
-            $filters['receptor_id'] = (int) $this->request->getGet('receptor_id');
-        }
-        if ($this->request->getGet('fecha_desde')) {
-            $filters['fecha_desde'] = $this->request->getGet('fecha_desde');
-        }
-        if ($this->request->getGet('fecha_hasta')) {
-            $filters['fecha_hasta'] = $this->request->getGet('fecha_hasta');
-        }
-        if ($this->request->getGet('descripcion')) {
-            $filters['descripcion'] = $this->request->getGet('descripcion');
-        }
-        $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
-        $filters['order'] = $this->request->getGet('order') ?: 'DESC';
-
-        return $filters;
+        return $this->getBaseFilters(['receptor_id']);
     }
 
     private function getTotalFiltrado(array $filters): float
@@ -117,51 +92,7 @@ class Pagos extends BaseController
 
     private function getPagosParaExportar(array $filters): array
     {
-        $userId = session()->get('userId');
-        $db = db_connect();
-        $builder = $db->table('pagos')
-            ->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, grupos.nombre as grupo_nombre')
-            ->join('users as pagador', 'pagador.id = pagos.pagador_id')
-            ->join('users as receptor', 'receptor.id = pagos.receptor_id')
-            ->join('grupos', 'grupos.id = pagos.grupo_id')
-            ->join('grupo_miembros', 'grupo_miembros.grupo_id = pagos.grupo_id AND grupo_miembros.user_id = ' . (int) $userId)
-            ->groupStart()
-                ->where('pagos.pagador_id', $userId)
-                ->orWhere('pagos.receptor_id', $userId)
-            ->groupEnd()
-            ->groupBy('pagos.id');
-
-        if (!empty($filters['grupo_id'])) {
-            $builder->where('pagos.grupo_id', $filters['grupo_id']);
-        }
-        if (!empty($filters['pagador_id'])) {
-            $builder->where('pagos.pagador_id', $filters['pagador_id']);
-        }
-        if (!empty($filters['receptor_id'])) {
-            $builder->where('pagos.receptor_id', $filters['receptor_id']);
-        }
-        if (!empty($filters['fecha_desde'])) {
-            $builder->where('pagos.fecha >=', $filters['fecha_desde']);
-        }
-        if (!empty($filters['fecha_hasta'])) {
-            $builder->where('pagos.fecha <=', $filters['fecha_hasta']);
-        }
-        if (!empty($filters['descripcion'])) {
-            $builder->like('pagos.descripcion', $filters['descripcion']);
-        }
-
-        $sort = $filters['sort'] ?? 'fecha';
-        $order = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
-        if (!in_array($sort, ['fecha', 'monto', 'grupo_nombre'], true)) {
-            $sort = 'fecha';
-        }
-        if ($sort === 'grupo_nombre') {
-            $builder->orderBy('grupos.nombre', $order);
-        } else {
-            $builder->orderBy('pagos.' . $sort, $order);
-        }
-
-        return $builder->get()->getResultArray();
+        return (new Pago())->getPagosForExport($filters);
     }
 
     public function new()
@@ -203,35 +134,6 @@ class Pagos extends BaseController
             'miembros' => $miembros,
             'prefill' => $prefill,
         ]);
-    }
-
-    private function normalizarMonto(): void
-    {
-        $raw = $this->request->getPost('monto');
-        $visual = $this->request->getPost('monto_visual');
-
-        $candidato = $raw;
-        $deVisual = false;
-        if ($candidato === null || $candidato === '') {
-            $candidato = $visual;
-            $deVisual = true;
-        }
-        if ($candidato === null || $candidato === '') {
-            return;
-        }
-
-        $limpio = $candidato;
-
-        if (str_contains($limpio, ',')) {
-            $limpio = str_replace('.', '', $limpio);
-            $limpio = str_replace(',', '.', $limpio);
-        } elseif ($deVisual) {
-            $limpio = str_replace('.', '', $limpio);
-        }
-
-        if (is_numeric($limpio)) {
-            $this->request->setGlobal('post', array_merge($this->request->getPost() ?: [], ['monto' => $limpio]));
-        }
     }
 
     public function create()
@@ -542,23 +444,4 @@ class Pagos extends BaseController
         return redirect()->to('/pagos')->with('success', UiFeedbackResolver::message('payments.delete.completed', [], 'Pago eliminado correctamente.'));
     }
 
-    private function verificarAccesoGrupo(int $grupoId): ?array
-    {
-        $grupoModel = new Grupo();
-        $grupo = $grupoModel->find($grupoId);
-
-        if (!$grupo) {
-            return null;
-        }
-
-        $userId = session()->get('userId');
-        if (!$grupoModel->isMiembro($grupoId, $userId)) {
-            return null;
-        }
-
-        return [
-            'grupo' => $grupo,
-            'rol' => $grupoModel->getUserRol($grupoId, $userId),
-        ];
-    }
 }

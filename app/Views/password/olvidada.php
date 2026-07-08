@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gastito - Recuperar contrase&ntilde;a</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?= base_url('assets/app.css') ?>" rel="stylesheet">
 </head>
 <body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
     <div class="container">
@@ -15,12 +16,7 @@
                         <h3 class="text-center mb-1">Gastito</h3>
                         <p class="text-center text-muted small mb-4">Recuperar contrase&ntilde;a</p>
 
-                        <?php if (session()->getFlashdata('error')): ?>
-                            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-                        <?php endif; ?>
-                        <?php if (session()->getFlashdata('success')): ?>
-                            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-                        <?php endif; ?>
+                        <?= view('partials/_feedback') ?>
                         <?php if (session()->getFlashdata('dev_reset_link')): ?>
                             <div class="alert alert-info small">
                                 <strong>Modo desarrollo:</strong>

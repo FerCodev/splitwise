@@ -566,12 +566,7 @@ $tablerItemCount = static function (array $section): int {
 ?>
 
 <div class="container catalog-page mt-3 mt-md-4 pb-4">
-    <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-    <?php endif; ?>
-    <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-    <?php endif; ?>
+    <?= view('partials/_feedback') ?>
 
     <div class="catalog-hero mb-2">
         <div>

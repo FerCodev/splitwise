@@ -26,7 +26,19 @@ class Gasto extends Model
 
     public function getGastosWithFilters(array $filters, int $perPage = 10): array
     {
-        $userId = session()->get('userId');
+        $this->applyFilteredListQuery($filters);
+        return $this->paginate($perPage);
+    }
+
+    public function getGastosForExport(array $filters): array
+    {
+        $this->applyFilteredListQuery($filters);
+        return $this->findAll();
+    }
+
+    private function applyFilteredListQuery(array $filters): void
+    {
+        $userId = (int) session()->get('userId');
 
         $this->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre,
                 (SELECT COUNT(*) FROM gasto_participantes WHERE gasto_id = gastos.id) as total_participantes')
@@ -62,10 +74,10 @@ class Gasto extends Model
         }
 
         $sort = $filters['sort'] ?? 'fecha';
-        $order = $filters['order'] ?? 'DESC';
+        $order = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
         $allowedSorts = ['fecha', 'monto', 'grupo_nombre'];
-        if (!in_array($sort, $allowedSorts)) {
+        if (!in_array($sort, $allowedSorts, true)) {
             $sort = 'fecha';
         }
 
@@ -74,8 +86,6 @@ class Gasto extends Model
         } else {
             $this->orderBy('gastos.' . $sort, $order);
         }
-
-        return $this->paginate($perPage);
     }
 
     public function getMontosPorCategoria(int $grupoId): array

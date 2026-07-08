@@ -4915,6 +4915,56 @@ body {
     font-weight: 700;
     line-height: 1;
 }
+.app-feedback {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    transition: opacity 180ms ease, transform 180ms ease, margin 180ms ease;
+}
+.app-feedback > :not(.app-feedback-timer) {
+    position: relative;
+    z-index: 2;
+}
+.app-feedback-timer {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(32, 107, 196, 0.08), rgba(32, 107, 196, 0.2));
+    border-left: 1px solid rgba(32, 107, 196, 0.28);
+    box-shadow: -18px 0 28px rgba(15, 23, 42, 0.32);
+    will-change: transform;
+    animation: app-feedback-countdown var(--feedback-duration, 6000ms) linear forwards;
+}
+.app-feedback:active .app-feedback-timer,
+.app-feedback:focus-within .app-feedback-timer {
+    animation-play-state: paused;
+}
+@media (hover: hover) {
+    .app-feedback:hover .app-feedback-timer {
+        animation-play-state: paused;
+    }
+}
+.app-feedback-exit {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+@keyframes app-feedback-countdown {
+    from { transform: translateX(0); }
+    to { transform: translateX(105%); }
+}
+.app-feedback-list {
+    margin: 4px 0 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+}
+@media (prefers-reduced-motion: reduce) {
+    .app-feedback {
+        transition: opacity 1ms linear;
+    }
+}
 .user-avatar-interactive { cursor: pointer; outline: none; }
 .user-avatar-interactive:hover { box-shadow: 0 0 0 3px rgba(37,99,235,.2); transform: scale(1.03); }
 .user-avatar-interactive:focus-visible { box-shadow: 0 0 0 3px rgba(37,99,235,.4); }

@@ -4,15 +4,7 @@
     <div class="container mt-3 mt-md-4">
         <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($grupo) ? 'Editar Grupo' : 'Nuevo Grupo' ?></h2>
 
-        <?php if (session()->getFlashdata('errors')): ?>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <?= view('partials/_validation_errors') ?>
         <?= view('partials/_feedback') ?>
 
         <?php if (!isset($grupo) || ($rol ?? '') === 'admin'): ?>
@@ -155,7 +147,7 @@
                             <select name="user_id" class="form-select" required <?= empty($usuariosDisponibles) ? 'disabled' : '' ?>>
                                 <option value=""><?= empty($usuariosDisponibles) ? 'No hay amigos disponibles' : 'Agregar amigo...' ?></option>
                                 <?php foreach ($usuariosDisponibles as $u): ?>
-                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (@<?= esc($u['username']) ?>)</option>
+                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?><?= !empty($u['username']) ? ' (@' . esc($u['username']) . ')' : '' ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -213,7 +205,7 @@
                                                 'avatarFilename' => $m['avatar_filename'] ?? null,
                                                 'avatarUpdatedAt' => $m['avatar_updated_at'] ?? null, 'size' => 36,
                                             ]) ?>
-                                            <span><?= esc($m['name']) ?> <small class="text-muted">@<?= esc($m['username']) ?></small></span>
+                                            <span><?= esc($m['name']) ?><?php if (!empty($m['username'])): ?> <small class="text-muted">@<?= esc($m['username']) ?></small><?php endif; ?></span>
                                         </div>
                                     </td>
                                     <td>

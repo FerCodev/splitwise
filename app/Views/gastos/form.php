@@ -5,15 +5,7 @@
         <h2 class="fw-bold mb-4 d-none d-md-block"><?= isset($gasto) ? 'Editar gastito' : 'Nuevo gastito' ?></h2>
 
     <?php $prefill = $prefill ?? []; ?>
-        <?php if (session()->getFlashdata('errors')): ?>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <?= view('partials/_validation_errors') ?>
 
         <div class="card border-0 shadow-sm">
             <div class="card-body">

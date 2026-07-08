@@ -24,7 +24,19 @@ class Pago extends Model
 
     public function getPagosWithFilters(array $filters, int $perPage = 10): array
     {
-        $userId = session()->get('userId');
+        $this->applyFilteredListQuery($filters);
+        return $this->paginate($perPage);
+    }
+
+    public function getPagosForExport(array $filters): array
+    {
+        $this->applyFilteredListQuery($filters);
+        return $this->findAll();
+    }
+
+    private function applyFilteredListQuery(array $filters): void
+    {
+        $userId = (int) session()->get('userId');
 
         $this->select('pagos.*, pagador.name as pagador_nombre, receptor.name as receptor_nombre, pagador.avatar_filename as pagador_avatar_filename, pagador.avatar_updated_at as pagador_avatar_updated_at, receptor.avatar_filename as receptor_avatar_filename, receptor.avatar_updated_at as receptor_avatar_updated_at, grupos.nombre as grupo_nombre')
             ->join('users as pagador', 'pagador.id = pagos.pagador_id')
@@ -62,10 +74,10 @@ class Pago extends Model
         }
 
         $sort = $filters['sort'] ?? 'fecha';
-        $order = $filters['order'] ?? 'DESC';
+        $order = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
 
         $allowedSorts = ['fecha', 'monto', 'grupo_nombre'];
-        if (!in_array($sort, $allowedSorts)) {
+        if (!in_array($sort, $allowedSorts, true)) {
             $sort = 'fecha';
         }
 
@@ -74,8 +86,6 @@ class Pago extends Model
         } else {
             $this->orderBy('pagos.' . $sort, $order);
         }
-
-        return $this->paginate($perPage);
     }
 
     public function getTotalPagadoByGrupo(int $grupoId): float

@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\SanitizesNotificationErrorCode;
 use CodeIgniter\Model;
 
 class NotificationOutbox extends Model
 {
+    use SanitizesNotificationErrorCode;
+
     protected $table = 'notification_outbox';
     protected $primaryKey = 'id';
     protected $allowedFields = ['notification_id', 'status', 'attempts', 'available_at', 'processed_at', 'last_error', 'deliveries_initialized_at'];
@@ -96,7 +99,7 @@ class NotificationOutbox extends Model
             'status' => $status,
             'available_at' => $availableAt,
             'processed_at' => null,
-            'last_error' => $this->sanitizeErrorCode($errorCode),
+            'last_error' => $this->sanitizeErrorCode($errorCode, 'delivery_initialization_failed'),
         ];
 
         if ($status === self::STATUS_FAILED) {
@@ -112,7 +115,7 @@ class NotificationOutbox extends Model
             'status' => self::STATUS_RETRY,
             'available_at' => $availableAt,
             'processed_at' => null,
-            'last_error' => $this->sanitizeErrorCode($errorCode),
+            'last_error' => $this->sanitizeErrorCode($errorCode, 'delivery_initialization_failed'),
         ]);
     }
 
@@ -121,7 +124,7 @@ class NotificationOutbox extends Model
         return $this->update($id, [
             'status' => self::STATUS_FAILED,
             'processed_at' => date('Y-m-d H:i:s'),
-            'last_error' => $this->sanitizeErrorCode($errorCode),
+            'last_error' => $this->sanitizeErrorCode($errorCode, 'delivery_initialization_failed'),
         ]);
     }
 
@@ -156,15 +159,6 @@ class NotificationOutbox extends Model
     {
         $job = $this->find($id);
         return $job && !empty($job['deliveries_initialized_at']);
-    }
-
-    private function sanitizeErrorCode(string $code): string
-    {
-        $code = trim($code);
-        if (!in_array($code, self::ALLOWED_ERROR_CODES, true)) {
-            return 'delivery_initialization_failed';
-        }
-        return $code;
     }
 
     public function createForNotification(int $notificationId, string $status = self::STATUS_PENDING): bool

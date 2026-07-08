@@ -7,13 +7,7 @@
             <a href="<?= base_url('categorias/nuevo') ?>" class="btn btn-primary">+ Nueva</a>
         </div>
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
-
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
 
         <div class="card border-0 shadow-sm d-none d-md-block">
             <div class="card-body p-0">

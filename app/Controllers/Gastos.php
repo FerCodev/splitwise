@@ -2,6 +2,10 @@
 
 namespace App\Controllers;
 
+use App\Controllers\Traits\BuildsListFilters;
+use App\Controllers\Traits\ExportResponses;
+use App\Controllers\Traits\GroupAccess;
+use App\Controllers\Traits\NormalizesAmountInput;
 use App\Models\Gasto;
 use App\Models\GastoDivision;
 use App\Models\Grupo;
@@ -15,6 +19,13 @@ use App\Services\UserColor;
 
 class Gastos extends BaseController
 {
+    use BuildsListFilters {
+        getFilters as getBaseFilters;
+    }
+    use ExportResponses;
+    use GroupAccess;
+    use NormalizesAmountInput;
+
     public function index()
     {
         $userId = (int) session()->get('userId');
@@ -119,19 +130,12 @@ class Gastos extends BaseController
         $gastos = $this->getGastosParaExportar($filters);
 
         $total = array_sum(array_map(static fn($gasto) => (float) $gasto['monto'], $gastos));
-        $html = view('gastos/pdf', [
+        $this->streamPdf('gastos/pdf', [
             'gastos' => $gastos,
             'filters' => $filters,
             'total' => $total,
             'fecha' => date('d/m/Y H:i'),
-        ]);
-
-        $dompdf = new \Dompdf\Dompdf();
-        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        $dompdf->stream('gastos_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);
-        exit;
+        ], 'gastos');
     }
 
     public function exportarExcel()
@@ -139,44 +143,20 @@ class Gastos extends BaseController
         $filters = $this->getFilters();
         $gastos = $this->getGastosParaExportar($filters);
         $total = array_sum(array_map(static fn($gasto) => (float) $gasto['monto'], $gastos));
-        $filename = 'gastos_' . date('Y-m-d') . '.xls';
 
-        $this->response->setHeader('Content-Type', 'application/vnd.ms-excel; charset=utf-8');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
-        $this->response->setHeader('Cache-Control', 'max-age=0');
-
-        echo view('gastos/excel', [
+        $this->streamExcel('gastos/excel', [
             'gastos' => $gastos,
             'total' => $total,
             'fecha' => date('d/m/Y H:i'),
-        ]);
-        exit;
+        ], 'gastos');
     }
 
     private function getFilters(): array
     {
-        $filters = [];
-
-        if ($this->request->getGet('grupo_id')) {
-            $filters['grupo_id'] = (int) $this->request->getGet('grupo_id');
-        }
-        if ($this->request->getGet('pagador_id')) {
-            $filters['pagador_id'] = (int) $this->request->getGet('pagador_id');
-        }
-        if ($this->request->getGet('fecha_desde')) {
-            $filters['fecha_desde'] = $this->request->getGet('fecha_desde');
-        }
-        if ($this->request->getGet('fecha_hasta')) {
-            $filters['fecha_hasta'] = $this->request->getGet('fecha_hasta');
-        }
-        if ($this->request->getGet('descripcion')) {
-            $filters['descripcion'] = $this->request->getGet('descripcion');
-        }
+        $filters = $this->getBaseFilters();
         if ($this->request->getGet('categoria_id')) {
             $filters['categoria_id'] = (int) $this->request->getGet('categoria_id');
         }
-        $filters['sort'] = $this->request->getGet('sort') ?: 'fecha';
-        $filters['order'] = $this->request->getGet('order') ?: 'DESC';
 
         return $filters;
     }
@@ -188,48 +168,7 @@ class Gastos extends BaseController
 
     private function getGastosParaExportar(array $filters): array
     {
-        $userId = session()->get('userId');
-        $db = db_connect();
-        $builder = $db->table('gastos')
-            ->select('gastos.*, categorias.nombre as categoria_nombre, users.name as pagador_nombre, grupos.nombre as grupo_nombre, (SELECT COUNT(*) FROM gasto_participantes WHERE gasto_id = gastos.id) as total_participantes')
-            ->join('users', 'users.id = gastos.pagador_id')
-            ->join('grupos', 'grupos.id = gastos.grupo_id')
-            ->join('categorias', 'categorias.id = gastos.categoria_id', 'left')
-            ->join('grupo_miembros', 'grupo_miembros.grupo_id = gastos.grupo_id AND grupo_miembros.user_id = ' . (int) $userId)
-            ->where('gastos.pagador_id', $userId)
-            ->groupBy('gastos.id');
-
-        if (!empty($filters['grupo_id'])) {
-            $builder->where('gastos.grupo_id', $filters['grupo_id']);
-        }
-        if (!empty($filters['pagador_id'])) {
-            $builder->where('gastos.pagador_id', $filters['pagador_id']);
-        }
-        if (!empty($filters['fecha_desde'])) {
-            $builder->where('gastos.fecha >=', $filters['fecha_desde']);
-        }
-        if (!empty($filters['fecha_hasta'])) {
-            $builder->where('gastos.fecha <=', $filters['fecha_hasta']);
-        }
-        if (!empty($filters['descripcion'])) {
-            $builder->like('gastos.descripcion', $filters['descripcion']);
-        }
-        if (!empty($filters['categoria_id'])) {
-            $builder->where('gastos.categoria_id', $filters['categoria_id']);
-        }
-
-        $sort = $filters['sort'] ?? 'fecha';
-        $order = strtoupper($filters['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
-        if (!in_array($sort, ['fecha', 'monto', 'grupo_nombre'], true)) {
-            $sort = 'fecha';
-        }
-        if ($sort === 'grupo_nombre') {
-            $builder->orderBy('grupos.nombre', $order);
-        } else {
-            $builder->orderBy('gastos.' . $sort, $order);
-        }
-
-        return $builder->get()->getResultArray();
+        return (new Gasto())->getGastosForExport($filters);
     }
 
     public function new()
@@ -276,39 +215,6 @@ class Gastos extends BaseController
             'categorias' => model(Categoria::class)->getActivas(),
             'prefill' => $prefill,
         ]);
-    }
-
-    private function normalizarMonto(): void
-    {
-        $raw = $this->request->getPost('monto');
-        $visual = $this->request->getPost('monto_visual');
-
-        // Si monto hidden viene vacio, usar monto_visual como fallback
-        $candidato = $raw;
-        $deVisual = false;
-        if ($candidato === null || $candidato === '') {
-            $candidato = $visual;
-            $deVisual = true;
-        }
-        if ($candidato === null || $candidato === '') {
-            return;
-        }
-
-        $limpio = $candidato;
-
-        // Si tiene coma, es formato argentino: 1.999,87 -> 1999.87
-        if (str_contains($limpio, ',')) {
-            $limpio = str_replace('.', '', $limpio);
-            $limpio = str_replace(',', '.', $limpio);
-        } elseif ($deVisual) {
-            // Viene de monto_visual sin coma: punto es separador de miles
-            $limpio = str_replace('.', '', $limpio);
-        }
-        // Si viene de monto hidden sin coma, ya esta normalizado o es invalido
-
-        if (is_numeric($limpio)) {
-            $this->request->setGlobal('post', array_merge($this->request->getPost() ?: [], ['monto' => $limpio]));
-        }
     }
 
     public function create()
@@ -818,26 +724,6 @@ class Gastos extends BaseController
         }
 
         return 'home';
-    }
-
-    private function verificarAccesoGrupo(int $grupoId): ?array
-    {
-        $grupoModel = new Grupo();
-        $grupo = $grupoModel->find($grupoId);
-
-        if (!$grupo) {
-            return null;
-        }
-
-        $userId = session()->get('userId');
-        if (!$grupoModel->isMiembro($grupoId, $userId)) {
-            return null;
-        }
-
-        return [
-            'grupo' => $grupo,
-            'rol' => $grupoModel->getUserRol($grupoId, $userId),
-        ];
     }
 
     private function procesarRecibo(): array|false

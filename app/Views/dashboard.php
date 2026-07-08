@@ -3,6 +3,8 @@
 
     <div class="container mt-3 mt-md-4">
 
+        <?= view('partials/_feedback') ?>
+
         <!-- ===== MOBILE (visible < 992px) ===== -->
         <div class="d-lg-none">
 

@@ -7,21 +7,8 @@
             <a href="<?= base_url('usuarios/nuevo') ?>" class="btn btn-primary d-none d-md-inline-flex">+ Nuevo</a>
         </div>
 
-        <?php if (session()->getFlashdata('success')): ?>
-            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('error')): ?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-        <?php endif; ?>
-        <?php if (session()->getFlashdata('errors')): ?>
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    <?php foreach (session()->getFlashdata('errors') as $error): ?>
-                        <li><?= $error ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
+        <?= view('partials/_feedback') ?>
+        <?= view('partials/_validation_errors') ?>
 
         <div class="card border-0 shadow-sm d-none d-md-block">
             <div class="card-body p-0 d-none d-md-block">

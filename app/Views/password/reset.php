@@ -16,9 +16,7 @@
                         <h3 class="text-center mb-1">Gastito</h3>
                         <p class="text-center text-muted small mb-4">Nueva contrase&ntilde;a</p>
 
-                        <?php if (session()->getFlashdata('error')): ?>
-                            <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
-                        <?php endif; ?>
+                        <?= view('partials/_feedback') ?>
 
                         <form action="<?= base_url('password/reset/' . $token) ?>" method="post">
                             <?= csrf_field() ?>

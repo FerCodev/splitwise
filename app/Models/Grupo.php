@@ -42,9 +42,8 @@ class Grupo extends Model
 
     public function getMiembros(int $grupoId): array
     {
-        $usernameField = $this->db->fieldExists('username', 'users') ? ', users.username' : '';
         return $this->db->table('grupo_miembros')
-            ->select('grupo_miembros.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at' . $usernameField)
+            ->select('grupo_miembros.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at' . $this->usernameSelectFragment())
             ->join('users', 'users.id = grupo_miembros.user_id')
             ->where('grupo_miembros.grupo_id', $grupoId)
             ->orderBy('grupo_miembros.created_at', 'ASC')
@@ -325,7 +324,7 @@ class Grupo extends Model
 
     public function getUsuariosDisponibles(int $grupoId, int $viewerId): array
     {
-        $sql = 'SELECT users.id, users.name, users.email, users.avatar_filename, users.avatar_updated_at
+        $sql = 'SELECT users.id, users.name, users.email, users.avatar_filename, users.avatar_updated_at' . $this->usernameSelectFragment(true) . '
                 FROM users
                 INNER JOIN friendships ON friendships.status = ? AND (
                     (friendships.user_low_id = ? AND friendships.user_high_id = users.id)
@@ -336,6 +335,15 @@ class Grupo extends Model
                 ) ORDER BY name ASC';
 
         return $this->db->query($sql, ['accepted', $viewerId, $viewerId, 'admin', $grupoId])->getResultArray();
+    }
+
+    private function usernameSelectFragment(bool $withEmptyAlias = false): string
+    {
+        if ($this->db->fieldExists('username', 'users')) {
+            return ', users.username';
+        }
+
+        return $withEmptyAlias ? ", '' AS username" : '';
     }
 
     // ---------------------------------------------------------------
