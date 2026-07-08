@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Friendship;
 use App\Models\User;
 use App\Services\NotificationService;
+use App\Services\Username;
 use RuntimeException;
 
 class Amigos extends BaseController
@@ -13,10 +14,13 @@ class Amigos extends BaseController
     {
         $userId = (int) session()->get('userId');
         $found = null;
-        $email = trim((string) $this->request->getGet('email'));
-        if ($email !== '') {
-            $found = (new User())->select('id, name, avatar_filename, avatar_updated_at, role')
-                ->where('email', $email)->where('id !=', $userId)->where('role !=', 'admin')->first();
+        $query = trim((string) $this->request->getGet('query'));
+        if ($query !== '') {
+            $users = (new User())->select('id, name, username, avatar_filename, avatar_updated_at, role')
+                ->where('id !=', $userId)->where('role !=', 'admin');
+            $found = str_contains($query, '@') && !str_starts_with($query, '@')
+                ? $users->where('email', strtolower($query))->first()
+                : $users->where('username', Username::normalize($query))->first();
             if ($found) {
                 $found['relationship'] = (new Friendship())->between($userId, (int) $found['id']);
                 session()->set('friendSearchPreviewId', (int) $found['id']);
@@ -25,7 +29,7 @@ class Amigos extends BaseController
             }
         }
         return view('amigos/index', array_merge((new Friendship())->dashboard($userId), [
-            'found' => $found, 'searched' => $email !== '', 'email' => $email,
+            'found' => $found, 'searched' => $query !== '', 'query' => $query,
         ]));
     }
 

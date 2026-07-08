@@ -33,6 +33,10 @@
                         <input type="email" class="form-control" id="email" name="email"
                                value="<?= esc(old('email', $user['email'] ?? '')) ?>" required>
                     </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-medium">Nombre de usuario</label>
+                        <div class="input-group"><span class="input-group-text">@</span><input type="text" class="form-control" id="username" name="username" value="<?= esc(old('username', $user['username'] ?? '')) ?>" required minlength="3" maxlength="30" pattern="[a-z0-9][a-z0-9._]{1,28}[a-z0-9]"></div>
+                    </div>
 
                     <div class="mb-3">
                         <label for="role" class="form-label fw-medium">Rol global</label>

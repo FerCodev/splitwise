@@ -33,6 +33,7 @@
                         <div class="fw-semibold">Email</div>
                         <div class="text-muted text-break"><?= esc($user['email']) ?></div>
                     </div>
+                    <div><div class="fw-semibold">Nombre de usuario</div><div class="text-muted text-break">@<?= esc($user['username']) ?></div></div>
                     <div>
                         <div class="fw-semibold">Rol</div>
                         <div class="text-muted"><?= $user['role'] === 'admin' ? 'Administrador' : 'Usuario' ?></div>

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Services\Username;
 
 class Usuarios extends BaseController
 {
@@ -25,6 +26,7 @@ class Usuarios extends BaseController
         $rules = [
             'name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|is_unique[users.email]',
+            'username' => 'required|min_length[3]|max_length[30]',
             'password' => 'required|min_length[8]',
             'role' => 'required|in_list[user,admin]',
         ];
@@ -34,6 +36,8 @@ class Usuarios extends BaseController
         }
 
         $userModel = new User();
+        $username = Username::normalize($this->request->getPost('username'));
+        if ($error = Username::error($username)) return redirect()->back()->withInput()->with('error', $error);
         $role = $this->request->getPost('role');
         if (!in_array($role, ['user', 'admin'], true)) {
             $role = 'user';
@@ -41,6 +45,8 @@ class Usuarios extends BaseController
         $userModel->insert([
             'name' => $this->request->getPost('name'),
             'email' => $this->request->getPost('email'),
+            'username' => $username,
+            'username_confirmed_at' => date('Y-m-d H:i:s'),
             'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
             'role' => $role,
         ]);
@@ -72,6 +78,7 @@ class Usuarios extends BaseController
         $rules = [
             'name' => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email|is_unique[users.email,id,' . $id . ']',
+            'username' => 'required|min_length[3]|max_length[30]',
             'role' => 'required|in_list[user,admin]',
         ];
 
@@ -80,6 +87,8 @@ class Usuarios extends BaseController
         }
 
         $newRole = $this->request->getPost('role');
+        $username = Username::normalize($this->request->getPost('username'));
+        if ($error = Username::error($username, $id)) return redirect()->back()->withInput()->with('error', $error);
         if (!in_array($newRole, ['user', 'admin'], true)) {
             $newRole = 'user';
         }
@@ -94,6 +103,7 @@ class Usuarios extends BaseController
         $data = [
             'name' => $this->request->getPost('name'),
             'email' => $this->request->getPost('email'),
+            'username' => $username,
             'role' => $newRole,
         ];
 
@@ -101,6 +111,7 @@ class Usuarios extends BaseController
 
         if ((int) $id === (int) session()->get('userId')) {
             session()->set('userRole', $newRole);
+            session()->set('userUsername', $username);
         }
 
         return redirect()->to('/usuarios')->with('success', 'Usuario actualizado correctamente.');

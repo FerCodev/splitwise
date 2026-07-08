@@ -155,7 +155,7 @@
                             <select name="user_id" class="form-select" required <?= empty($usuariosDisponibles) ? 'disabled' : '' ?>>
                                 <option value=""><?= empty($usuariosDisponibles) ? 'No hay amigos disponibles' : 'Agregar amigo...' ?></option>
                                 <?php foreach ($usuariosDisponibles as $u): ?>
-                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (<?= esc($u['email']) ?>)</option>
+                                    <option value="<?= $u['id'] ?>"><?= esc($u['name']) ?> (@<?= esc($u['username']) ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -213,7 +213,7 @@
                                                 'avatarFilename' => $m['avatar_filename'] ?? null,
                                                 'avatarUpdatedAt' => $m['avatar_updated_at'] ?? null, 'size' => 36,
                                             ]) ?>
-                                            <span><?= esc($m['name']) ?></span>
+                                            <span><?= esc($m['name']) ?> <small class="text-muted">@<?= esc($m['username']) ?></small></span>
                                         </div>
                                     </td>
                                     <td>

@@ -16,6 +16,8 @@ $routes->post('/invitaciones/registro/(:any)', 'Invitaciones::crearCuenta/$1');
 $routes->get('/perfil', 'Perfil::index', ['filter' => 'auth']);
 $routes->get('/perfil/editar', 'Perfil::editar', ['filter' => 'auth']);
 $routes->post('/perfil/editar', 'Perfil::actualizar', ['filter' => 'auth']);
+$routes->get('/perfil/confirmar-usuario', 'Perfil::confirmarUsuario', ['filter' => 'auth']);
+$routes->post('/perfil/confirmar-usuario', 'Perfil::guardarUsuario', ['filter' => 'auth']);
 $routes->get('/perfil/avatar', 'Perfil::avatarForm', ['filter' => 'auth']);
 $routes->post('/perfil/avatar', 'Perfil::avatarUpload', ['filter' => 'auth']);
 $routes->post('/perfil/avatar/eliminar', 'Perfil::avatarDelete', ['filter' => 'auth']);

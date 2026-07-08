@@ -32,6 +32,10 @@
                         <input type="email" class="form-control" id="email" name="email" value="<?= old('email', esc($user['email'])) ?>" required>
                     </div>
                     <div class="mb-3">
+                        <label for="username" class="form-label">Nombre de usuario</label>
+                        <div class="input-group"><span class="input-group-text">@</span><input type="text" class="form-control" id="username" name="username" value="<?= esc(old('username', $user['username'] ?? '')) ?>" required minlength="3" maxlength="30" pattern="[a-z0-9][a-z0-9._]{1,28}[a-z0-9]"></div>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label d-block">Color personal</label>
                         <p class="text-muted small mb-2">Eleg&iacute; el color que usaremos por defecto para tus movimientos en los grupos. Los dem&aacute;s pueden ver otro color para vos si lo configuran en su grupo.</p>
                         <div class="user-color-swatches" role="radiogroup" aria-label="Color personal">

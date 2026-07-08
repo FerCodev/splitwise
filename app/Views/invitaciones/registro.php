@@ -17,6 +17,7 @@
             <?= csrf_field() ?>
             <div class="mb-3"><label class="form-label">Email</label><input class="form-control" value="<?= esc($invitation['email']) ?>" disabled></div>
             <div class="mb-3"><label for="name" class="form-label">Tu nombre</label><input id="name" name="name" class="form-control" required minlength="2" maxlength="255" value="<?= esc(old('name')) ?>" autofocus></div>
+            <div class="mb-3"><label for="username" class="form-label">Nombre de usuario</label><div class="input-group"><span class="input-group-text">@</span><input id="username" name="username" class="form-control" required minlength="3" maxlength="30" pattern="[a-z0-9][a-z0-9._]{1,28}[a-z0-9]" value="<?= esc(old('username')) ?>"></div></div>
             <div class="mb-3"><label for="password" class="form-label">Contrase&ntilde;a</label><input id="password" name="password" type="password" class="form-control" required minlength="8" autocomplete="new-password"><div class="form-text">M&iacute;nimo 8 caracteres.</div></div>
             <div class="mb-3"><label for="password_confirm" class="form-label">Confirmar contrase&ntilde;a</label><input id="password_confirm" name="password_confirm" type="password" class="form-control" required minlength="8" autocomplete="new-password"></div>
             <button class="btn btn-primary w-100">Crear cuenta y entrar al grupo</button>

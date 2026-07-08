@@ -8,6 +8,7 @@
             <?= view('components/avatar', ['userId' => $user['id'], 'name' => $user['name'], 'avatarFilename' => $user['avatar_filename'] ?? null, 'avatarUpdatedAt' => $user['avatar_updated_at'] ?? null, 'size' => 144, 'interactive' => false]) ?>
         </button>
         <h2 class="mt-3 mb-1"><?= esc($user['name']) ?></h2>
+        <div class="text-muted mb-2">@<?= esc($user['username']) ?></div>
         <?php if ($isFriend): ?>
             <span class="badge bg-success mb-3">Amigo</span>
             <div class="visitor-profile-details text-start">

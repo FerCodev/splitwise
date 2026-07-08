@@ -9,6 +9,7 @@ use App\Services\AvatarPersistence;
 use App\Services\AvatarStorage;
 use App\Services\UiFeedbackResolver;
 use App\Services\UserColor;
+use App\Services\Username;
 use RuntimeException;
 use Throwable;
 
@@ -66,11 +67,36 @@ class Perfil extends BaseController
         ]);
     }
 
+    public function confirmarUsuario()
+    {
+        $user = $this->currentUser();
+        if (!$user) return redirect()->to('/logout');
+        if (!empty($user['username_confirmed_at'])) return redirect()->to('/perfil');
+        return view('perfil/confirmar_usuario', ['user' => $user]);
+    }
+
+    public function guardarUsuario()
+    {
+        $userId = (int) session()->get('userId');
+        $username = Username::normalize($this->request->getPost('username'));
+        if ($error = Username::error($username, $userId)) {
+            return redirect()->back()->withInput()->with('error', $error);
+        }
+        try {
+            (new User())->update($userId, ['username' => $username, 'username_confirmed_at' => date('Y-m-d H:i:s')]);
+        } catch (Throwable) {
+            return redirect()->back()->withInput()->with('error', 'Ese nombre de usuario ya est&aacute; en uso.');
+        }
+        session()->set(['userUsername' => $username, 'usernameConfirmed' => true]);
+        return redirect()->to('/dashboard')->with('success', 'Nombre de usuario confirmado.');
+    }
+
     public function actualizar()
     {
         $rules = [
             'name'  => 'required|min_length[2]|max_length[255]',
             'email' => 'required|valid_email',
+            'username' => 'required|min_length[3]|max_length[30]',
             'color' => 'permit_empty|max_length[32]',
         ];
 
@@ -82,6 +108,7 @@ class Perfil extends BaseController
         $userModel = new User();
         $name  = $this->request->getPost('name');
         $email = $this->request->getPost('email');
+        $username = Username::normalize($this->request->getPost('username'));
         $color = UserColor::sanitizeInput($this->request->getPost('color'));
 
         if ($color === null) {
@@ -93,13 +120,19 @@ class Perfil extends BaseController
             return redirect()->back()->withInput()->with('error', UiFeedbackResolver::message('profile.update.failed', ['reason' => 'El email ya est&aacute; en uso.'], 'Este email ya est&aacute; en uso por otro usuario.'));
         }
 
+        if ($error = Username::error($username, (int) $userId)) {
+            return redirect()->back()->withInput()->with('error', $error);
+        }
+
         $userModel->update($userId, [
             'name'  => $name,
             'email' => $email,
+            'username' => $username,
             'color' => $color,
         ]);
         session()->set('userName', $name);
         session()->set('userEmail', $email);
+        session()->set('userUsername', $username);
 
         return redirect()->to('/perfil')->with('success', UiFeedbackResolver::message('profile.update.completed', [], 'Perfil actualizado correctamente.'));
     }

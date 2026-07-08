@@ -30,6 +30,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Nombre</th>
+                                <th>Usuario</th>
                                 <th>Email</th>
                                 <th>Rol</th>
                                 <th>Creado</th>
@@ -40,6 +41,7 @@
                             <?php foreach ($users as $user): ?>
                                 <tr>
                                     <td class="fw-medium"><?= esc($user['name']) ?></td>
+                                    <td>@<?= esc($user['username']) ?></td>
                                     <td><?= esc($user['email']) ?></td>
                                     <td><?= $user['role'] === 'admin' ? '<span class="badge bg-warning text-dark">Admin</span>' : '<span class="badge bg-secondary">User</span>' ?></td>
                                     <td><?= date('d/m/Y', strtotime($user['created_at'])) ?></td>
@@ -68,6 +70,7 @@
                             ]) ?>
                             <div class="user-card-copy">
                                 <div class="user-card-name"><?= esc($user['name']) ?></div>
+                                <div class="text-muted small">@<?= esc($user['username']) ?></div>
                                 <div class="user-card-email"><?= esc($user['email']) ?></div>
                                 <div class="user-card-meta">
                                     <?= $user['role'] === 'admin' ? '<span class="badge bg-warning">Admin</span>' : '<span class="badge bg-secondary">User</span>' ?>

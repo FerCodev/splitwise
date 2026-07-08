@@ -18,10 +18,13 @@ class Auth extends BaseController
 
     public function doLogin()
     {
-        $email = $this->request->getPost('email');
+        $identifier = trim((string) $this->request->getPost('identifier'));
         $password = $this->request->getPost('password');
 
-        $user = model(User::class)->where('email', $email)->first();
+        $normalized = strtolower(ltrim($identifier, '@'));
+        $user = str_contains($identifier, '@') && !str_starts_with($identifier, '@')
+            ? model(User::class)->where('email', strtolower($identifier))->first()
+            : model(User::class)->where('username', $normalized)->first();
 
         if ($user && password_verify($password, $user['password'])) {
             session()->set([
@@ -29,6 +32,8 @@ class Auth extends BaseController
                 'userId'     => $user['id'],
                 'userName'   => $user['name'],
                 'userEmail'  => $user['email'],
+                'userUsername' => $user['username'] ?? null,
+                'usernameConfirmed' => !empty($user['username_confirmed_at']),
                 'avatarFilename' => $user['avatar_filename'] ?? null,
                 'avatarUpdatedAt' => $user['avatar_updated_at'] ?? null,
                 'userRole'   => $user['role'] ?? 'user',

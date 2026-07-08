@@ -20,8 +20,8 @@
                         <form action="<?= base_url('login') ?>" method="post">
                             <?= csrf_field() ?>
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email" required autofocus>
+                                <label for="identifier" class="form-label">Email o nombre de usuario</label>
+                                <input type="text" class="form-control" id="identifier" name="identifier" required autofocus autocomplete="username" placeholder="email@ejemplo.com o @usuario">
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Contraseña</label>

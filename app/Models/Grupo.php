@@ -42,8 +42,9 @@ class Grupo extends Model
 
     public function getMiembros(int $grupoId): array
     {
+        $usernameField = $this->db->fieldExists('username', 'users') ? ', users.username' : '';
         return $this->db->table('grupo_miembros')
-            ->select('grupo_miembros.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at')
+            ->select('grupo_miembros.*, users.name, users.email, users.avatar_filename, users.avatar_updated_at' . $usernameField)
             ->join('users', 'users.id = grupo_miembros.user_id')
             ->where('grupo_miembros.grupo_id', $grupoId)
             ->orderBy('grupo_miembros.created_at', 'ASC')

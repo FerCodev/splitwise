@@ -55,7 +55,7 @@ class Grupos extends BaseController
     public function new()
     {
         $userModel = new \App\Models\User();
-        $usuarios = $userModel->select('id, name, email, avatar_filename, avatar_updated_at')->where('id !=', session()->get('userId'))->where('role !=', 'admin')->orderBy('name', 'ASC')->findAll();
+        $usuarios = $userModel->select('id, name, username, email, avatar_filename, avatar_updated_at')->where('id !=', session()->get('userId'))->where('role !=', 'admin')->orderBy('name', 'ASC')->findAll();
 
         return view('grupos/form', ['usuarios' => $usuarios]);
     }

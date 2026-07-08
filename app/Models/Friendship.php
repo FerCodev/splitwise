@@ -78,7 +78,9 @@ class Friendship extends Model
 
     public function dashboard(int $userId): array
     {
-        $rows = $this->select('friendships.*, low.name low_name, low.avatar_filename low_avatar_filename, low.avatar_updated_at low_avatar_updated_at, high.name high_name, high.avatar_filename high_avatar_filename, high.avatar_updated_at high_avatar_updated_at')
+        $usernameFields = $this->db->fieldExists('username', 'users')
+            ? ', low.username low_username, high.username high_username' : '';
+        $rows = $this->select('friendships.*, low.name low_name, low.avatar_filename low_avatar_filename, low.avatar_updated_at low_avatar_updated_at, high.name high_name, high.avatar_filename high_avatar_filename, high.avatar_updated_at high_avatar_updated_at' . $usernameFields)
             ->join('users low', 'low.id = friendships.user_low_id')->join('users high', 'high.id = friendships.user_high_id')
             ->groupStart()->where('user_low_id', $userId)->orWhere('user_high_id', $userId)->groupEnd()
             ->orderBy('friendships.updated_at', 'DESC')->findAll();
@@ -87,6 +89,7 @@ class Friendship extends Model
             $otherLow = (int) $row['user_low_id'] !== $userId;
             $row['other_id'] = $otherLow ? $row['user_low_id'] : $row['user_high_id'];
             $row['other_name'] = $otherLow ? $row['low_name'] : $row['high_name'];
+            $row['other_username'] = $otherLow ? ($row['low_username'] ?? '') : ($row['high_username'] ?? '');
             $row['other_avatar_filename'] = $otherLow ? $row['low_avatar_filename'] : $row['high_avatar_filename'];
             $row['other_avatar_updated_at'] = $otherLow ? $row['low_avatar_updated_at'] : $row['high_avatar_updated_at'];
             if ($row['status'] === 'accepted') $result['friends'][] = $row;

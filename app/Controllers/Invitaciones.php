@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\GroupInvitation;
 use App\Models\GrupoMiembro;
 use App\Models\User;
+use App\Services\Username;
 
 class Invitaciones extends BaseController
 {
@@ -21,11 +22,14 @@ class Invitaciones extends BaseController
         if (session()->get('isLoggedIn')) return redirect()->to('/dashboard');
         $rules = [
             'name' => 'required|min_length[2]|max_length[255]',
+            'username' => 'required|min_length[3]|max_length[30]',
             'password' => 'required|min_length[8]|max_length[255]',
             'password_confirm' => 'required|matches[password]',
         ];
         if (!$this->validate($rules)) return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
 
+        $username = Username::normalize($this->request->getPost('username'));
+        if ($error = Username::error($username)) return redirect()->back()->withInput()->with('error', $error);
         $model = new GroupInvitation();
         $db = db_connect();
         $db->transBegin();
@@ -38,6 +42,7 @@ class Invitaciones extends BaseController
             $userId = (new User())->insert([
                 'name' => trim((string) $this->request->getPost('name')),
                 'email' => $invitation['email'],
+                'username' => $username, 'username_confirmed_at' => date('Y-m-d H:i:s'),
                 'password' => password_hash((string) $this->request->getPost('password'), PASSWORD_DEFAULT),
                 'role' => 'user', 'color' => 'auto',
             ]);
@@ -50,7 +55,7 @@ class Invitaciones extends BaseController
             }
             if (!$db->transCommit()) throw new \RuntimeException('No se pudo confirmar el registro.');
 
-            session()->set(['isLoggedIn' => true, 'userId' => $userId, 'userName' => trim((string) $this->request->getPost('name')), 'userEmail' => $invitation['email'], 'avatarFilename' => null, 'avatarUpdatedAt' => null, 'userRole' => 'user']);
+            session()->set(['isLoggedIn' => true, 'userId' => $userId, 'userName' => trim((string) $this->request->getPost('name')), 'userEmail' => $invitation['email'], 'userUsername' => $username, 'usernameConfirmed' => true, 'avatarFilename' => null, 'avatarUpdatedAt' => null, 'userRole' => 'user']);
             return redirect()->to('/grupos/' . $invitation['group_id'])->with('success', 'Cuenta creada. Ya sos miembro de ' . $invitation['group_name'] . '.');
         } catch (\Throwable $e) {
             $db->transRollback();

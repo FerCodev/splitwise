@@ -189,7 +189,7 @@
                             <select name="persona_id" class="form-select">
                                 <option value="">Todos</option>
                                 <?php foreach ($miembros as $miembro): ?>
-                                    <option value="<?= $miembro['user_id'] ?>" <?= ($movimientoFilters['persona_id'] ?? '') == $miembro['user_id'] ? 'selected' : '' ?>><?= esc($miembro['name']) ?></option>
+                                    <option value="<?= $miembro['user_id'] ?>" <?= ($movimientoFilters['persona_id'] ?? '') == $miembro['user_id'] ? 'selected' : '' ?>><?= esc($miembro['name']) ?> (@<?= esc($miembro['username']) ?>)</option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
