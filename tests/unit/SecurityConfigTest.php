@@ -1,6 +1,8 @@
 <?php
 
 use Config\Security;
+use Config\Cookie as CookieConfig;
+use Config\App as AppConfig;
 use Config\Session as SessionConfig;
 
 /**
@@ -42,5 +44,26 @@ final class SecurityConfigTest extends \CodeIgniter\Test\CIUnitTestCase
         $config = new SessionConfig();
 
         $this->assertSame(30 * DAY, $config->expiration);
+    }
+
+    public function testAuthenticatedSessionCookieIsScopedToApp(): void
+    {
+        $session = new SessionConfig();
+        $cookie = new CookieConfig();
+        $basePath = parse_url(config(AppConfig::class)->baseURL, PHP_URL_PATH);
+        $expectedPath = is_string($basePath) && $basePath !== '' && $basePath !== '/'
+            ? rtrim($basePath, '/') . '/'
+            : '/';
+
+        $this->assertSame('gastito_session', $session->cookieName);
+        $this->assertSame($expectedPath, $cookie->path);
+    }
+
+    public function testSessionRegenerationAvoidsMobileParallelRequestLogout(): void
+    {
+        $config = new SessionConfig();
+
+        $this->assertSame(DAY, $config->timeToUpdate);
+        $this->assertFalse($config->regenerateDestroy);
     }
 }
