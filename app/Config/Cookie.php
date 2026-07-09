@@ -2,6 +2,7 @@
 
 namespace Config;
 
+use Config\App as AppConfig;
 use CodeIgniter\Config\BaseConfig;
 use DateTimeInterface;
 
@@ -37,6 +38,16 @@ class Cookie extends BaseConfig
      * Typically will be a forward slash.
      */
     public string $path = '/';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $path = parse_url(config(AppConfig::class)->baseURL, PHP_URL_PATH);
+        if (is_string($path) && $path !== '' && $path !== '/') {
+            $this->path = rtrim($path, '/') . '/';
+        }
+    }
 
     /**
      * --------------------------------------------------------------------------
