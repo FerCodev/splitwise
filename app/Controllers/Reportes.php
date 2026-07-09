@@ -104,7 +104,7 @@ class Reportes extends BaseController
 
         $output = fopen('php://output', 'w');
         fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
-        fputcsv($output, ['Fecha', 'Grupo', 'Categoria', 'Descripcion', 'Pagador', 'Monto']);
+        fputcsv($output, ['Fecha', 'Grupo', 'Categoría', 'Descripción', 'Pagador', 'Monto']);
         foreach (ReportesService::formatearFilasCsv($rows) as $linea) {
             fputcsv($output, $linea);
         }
@@ -139,7 +139,7 @@ class Reportes extends BaseController
         ]);
 
         $dompdf = new \Dompdf\Dompdf();
-        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $dompdf->loadHtml($html, 'UTF-8');
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $dompdf->stream('reporte_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);

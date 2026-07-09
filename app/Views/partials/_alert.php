@@ -61,7 +61,7 @@ $variant = UiComponentResolver::variant(UiComponentResolver::SCREEN_SYSTEM_ALERT
 $variantClass = $current['classes'][$variant] ?? reset($current['classes']);
 $alertTitle = (string) ($title ?? $current['title']);
 $alertIcon = (string) ($icon ?? $current['icon']);
-$alertDuration = (int) ($duration ?? ($alertMessages ? 9000 : 6000));
+$alertDuration = (int) ($duration ?? ($alertType === 'error' ? 12000 : ($alertMessages ? 9000 : 6000)));
 ?>
 <div class="tabler-alert-card <?= esc($variantClass, 'attr') ?> app-feedback" role="<?= $alertType === 'error' ? 'alert' : 'status' ?>" data-alert-variant="<?= esc($variant, 'attr') ?>" style="--feedback-duration: <?= $alertDuration ?>ms">
     <span class="app-feedback-timer" aria-hidden="true"></span>

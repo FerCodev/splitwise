@@ -14,7 +14,7 @@ trait ExportResponses
         $html = view($view, $data);
 
         $dompdf = new \Dompdf\Dompdf();
-        $dompdf->loadHtml(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'));
+        $dompdf->loadHtml($html, 'UTF-8');
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
         $dompdf->stream($filenamePrefix . '_' . date('Y-m-d') . '.pdf', ['Attachment' => true]);
@@ -29,6 +29,7 @@ trait ExportResponses
         $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
         $this->response->setHeader('Cache-Control', 'max-age=0');
 
+        echo "\xEF\xBB\xBF";
         echo view($view, $data);
         exit;
     }

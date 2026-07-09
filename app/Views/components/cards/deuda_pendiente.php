@@ -9,6 +9,10 @@ $formId = $formId ?? ('deuda-' . $acreedorId);
 $fechaDefault = $fechaDefault ?? date('Y-m-d');
 $esCerrado = $grupoEstado === 'cerrado';
 $esLiquidado = $grupoEstado === 'liquidado';
+$montoNormalizado = number_format($monto, 2, '.', '');
+$montoVisual = numero_arg($monto);
+$montoVisualId = $formId . '-monto-visual';
+$montoRealId = $formId . '-monto-real';
 
 $ctaLabel = $esCerrado ? 'Saldar deuda' : 'Registrar pago';
 $ctaClass = $esCerrado ? 'btn-warning' : 'btn-success';
@@ -48,10 +52,36 @@ $contextoTexto = $esCerrado
             <input type="hidden" name="receptor_id" value="<?= $acreedorId ?>">
 
             <div class="mb-2">
-                <label class="form-label small mb-1">Monto (máx. <?= moneda($monto) ?>)</label>
-                <input type="number" step="0.01" min="0.01" max="<?= esc(number_format($monto, 2, '.', '')) ?>"
-                    name="monto" class="form-control"
-                    value="<?= esc(number_format($monto, 2, '.', '')) ?>" required>
+                <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                    <label class="form-label small mb-0" for="<?= esc($montoVisualId, 'attr') ?>">Monto (máx. <?= moneda($monto) ?>)</label>
+                    <button type="button"
+                        class="deuda-pendiente-total-btn"
+                        data-money-fill
+                        data-money-value="<?= esc($montoNormalizado, 'attr') ?>"
+                        data-money-target="<?= esc($montoVisualId, 'attr') ?>"
+                        data-money-hidden="<?= esc($montoRealId, 'attr') ?>">
+                        Pagar total
+                    </button>
+                </div>
+                <input type="text"
+                    id="<?= esc($montoVisualId, 'attr') ?>"
+                    name="monto_visual"
+                    class="form-control"
+                    value="<?= esc($montoVisual) ?>"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    data-money-input
+                    data-money-hidden="<?= esc($montoRealId, 'attr') ?>"
+                    data-money-max="<?= esc($montoNormalizado, 'attr') ?>"
+                    data-money-max-message="El monto no puede superar la deuda pendiente."
+                    required>
+                <div class="invalid-feedback deuda-pendiente-monto-feedback">
+                    El monto no puede superar la deuda pendiente.
+                </div>
+                <input type="hidden"
+                    id="<?= esc($montoRealId, 'attr') ?>"
+                    name="monto"
+                    value="<?= esc($montoNormalizado) ?>">
             </div>
             <div class="mb-2">
                 <label class="form-label small mb-1">Fecha</label>

@@ -28,22 +28,38 @@
         var confirmText = btn.getAttribute('data-confirm-btn') || 'Confirmar';
         var btnClass = btn.getAttribute('data-confirm-class') || 'btn-danger';
         var formId = btn.getAttribute('data-confirm-form');
+        var action = btn.getAttribute('data-confirm-action');
 
         document.getElementById('confirmModalTitle').textContent = title;
         document.getElementById('confirmModalMessage').textContent = msg;
         var confirmBtn = document.getElementById('confirmModalBtn');
         confirmBtn.textContent = confirmText;
         confirmBtn.className = 'btn ' + btnClass;
+        confirmBtn.disabled = false;
 
         confirmBtn.onclick = function() {
-            var form = document.getElementById(formId);
-            if (form) form.submit();
+            confirmBtn.disabled = true;
+            if (formId) {
+                var form = document.getElementById(formId);
+                if (form) {
+                    form.submit();
+                    return;
+                }
+            }
+            if (action) {
+                modal.dispatchEvent(new CustomEvent('gastito:confirm-action', {
+                    detail: { action: action, trigger: btn }
+                }));
+                var instance = bootstrap.Modal.getInstance(modal);
+                if (instance) instance.hide();
+            }
         };
     });
 
-    // Cleanup onclick when modal is hidden
     modal.addEventListener('hidden.bs.modal', function () {
-        document.getElementById('confirmModalBtn').onclick = null;
+        var confirmBtn = document.getElementById('confirmModalBtn');
+        confirmBtn.onclick = null;
+        confirmBtn.disabled = false;
     });
 })();
 </script>

@@ -930,7 +930,7 @@ $tablerItemCount = static function (array $section): int {
     }
 
     function showSaveError(message) {
-        window.alert(message || 'No se pudo guardar la marca.');
+        GastitoFeedback.show('error', message || 'No se pudo guardar la marca.');
     }
 
     function applyItemState(item) {

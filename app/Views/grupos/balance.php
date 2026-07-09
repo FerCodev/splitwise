@@ -3,6 +3,7 @@
 
     <div class="container mt-3 mt-md-4">
         <a href="<?= base_url('grupos/' . $grupo['id']) ?>" class="btn btn-secondary btn-sm mb-3 d-none d-lg-inline-flex">&larr; Volver al grupo</a>
+        <?= view('partials/_feedback') ?>
 
         <?php
             $miUserId = (int) session()->get('userId');
@@ -96,7 +97,8 @@
                                     <?php
                                         $estado = $b['saldo'] > 0 ? 'a-favor' : ($b['saldo'] < 0 ? 'debe' : 'saldado');
                                         $badgeClass = $b['saldo'] > 0 ? 'text-bg-success' : ($b['saldo'] < 0 ? 'text-bg-danger' : 'text-bg-secondary');
-                                        $badgeText = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? 'Debe' : 'Saldado');
+                                        $esUsuarioActual = (int) $b['user_id'] === $miUserId;
+                                        $badgeText = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? ($esUsuarioActual ? 'Debés' : 'Debe') : 'Saldado');
                                     ?>
                                     <tr>
                                         <td class="fw-medium">
@@ -128,7 +130,8 @@
                     <?php foreach ($balance as $b): ?>
                         <?php
                             $saldoClase = $b['saldo'] > 0 ? 'is-positive' : ($b['saldo'] < 0 ? 'is-negative' : 'is-settled');
-                            $saldoTexto = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? 'Debe' : 'Saldado');
+                            $esUsuarioActual = (int) $b['user_id'] === $miUserId;
+                            $saldoTexto = $b['saldo'] > 0 ? 'A favor' : ($b['saldo'] < 0 ? ($esUsuarioActual ? 'Debés' : 'Debe') : 'Saldado');
                             $collapseId = 'detalle-' . $b['user_id'];
                         ?>
                         <article class="balance-member-card <?= $saldoClase ?>">
@@ -143,7 +146,7 @@
                                 ]) ?>
                                     <div>
                                         <strong><?= esc($b['name']) ?></strong>
-                                        <?php if ((int) $b['user_id'] === $miUserId): ?><span>Vos</span><?php endif; ?>
+                                        <?php if ($esUsuarioActual): ?><span>Vos</span><?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="balance-member-result">
@@ -332,7 +335,7 @@
                     btn.textContent = textoOriginal;
                 }, 2000);
             } catch (e) {
-                alert('No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
+                GastitoFeedback.show('error', 'No se pudo copiar al portapapeles. Seleccioná y copiá manualmente.');
             }
             document.body.removeChild(textarea);
         }

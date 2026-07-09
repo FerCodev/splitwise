@@ -10,10 +10,13 @@ $confirmBtn = $confirmBtn ?? 'Eliminar';
 $confirmClass = $confirmClass ?? 'btn-danger';
 $extraAttrs = $extraAttrs ?? '';
 $hiddenFields = is_array($hiddenFields ?? null) ? $hiddenFields : [];
+$methodOverride = $methodOverride ?? 'DELETE';
 ?>
 <form action="<?= esc($action, 'attr') ?>" method="post" id="<?= esc($formId, 'attr') ?>">
     <?= csrf_field() ?>
-    <input type="hidden" name="_method" value="DELETE">
+    <?php if ($methodOverride): ?>
+        <input type="hidden" name="_method" value="<?= esc((string) $methodOverride, 'attr') ?>">
+    <?php endif; ?>
     <?php foreach ($hiddenFields as $fieldName => $fieldValue): ?>
         <input type="hidden" name="<?= esc((string) $fieldName, 'attr') ?>" value="<?= esc((string) $fieldValue, 'attr') ?>">
     <?php endforeach; ?>

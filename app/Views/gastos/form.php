@@ -55,10 +55,18 @@
                                 <label for="recibo" class="form-label fw-medium">Comprobante <small class="text-muted">(opcional, JPG/PNG/WebP/PDF, m&aacute;x 5MB)</small></label>
                                 <input type="file" class="form-control" id="recibo" name="recibo" accept=".jpg,.jpeg,.png,.webp,.pdf">
                                 <?php if (isset($gasto) && !empty($gasto['recibo_nombre'])): ?>
-                                    <div class="mt-1 small">
+                                    <div class="mt-1 small" id="recibo-actual">
                                         Archivo actual: <?= esc($gasto['recibo_nombre']) ?>
                                         <a href="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>" class="text-primary ms-2" target="_blank">Ver</a>
-                                        <button type="button" class="btn btn-sm btn-danger ms-2" onclick="if(confirm('Eliminar recibo?')){fetch('<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>',{method:'DELETE',headers:{'X-CSRF-TOKEN':'<?= csrf_hash() ?>'}}).then(()=>location.reload())}">Eliminar</button>
+                                        <button type="button" class="btn btn-sm btn-danger ms-2"
+                                            data-bs-toggle="modal" data-bs-target="#confirmModal"
+                                            data-confirm-title="Eliminar recibo"
+                                            data-confirm-msg="Se eliminará el comprobante adjunto a este gastito."
+                                            data-confirm-btn="Eliminar recibo"
+                                            data-confirm-class="btn-danger"
+                                            data-confirm-action="delete-receipt"
+                                            data-receipt-url="<?= base_url('gastos/' . $gasto['id'] . '/recibo') ?>"
+                                            data-csrf-token="<?= csrf_hash() ?>">Eliminar</button>
                                     </div>
                                 <?php endif; ?>
                             </div>
@@ -604,4 +612,44 @@
         </div>
     </div>
 </div>
+<script>
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        var modal = document.getElementById('confirmModal');
+        if (!modal) return;
+
+        modal.addEventListener('gastito:confirm-action', function(event) {
+            if (!event.detail || event.detail.action !== 'delete-receipt') return;
+
+            var trigger = event.detail.trigger;
+            fetch(trigger.getAttribute('data-receipt-url'), {
+                method: 'DELETE',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': trigger.getAttribute('data-csrf-token') || ''
+                }
+            }).then(function(response) {
+                return response.json().catch(function() {
+                    return { ok: response.ok, message: response.ok ? 'Recibo eliminado correctamente.' : 'No se pudo eliminar el recibo.' };
+                }).then(function(payload) {
+                    if (payload.csrf) {
+                        trigger.setAttribute('data-csrf-token', payload.csrf);
+                    }
+                    if (!response.ok || !payload.ok) {
+                        throw new Error(payload.message || 'No se pudo eliminar el recibo.');
+                    }
+                    var reciboActual = document.getElementById('recibo-actual');
+                    if (reciboActual) reciboActual.remove();
+                    GastitoFeedback.show('success', payload.message || 'Recibo eliminado correctamente.');
+                });
+            }).catch(function() {
+                GastitoFeedback.show('error', 'No se pudo eliminar el recibo. Intentá nuevamente.');
+            });
+        });
+    });
+})();
+</script>
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>

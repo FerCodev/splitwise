@@ -114,6 +114,45 @@ final class DeudaPendienteCardTest extends CIUnitTestCase
         $this->assertStringContainsString('value="119539.00"', $html);
     }
 
+    public function testMontoVisibleUsaFormatoArgentino(): void
+    {
+        $html = $this->render(['monto' => 119539]);
+
+        $this->assertStringContainsString('name="monto_visual"', $html);
+        $this->assertStringContainsString('value="119.539,00"', $html);
+        $this->assertStringContainsString('data-money-input', $html);
+        $this->assertStringContainsString('data-money-max="119539.00"', $html);
+    }
+
+    public function testPagarTotalRestauraElMontoCompleto(): void
+    {
+        $html = $this->render(['monto' => 119539]);
+
+        $this->assertStringContainsString('Pagar total', $html);
+        $this->assertStringContainsString('data-money-fill', $html);
+        $this->assertStringContainsString('data-money-value="119539.00"', $html);
+        $this->assertStringNotContainsString('deudaPendienteMoneyBound', $html);
+    }
+
+    public function testMontoNoPuedeSuperarLaDeudaPendiente(): void
+    {
+        $html = $this->render(['monto' => 119539]);
+
+        $this->assertStringContainsString('El monto no puede superar la deuda pendiente.', $html);
+        $this->assertStringContainsString('data-money-max="119539.00"', $html);
+        $this->assertStringContainsString('data-money-max-message="El monto no puede superar la deuda pendiente."', $html);
+    }
+
+    public function testBotonPagarTotalTieneEstiloPropio(): void
+    {
+        $html = $this->render(['monto' => 119539]);
+        $css = file_get_contents(ROOTPATH . 'public/assets/app.css');
+
+        $this->assertStringContainsString('class="deuda-pendiente-total-btn"', $html);
+        $this->assertStringContainsString('.deuda-pendiente-total-btn', $css);
+        $this->assertStringContainsString('border-radius: 999px', $css);
+    }
+
     public function testReceptorIdViaHiddenInput(): void
     {
         $html = $this->render(['acreedorId' => 5]);
@@ -142,5 +181,12 @@ final class DeudaPendienteCardTest extends CIUnitTestCase
     {
         $html = $this->render(['grupoEstado' => 'activo']);
         $this->assertStringContainsString('origen" value="grupo_balance_detalle"', $html);
+    }
+
+    public function testBalanceViewRenderizaFeedbackDePago(): void
+    {
+        $view = file_get_contents(APPPATH . 'Views/grupos/balance.php');
+
+        $this->assertStringContainsString("view('partials/_feedback')", $view);
     }
 }

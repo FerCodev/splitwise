@@ -352,7 +352,7 @@
                 window.location.replace(redirectUrl.toString());
             } catch (error) {
                 buttons.forEach(function (button) { button.disabled = false; });
-                alert('No se pudo guardar el color. Intentá nuevamente.');
+                GastitoFeedback.show('error', 'No se pudo guardar el color. Intentá nuevamente.');
             }
         });
     });

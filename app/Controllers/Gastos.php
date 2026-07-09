@@ -787,9 +787,23 @@ class Gastos extends BaseController
 
     public function deleteRecibo(int $id)
     {
+        $isAjax = $this->request->isAJAX();
+        $json = function (bool $ok, string $message, int $statusCode = 200) {
+            return $this->response
+                ->setStatusCode($statusCode)
+                ->setJSON([
+                    'ok' => $ok,
+                    'message' => $message,
+                    'csrf' => csrf_hash(),
+                ]);
+        };
+
         $gastoModel = new Gasto();
         $gasto = $gastoModel->find($id);
         if (!$gasto) {
+            if ($isAjax) {
+                return $json(false, UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'Gastito no encontrado.'], 'Gastito no encontrado.'), 404);
+            }
             return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'Gastito no encontrado.'], 'Gastito no encontrado.'));
         }
 
@@ -797,12 +811,18 @@ class Gastos extends BaseController
         $grupoModel = new Grupo();
         $grupo = $grupoModel->find($gasto['grupo_id']);
         if (!$grupo || !$grupoModel->isMiembro($gasto['grupo_id'], $userId)) {
+            if ($isAjax) {
+                return $json(false, UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'No tenés acceso a este gastito.'], 'No tenés acceso a este gastito.'), 403);
+            }
             return redirect()->to('/gastos')->with('error', UiFeedbackResolver::message('expenses.receipt.delete.failed', ['reason' => 'No tenés acceso a este gastito.'], 'No tenés acceso a este gastito.'));
         }
 
         $rol = $grupoModel->getUserRol($gasto['grupo_id'], $userId);
         $errorPermiso = \App\Services\GroupPermission::check($rol, $grupo['estado'], 'gasto_edit', $userId, (int) $gasto['pagador_id']);
         if ($errorPermiso) {
+            if ($isAjax) {
+                return $json(false, $errorPermiso, 403);
+            }
             return redirect()->to('/gastos')->with('error', $errorPermiso);
         }
 
@@ -820,7 +840,12 @@ class Gastos extends BaseController
             'recibo_size' => null,
         ]);
 
-        return redirect()->back()->with('success', UiFeedbackResolver::message('expenses.receipt.delete.completed', [], 'Recibo eliminado correctamente.'));
+        $message = UiFeedbackResolver::message('expenses.receipt.delete.completed', [], 'Recibo eliminado correctamente.');
+        if ($isAjax) {
+            return $json(true, $message);
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     private function validarDivision(string $divisionTipo, float $monto, array $participantesIds, array $divisionValores, array $miembrosIds): ?array

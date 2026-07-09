@@ -33,10 +33,18 @@
                 <div class="text-muted small mt-2">JPG, PNG o WebP. M&aacute;ximo 30 MB.</div>
             </form>
             <?php if (!empty($user['avatar_filename'])): ?>
-                <form action="<?= base_url('perfil/avatar/eliminar') ?>" method="post" class="mt-3" onsubmit="return confirm('Eliminar tu foto de perfil?')">
-                    <?= csrf_field() ?>
-                    <button type="submit" class="btn btn-outline-danger w-100">Eliminar foto</button>
-                </form>
+                <div class="mt-3">
+                    <?= view('components/forms/delete_form', [
+                        'action' => base_url('perfil/avatar/eliminar'),
+                        'formId' => 'eliminar-foto-perfil',
+                        'label' => 'Eliminar foto',
+                        'buttonClass' => 'btn btn-outline-danger w-100',
+                        'confirmTitle' => 'Eliminar foto de perfil',
+                        'confirmMsg' => 'Se eliminará tu foto actual. Podés subir una nueva cuando quieras.',
+                        'confirmBtn' => 'Eliminar foto',
+                        'methodOverride' => false,
+                    ]) ?>
+                </div>
             <?php endif; ?>
             <a href="<?= base_url('perfil') ?>" class="btn btn-link mt-2">Volver al perfil</a>
         </div>
@@ -88,7 +96,7 @@
         const file = input.files && input.files[0];
         if (!file) return;
         if (file.size > 30 * 1024 * 1024) {
-            alert('La imagen no puede superar 30 MB.');
+            GastitoFeedback.show('error', 'La imagen no puede superar 30 MB.');
             input.value = '';
             return;
         }
@@ -110,7 +118,7 @@
         selected.onerror = function () {
             URL.revokeObjectURL(objectUrl);
             input.value = '';
-            alert('No se pudo mostrar la imagen seleccionada.');
+            GastitoFeedback.show('error', 'No se pudo mostrar la imagen seleccionada.');
         };
         selected.src = objectUrl;
     });
@@ -163,4 +171,5 @@
     });
 })();
 </script>
+<?= view('partials/_confirm_modal') ?>
 <?= view('partials/_footer') ?>
