@@ -45,7 +45,9 @@
 
         <div class="d-md-none user-card-list">
             <?php foreach ($users as $user): ?>
-                <div class="card border-0 shadow-sm user-card">
+                <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>"
+                    class="card border-0 shadow-sm user-card user-card-link"
+                    aria-label="Editar usuario <?= esc($user['name'], 'attr') ?>">
                     <div class="card-body">
                         <div class="user-card-main">
                             <?= view('components/avatar', [
@@ -54,6 +56,7 @@
                                 'avatarFilename' => $user['avatar_filename'] ?? null,
                                 'avatarUpdatedAt' => $user['avatar_updated_at'] ?? null,
                                 'size' => 48,
+                                'interactive' => false,
                             ]) ?>
                             <div class="user-card-copy">
                                 <div class="user-card-name"><?= esc($user['name']) ?></div>
@@ -64,10 +67,9 @@
                                     <span>Creado <?= date('d/m/Y', strtotime($user['created_at'])) ?></span>
                                 </div>
                             </div>
-                            <a href="<?= base_url('usuarios/' . $user['id'] . '/editar') ?>" class="btn btn-primary btn-sm user-card-action">Editar</a>
                         </div>
                     </div>
-                </div>
+                </a>
             <?php endforeach; ?>
         </div>
 
